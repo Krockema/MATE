@@ -198,6 +198,12 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 
         private void TryToRemoveChildRefFromProduction()
         {
+            if (_fArticle.IsHeadDemand)
+            {
+                TryToFinish();
+                return;
+            }
+
             if (Agent.VirtualChildren.Count == 0 && _fArticle.IsProvided)
             {
                 Agent.Send(BasicInstruction.RemoveVirtualChild.Create(Agent.VirtualParent));

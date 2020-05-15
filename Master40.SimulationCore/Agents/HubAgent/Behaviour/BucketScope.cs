@@ -345,7 +345,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
                 var afterCount = ((FBucket)jobConfirmation.Job).Operations.Count;
 
-                Agent.DebugMessage($"Clearing finished for {jobConfirmation.Job.Name} with {afterCount} operations left and {removedCount} operations requeued, startet with {beforeCount}", CustomLogger.JOB, LogLevel.Warn);
+                Agent.DebugMessage($"Clearing finished for {jobConfirmation.Job.Name} with {afterCount} operations left and {removedCount} operations requeued, started with {beforeCount}", CustomLogger.JOB, LogLevel.Warn);
             }
             else
             {

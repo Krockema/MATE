@@ -327,7 +327,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
             if (_resourceSetupStates.Values.All(x => x.CurrentState == JobState.Finish))
             {
-                Agent.DebugMessage($"All setup resources finished setup for {_jobConfirmation.Job.Name}.", CustomLogger.JOB, LogLevel.Warn);
+                Agent.DebugMessage($"All setup resources received for {_jobConfirmation.Job.Name}.", CustomLogger.JOB, LogLevel.Warn);
 
                 foreach (var resource in _resourceSetupStates.Keys)
                 {
@@ -367,7 +367,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
             if (_resourceProcessingStates.Values.All(x => x.CurrentState == JobState.Ready))
             {
-                Agent.DebugMessage($"All finisih processing received for {_jobConfirmation.Job.Name}.", CustomLogger.JOB, LogLevel.Warn);
+                Agent.DebugMessage($"All finish processing received for {_currentOperation.Operation.Name} {_currentOperation.Key} of {_jobConfirmation.Job.Name}.", CustomLogger.JOB, LogLevel.Warn);
                 CreateOperationResults();
                 UpdateJobKpi();
                 DoWork();

@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Util.Internal;
+using Master40.Tools.ExtensionMethods;
 using static FBuckets;
 using static FOperations;
 using static FPostponeds;
@@ -267,12 +268,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 if (job.ScopeConfirmation.GetSetup() != null)
                 {
                     Agent.Send(instruction: Job.Instruction.RequestSetupStart.Create(message: Agent.Context.Self, target: job.JobAgentRef));
-                    Agent.DebugMessage(msg: $"Ask for setupStart {job.Job.Name} {job.Job.Key} at {Agent.Context.Self.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
+                    Agent.DebugMessage(msg: $"Asking for SetupStart {job.Job.Name} {job.Job.Key} at {Agent.Context.Self.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
                 }
                 else
                 {
                     Agent.Send(instruction: Job.Instruction.RequestProcessingStart.Create(message: Agent.Context.Self, target: job.JobAgentRef));
-                    Agent.DebugMessage(msg: $"Ask for Processing {job.Job.Name} {job.Job.Key} at {Agent.Context.Self.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
+                    Agent.DebugMessage(msg: $"Asking for Processing {job.Job.Name} {job.Job.Key} at {Agent.Context.Self.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
                 }
             }
         }
@@ -299,7 +300,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var setupDuration = _capabilityProviderManager.GetSetupDurationByCapability(_jobInProgress.Current.CapabilityProvider.ResourceCapabilityId);
             //Start setup 
             Agent.DebugMessage(msg:
-                $"Start with Setup for Job {_jobInProgress.Current.Job.Name}  Key: {_jobInProgress.Current.Job.Key} " +
+                $"Call start Setup for Job {_jobInProgress.Current.Job.Name}  Key: {_jobInProgress.Current.Job.Key} " +
                 $"Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}", CustomLogger.JOB, LogLevel.Warn);
             
             _capabilityProviderManager.Mount(_jobInProgress.Current.CapabilityProvider.Id);
@@ -310,7 +311,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal void FinishSetup() // only in case it is not required for processing.
         {
-            Agent.DebugMessage("Finished Setup, Resource is released to do next Task;");
+            Agent.DebugMessage($"Finished Setup for {_jobInProgress.Current.Job.Name}, Resource is released to do next Task;", CustomLogger.JOB, LogLevel.Warn);
             NextTask(); // should only start setup if operations are fine 
             UpdateProcessingItem();
         }
@@ -320,7 +321,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// </summary>
         internal void DoWork(FOperation operation)
         {
-            Agent.DebugMessage($"Call start of {operation.Operation.Name} {operation.Key} to process for {operation.Operation.RandomizedDuration}", CustomLogger.JOB, LogLevel.Warn);
+            Agent.DebugMessage($"Call start Work for {_jobInProgress.Current.Job.Name} {operation.Operation.Name} {operation.Key} to process for {operation.Operation.RandomizedDuration}", CustomLogger.JOB, LogLevel.Warn);
 
             _jobInProgress.Start();
 
@@ -341,7 +342,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal void FinishBucket()
         {
-            Agent.DebugMessage(msg: $"Bucket finished work with {_jobInProgress.Current.Job.Name} {_jobInProgress.Current.Job.Key} take next...", CustomLogger.JOB, LogLevel.Warn);
+            Agent.DebugMessage(msg: $"Call finished work with {_jobInProgress.Current.Job.Name} {_jobInProgress.Current.Job.Key} take next...", CustomLogger.JOB, LogLevel.Warn);
             NextTask();
             UpdateProcessingItem();
         }
@@ -355,14 +356,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         private void RequeueIfNecessary()
         {
             var next = _scopeQueue.FirstOrNull();
-            if (next != null)
+            if (next.IsNotNull())
             {
                 var isOverdue = next.ScopeConfirmation.GetScopeStart() < Agent.CurrentTime;
                 var isReady = ((FBucket)next.Job).HasSatisfiedJob;
 
-                if (isOverdue && !isReady || (_scopeQueue.HasQueueAbleJobs() && !isReady))
+                if ((isOverdue && !isReady) || (_scopeQueue.HasQueueAbleJobs() && !isReady))
                 {
-
                     Agent.DebugMessage("Requeue because all jobs are overdue", CustomLogger.JOB, LogLevel.Warn);
                     RequeueAllRemainingJobs();
                 }
