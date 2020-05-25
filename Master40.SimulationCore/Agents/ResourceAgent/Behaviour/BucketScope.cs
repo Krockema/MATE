@@ -1,7 +1,6 @@
 ﻿using Akka.Actor;
 using Master40.DB.DataModel;
 using Master40.DB.Nominal;
-using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.JobAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
@@ -11,9 +10,15 @@ using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
+using System.Threading;
 using Akka.Util.Internal;
 using Master40.Tools.ExtensionMethods;
+using Master40.Tools.Messages;
+using Newtonsoft.Json;
 using static FBuckets;
 using static FOperations;
 using static FPostponeds;
@@ -22,6 +27,7 @@ using static FResourceInformations;
 using static IConfirmations;
 using LogLevel = NLog.LogLevel;
 using static IJobs;
+using Directory = Master40.SimulationCore.Agents.DirectoryAgent.Directory;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -141,10 +147,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 Agent.DebugMessage($"{job.Key} with Priority {job.Job.Priority(Agent.CurrentTime)}", CustomLogger.PRIORITY, LogLevel.Warn);
             }
 
+            var busyUntil = _jobInProgress.IsSet ? _jobInProgress.ResourceIsBusyUntil : Agent.CurrentTime;
             var queuePositions = _scopeQueue.GetQueueAbleTime(requestProposal
                                                                 , currentTime: Agent.CurrentTime
                                                                 , cpm: _capabilityProviderManager
-                                                                , resourceBlockedUntil: _jobInProgress.ResourceIsBusyUntil
+                                                                , resourceBlockedUntil: busyUntil
                                                                 , Agent.Context.Self );
 
             //TODO Sets Postponed to calculated Duration of Bucket
@@ -193,6 +200,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         public override bool PostAdvance()
         {
+            if (Agent.CurrentTime == 2)
+            {
+                CreateGanttChartForRessource();
+            }
+
+
             if (_jobInProgress.IsSet 
                 && !_jobInProgress.IsWorking 
                 && _jobInProgress.Current.ScopeConfirmation.GetScopeStart() < Agent.CurrentTime)
@@ -203,9 +216,92 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             return true;
         }
 
+
+
+        private void CreateGanttChartForRessource()
+        {
+            List<GanttChartItem> ganttData = new List<GanttChartItem>();
+            if (_jobInProgress.IsSet)
+                ganttData.AddRange(CreateGanttProcessingQueueLog(new[] { _jobInProgress.Current }));
+            // add from scope
+            ganttData.AddRange(CreateGanttProcessingQueueLog(_scopeQueue.GetAllJobs().ToArray()));
+            CustomFileWriter.WriteToFile($"Logs//ResourceScheduleAt-{Agent.CurrentTime}.log",
+                JsonConvert.SerializeObject(ganttData).Replace("[", "").Replace("]", ","));
+        }
+        
+
+        private List<GanttChartItem> CreateGanttProcessingQueueLog(IConfirmation[] jobArray)
+        {
+            var ganttTransformation = new List<GanttChartItem>();
+            foreach (var bucket in jobArray)
+            {
+                long operationStart = 0;
+                if (bucket.ScopeConfirmation.GetSetup() != null)
+                {
+                    operationStart = bucket.ScopeConfirmation.GetSetup().Start;
+                    ganttTransformation.Add(new GanttChartItem
+                    {
+                        article = bucket.Job.Name,
+                        articleId = bucket.Key.ToString(),
+                        start = operationStart.ToString(),
+                        end = bucket.ScopeConfirmation.GetSetup()?.End.ToString(), // bucket.ScopeConfirmation.GetScopeEnd().ToString(),
+                        groupId = bucket.Key.ToString(),
+                        operation = "Setup for " + bucket.Job.Name,
+                        operationId = bucket.Key.ToString(),
+                        resource = Agent.Name, 
+                        priority = bucket.Job.Priority(Agent.CurrentTime).ToString()
+                    });
+                    operationStart = bucket.ScopeConfirmation.GetSetup().End;
+                }
+                else
+                {
+                    operationStart = bucket.ScopeConfirmation.GetScopeStart();
+                }
+
+                if (Agent.Name.Contains("Operator")) continue;
+
+                var ops = ((FBucket) bucket.Job).Operations.ToArray();
+                for (int j = 0; j < ops.Length; j++)
+                {
+                    var operation = ops[j];
+                    var operationEnd = operationStart + operation.Operation.Duration;
+                    ganttTransformation.Add(new GanttChartItem
+                    {
+                        article = operation.Bucket,
+                        articleId = operation.Key.ToString(),
+                        start = operationStart.ToString(),
+                        end = operationEnd.ToString(),
+                        groupId = bucket.Key.ToString(),
+                        operation = operation.Operation.Name,
+                        operationId = operation.Operation.Id.ToString(),
+                        resource = Agent.Name,
+                        priority = operation.Priority.Invoke(Agent.CurrentTime).ToString()
+                    });
+                    operationStart = operationEnd;
+
+                    if ((ops.Length - 1) == j)
+                    {
+                        ganttTransformation.Add(new GanttChartItem
+                        {
+                            article = bucket.Job.Name,
+                            articleId = bucket.Key.ToString(),
+                            start = operationStart.ToString(),
+                            end = bucket.ScopeConfirmation.GetScopeEnd().ToString(), // bucket.ScopeConfirmation.GetScopeEnd().ToString(),
+                            groupId = bucket.Key.ToString(),
+                            operation = "Empty Bucket Space from " + bucket.Job.Name,
+                            operationId = bucket.Key.ToString(),
+                            resource = Agent.Name,
+                            priority = bucket.Job.Priority(Agent.CurrentTime).ToString()
+                        });
+                    }
+                }
+            }
+
+            return ganttTransformation;
+        }
         #endregion
 
-#region Processing
+        #region Processing
 
         internal void UpdateProcessingItem()
         {
