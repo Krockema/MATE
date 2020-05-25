@@ -18,7 +18,7 @@ namespace Master40.SimulationCore.Helper
                 rwl.AcquireWriterLock(500);
                 try
                 {
-                    File.AppendAllTextAsync($"{System.Environment.CurrentDirectory}//{file}", text);
+                    File.AppendAllText($"{System.Environment.CurrentDirectory}//{file}", text);
                 }
                 finally
                 {
