@@ -1,12 +1,12 @@
 ﻿module FJobResourceConfirmations
 
-open FJobConfirmations
+open IConfirmations
 open Akka.Actor
 open FScopeConfirmations
 open System.Collections.Generic
 
     type public FJobResourceConfirmation = {
-        JobConfirmation : FJobConfirmation
+        JobConfirmation : IConfirmation
         ScopeConfirmations : Dictionary<IActorRef,FScopeConfirmation>
     }
 

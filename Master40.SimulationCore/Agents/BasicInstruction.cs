@@ -5,6 +5,7 @@ using Master40.SimulationCore.Agents.JobAgent;
 using Master40.SimulationCore.Types;
 using static FBreakDowns;
 using static FAgentInformations;
+using static IConfirmations;
 using static FArticles;
 using static FArticleProviders;
 using static IJobResults;
@@ -167,6 +168,18 @@ namespace Master40.SimulationCore.Agents
             {
             }
             public IJob GetObjectFromMessage => Message as IJob; 
+        }
+
+        public class FinalBucket : SimulationMessage
+        {
+            public static FinalBucket Create(IConfirmation job, IActorRef target)
+            {
+                return new FinalBucket(message: job, target: target);
+            }
+            private FinalBucket(IConfirmation message, IActorRef target) : base(message: message, target: target)
+            {
+            }
+            public IConfirmation GetObjectFromMessage { get => Message as IConfirmation; }
         }
 
         public class Break : SimulationMessage

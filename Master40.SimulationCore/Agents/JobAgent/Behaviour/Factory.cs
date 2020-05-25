@@ -1,12 +1,12 @@
 ﻿using Master40.DB.Nominal;
 using Master40.SimulationCore.Types;
-using static FJobConfirmations;
+using static IConfirmations;
 
 namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 {
     public static class Factory
     {
-        public static IBehaviour Get(SimulationType simType, FJobConfirmation jobConfirmation)
+        public static IBehaviour Get(SimulationType simType, IConfirmation jobConfirmation)
         {
             IBehaviour behaviour;
             switch (simType)
@@ -22,7 +22,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             return behaviour;
         }
 
-        private static IBehaviour Default(FJobConfirmation jobConfirmation)
+        private static IBehaviour Default(IConfirmation jobConfirmation)
         { 
 
             return new Default(jobConfirmation);

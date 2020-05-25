@@ -260,15 +260,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             return this.Count > 0 ? this.Values.First() : null;
         }
 
-        public bool CheckScope(IConfirmation confirmation, long time)
+        public bool CheckScope(IConfirmation confirmation, long time, long resourceIsBusyUntil)
         {
+            if (resourceIsBusyUntil > confirmation.ScopeConfirmation.GetScopeStart())
+                return false;
+            
             var priority = confirmation.Job.Priority(time);
             var allWithHigherPriority = this.Where(x => x.Value.Job.Priority(time) <= priority).ToList();
             var fitEnd = true;
             var fitStart = true;
 
             var pre = allWithHigherPriority.OrderByDescending(x => x.Key)
-                                                                    .FirstOrDefault(x => x.Key <= confirmation.ScopeConfirmation.GetScopeStart());
+                                           .FirstOrDefault(x => x.Key <= confirmation.ScopeConfirmation.GetScopeStart());
             var post = allWithHigherPriority.FirstOrDefault(x => x.Key > confirmation.ScopeConfirmation.GetScopeEnd());
 
             

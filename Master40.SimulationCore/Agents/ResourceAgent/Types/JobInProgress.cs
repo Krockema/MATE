@@ -31,6 +31,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             ResourceIsBusyUntil = duration;
             return true;
         }
+        public bool UpdateJobs(IConfirmation jobConfirmation, long duration)
+        {
+            Current = Current.UpdateJob(jobConfirmation.Job);
+            ResourceIsBusyUntil = duration;
+            return true;
+        }
+
 
         public void Reset()
         {

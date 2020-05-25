@@ -51,18 +51,6 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 { }
                 public FJobResourceConfirmation GetObjectFromMessage { get => Message as FJobResourceConfirmation; }
             }
-
-            public class FinalBucket : SimulationMessage
-            {
-                public static FinalBucket Create(FJobConfirmation job, IActorRef target)
-                {
-                    return new FinalBucket(message: job, target: target);
-                }
-                private FinalBucket(FJobConfirmation message, IActorRef target) : base(message: message, target: target)
-                {
-                }
-                public FJobConfirmation GetObjectFromMessage { get => Message as FJobConfirmation; }
-            }
             
             public class FinishProcessing : SimulationMessage
             {

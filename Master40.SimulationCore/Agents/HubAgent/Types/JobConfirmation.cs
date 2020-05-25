@@ -2,6 +2,7 @@
 using Master40.DB.DataModel;
 using static FBuckets;
 using static FJobConfirmations;
+using static IConfirmations;
 using static FScopeConfirmations;
 using static IJobs;
 
@@ -25,7 +26,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public bool IsFixPlanned => ((FBucket) Job).IsFixPlanned;
 
-        public FJobConfirmation ToImmutable()
+        public IConfirmation ToImmutable()
         {
             return new FJobConfirmation(Job, ScopeConfirmation, Job.Key, CapabilityProvider, JobAgentRef);
         }

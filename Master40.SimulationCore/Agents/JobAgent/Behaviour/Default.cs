@@ -15,13 +15,13 @@ using static FBucketResults;
 using static FBuckets;
 using static FCreateSimulationResourceSetups;
 using static FJobConfirmations;
+using static IConfirmations;
 using static FJobResourceConfirmations;
 using static FOperationResults;
 using static FOperations;
 using static FProcessingSlots;
 using static FSetupSlots;
 using static FUpdateSimulationJobs;
-using static FUpdateStartConditions;
 using static IConfirmations;
 using static IJobs;
 using Resource = Master40.SimulationCore.Agents.ResourceAgent.Resource;
@@ -40,7 +40,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         // Job: Send / Create Measurements
         // Job: - Dispose
 
-        internal Default(FJobConfirmation jobConfirmation, SimulationType simulationType = SimulationType.None)
+        internal Default(IConfirmation jobConfirmation, SimulationType simulationType = SimulationType.None)
             : base(childMaker: null, simulationType: simulationType)
         {
             _jobConfirmation = jobConfirmation;
@@ -74,7 +74,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 case BasicInstruction.FinishSetup msg: FinishSetup(msg.GetObjectFromMessage); break;
                 case Job.Instruction.FinishProcessing msg: FinishProcessing(msg.GetObjectFromMessage); break;
                 case Job.Instruction.BucketIsFixed msg: BucketIsFixed(); break;
-                case Job.Instruction.FinalBucket msg: FinalizedBucket(msg.GetObjectFromMessage); break;
+                case BasicInstruction.FinalBucket msg: FinalizedBucket(msg.GetObjectFromMessage); break;
                 case Job.Instruction.AcknowledgeRevoke msg: AcknowledgeRevoke(msg.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateJob msg: UpdateJob(msg.GetObjectFromMessage); break;
                 case Job.Instruction.TerminateJob msg: Terminate(); break;
@@ -404,10 +404,15 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             }
         }
 
-        private void FinalizedBucket(FJobConfirmation jobConfirmation)
+        private void FinalizedBucket(IConfirmation jobConfirmation)
         {
             Agent.DebugMessage($"Finalized {_jobConfirmation.Job.Name} received.", CustomLogger.JOB, LogLevel.Warn);
             _jobConfirmation = jobConfirmation;
+            //UpdateJob(jobConfirmation.Job);
+            foreach (var resourceRef in _resourceDistinctResourceStates.Keys)
+            {
+                Agent.Send(instruction: BasicInstruction.FinalBucket.Create(jobConfirmation, target: resourceRef));
+            }
             _finalOperations = new Queue<FOperation>(((FBucket)_jobConfirmation.Job).Operations.OrderByDescending(prio => prio.DueTime));
             _processingStart = Agent.CurrentTime;
             DoWork();

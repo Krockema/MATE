@@ -10,11 +10,7 @@ using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Threading;
 using Akka.Util.Internal;
 using Master40.Tools.ExtensionMethods;
 using Master40.Tools.Messages;
@@ -59,11 +55,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 case Resource.Instruction.Default.RequestProposal msg: RequestProposal(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.Default.AcceptedProposals msg: AcceptProposals(msg.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateJob msg: UpdateStartCondition(msg.GetObjectFromMessage); break;
-
                 case Resource.Instruction.Default.RevokeJob msg: RevokeJob(msg.GetObjectFromMessage); break;
-               
                 case Resource.Instruction.Default.DoWork msg: DoWork(msg.GetObjectFromMessage); break;
-
+                case BasicInstruction.FinalBucket msg: FinalizedBucket(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.BucketScope.FinishBucket msg: FinishBucket(); break;
                 case Resource.Instruction.BucketScope.FinishTask msg: FinishTask(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.Default.TryToWork msg: UpdateProcessingItem(); break;
@@ -177,7 +171,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                                $" | scopeLimit: {_scopeQueue.Limit} | scope workload : {_scopeQueue.Workload} | Capacity left {_scopeQueue.Limit - _scopeQueue.Workload} " +
                                $" {((FBucket)jobConfirmation.Job).MaxBucketSize} ", CustomLogger.PRIORITY, LogLevel.Warn);
             
-            var isQueueAble = _scopeQueue.CheckScope(jobConfirmation, Agent.CurrentTime);
+
+
+            var isQueueAble = _scopeQueue.CheckScope(jobConfirmation, Agent.CurrentTime, _jobInProgress.ResourceIsBusyUntil);
 
             // If is not queueable 
             if (!isQueueAble)
@@ -328,7 +324,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             var insideJob = _jobInProgress.IsSet ? $" | Job in Progress {_jobInProgress.Current.Job.Name} {_jobInProgress.Current.Job.Key} " +
                                                          $"at work {_jobInProgress.IsWorking}  " +
-                                                         $"scope start {_jobInProgress.Current.ScopeConfirmation.GetScopeStart()} " +
+                                                         //$"scope start {_jobInProgress.Current.ScopeConfirmation.GetScopeStart()} " +
                                                          $"prio {_jobInProgress.Current.Job.Priority(Agent.CurrentTime)} | " 
                                                        : $" | No job in Progress set |";
             var allPrios = "";
@@ -338,7 +334,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             if (_jobInProgress.IsSet)
             {
-                Agent.DebugMessage(msg: $"Invalid start conditions. To Start processing | " + insideJob + " | Remaining in Queue " + allPrios, CustomLogger.JOB, LogLevel.Warn);
+              Agent.DebugMessage(msg: $"Invalid start conditions. To Start processing | " + insideJob + " | Remaining in Queue " + allPrios, CustomLogger.JOB, LogLevel.Warn);
                 return;
             }
             var isQueueAble = (job != null) ? $" To Progress {job.Job.Name} {job.Job.Key} scope start {job.ScopeConfirmation.GetScopeStart()} prio {job.Job.Priority(Agent.CurrentTime)}" : " not satisfied";
@@ -364,7 +360,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                     _jobInProgress.Set(job, Agent.CurrentTime + setupDuration + job.Duration);
                 }
 
-
                 Agent.DebugMessage(msg: $"Job to place in processingQueue: {job.Job.Name} {job.Job.Key} with satisfied:" +
                                         $" {((FBucket)job.Job).HasSatisfiedJob} Try to start processing."
                                     , CustomLogger.JOB, LogLevel.Warn);
@@ -381,6 +376,15 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                     Agent.DebugMessage(msg: $"Asking for Processing {job.Job.Name} {job.Job.Key} at {Agent.Context.Self.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
                 }
 
+            }
+        }
+
+        private void FinalizedBucket(IConfirmation fJobConfirmation)
+        {
+            if (_jobInProgress.IsSet && _jobInProgress.Current.Key.Equals(fJobConfirmation.Key))
+            {
+                _jobInProgress.UpdateJobs(fJobConfirmation, Agent.CurrentTime + fJobConfirmation.Duration);
+                RequeueIfNecessary();
             }
         }
 
