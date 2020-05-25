@@ -167,15 +167,16 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             // TODO: Might be problematic due to inconsistent _fArticle != Storage._fArticle
             Agent.DebugMessage(msg: $"Request for {_fArticle.Quantity} {_fArticle.Article.Name} {_fArticle.Key} provided from {Agent.Sender.Path.Name} to {Agent.VirtualParent.Path.Name}");
 
-            _fArticle = _fArticle.SetProvided.UpdateFinishedAt(f: Agent.CurrentTime);
+            _fArticle = _fArticle.UpdateFinishedAt(f: Agent.CurrentTime);
 
             var providedArticles = fArticleProvider.Provider.Select(x => x.ProvidesArticleKey);
             foreach (var articlesInProduction in fArticlesToProvide)
             {
-                if (IsFalse(providedArticles.Contains(articlesInProduction.Value)))
+                if (IsFalse(providedArticles.Contains(articlesInProduction.Value)) // is not original provider
+                    && Agent.VirtualChildren.Contains(articlesInProduction.Key)) // and ist not already finished to produce
                 {
-                    Agent.Send(BasicInstruction.UpdateCustomerDueTimes
-                                .Create(fArticleProvider.CustomerDue, articlesInProduction.Key));
+                        Agent.Send(BasicInstruction.UpdateCustomerDueTimes
+                            .Create(fArticleProvider.CustomerDue, articlesInProduction.Key));
                 }
             }
 

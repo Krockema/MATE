@@ -115,6 +115,10 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             if (Agent.VirtualChildren.Count == 0 && _articleToProduce.IsProvided)
             {
                 Agent.Send(BasicInstruction.RemoveVirtualChild.Create(Agent.VirtualParent));
+                Agent.DebugMessage(
+                    msg: $"Removing child ref from parent {Agent.VirtualParent.Path.Name} for {_articleToProduce.Article.Name} " +
+                         $"(Key: {_articleToProduce.Key}, OrderId: {_articleToProduce.CustomerOrderId})"
+                    , CustomLogger.DISPOPRODRELATION, LogLevel.Debug);
             }
         }
         private void TryToFinish()
