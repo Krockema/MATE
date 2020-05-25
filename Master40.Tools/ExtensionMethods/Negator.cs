@@ -18,13 +18,9 @@ namespace Master40.Tools.ExtensionMethods
         {
             return IsFalse(negate.Equals(compareTo));
         }
-        public static bool IsNull<T>(this T obj)
-        {
-            return obj == null;
-        }
-        public static bool IsNotNull<T>(this T obj)
-        {
-            return obj != null;
-        }
+        public static bool IsNull<T>(this T obj) => obj == null;
+        
+        public static bool IsNotNull<T>(this T obj) => obj != null;
+        
     }
 }

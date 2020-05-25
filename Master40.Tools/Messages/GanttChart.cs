@@ -24,5 +24,7 @@ namespace Master40.Tools.Messages
         /// </summary>
         public string groupId { get; set; } 
         public string priority { get; set; }
+        public string IsProcessing { get; set; }
+        public string IsReady { get; set; }
     }
 }

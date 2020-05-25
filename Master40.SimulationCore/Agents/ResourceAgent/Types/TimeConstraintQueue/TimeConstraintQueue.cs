@@ -168,7 +168,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             var enumerator = allWithHigherPriority.GetEnumerator();
             var isQueueAble = false;
             var isRequiringSetup = true;
-            var earliestStart = currentTime + resourceBlockedUntil;
+            var earliestStart = resourceBlockedUntil < currentTime ? currentTime : resourceBlockedUntil;
             if (!enumerator.MoveNext())
             {
                 isQueueAble = true;
@@ -220,7 +220,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                     earliestStart = !preIsReady && jobToPutIsReady 
                                     && currentJobPriority >= jobPriority
                                     ? earliestStart : current.Value.ScopeConfirmation.GetScopeEnd();
-                    isQueueAble = currentTime + Limit > earliestStart + ((FBucket)job).MaxBucketSize || ((FBucket)job).HasSatisfiedJob;
+                    isQueueAble = (currentTime + Limit) > (earliestStart + ((FBucket)job).MaxBucketSize) || ((FBucket)job).HasSatisfiedJob;
                 }
             }
 
@@ -305,16 +305,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
         {
             if (this.Count <= 1) return false;
 
-            var array = this.ToArray();
+            var array = this.ToArray();                       //  21 > 200 --> false
             var inTime = array[0].Value.ScopeConfirmation.GetScopeStart() > currentTime;
             if (inTime) return false;
 
             var priorityOfFirstElement = array[0].Value.Job.Priority(currentTime);
             for (var i = 1; i < array.Length; i++)
             {
-                var satisfied = array[i].Value.Job.StartConditions.Satisfied;
+                var satisfied = ((FBucket)array[i].Value.Job).HasSatisfiedJob;
                 var priority = array[i].Value.Job.Priority(currentTime);
-                if (satisfied && priority >= priorityOfFirstElement)
+                if (satisfied && priority <= priorityOfFirstElement)
                 {
                     return true;
                 }

@@ -11,13 +11,12 @@ open System
         { Job : IJob
           ScopeConfirmation : FScopeConfirmation
           Key : Guid
-          Duration : int64
           CapabilityProvider : M_ResourceCapabilityProvider
           JobAgentRef : IActorRef
         } interface IConfirmation with
                 member this.Key  with get() = this.Key
                 member this.Job with get() = this.Job  
-                member this.Duration with get() = this.Duration
+                member this.Duration with get() = this.Job.Duration
                 member this.ScopeConfirmation with get() = this.ScopeConfirmation
                 member this.JobAgentRef with get() = this.JobAgentRef
                 member this.CapabilityProvider with get() = this.CapabilityProvider

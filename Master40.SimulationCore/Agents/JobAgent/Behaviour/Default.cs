@@ -279,12 +279,15 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             }
 
             var resourcesDistinct = _resourceProcessingStates.Select(x => x.Key)
-                                                                               .Union(_resourceSetupStates.Select(s => s.Key)).Distinct();
+                                                             .Union(_resourceSetupStates.Select(s => s.Key))
+                                                             .Distinct();
 
             foreach (var resource in resourcesDistinct)
             {
                 _resourceDistinctResourceStates.Add(resource, new StateHandle(JobState.Created));
-                Agent.DebugMessage($"AcknowledgeJob: Change _resourceDistinctResourceStates for {resource.Path.Name} to {_resourceDistinctResourceStates.Single(x => x.Key.Equals(resource)).Value.CurrentState.ToString()}", CustomLogger.JOBSTATE, LogLevel.Warn);
+                Agent.DebugMessage($"AcknowledgeJob: Change _resourceDistinctResourceStates for {resource.Path.Name} " +
+                                   $"to {_resourceDistinctResourceStates.Single(x => x.Key.Equals(resource)).Value.CurrentState.ToString()}"
+                                    , CustomLogger.JOBSTATE, LogLevel.Warn);
             }
         }
 

@@ -23,12 +23,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             IsWorking = true;
         }
-        public bool Set(IConfirmation jobConfirmation)
+        public bool Set(IConfirmation jobConfirmation, long duration)
         {
             if (IsSet)
                 return false;
             Current = jobConfirmation;
-            ResourceIsBusyUntil = jobConfirmation.Duration;
+            ResourceIsBusyUntil = duration;
             return true;
         }
 
