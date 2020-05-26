@@ -29,40 +29,36 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             return _capabilityInUse.ResourceCapabilityProvider?.ResourceCapability;
         }
 
+        public int GetCurrentUsedCapabilityId()
+        {
+            if (_capabilityInUse.ResourceCapabilityProvider == null) return 0;
+            return ((int)_capabilityInUse.ResourceCapabilityProvider?.ResourceCapability.Id);
+        }
+
         /// <summary>
         /// Input: Capability
         /// </summary>
-        /// <param name="capabilityId"></param>
+        /// <param name="resourceCapabilityId"></param>
         /// <returns></returns>
-        internal bool AlreadyEquipped(int capabilityId)
+        internal bool AlreadyEquipped(int resourceCapabilityId)
         {
             if(_capabilityInUse.ResourceCapabilityProvider == null)
                 return false;
-            return _capabilityInUse.ResourceCapabilityProvider.ResourceCapabilityId == capabilityId;
+            return _capabilityInUse.ResourceCapabilityProvider.ResourceCapabilityId == resourceCapabilityId;
         }
 
-        internal M_ResourceCapabilityProvider GetCapabilityProviderByCapability(int capabilityId)
+        internal M_ResourceCapabilityProvider GetCapabilityProviderByCapability(int resourceCapabilityId)
         {
             //TODO Take care if 1 Capability can be done by multiply tools
-            var resourceCapabilityProvider = _resourceCapabilityProviders.First(x => x.ResourceCapability.Id == capabilityId);
+            var resourceCapabilityProvider = _resourceCapabilityProviders.First(x => x.ResourceCapability.Id == resourceCapabilityId);
             return resourceCapabilityProvider;
         }
 
-        internal long GetSetupDurationByCapability(int resourceCapabilityId)
+        internal long GetSetupDurationBy(int resourceCapabilityId)
         {
             //TODO Take care if 1 Capability can be done by multiply tools
-
             var setupTime = _resourceCapabilityProviders.First(x => x.ResourceCapabilityId == resourceCapabilityId)
-                                                            .ResourceSetups.Sum(x => x.SetupTime);
-            return setupTime;
-        }
-
-        internal long GetSetupDurationByCapabilityProvider(int resourceCapabilityId)
-        {
-            //TODO Take care if 1 Capability can be done by multiply tools
-
-            var setupTime = _resourceCapabilityProviders.Single(x => x.ResourceCapabilityId == resourceCapabilityId)
-                .ResourceSetups.Sum(x => x.SetupTime);
+                                                        .ResourceSetups.Sum(x => x.SetupTime);
             return setupTime;
         }
 

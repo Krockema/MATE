@@ -26,5 +26,7 @@ namespace Master40.Tools.Messages
         public string priority { get; set; }
         public string IsProcessing { get; set; }
         public string IsReady { get; set; }
+        public string IsFinalized { get; set; }
+        public string IsWorking { get; set; }
     }
 }

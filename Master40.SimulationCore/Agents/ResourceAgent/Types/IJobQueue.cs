@@ -32,7 +32,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         IConfirmation FirstOrNull();
         bool RemoveJob(IConfirmation job);
         long Workload { get; }
-        bool CheckScope(IConfirmation fJobConfirmation, long time, long resourceIsBusyUntil);
+        bool CheckScope(IConfirmation fJobConfirmation, long time, long resourceIsBusyUntil, int equippedCapability);
         HashSet<IConfirmation> GetAllSubsequentJobs(long getScopeStart);
         HashSet<IConfirmation> GetAllJobs();
         bool UpdateBucket(IJob job);
