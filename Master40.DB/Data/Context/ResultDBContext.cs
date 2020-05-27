@@ -21,8 +21,8 @@ namespace Master40.DB.Data.Context
         public DbSet<SimulationConfiguration> SimulationConfigurations { get; set; }
         public DbSet<ConfigurationItem> ConfigurationItems { get; set; }
         public DbSet<ConfigurationRelation> ConfigurationRelations { get; set; }
-        public DbSet<SimulationResourceJob> SimulationJobs { get; set; }
-        public DbSet<SimulationResourceSetup> SimulationResourceSetups { get; set; }
+        public DbSet<Job> SimulationJobs { get; set; }
+        public DbSet<Setup> SimulationResourceSetups { get; set; }
         public DbSet<SimulationOrder> SimulationOrders { get; set; }
         public DbSet<Kpi> Kpis { get; set; }
         public DbSet<StockExchange> StockExchanges { get; set; }

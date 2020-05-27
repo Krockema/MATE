@@ -8,6 +8,7 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Data.HashFunction.xxHash;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -372,7 +373,6 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             {
                 Agent.DebugMessage($"All finish processing received for {_currentOperation.Operation.Name} {_currentOperation.Key} of {_jobConfirmation.Job.Name}.", CustomLogger.JOB, LogLevel.Warn);
                 CreateOperationResults();
-                UpdateJobKpi();
                 DoWork();
             }
 
@@ -432,7 +432,6 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 {
                     Agent.Send(Resource.Instruction.BucketScope.FinishBucket.Create(x.Key));
                     x.Value.CurrentState = JobState.Finish;
-                    Agent.DebugMessage($"DoWork: Change _resourceProcessingStates for {x.Key.Path.Name} to {x.Value.CurrentState.ToString()}", CustomLogger.JOBSTATE, LogLevel.Warn);
 
                 });
                 Terminate();
@@ -441,21 +440,19 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
             _currentOperation = _finalOperations.Dequeue();
 
-            Agent.DebugMessage($"Start working with {_currentOperation.Operation.Name} {_currentOperation.Key} in {_jobConfirmation.Job.Name} with {_finalOperations.Count} operations left", CustomLogger.JOB, LogLevel.Warn);
+            UpdateJobKpi();
 
-            Agent.DebugMessage(msg: $"Start withdraw for article {_currentOperation.Operation.Name} {_currentOperation.Key}");
             Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: _currentOperation.Key, target: _currentOperation.ProductionAgent));
 
-            Agent.DebugMessage(msg: $"Starting Job {_currentOperation.Operation.Name}  Key: {_currentOperation.Key} new Duration is {_currentOperation.Operation.RandomizedDuration} " +
+            Agent.DebugMessage(msg: $"Starting Job {_currentOperation.Operation.Name}  Key: {_currentOperation.Key} new duration is {_currentOperation.Operation.RandomizedDuration} " +
                                     $"from bucket {_jobConfirmation.Job.Name} {_jobConfirmation.Job.Key} with {((FBucket)_jobConfirmation.Job).Operations.Count} operations " +
-                                    $"at resource {Agent.Context.Self.Path.Name}");
+                                    $"at resource {Agent.Context.Self.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
 
             _resourceProcessingStates.ForEach(x =>
             {
                 Agent.Send(Resource.Instruction.Default.DoWork.Create( message: _currentOperation
                                                                                 , target: x.Key));
                 x.Value.CurrentState = JobState.InProcess;
-                Agent.DebugMessage($"DoWork: Change _resourceProcessingStates for {x.Key.Path.Name} to {x.Value.CurrentState}", CustomLogger.JOBSTATE, LogLevel.Warn);
 
             });
         }
@@ -481,7 +478,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                                     setupId: _jobConfirmation.Job.RequiredCapability.Id);
 
             //TODO NO tracking
-            //Agent.Context.System.EventStream.Publish(@event: pubSetup);
+            Agent.Context.System.EventStream.Publish(@event: pubSetup);
         }
 
 
@@ -492,11 +489,11 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 , jobType: JobType.OPERATION
                 , duration: _currentOperation.Operation.RandomizedDuration
                 , start: Agent.CurrentTime
-                , resource: _jobConfirmation.CapabilityProvider.Name
+                , capabilityProvider: _jobConfirmation.CapabilityProvider.Name
                 , bucket: _jobConfirmation.Job.Name
                 , setupId: _jobConfirmation.CapabilityProvider.Id);
             //TODO NO tracking
-            //Agent.Context.System.EventStream.Publish(@event: pub);
+            Agent.Context.System.EventStream.Publish(@event: pub);
 
         }
 
@@ -512,7 +509,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 , capabilityProvider: _jobConfirmation.CapabilityProvider.Name);
 
             //TODO NO tracking
-            //Agent.Context.System.EventStream.Publish(@event: pub);
+            Agent.Context.System.EventStream.Publish(@event: pub);
         }
 
 

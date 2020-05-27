@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Query;
 
 namespace Master40.DB.ReportingModel
 {
-    public class SimulationResourceJob : ResultBaseEntity, ISimulationResourceData
+    public class Job : ResultBaseEntity, ISimulationResourceData
     {
         public int SimulationConfigurationId { get; set; }
         public SimulationType SimulationType { get; set; }
@@ -17,7 +17,7 @@ namespace Master40.DB.ReportingModel
         public long ExpectedDuration { get; set; }
         public long Start { get; set; }
         public long End { get; set; }
-        public string Resource { get; set; }
+        public string CapabilityProvider { get; set; }
         public string CapabilityName { get; set; }
         public string JobId { get; set; }
         public string ProductionOrderId { get; set; }

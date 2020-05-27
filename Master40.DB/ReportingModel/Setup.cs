@@ -3,7 +3,7 @@ using Master40.DB.ReportingModel.Interface;
 
 namespace Master40.DB.ReportingModel
 {
-    public class SimulationResourceSetup : ResultBaseEntity, ISimulationResourceData
+    public class Setup : ResultBaseEntity, ISimulationResourceData
     {
         public int SimulationConfigurationId { get; set; }
         public SimulationType SimulationType { get; set; }
@@ -12,7 +12,7 @@ namespace Master40.DB.ReportingModel
         public long ExpectedDuration { get; set; }
         public long Start { get; set; }
         public long End { get; set; }
-        public string Resource { get; set; }
+        public string CapabilityProvider { get; set; }
         public string CapabilityName { get; set; }
         public int SetupId { get; set; }
     }

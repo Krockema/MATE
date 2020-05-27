@@ -125,7 +125,7 @@ namespace Master40.ViewComponents
                                                                         && x.SimulationType == _simulationType
                                                                         && x.SimulationNumber == _simulationNumber
                                                                         && x.SimulationConfigurationId == _simulationConfigurationId)
-                                                            .OrderBy(keySelector: x => x.Resource).ThenBy(keySelector: x => x.ProductionOrderId).ThenBy(keySelector: x => x.Start);
+                                                            .OrderBy(keySelector: x => x.CapabilityProvider).ThenBy(keySelector: x => x.ProductionOrderId).ThenBy(keySelector: x => x.Start);
 
 
                 foreach (var pow in pows)
@@ -220,7 +220,7 @@ namespace Master40.ViewComponents
         /// Returns or creates corrosponding GanttTask Item with Property  type = "Project" and Returns it.
         /// -- Headline for one Project
         /// </summary>
-        private GanttTask GetOrCreateTimeline(SimulationResourceJob pow, int orderId = 0)
+        private GanttTask GetOrCreateTimeline(Job pow, int orderId = 0)
         {
             IEnumerable<GanttTask> project;
             // get Timeline
@@ -228,7 +228,7 @@ namespace Master40.ViewComponents
             {
                 case 3: // Machine Based
                     project = _ganttContext.Tasks
-                        .Where(predicate: x => x.type == GanttType.project && x.id == "M_" + pow.Resource);
+                        .Where(predicate: x => x.type == GanttType.project && x.id == "M_" + pow.CapabilityProvider);
                     if (project.Any())
                     {
                         return project.First();
@@ -237,7 +237,7 @@ namespace Master40.ViewComponents
                     {
                         var gc = _ganttContext.Tasks.Count(predicate: x => x.type == GanttType.project) + 1;
                         //var mg = _context.MachineGroups.First(x => x.Id.ToString() == pow.Machine.ToString()).Name;
-                        var pt = CreateProjectTask(id: "M_" + pow.Resource, name: pow.Resource, desc: "", @group: 0, gc: (GanttColors)gc);
+                        var pt = CreateProjectTask(id: "M_" + pow.CapabilityProvider, name: pow.CapabilityProvider, desc: "", @group: 0, gc: (GanttColors)gc);
                         _ganttContext.Tasks.Add(item: pt);
                         return pt;
                     }
@@ -281,7 +281,7 @@ namespace Master40.ViewComponents
         /// <summary>
         /// Defines start and end for the ganttchart based on the Scheduling State
         /// </summary>
-        private void DefineStartEnd(ref long start, ref long end, SimulationResourceJob item)
+        private void DefineStartEnd(ref long start, ref long end, Job item)
         {
             start = (_today + item.Start * 60000);
             end = (_today + item.End * 60000);
@@ -290,14 +290,14 @@ namespace Master40.ViewComponents
         /// <summary>
         /// Creates new TimelineItem with a label depending on the schedulingState
         /// </summary>
-        public GanttTask CreateGanttTask(SimulationResourceJob item, long start, long end, GanttColors gc, string parent)
+        public GanttTask CreateGanttTask(Job item, long start, long end, GanttColors gc, string parent)
         {
             var gantTask = new GanttTask()
             {
                 id = item.Id.ToString(),
                 type = GanttType.task,
                 desc = item.JobName,
-                text = _schedulingState == 4 ? item.Resource : "P.O.: " + item.ProductionOrderId,
+                text = _schedulingState == 4 ? item.CapabilityProvider : "P.O.: " + item.ProductionOrderId,
                 start_date = start.GetDateFromMilliseconds().ToString(format: "dd-MM-yyyy HH:mm"),
                 end_date = end.GetDateFromMilliseconds().ToString(format: "dd-MM-yyyy HH:mm"),
                 IntFrom = start,

@@ -269,7 +269,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                                          , jobType: JobType.OPERATION
                                         , duration: randomizedWorkDuration
                                            , start: Agent.CurrentTime
-                                        , resource: Agent.Name
+                              , capabilityProvider: Agent.Name
                                           , bucket: _jobInProgress.Current.Job.Bucket
                                          , setupId: _jobInProgress.SetupId);
             Agent.Context.System.EventStream.Publish(@event: pub);

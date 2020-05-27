@@ -31,11 +31,11 @@ namespace Master40.DB.Data.Context
                 .ToList();
         }
 
-        public Task<List<SimulationResourceJob>> GetFollowerProductionOrderWorkSchedules(SimulationResourceJob simulationWorkSchedule, SimulationType type, List<SimulationResourceJob> relevantItems)
+        public Task<List<Job>> GetFollowerProductionOrderWorkSchedules(Job simulationWorkSchedule, SimulationType type, List<Job> relevantItems)
         {
             var rs = Task.Run(function: () =>
             {
-                var priorItems = new List<SimulationResourceJob>();
+                var priorItems = new List<Job>();
                 // If == min Hierarchy --> get Pevious Article -> Highest Hierarchy Workschedule Item
                 var maxHierarchy = relevantItems.Where(predicate: x => x.ProductionOrderId == simulationWorkSchedule.ProductionOrderId)
                     .Max(selector: x => x.HierarchyNumber);
@@ -121,7 +121,7 @@ namespace Master40.DB.Data.Context
 
         }
 
-        public long GetEarliestStart(ResultContext kpiContext, SimulationResourceJob simulationWorkschedule, SimulationType simulationType, int simulationId,  List<SimulationResourceJob> schedules = null)
+        public long GetEarliestStart(ResultContext kpiContext, Job simulationWorkschedule, SimulationType simulationType, int simulationId,  List<Job> schedules = null)
         {
             if (simulationType == SimulationType.Central)
             {
@@ -136,7 +136,7 @@ namespace Master40.DB.Data.Context
                 return start;
             }
 
-            var children = new List<SimulationResourceJob>();
+            var children = new List<Job>();
             children = schedules.Where(predicate: x => x.SimulationConfigurationId == simulationId && x.SimulationType == simulationType)
                                 .Where(predicate: a => a.ParentId.Equals(value: simulationWorkschedule.ProductionOrderId.ToString())).ToList();
             

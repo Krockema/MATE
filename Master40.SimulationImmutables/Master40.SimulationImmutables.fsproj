@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="FunctionConverter.fs" />
     <Compile Include="Message\FStockProvider.fs" />
     <Compile Include="Message\FUpdateBucketScopes.fs" />
     <Compile Include="Message\FBucketScopes.fs" />
     <Compile Include="Message\FResourceInformations.fs" />
-    <Compile Include="Message\FCreateSimulationResourceSetup.fs" />
     <Compile Include="Message\FThroughPutTimers.fs" />
     <Compile Include="Message\FUpdateStartCondition.fs" />
     <Compile Include="Message\FArticleProviders.fs" />
@@ -21,7 +21,6 @@
     <Compile Include="Interface\IKey.fs" />
     <Compile Include="Interface\IJob.fs" />
     <Compile Include="Interface\IJobResults.fs" />
-    <Compile Include="FunctionConverter.fs" />
     <Compile Include="Message\FOperation.fs" />
     <Compile Include="Message\FOperationResults.fs" />
     <Compile Include="Message\FArticle.fs" />
@@ -36,9 +35,6 @@
     <Compile Include="Message\FStockReservation.fs" />
     <Compile Include="Message\FSetEstimatedThroughputTimes.fs" />
     <Compile Include="Message\FBreakDown.fs" />
-    <Compile Include="Message\FUpdateSimulationWorkProvider.fs" />
-    <Compile Include="Message\FUpdateSimulationJobs.fs" />
-    <Compile Include="Message\FCreateSimulationJobs.fs" />
     <Compile Include="Message\FCapabilityProviderDefinitions.fs" />
     <Compile Include="Message\FResourceHubInformation.fs" />
     <Compile Include="Message\FRequestProposalForCapabilityProviders.fs" />
@@ -48,6 +44,11 @@
     <Compile Include="Message\FConfirmationSlots.fs" />
     <Compile Include="Message\FScopeConfirmations.fs" />
     <Compile Include="Message\FQueueingScope.fs" />
+    <Compile Include="Reporting\FCreateTaskItems.fs" />
+    <Compile Include="Reporting\FUpdateSimulationWorkProvider.fs" />
+    <Compile Include="Reporting\FCreateSimulationResourceSetup.fs" />
+    <Compile Include="Reporting\FUpdateSimulationJobs.fs" />
+    <Compile Include="Reporting\FCreateSimulationJobs.fs" />
     <Compile Include="Interface\IConfirmations.fs" />
     <Compile Include="Message\FSetupConfirmations.fs" />
     <Compile Include="Message\FJobConfirmations.fs" />

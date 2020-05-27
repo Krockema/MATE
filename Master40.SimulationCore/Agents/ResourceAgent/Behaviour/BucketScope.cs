@@ -24,6 +24,7 @@ using static IConfirmations;
 using LogLevel = NLog.LogLevel;
 using static IJobs;
 using Directory = Master40.SimulationCore.Agents.DirectoryAgent.Directory;
+using static FCreateTaskItems;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -115,7 +116,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.DebugMessage(msg: $"Job could not be Revoked {jobKey} its already gone.", CustomLogger.JOB, LogLevel.Warn);
         }
 
-#region Proporsal
+        #region Proporsal
 
         /// <summary>
         /// Is Called from Hub Agent to get an Proposal when the item with a given priority can be scheduled.
@@ -439,6 +440,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             _capabilityProviderManager.Mount(_jobInProgress.Current.CapabilityProvider.Id);
             _jobInProgress.Start(Agent.CurrentTime, busyUntil);
 
+            CreateSetupTask(setupDuration, "Setup");
+
             Agent.Send(Resource.Instruction.BucketScope.FinishTask.Create("SETUP", Agent.Context.Self), waitFor: setupDuration);
         }
 
@@ -458,11 +461,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             _jobInProgress.Start(Agent.CurrentTime, Agent.CurrentTime + _jobInProgress.Current.Duration);
 
+            CreateProcessingTask(operation);
+
             Agent.Send(Resource.Instruction.BucketScope.FinishTask.Create("PROCESSING", Agent.Context.Self), waitFor: operation.Operation.RandomizedDuration);
         }
 
+
+
         private void FinishTask(string task)
         {
+            // TODO Scheduling /  has to be at the end of the time -> flag log for next timestamp -> Agent.Send(Instruction.LogAtNextAdvanceTime, Directory)
+            
             if (task.Equals("SETUP"))
             {
                 Agent.Send(instruction: BasicInstruction.FinishSetup.Create(message: Agent.Context.Self, target: _jobInProgress.Current.JobAgentRef));
@@ -507,7 +516,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         }
 
 #endregion
-
+        
+        #region Requeuing
         internal void RequeueAllRemainingJobs()
         {
             var item = _scopeQueue.FirstOrNull();
@@ -516,9 +526,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 RequeueJobs(_scopeQueue.GetAllJobs());
             }
         }
-
-        #region Requeuing
-
         internal void UpdateAndRequeuePlanedJobs(IConfirmation jobConfirmation)
         {
             
@@ -537,6 +544,40 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 Agent.Send(instruction: Job.Instruction.StartRequeue.Create(target: job.JobAgentRef));
             }
         }
+        #endregion
+
+        #region Reporting
+
+        void CreateProcessingTask(FOperation item)
+        {
+            var pub = new FCreateTaskItem(
+                type: "Operation"
+                , resource: Agent.Name.Replace("Resource(", "").Replace(")","")
+                , start: Agent.CurrentTime
+                , end: Agent.CurrentTime + item.Operation.RandomizedDuration
+                , capability: _capabilityProviderManager.GetCurrentUsedCapability().Name
+                , operation: item.Operation.Name
+                , groupId: _jobInProgress.Current.Job.Name );
+
+            //TODO NO tracking
+            Agent.Context.System.EventStream.Publish(@event: pub);
+        }
+
+        void CreateSetupTask(long gap, string type)
+        {
+            var pub = new FCreateTaskItem(
+                type
+                , resource: Agent.Name.Replace("Resource(", "").Replace(")", "")
+                , start: Agent.CurrentTime
+                , end: Agent.CurrentTime + gap
+                , capability: _capabilityProviderManager.GetCurrentUsedCapability().Name
+                , operation: $"{type} for {_jobInProgress.Current.Job.Name}"
+                , groupId: _jobInProgress.Current.Job.Name );
+
+            //TODO NO tracking
+            Agent.Context.System.EventStream.Publish(@event: pub);
+        }
+
         #endregion
 
     }

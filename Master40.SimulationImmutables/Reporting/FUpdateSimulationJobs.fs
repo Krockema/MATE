@@ -7,7 +7,7 @@ open IJobs
         JobType : string
         Duration : int64
         Start : int64
-        Resource : string
+        CapabilityProvider : string
         Bucket : string
         SetupId : int32
     } 

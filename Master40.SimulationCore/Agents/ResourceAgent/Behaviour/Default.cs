@@ -226,7 +226,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var pub = new FUpdateSimulationJob(job: nextJobInProgress.Job
                                                 , duration: randomizedDuration
                                                 , start: Agent.CurrentTime
-                                                , resource: Agent.Name
+                                                , capabilityProvider: Agent.Name
                                                 , jobType: JobType.OPERATION
                                                 , bucket: String.Empty
                                                 , setupId: nextJobInProgress.CapabilityProvider.Id);

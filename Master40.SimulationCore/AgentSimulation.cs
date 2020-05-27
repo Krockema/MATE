@@ -40,9 +40,10 @@ namespace Master40.SimulationCore
         private Simulation _simulation { get; set; }
         public SimulationConfig SimulationConfig { get; private set; }
         public ActorPaths ActorPaths { get; private set; }
-        public IActorRef WorkCollector { get; private set; }
+        public IActorRef JobCollector { get; private set; }
         public IActorRef StorageCollector { get; private set; }
         public IActorRef ContractCollector { get; private set; }
+        public IActorRef ResourceCollector { get; private set; }
         public AgentStateManager StateManager { get; private set; }
         /// <summary>
         /// Prepare Simulation Environment
@@ -88,8 +89,10 @@ namespace Master40.SimulationCore
 
                 // Finally Initialize StateManger
                 StateManager = new AgentStateManager(new List<IActorRef> { this.StorageCollector
-                                                                         , this.WorkCollector
-                                                                         , this.ContractCollector }
+                                                                         , this.JobCollector
+                                                                         , this.ContractCollector
+                                                                         , this.ResourceCollector
+                                                                     }
                                                     , SimulationConfig.Inbox);
 
                 return _simulation;
@@ -166,9 +169,12 @@ namespace Master40.SimulationCore
             ContractCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsContracts.Get()
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
                                                             , streamTypes: CollectorAnalyticsContracts.GetStreamTypes()), name: "ContractCollector");
-            WorkCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticResource.Get(resources: resourcelist)
+            JobCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticJob.Get(resources: resourcelist)
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
-                                                            , streamTypes: CollectorAnalyticResource.GetStreamTypes()), name: "WorkScheduleCollector");
+                                                            , streamTypes: CollectorAnalyticJob.GetStreamTypes()), name: "JobCollector");
+            ResourceCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticResource.Get(resources: resourcelist)
+                                                            , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
+                                                            , streamTypes: CollectorAnalyticResource.GetStreamTypes()), name: "ResourceCollector");
         }
 
         private void GenerateGuardians()
