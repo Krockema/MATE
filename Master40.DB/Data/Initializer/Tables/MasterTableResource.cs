@@ -50,33 +50,115 @@ namespace Master40.DB.Data.Initializer.Tables
             return new M_Resource() { Name = "Resource " + resourceName + " " + number?.ToString(), Capacity = 1, IsPhysical = isPhysical };
         }
 
-        internal void CreateResourceTools(int setupTimeCutting, int setupTimeDrilling, int setupTimeAssembling)
+        internal void CreateResourceTools(int setupTimeCutting, int setupTimeDrilling, int setupTimeAssembling, int numberOfWorkers)
         {
-            CreateTools(_capability.CUTTING, setupTimeCutting, 1);
-            CreateTools(_capability.DRILLING, setupTimeDrilling, 0);
-            CreateTools(_capability.ASSEMBLING, setupTimeAssembling, 1);
+            List<M_Resource> workers = new List<M_Resource>();
+            for (int i = 1; i < 1 + numberOfWorkers; i++)
+            {
+                workers.Add(CreateNewResource("Worker " + i, true)); 
+            }
+            CapabilityToResourceDict.Add($"Worker", workers);
+
+            CreateTools(_capability.CUTTING, setupTimeCutting, 1, workers);
+            CreateTools(_capability.DRILLING, setupTimeDrilling, 0, workers);
+            CreateTools(_capability.ASSEMBLING, setupTimeAssembling, 1, workers);
         }
 
         
-        private void CreateTools(M_ResourceCapability capability, long setupTime, int numberOfOperators)
+        private void CreateTools(M_ResourceCapability capability, long setupTime, int numberOfOperators, List<M_Resource> workerToAssign)
         {
             List<M_Resource> tools = new List<M_Resource>();
             List<M_ResourceSetup> setups = new List<M_ResourceSetup>();
             List<M_ResourceCapabilityProvider> capabilityProviders = new List<M_ResourceCapabilityProvider>();
             List<M_Resource> operators = new List<M_Resource>();
+
             for (int i = 1; i < 1 + numberOfOperators; i++)
             {
                 operators.Add(CreateNewResource(capability.Name + " Operator " + i, true));
             }
-            
-            
+
             // foreach resource of a given type
+            // nur resource
+            // resource + Setup 
+            // resource + Setup + Worker
+
+
+
             foreach (var resource in CapabilityToResourceDict.Single(x => x.Key == capability.Name).Value)
             {
                 // With operators 
                 if (operators.Count > 0)
                 {
                     foreach (var op in operators)
+                    {
+                        if (workerToAssign.Any()) // with workers and setups
+                        {
+                            foreach (var worker in workerToAssign)
+                            {
+                                foreach (var subCapability in _capability.Capabilities
+                                    .Single(x => x.Name == capability.Name)
+                                    .ChildResourceCapabilities)
+                                {
+                                    var capabilityProvider = new M_ResourceCapabilityProvider()
+                                    {
+                                        Name = $"Provides {subCapability.Name} {resource.Name} {worker.Name}",
+                                        ResourceCapabilityId = subCapability.Id,
+                                    };
+                                    var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false);
+                                    tools.Add(tool);
+                                    // CreateNewSetup(resource, capabilityProvider, usedInProcessing,usedInSetup, setupTime)
+                                    setups.Add(CreateNewSetup(op, capabilityProvider, false, true, 0));
+                                    setups.Add(CreateNewSetup(tool, capabilityProvider, true, true, setupTime));
+                                    setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, 0));
+                                    setups.Add(CreateNewSetup(worker, capabilityProvider, true, false, 0));
+                                    capabilityProviders.Add(capabilityProvider);
+                                }
+                            }
+                        } else { // no worker but setup
+                            foreach (var subCapability in _capability.Capabilities
+                                .Single(x => x.Name == capability.Name)
+                                .ChildResourceCapabilities)
+                            {
+                                var capabilityProvider = new M_ResourceCapabilityProvider()
+                                {
+                                    Name = $"Provides {subCapability.Name} {resource.Name}",
+                                    ResourceCapabilityId = subCapability.Id,
+                                };
+                                var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false);
+                                tools.Add(tool);
+                                setups.Add(CreateNewSetup(op, capabilityProvider, false, true, 0));
+                                setups.Add(CreateNewSetup(tool, capabilityProvider, true, true, setupTime));
+                                setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, 0));
+                                capabilityProviders.Add(capabilityProvider);
+                            }
+                        }
+                    }
+                }
+                else // without operators  
+                {
+                    if (workerToAssign.Any())
+                    {
+                        foreach (var worker in workerToAssign)
+                        {
+                            foreach (var subCapability in _capability.Capabilities
+                                .Single(x => x.Name == capability.Name)
+                                .ChildResourceCapabilities)
+                            {
+                                var capabilityProvider = new M_ResourceCapabilityProvider()
+                                {
+                                    Name = $"Provides {subCapability.Name} {resource.Name} {worker.Name}",
+                                    ResourceCapabilityId = subCapability.Id,
+                                };
+                                var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false);
+                                tools.Add(tool);
+                                setups.Add(CreateNewSetup(tool, capabilityProvider, true, true, setupTime));
+                                setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, 0));
+                                setups.Add(CreateNewSetup(worker, capabilityProvider, true, false, 0));
+                                capabilityProviders.Add(capabilityProvider);
+                            }
+                        }
+                    }
+                    else
                     {
                         foreach (var subCapability in _capability.Capabilities
                             .Single(x => x.Name == capability.Name)
@@ -89,29 +171,10 @@ namespace Master40.DB.Data.Initializer.Tables
                             };
                             var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false);
                             tools.Add(tool);
-                            setups.Add(CreateNewSetup(op, capabilityProvider, false, true, 0));
                             setups.Add(CreateNewSetup(tool, capabilityProvider, true, true, setupTime));
                             setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, 0));
                             capabilityProviders.Add(capabilityProvider);
                         }
-                    }
-                }
-                else // without operators  
-                {   
-                    foreach (var subCapability in _capability.Capabilities
-                                                             .Single(x => x.Name == capability.Name)
-                                                             .ChildResourceCapabilities)
-                    {
-                        var capabilityProvider = new M_ResourceCapabilityProvider()
-                        {
-                            Name = $"Provides {subCapability.Name} {resource.Name}",
-                            ResourceCapabilityId = subCapability.Id,
-                        };
-                        var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false);
-                        tools.Add(tool);
-                        setups.Add(CreateNewSetup(tool, capabilityProvider, true, true, setupTime));
-                        setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, 0));
-                        capabilityProviders.Add(capabilityProvider);
                     }
                 }
                 CapabilityProviderDict.Add($"{resource.Name} Tooling", capabilityProviders);

@@ -8,6 +8,7 @@ using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
+using Master40.SimulationCore.Helper;
 using static FCreateSimulationResourceSetups;
 using static FJobConfirmations;
 using static FOperationResults;
@@ -244,17 +245,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                     msg:
                     $"Start with Setup for Job {_jobInProgress.Current.Job.Name}  Key: {_jobInProgress.Current.Job.Key} Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
                 _capabilityProviderManager.Mount(_jobInProgress.Current.Job.RequiredCapability.Id);
-                var pubSetup = new FCreateSimulationResourceSetup(expectedDuration: setupDuration
-                                                                        , duration: setupDuration
-                                                                           , start: Agent.CurrentTime
-                                                              , capabilityProvider: _jobInProgress.Current.CapabilityProvider.Name
-                                                                  , capabilityName: _jobInProgress.RequiredCapabilityName
-                                                                         , setupId: _jobInProgress.SetupId);
-                Agent.Context.System.EventStream.Publish(@event: pubSetup);
+                ResultStreamFactory.PublishResourceSetup(agent: Agent,
+                                                         duration: setupDuration,
+                                                         capabilityProvider: _jobInProgress.Current.CapabilityProvider);
+                
             }
 
             Agent.Send(instruction: Resource.Instruction.Default.DoWork.Create(message: null, target: Agent.Context.Self),
-                waitFor: setupDuration);
+                           waitFor: setupDuration);
         }
 
         /// <summary>
@@ -265,14 +263,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var randomizedWorkDuration = _workTimeGenerator.GetRandomWorkTime(duration: _jobInProgress.Current.Job.Duration);
             Agent.DebugMessage(msg: $"Starting Job {_jobInProgress.Current.Job.Name}  Key: {_jobInProgress.Current.Job.Key} new Duration is {randomizedWorkDuration}");
 
-            var pub = new FUpdateSimulationJob(job: _jobInProgress.Current.Job
-                                         , jobType: JobType.OPERATION
-                                        , duration: randomizedWorkDuration
-                                           , start: Agent.CurrentTime
-                              , capabilityProvider: Agent.Name
-                                          , bucket: _jobInProgress.Current.Job.Bucket
-                                         , setupId: _jobInProgress.SetupId);
-            Agent.Context.System.EventStream.Publish(@event: pub);
+            ResultStreamFactory.PublishJob(Agent, job: _jobInProgress.Current.Job, randomizedWorkDuration, _jobInProgress.Current.CapabilityProvider, _jobInProgress.Current.Job.Bucket);
+
 
             var fOperationResult = new FOperationResult(key: _jobInProgress.Current.Job.Key
                                              , creationTime: 0

@@ -11,10 +11,6 @@
       "destination": "wwwroot/lib/bootstrap/"
     },
     {
-      "library": "moment.js@2.24.0",
-      "destination": "wwwroot/lib/moment.js/"
-    },
-    {
       "library": "font-awesome@5.12.0-1",
       "destination": "wwwroot/lib/font-awesome/"
     },
@@ -39,8 +35,21 @@
       "destination": "wwwroot/lib/popper.js/"
     },
     {
-      "library": "jquery@3.4.1",
+      "library": "jquery@3.5.1",
       "destination": "wwwroot/lib/jquery/"
+    },
+    {
+      "library": "moment.js@2.26.0",
+      "destination": "wwwroot/lib/moment/"
+    },
+    {
+      "library": "seedrandom@3.0.5",
+      "destination": "wwwroot/lib/seedrandom/"
+    },
+    {
+      "library": "modernizr@2.8.3",
+      "destination": "wwwroot/lib/modernizr/"
     }
+
   ]
 }

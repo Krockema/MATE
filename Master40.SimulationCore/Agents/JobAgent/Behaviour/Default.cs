@@ -156,7 +156,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                                                                                 || x.CurrentState == JobState.Finish
                                                                                 || x.CurrentState == JobState.InProcess);
             var allProcessingReady = _resourceProcessingStates.Values.All(x => x.CurrentState == JobState.Ready
-                                                                                          || x.CurrentState == JobState.InProcess);
+                                                                                || x.CurrentState == JobState.InProcess);
             if (allSetupReady || allProcessingReady)
             {
                 Agent.DebugMessage($"StartDissolve interrupted setups ready: {allSetupReady} setup count: {_resourceSetupStates.Count}" +
@@ -195,7 +195,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
         private void StartRevoke()
         {
-            Agent.DebugMessage($"Start Revoke for {_jobConfirmation.Job.Name} {_jobConfirmation.Job.Key} has been initiated", CustomLogger.JOB, LogLevel.Warn);
+            Agent.DebugMessage($"Start Revoke for {_jobConfirmation.Job.Name} {_jobConfirmation.Job.Key} has been initiated from {Agent.Sender.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
             foreach (var resource in _resourceDistinctResourceStates)
             {
                 if (resource.Value.CurrentState == JobState.Revoked || resource.Value.CurrentState == JobState.RevokeStarted)
@@ -365,7 +365,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         private void FinishProcessing(IActorRef sender)
         {
             Agent.DebugMessage($"ONE of {_resourceProcessingStates.Count() } Finisih processing received for {_jobConfirmation.Job.Name}.", CustomLogger.JOB, LogLevel.Warn);
-            var requestingResource = _resourceProcessingStates.Single(x => x.Key == sender);
+            var requestingResource = _resourceProcessingStates.Single(x => x.Key.Equals(sender));
             requestingResource.Value.CurrentState = JobState.Ready;
             Agent.DebugMessage($"FinishProcessing: Change _resourceProcessingStates for {requestingResource.Key.Path.Name} to {requestingResource.Value.CurrentState.ToString()}", CustomLogger.JOBSTATE, LogLevel.Warn);
 
@@ -381,6 +381,11 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
         private void CreateOperationResults()
         {
+            ResultStreamFactory.PublishJob(agent: Agent
+                                          ,  job: _currentOperation
+                                          , duration: _currentOperation.Operation.RandomizedDuration
+                                          , capabilityProvider: _jobConfirmation.CapabilityProvider);
+
             var fOperationResult = new FOperationResult(key: _currentOperation.Key
                 , creationTime: 0
                 , start: Agent.CurrentTime
@@ -469,47 +474,20 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 .ResourceCapabilityProvider.Sum(s =>
                     s.ResourceSetups.Sum(d =>
                         d.SetupTime));
-            var pubSetup = new FCreateSimulationResourceSetup(
-                                    expectedDuration: setupDuration,
-                                    duration: setupDuration,
-                                    start: Agent.CurrentTime,
-                                    capabilityProvider: _jobConfirmation.CapabilityProvider.Name,
-                                    capabilityName: _jobConfirmation.Job.RequiredCapability.Name,
-                                    setupId: _jobConfirmation.Job.RequiredCapability.Id);
 
-            //TODO NO tracking
-            Agent.Context.System.EventStream.Publish(@event: pubSetup);
+            ResultStreamFactory.PublishResourceSetup(Agent, setupDuration, _jobConfirmation.CapabilityProvider);
         }
 
 
         private void UpdateJobKpi()
         {
-
-            var pub = new FUpdateSimulationJob(job: _currentOperation
-                , jobType: JobType.OPERATION
-                , duration: _currentOperation.Operation.RandomizedDuration
-                , start: Agent.CurrentTime
-                , capabilityProvider: _jobConfirmation.CapabilityProvider.Name
-                , bucket: _jobConfirmation.Job.Name
-                , setupId: _jobConfirmation.CapabilityProvider.Id);
-            //TODO NO tracking
-            Agent.Context.System.EventStream.Publish(@event: pub);
-
+            ResultStreamFactory.PublishJob(Agent, _currentOperation, _currentOperation.Operation.RandomizedDuration, _jobConfirmation.CapabilityProvider, _jobConfirmation.Job.Name);
         }
 
 
         private void CreateBucketKpi()
         {
-            var pub = new FBucketResult(key: _jobConfirmation.Job.Key
-                , creationTime: 0
-                , start: _processingStart
-                , end: Agent.CurrentTime
-                , originalDuration: _jobConfirmation.Job.Duration
-                , productionAgent: ActorRefs.Nobody
-                , capabilityProvider: _jobConfirmation.CapabilityProvider.Name);
-
-            //TODO NO tracking
-            Agent.Context.System.EventStream.Publish(@event: pub);
+            ResultStreamFactory.PublishBucketResult(Agent, _jobConfirmation, _processingStart);
         }
 
 

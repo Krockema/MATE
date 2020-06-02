@@ -7,7 +7,6 @@ using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
-using static FJobConfirmations;
 using static FOperationResults;
 using static FOperations;
 using static FPostponeds;

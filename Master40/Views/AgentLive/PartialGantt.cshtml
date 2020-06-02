@@ -1,0 +1,175 @@
+﻿@{
+
+}
+<style>
+    .chartAreaWrapperGantt {
+        position: relative;
+        height: 200px;
+        width: 100%;
+    }
+</style>
+
+<div class="chartWrapper">
+    <div class="chartAreaWrapper">
+        <div id="chartAreaWrapperGantt">
+            <canvas id="ganttCanvas" height="250"></canvas>
+        </div>
+    </div>
+    <!--  <label>Scaling: </label><input type="number" id="scaling" value="150">
+      <input type="button" id="resize" value="Try">-->
+</div>
+
+<script>
+    var rectangleSet = false;
+    var globalColorIndex = 0;
+    var data = {
+        "type": "timeline",
+        "options": {
+            responsive: true,
+            maintainAspectRatio: false,
+            tooltips: {
+                callbacks: {
+                    label: function (tooltipItem, data) {
+                        var label = [' Start  : ' + tooltipItem.yLabel[4]];
+                        label.push(' End    : ' + tooltipItem.yLabel[5]);
+                        label.push(' Priority : ' + tooltipItem.yLabel[6]);
+                        label.push(' IsProcessing : ' + tooltipItem.yLabel[7]);
+                        label.push(' IsReady : ' + tooltipItem.yLabel[8]);
+                        label.push(' IsFinalized : ' + tooltipItem.yLabel[9]);
+                        label.push(' IsWorking : ' + tooltipItem.yLabel[10]);
+                        return label;
+                    },
+                    title: function (tooltipItem, data) {
+                        return tooltipItem[0].yLabel[2];
+                    }
+                }
+            },
+            "elements": {
+                "colorFunction": function (text, data, dataset, index) {
+                    return Color(data[3]);
+                },
+                "showText": true,
+                "textPadding": 15
+            },
+            scales: {
+                xAxes: [
+                    {
+                        id: 'time',
+                        display: false,
+                        ticks: {
+                            min: new Date(1262304000 + parseInt(0)).toISOString(),
+                            max: new Date(1262304000 + parseInt(1)).toISOString()
+                        }
+                    }, {
+                        type: "linear",
+                        id: 'linear',
+                        ticks: {
+                            min: 0,
+                            max: 1,
+                            stepSize: 420
+                        }
+                    }]
+            }
+        }
+    };
+    var chart = new Chart(ganttCanvas, data);
+
+    // document.getElementById('ganttCanvas').textContent = JSON.stringify(DATA);
+    //document.querySelector('#resize').addEventListener('click', resizeChart);
+
+    function GetUniqueOrders(jsonObject) {
+        var iterable = jsonObject.map(o => o.groupId);
+        return new Set(iterable);
+    }
+
+    function shiftGanttArray(list, timeScope) {
+        return list.data.filter(x => x[4] > timeScope || (x[5] > timeScope && x[4] < timeScope));
+    }
+
+    function resizeChart() {
+        chart.canvas.width = $(".chartAreaWrapper").width() - 10;
+        chart.resize();
+    }
+
+    function ganttChart(newItem) {
+        // chart.data.labels = [];
+        // chart.data.datasets = [];
+        var element = JSON.parse(newItem);
+        var maxTime = Math.ceil(element.End / 50) * 50;
+        var minTime = maxTime - 500;
+        var seed = new Math.seedrandom('randomSeed');
+        var randomNr = seed();
+        //var uniques = GetUniqueOrders(parsed_json);
+        //var uniqueIterator = uniques.values();
+        //for (i = 0; i < uniques.size; i++) {
+        //    var comparable = uniqueIterator.next().value;
+        //    var group = parsed_json.filter(f => f.groupId === comparable);
+        //  group.forEach(element => {
+        var index = 0;
+        var colorIndex = 0;
+        if (!chart.data.labels.includes(element.Resource)) {
+            chart.data.labels.push(element.Resource);
+        }
+        index = chart.data.labels.indexOf(element.Resource);
+        var start = new Date(1262304000 + parseInt(element.Start)).toISOString();
+        var end = new Date(1262304000 + parseInt(element.End)).toISOString();
+        var op = element.Operation;
+        var data = { "data": [] };
+        if (chart.data.datasets[index] === undefined) {
+            chart.data.datasets.push(data);
+        }
+        var dataSet = [];
+        for (var i = 0; i < chart.data.datasets.length; i++) {
+            chart.data.datasets[i].data = shiftGanttArray(chart.data.datasets[i], minTime);
+            dataSet.push(chart.data.datasets[i].data.filter(f => f[6] === element.GroupId));
+        }
+
+        if (dataSet.flat()[0] != undefined) {
+            colorIndex = dataSet.flat()[0][7];
+        } else {
+            colorIndex = globalColorIndex;
+            globalColorIndex++;
+        }
+        // function goldenRatioColor(index, hue, saturation, value)
+        var colorCode = goldenRatioColor(colorIndex, randomNr, 0.90, 0.80);
+        var rgbColor = ColorArrayToRgba(colorCode, 0.7);
+        if (op.startsWith('Empty')) {
+            rgbColor = ColorArrayToRgba([167, 166, 157], 1);
+        } else if (op.startsWith('Setup')) {
+            rgbColor = ColorArrayToRgba(colorCode, 1);
+        }
+        chart.data.datasets[index].data.push([start, end, op, rgbColor, element.Start, element.End, element.GroupId, colorIndex]);
+
+
+ 
+
+        //              });
+        var steps = Math.round((maxTime - minTime) / 10);
+        var min = parseInt(minTime) > chart.options.scales.xAxes[1].ticks.min ? parseInt(minTime) : chart.options.scales.xAxes[1].ticks.min;
+        var max = parseInt(maxTime) > chart.options.scales.xAxes[1].ticks.max ? parseInt(maxTime) : chart.options.scales.xAxes[1].ticks.max;
+        chart.options.scales.xAxes[1].ticks.min = min;
+        chart.options.scales.xAxes[1].ticks.max = max;
+        //chart.options.scales.xAxes[0].ticks.min = new Date(1262304000 + parseInt(min+60)).toISOString();
+        //chart.options.scales.xAxes[0].ticks.max = new Date(1262304000 + parseInt(max+60)).toISOString();
+        chart.options.scales.xAxes[1].ticks.stepSize = steps;
+        //            };
+
+
+        // var targetCtx = document.getElementById("chartCanvas");
+        // var resizeTo = steps * window.devicePixelRatio * document.getElementById("scaling").value;
+        // chart.canvas.width = resizeTo;
+        
+        chart.update(0);
+    }
+
+
+    processingProxy.on("ganttChart", function (msg) {
+        //console.log("Contracts : " + msg);
+        ganttChart(msg);
+    });
+
+
+</script>
+
+
+

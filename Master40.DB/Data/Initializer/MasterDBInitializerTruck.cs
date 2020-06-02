@@ -59,7 +59,7 @@ namespace Master40.DB.Data.Initializer
                 default: throw new ArgumentException();
             }
 
-            resources.CreateResourceTools(setupTimeCutting: 10, setupTimeDrilling: 15, setupTimeAssembling: 20);
+            resources.CreateResourceTools(setupTimeCutting: 10, setupTimeDrilling: 15, setupTimeAssembling: 20, numberOfWorkers: 3);
             resources.SaveToDB(context);
 
             // Article Definitions

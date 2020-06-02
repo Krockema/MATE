@@ -70,7 +70,7 @@ namespace Master40.SimulationCore
                 CreateCollectorAgents(configuration: configuration);
                 //if (_debugAgents) 
                 AddDeadLetterMonitor();
-                //AddTimeMonitor();
+                AddTimeMonitor();
 
                 // Create Guardians and Inject Childcreators
                 GenerateGuardians();
@@ -161,7 +161,7 @@ namespace Master40.SimulationCore
         {
             var resourcelist = new ResourceList();
             resourcelist.AddRange(collection: _dBContext.Resources.Where(x => x.IsPhysical)
-                                                        .Select(selector: x => "Resource(" + x.Name.Replace(" ", "") + ")"));
+                                                        .Select(selector: x => x.Name.Replace(" ", "")));
 
             StorageCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsStorage.Get()
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents

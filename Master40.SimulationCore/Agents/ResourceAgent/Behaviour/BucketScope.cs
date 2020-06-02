@@ -196,10 +196,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         public override bool PostAdvance()
         {
-            if (Agent.CurrentTime % 50 == 0 || Agent.CurrentTime == 2)
-            {
-                CreateGanttChartForRessource();
-            }
+            //if (Agent.CurrentTime % 50 == 0 || Agent.CurrentTime == 2)
+            //{
+            //    CreateGanttChartForRessource();
+            //}
             if (_jobInProgress.IsSet 
                 && !_jobInProgress.IsWorking 
                 && _jobInProgress.Current.ScopeConfirmation.GetScopeStart() < Agent.CurrentTime) 
@@ -440,7 +440,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             _capabilityProviderManager.Mount(_jobInProgress.Current.CapabilityProvider.Id);
             _jobInProgress.Start(Agent.CurrentTime, busyUntil);
 
-            CreateSetupTask(setupDuration, "Setup");
+            CreateSetupTask(setupDuration, JobType.SETUP);
 
             Agent.Send(Resource.Instruction.BucketScope.FinishTask.Create("SETUP", Agent.Context.Self), waitFor: setupDuration);
         }
@@ -539,6 +539,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             foreach (var job in toRequeue)
             {
+                // first from toRequeue equals first from _scopeQueue
+                // --> request revoke
+                // not equal first from toRequeue from _scope Queue
+                // --> start revoke
+
+                // S1 |********| 
+                // W1          |****|--------| 
+                // S2 |-----------|
                 Agent.DebugMessage(msg: $"Remove for requeue {job.Job.Name} {job.Key} from {Agent.Context.Self.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
                 _scopeQueue.RemoveJob(job);
                 Agent.Send(instruction: Job.Instruction.StartRequeue.Create(target: job.JobAgentRef));
@@ -551,7 +559,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         void CreateProcessingTask(FOperation item)
         {
             var pub = new FCreateTaskItem(
-                type: "Operation"
+                type: JobType.OPERATION
                 , resource: Agent.Name.Replace("Resource(", "").Replace(")","")
                 , start: Agent.CurrentTime
                 , end: Agent.CurrentTime + item.Operation.RandomizedDuration

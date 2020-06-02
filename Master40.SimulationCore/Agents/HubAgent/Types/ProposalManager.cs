@@ -206,7 +206,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                     
                     var processingScope = new FScope(start: earliestProcessingStart, end: mainScope.Scope.End);
                     // seek for worker to process operation
-                    var processingResourceSlot = FindProcessingSlot(possibleProcessingQueuingPositions.Cast<ITimeRange>().ToList(), processingScope, jobDuration);
+                    var processingResourceSlot = FindProcessingSlot(possibleProcessingQueuingPositions.Where(x => x.IsQueueAble)
+                                                                    .Select(x => x.Scope).ToList(), processingScope, jobDuration);
                     // set if a new is found 
                     if (processingResourceSlot == null)
                         continue;
@@ -218,9 +219,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                     processingResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(processingSlot), processingSlot.Start));
                     if (setupResources.Count > 0)
                     {
-                        setupResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(processingSlot)));
+                        setupResources.ForEach(x =>
+                            possibleProcessingPosition.Add(x, CreateScopeConfirmation(new List<ITimeRange> { setupSlot } )));
                     }
-
                     break;
 
                 }
@@ -236,7 +237,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                         mainResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(mainSlot), mainSlot.Start));
                         break;
                     }
-                    processingSlot = FindProcessingSlot(possibleProcessingQueuingPositions.Cast<ITimeRange>().ToList(), mainScope.Scope, jobDuration);
+                    processingSlot = FindProcessingSlot(possibleProcessingQueuingPositions.Where(x => x.IsQueueAble)
+                                                                                          .Select(x => x.Scope).ToList(), mainScope.Scope, jobDuration);
                     // set if a new is found 
                     if (processingSlot == null)
                         continue;

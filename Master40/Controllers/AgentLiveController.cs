@@ -26,9 +26,11 @@ namespace Master40.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            ViewData[index: "machines"] = _context.Resources.Select(selector: x => x.Name).ToList();
-            var masterDBContext = _context.Resources.Include(navigationPropertyPath: a => a.ResourceSetups);
-            return View(model: await masterDBContext.ToListAsync());
+            var resources = await _context.Resources.Where(x => x.IsPhysical)
+                                              .Include(navigationPropertyPath: a => a.ResourceSetups).ToListAsync();
+
+            ViewData[index: "machines"] = resources.Select(selector: x => x.Name).ToList();
+            return View(model: resources);
         }
 
         [HttpGet(template: "[Controller]/RunAsync/{simulationType}/orderAmount/{orderAmount}/arivalRate/{arivalRate}/estimatedThroughputTime/{estimatedThroughputTime}")]

@@ -6,6 +6,7 @@ using Master40.SimulationCore.Agents.StorageAgent.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.SimulationCore.Helper;
 using static FArticleProviders;
 using static FArticles;
 using static FProductionResults;
@@ -178,17 +179,11 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                                                                                                            , customerDue: article.CustomerDue
                                                                                                            , provider: article.ProviderList)
                                                                               , target: article.DispoRequester
-                                                                             , logThis: false));
+                                                                              , logThis: false));
 
                 // Update Work Item with Provider For
                 // TODO
-
-                var pub = new FUpdateSimulationWorkProvider(fArticleProviderKeys: article.ProviderList
-                                                        , requestAgentId: article.DispoRequester.Path.Uid.ToString()
-                                                        , requestAgentName: article.DispoRequester.Path.Name
-                                                        , isHeadDemand: article.IsHeadDemand
-                                                        , customerOrderId: article.CustomerOrderId);
-                Agent.Context.System.EventStream.Publish(@event: pub);
+                ResultStreamFactory.PublishUpdateArticleProvider(Agent, article);
             }
             else
             {
