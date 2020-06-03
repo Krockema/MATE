@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Data.HashFunction.xxHash;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading;
 using System.Threading.Tasks;
 using static FBucketResults;
@@ -45,17 +46,18 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             : base(childMaker: null, simulationType: simulationType)
         {
             _jobConfirmation = jobConfirmation;
-            _resourceProcessingStates = new Dictionary<IActorRef, StateHandle>();
-            _resourceSetupStates = new Dictionary<IActorRef, StateHandle>();
+            //_resourceProcessingStates = new Dictionary<IActorRef, StateHandle>();
+            //_resourceSetupStates = new Dictionary<IActorRef, StateHandle>();
             _resourceDistinctResourceStates = new Dictionary<IActorRef, StateHandle>();
             _dissolveRequested = false;
         }
 
         private IConfirmation _jobConfirmation { get; set; }
         private Guid GetJobKey() => _jobConfirmation.Job.Key;
-        private Dictionary<IActorRef, StateHandle> _resourceProcessingStates { get; set; } // processing
-        private Dictionary<IActorRef, StateHandle> _resourceSetupStates { get; set; } // setup
-        private Dictionary<IActorRef, StateHandle> _resourceDistinctResourceStates { get; set; } // Dissolve und Requeue // 
+
+        private Dictionary<IActorRef, StateHandle> _resourceProcessingStates =>_resourceDistinctResourceStates.Where(x => x.Value.Processing).ToDictionary(x => x.Key, x => x.Value);
+        private Dictionary<IActorRef, StateHandle> _resourceSetupStates => _resourceDistinctResourceStates.Where(x => x.Value.Setup).ToDictionary(x => x.Key, x => x.Value);
+        private Dictionary<IActorRef, StateHandle> _resourceDistinctResourceStates { get; } // Dissolve und Requeue // 
 
         private FOperation _currentOperation { get; set;}
         private long _processingStart { get; set; }
@@ -79,6 +81,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 case Job.Instruction.AcknowledgeRevoke msg: AcknowledgeRevoke(msg.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateJob msg: UpdateJob(msg.GetObjectFromMessage); break;
                 case Job.Instruction.TerminateJob msg: Terminate(); break;
+                case Job.Instruction.ResourceWillBeReady msg: ResourceWillBeReady(); break;
                 // case Job.Instruction.StartProcessing msg: StartProcessing(); break;
                 case Job.Instruction.StartRequeue msg: StartRequeue(); break;
                 case Job.Instruction.DelayedStartNotification msg: RequestRevoke(); break;
@@ -108,6 +111,16 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             Agent.DebugMessage($"AcknowledgeRevoke: Change _resourceDistinctResourceStates for {sender.Path.Name} to {resourceStateHandle.CurrentState}", CustomLogger.JOBSTATE, LogLevel.Warn);
 
             RequestRequeueFromHub();
+        }
+
+        private void ResourceWillBeReady()
+        {
+            if(_resourceDistinctResourceStates.Any(x => x.Value.CurrentState <= JobState.RevokeStarted)) return;
+
+            _resourceDistinctResourceStates.TryGetValue(Agent.Sender, out var resourceStateHandle);
+            resourceStateHandle.CurrentState = JobState.WillBeReady;
+          
+            Agent.DebugMessage($"AcknowledgeRevoke: Change _resourceDistinctResourceStates for {Agent.Sender.Path.Name} to {resourceStateHandle.CurrentState}", CustomLogger.JOBSTATE, LogLevel.Warn);
         }
 
         private void RequestRequeueFromHub()
@@ -142,7 +155,6 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 Agent.DebugMessage($"Start Requeue for {_jobConfirmation.Job.Name} has been initiated", CustomLogger.JOB, LogLevel.Warn);
                 RequestRequeueFromHub();
                 return;
-
             }
             StartRevoke();
         }
@@ -152,12 +164,10 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         /// </summary>
         private void StartDissolve()
         {
-            var allSetupReady = _resourceSetupStates.Values.All(x => x.CurrentState == JobState.Ready 
-                                                                                || x.CurrentState == JobState.Finish
-                                                                                || x.CurrentState == JobState.InProcess);
-            var allProcessingReady = _resourceProcessingStates.Values.All(x => x.CurrentState == JobState.Ready
-                                                                                || x.CurrentState == JobState.InProcess);
-            if (allSetupReady || allProcessingReady)
+            var allSetupReady = _resourceSetupStates.Values.All(x => x.CurrentState >= JobState.Ready);
+            var allProcessingReady = _resourceProcessingStates.Values.All(x => x.CurrentState >= JobState.WillBeReady);
+
+            if (allSetupReady && allProcessingReady)
             {
                 Agent.DebugMessage($"StartDissolve interrupted setups ready: {allSetupReady} setup count: {_resourceSetupStates.Count}" +
                                    $" processing ready {allProcessingReady} processing count: {_resourceProcessingStates.Count}", CustomLogger.JOBSTATE, LogLevel.Warn);
@@ -171,18 +181,10 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
         private void RequestRevoke()
         {
-            var allSetupReady = _resourceSetupStates.Values
-                                                        // .Where(x => !x.Key.Equals(Agent.Sender))
-                                                        //.Select(x => x.Value)
-                                                        .All(x => x.CurrentState == JobState.Ready 
-                                                                        || x.CurrentState == JobState.Finish 
-                                                                        || x.CurrentState == JobState.InProcess);
-            var allProcessingReady = _resourceProcessingStates.Values
-                                                                    // Where(x => !x.Key.Equals(Agent.Sender))
-                                                                   //.Select(x => x.Value)
-                                                                   .All(x => x.CurrentState == JobState.Ready
-                                                                                    || x.CurrentState == JobState.InProcess);
-            if (allSetupReady || allProcessingReady)
+            var allSetupReady = _resourceSetupStates.Values.All(x => x.CurrentState >= JobState.Ready);
+            var allProcessingReady = _resourceProcessingStates.Values.All(x => x.CurrentState >= JobState.WillBeReady);
+
+            if (allSetupReady && allProcessingReady)
             {
                 Agent.DebugMessage($"RequestRevoke interrupted for {_jobConfirmation.Job.Name} setups ready: {allSetupReady} setup count: {_resourceSetupStates.Count}" +
                                    $" processing ready {allProcessingReady} processing count: {_resourceProcessingStates.Count}", CustomLogger.JOB, LogLevel.Warn);
@@ -239,56 +241,29 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             _jobConfirmation = fJobResourceConfirmation.JobConfirmation;
             
             //Clear all previous states
-            _resourceSetupStates.Clear();
-            _resourceProcessingStates.Clear();
             _resourceDistinctResourceStates.Clear();
             Agent.DebugMessage($"AcknowledgeJob: Clear _resourceSetupStates _resourceProcessingStates _resourceDistinctResourceStates", CustomLogger.JOBSTATE, LogLevel.Warn);
             Agent.DebugMessage($"Acknowledge Proposal {_jobConfirmation.Job.Name} received", CustomLogger.PROPOSAL, LogLevel.Warn);
-            var counter = 0;
             foreach (var resourceScope in fJobResourceConfirmation.ScopeConfirmations)
             {
                 var resourceRef = resourceScope.Key;
-                counter++;
                 var _jobConfirmationForResource = ((FJobConfirmation)_jobConfirmation).UpdateScopeConfirmation(resourceScope.Value);
-
-                Agent.DebugMessage(msg: $"Start round {counter} AcknowledgeProposal for {_jobConfirmation.Job.Name} {_jobConfirmation.Job.Key} on resource {resourceRef.Path.Name}" +
-                                        $" with scope confirmation for {_jobConfirmationForResource.ScopeConfirmation.GetScopeStart()} to {_jobConfirmationForResource.ScopeConfirmation.GetScopeEnd()}"
-                    , CustomLogger.PROPOSAL, LogLevel.Warn);
-
+                
                 Agent.Send(instruction: Resource.Instruction.Default.AcceptedProposals.Create(_jobConfirmationForResource, target: resourceRef));
-                var scopeCounter=0;
 
-                foreach (var scope in resourceScope.Value.Scopes)
+                if (resourceScope.Value.Scopes.Length > 1)
                 {
-                    scopeCounter++;
-                    switch (scope)
+                    _resourceDistinctResourceStates.Add(resourceScope.Key, new StateHandle(JobState.InQueue, true, true));
+                }
+                else
+                {
+                    switch (resourceScope.Value.Scopes.First())
                     {
-                        case FSetupSlot fs: 
-                            _resourceSetupStates.Add(resourceScope.Key, new StateHandle(JobState.InQueue));
-                            Agent.DebugMessage($"AcknowledgeJob: round {scopeCounter}  Change _resourceSetupStates for {resourceScope.Key.Path.Name}" +
-                                               $" ThreadId: { Thread.CurrentThread.ManagedThreadId }  TaskId: { Task.CurrentId }" +
-                                               $"to {_resourceSetupStates.Single(x => x.Key.Equals(resourceScope.Key)).Value.CurrentState.ToString()}", CustomLogger.JOBSTATE, LogLevel.Warn);
-                            break;
-                        case FProcessingSlot ps: _resourceProcessingStates.Add(resourceScope.Key, new StateHandle(JobState.InQueue));
-                            Agent.DebugMessage($"AcknowledgeJob: round {scopeCounter} Change _resourceProcessingStates for {resourceScope.Key.Path.Name} " +
-                                               $"ThreadId: { Thread.CurrentThread.ManagedThreadId }  TaskId: { Task.CurrentId }" +
-                                               $"to {_resourceProcessingStates.Single(x => x.Key.Equals(resourceScope.Key)).Value.CurrentState.ToString()}"
-                                , CustomLogger.JOBSTATE, LogLevel.Warn); break;
-                            default: throw new Exception("Wrong state implementation send.");
+                        case FSetupSlot fs:_resourceDistinctResourceStates.Add(resourceScope.Key, new StateHandle(JobState.InQueue, true, false)); break;
+                        case FProcessingSlot ps: _resourceDistinctResourceStates.Add(resourceScope.Key, new StateHandle(JobState.InQueue, false, true)); break;
+                        default: throw new Exception("Wrong state implementation send.");
                     }
                 }
-            }
-
-            var resourcesDistinct = _resourceProcessingStates.Select(x => x.Key)
-                                                             .Union(_resourceSetupStates.Select(s => s.Key))
-                                                             .Distinct();
-
-            foreach (var resource in resourcesDistinct)
-            {
-                _resourceDistinctResourceStates.Add(resource, new StateHandle(JobState.Created));
-                Agent.DebugMessage($"AcknowledgeJob: Change _resourceDistinctResourceStates for {resource.Path.Name} " +
-                                   $"to {_resourceDistinctResourceStates.Single(x => x.Key.Equals(resource)).Value.CurrentState.ToString()}"
-                                    , CustomLogger.JOBSTATE, LogLevel.Warn);
             }
         }
 
@@ -303,9 +278,10 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             requestingResource.Value.CurrentState = JobState.Ready;
             Agent.DebugMessage($"RequestSetupStart: Change _resourceSetupStates for {requestingResource.Key.Path.Name} to {requestingResource.Value.CurrentState}", CustomLogger.JOBSTATE, LogLevel.Warn);
 
-            if (_resourceSetupStates.Values.All(x => x.CurrentState == JobState.Ready)
-                && !_resourceDistinctResourceStates.Values.Any(x => x.CurrentState == JobState.RevokeStarted || x.CurrentState == JobState.Revoked)) 
-            // indicates that all Items are in Processing Slot on each resource and therefore no message for requeue from resource can occour
+            if (_resourceDistinctResourceStates.Values.All(x => x.CurrentState >= JobState.WillBeReady))
+            // if (_resourceSetupStates.Values.All(x => x.CurrentState >= JobState.WillBeReady)
+            //     && !_resourceDistinctResourceStates.Values.Any(x => x.CurrentState == JobState.RevokeStarted || x.CurrentState == JobState.Revoked)) 
+            // // indicates that all Items are in Processing Slot on each resource and therefore no message for requeue from resource can occour
             {
                 Agent.DebugMessage($"All request for setup received for {_jobConfirmation.Job.Name}. Start fix Bucket sent to Hub!", CustomLogger.JOB, LogLevel.Warn);
 
@@ -357,8 +333,6 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             if(value == null) return;
             value.CurrentState = JobState.Ready;
             Agent.DebugMessage($"RequestProcessingStart: Change _resourceProcessingStates for {key.Path.Name} to {value.CurrentState.ToString()}", CustomLogger.JOBSTATE, LogLevel.Warn);
-
-
             RequestFinalBucketFromHub();
         }
 

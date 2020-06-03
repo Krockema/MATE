@@ -35,7 +35,15 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             var (key, confirmation) = GetFirst();
             if (confirmation != null && ((FBucket)confirmation.Job).HasSatisfiedJob)
             {
-                
+                return confirmation;
+            }
+            return null;
+        }
+        public IConfirmation GetFirstIfSatisfiedAndSetReadyAtIsSmallerOrEqualThen(long currentTime, M_ResourceCapability resourceCapability = null)
+        {
+            var (key, confirmation) = GetFirst();
+            if (confirmation != null && ((FBucket)confirmation.Job).HasSatisfiedJob && confirmation.ScopeConfirmation.SetReadyAt <= currentTime)
+            {
                 return confirmation;
             }
             return null;
@@ -258,8 +266,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             // Queue contains no job --> Add queable item
             positions.Add(new FQueueingScope(isQueueAble: isQueueAble,
                                                 isRequieringSetup: isRequiringSetup,
-                                                scope: new FScope(start: earliestStart, end: long.MaxValue)
-                                                ));
+                                                scope: new FScope(start: earliestStart, end: long.MaxValue)));
             return positions;
         }
 

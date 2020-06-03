@@ -51,7 +51,18 @@ namespace Master40.SimulationCore.Agents.JobAgent
                 { }
                 public FJobResourceConfirmation GetObjectFromMessage { get => Message as FJobResourceConfirmation; }
             }
-            
+
+            public class ResourceWillBeReady : SimulationMessage
+            {
+                public static ResourceWillBeReady Create(IActorRef target)
+                {
+                    return new ResourceWillBeReady(message: null, target: target);
+                }
+                private ResourceWillBeReady(object message, IActorRef target) : base(message: message, target: target)
+                { }
+            }
+
+
             public class FinishProcessing : SimulationMessage
             {
                 public static FinishProcessing Create(IActorRef message, IActorRef target)

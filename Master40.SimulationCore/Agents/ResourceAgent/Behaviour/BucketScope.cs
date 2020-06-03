@@ -94,11 +94,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         private void RevokeJob(Guid jobKey)
         {
-            if (_jobInProgress.IsSet && _jobInProgress.Current.Job.Key.Equals(jobKey))
+            var revokedJob = _jobInProgress.RevokeJob(jobKey);
+            if (revokedJob != null)
             {
-                Agent.DebugMessage(msg: $"Revoking Job from Processing {_jobInProgress.Current.Job.Name} {_jobInProgress.Current.Job.Key}", CustomLogger.JOB, LogLevel.Warn);
-                Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(message: Agent.Context.Self, target: _jobInProgress.Current.JobAgentRef));
-                _jobInProgress.Reset();
+                Agent.DebugMessage(msg: $"Revoking Job from Processing {revokedJob.Job.Name} {revokedJob.Job.Key}", CustomLogger.JOB, LogLevel.Warn);
+                Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(message: Agent.Context.Self, target: revokedJob.JobAgentRef));
                 UpdateProcessingItem();
                 return;
             }
@@ -200,11 +200,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             //{
             //    CreateGanttChartForRessource();
             //}
+            ////TODO _JobInProgress.ContainsJobWithKey(Key)
             if (_jobInProgress.IsSet 
                 && !_jobInProgress.IsWorking 
-                && _jobInProgress.Current.ScopeConfirmation.GetScopeStart() < Agent.CurrentTime) 
+                && _jobInProgress.IsCurrentDelayed(Agent.CurrentTime))
             {
-                Agent.Send(Job.Instruction.DelayedStartNotification.Create(_jobInProgress.Current.JobAgentRef));
+                Agent.Send(Job.Instruction.DelayedStartNotification.Create(_jobInProgress.JobAgentRef));
             }
             UpdateProcessingItem();
             return true;
@@ -216,7 +217,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             List<GanttChartItem> ganttData = new List<GanttChartItem>();
             if (_jobInProgress.IsSet)
-                ganttData.AddRange(CreateGanttProcessingQueueLog(new[] { _jobInProgress.Current }, true));
+                ganttData.AddRange(CreateGanttProcessingQueueLog(new[] { _jobInProgress.GanttItem }, true));
             // add from scope
 
             var jobs = _scopeQueue.GetAllJobs().OrderBy(x => x.Job.Priority(Agent.CurrentTime)).ToList();
@@ -245,7 +246,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                     operationStart = inProcessing ? _jobInProgress.StartedAt 
                                                   : bucket.ScopeConfirmation.GetSetup().Start;
                     var end = operationStart + (bucket.ScopeConfirmation.GetSetup()?.End - bucket.ScopeConfirmation.GetSetup()?.Start);
-                    var finalized = inProcessing && _jobInProgress.IsFinalized;
+                    var finalized = inProcessing;  //TODO: Not correct anymore - need to be fixed for fronend (Gantt chart)
                     var isWorking = inProcessing && _jobInProgress.IsWorking;
                     ganttTransformation.Add(new GanttChartItem
                     {
@@ -328,9 +329,29 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal void UpdateProcessingItem()
         {
-            var job = _scopeQueue.GetFirstIfSatisfied(currentTime: Agent.CurrentTime, _capabilityProviderManager.GetCurrentUsedCapability());
+            // Fälle
+            // 1. _jobInProgress ist leer
+            // 2. _jobInProgress hat etwas in progress aber nichts Ready Gelistet
+            // 3. _jobInProgress hat etwas in progress und Ready Gelistete elemente
+            var foundItem = true;
+            while (foundItem)
+            {
+                var item = _scopeQueue.GetFirstIfSatisfiedAndSetReadyAtIsSmallerOrEqualThen(currentTime: Agent.CurrentTime,
+                                                                                          _capabilityProviderManager.GetCurrentUsedCapability());
+                if (item == null)
+                {
+                    foundItem = false; 
+                    continue;
+                }
 
+                Agent.Send(instruction: Job.Instruction.ResourceWillBeReady.Create(target: item.JobAgentRef));
+                _jobInProgress.Add(item);
+                Agent.DebugMessage(msg: $"Add to jobInProgress { item.Job.Name } { item.Job.Key } scope start { item.ScopeConfirmation.GetScopeStart() } setReadyAt { item.ScopeConfirmation.SetReadyAt } isSatisfied { item.Job.StartConditions.Satisfied }", CustomLogger.JOB, LogLevel.Warn);
+                _scopeQueue.RemoveJob(item);
+            }
 
+            var job = _jobInProgress.ReadyItemToProcessingItem();
+                //_jobInProgress.has any ready items
             if (!_jobInProgress.IsSet && job.IsNull())
             {
                 Agent.DebugMessage(msg: $"Start Queue Health check.", CustomLogger.JOB, LogLevel.Warn);
@@ -341,50 +362,31 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                     return;
                 };
             }
-
-            var insideJob = _jobInProgress.IsSet ? $" | Job in Progress {_jobInProgress.Current.Job.Name} {_jobInProgress.Current.Job.Key} " +
-                                                         $"at work {_jobInProgress.IsWorking}  " +
+            /*
+            var insideJob = _jobInProgress.IsSet ? $" | Job in Progress {_jobInProgress.JobName} {_jobInProgress.JobKey} " +
+                                                         $"at work {_jobInProgress.IsWorking}  " 
                                                          //$"scope start {_jobInProgress.Current.ScopeConfirmation.GetScopeStart()} " +
-                                                         $"prio {_jobInProgress.Current.Job.Priority(Agent.CurrentTime)} | " 
+                                                         //$"prio {_jobInProgress.Current.Job.Priority(Agent.CurrentTime) } | " 
                                                        : $" | No job in Progress set |";
             var allPrios = "";
             _scopeQueue.GetAllJobs().ForEach(x => allPrios += $"  | Bucket {x.Job.Name} | Prio: {x.Job.Priority(Agent.CurrentTime)} " +
                                                               $"| Is Ready: {((FBucket)x.Job).HasSatisfiedJob } " +
                                                               $"| FirstOperation {((FBucket)x.Job).Operations.First().Operation.Name} | ScopeStart {x.ScopeConfirmation.GetScopeStart()}");
-
-            if (_jobInProgress.IsSet)
+            */
+            if (job.IsNull())
             {
-              Agent.DebugMessage(msg: $"Invalid start conditions. To Start processing | " + insideJob + " | Remaining in Queue " + allPrios, CustomLogger.JOB, LogLevel.Warn);
+              //Agent.DebugMessage(msg: $"Invalid start conditions. To Start processing | " + insideJob + " | Remaining in Queue " + allPrios, CustomLogger.JOB, LogLevel.Warn);
                 return;
             }
-            var isQueueAble = (job != null) ? $" To Progress {job.Job.Name} {job.Job.Key} scope start {job.ScopeConfirmation.GetScopeStart()} prio {job.Job.Priority(Agent.CurrentTime)}" : " not satisfied";
+            // var isQueueAble = (job != null) ? $" To Progress {job.Job.Name} {job.Job.Key} scope start {job.ScopeConfirmation.GetScopeStart()} prio {job.Job.Priority(Agent.CurrentTime)}" : " not satisfied";
             
 
-            Agent.DebugMessage(msg: $"Try to update processing item from scope queue with {_scopeQueue.Count} bucket. " + insideJob + isQueueAble +
-                                    $" | Job is in progress: {_jobInProgress.IsSet}" + allPrios, CustomLogger.JOB, LogLevel.Warn);
+            // Agent.DebugMessage(msg: $"Try to update processing item from scope queue with {_scopeQueue.Count} bucket. " + insideJob + isQueueAble +
+            //                        $" | Job is in progress: {_jobInProgress.IsSet}" + allPrios, CustomLogger.JOB, LogLevel.Warn);
 
             // take the next scope and make it fix 
-            if (!_jobInProgress.IsSet && job.IsNotNull())
+            if (job.IsNotNull())
             {   
-                _scopeQueue.RemoveJob(job);
-                var setupDuration = 0L;
-                if (job.ScopeConfirmation.GetSetup().IsNotNull())
-                {
-                    setupDuration = job.ScopeConfirmation.GetSetup().End - job.ScopeConfirmation.GetSetup().Start;
-                }
-                //TODO: Remove Magic
-                if (Agent.Name.Contains("Operator"))
-                {
-                    _jobInProgress.Set(job, job.ScopeConfirmation.GetScopeStart() + setupDuration);
-                } else {
-                    _jobInProgress.Set(job, job.ScopeConfirmation.GetScopeStart() + setupDuration + job.Duration);
-                }
-
-                Agent.DebugMessage(msg: $"Job to place in processingQueue: {job.Job.Name} {job.Job.Key} with satisfied:" +
-                                        $" {((FBucket)job.Job).HasSatisfiedJob} Try to start processing."
-                                    , CustomLogger.JOB, LogLevel.Warn);
-                
-                // ToDo : test behaviour of this method.
                 if (job.ScopeConfirmation.GetSetup() != null)
                 {
                     Agent.Send(instruction: Job.Instruction.RequestSetupStart.Create(message: Agent.Context.Self, target: job.JobAgentRef));
@@ -401,9 +403,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         private void FinalizedBucket(IConfirmation fJobConfirmation)
         {
-            if (_jobInProgress.IsSet && _jobInProgress.Current.Key.Equals(fJobConfirmation.Key))
+            if (_jobInProgress.UpdateJob(fJobConfirmation)) 
             {
-                _jobInProgress.UpdateJobs(fJobConfirmation, Agent.CurrentTime + fJobConfirmation.Duration);
                 RequeueIfNecessary();
             }
         }
@@ -427,18 +428,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// </summary>
         internal void DoSetup()
         {
-            var setupDuration = _capabilityProviderManager.GetSetupDurationBy(_jobInProgress.Current.CapabilityProvider.ResourceCapabilityId);
-            var busyUntil = Agent.Name.Contains("Operator")
-                ? Agent.CurrentTime + setupDuration
-                : Agent.CurrentTime + setupDuration + _jobInProgress.Current.Duration;
+            var setupDuration = _capabilityProviderManager.GetSetupDurationBy(_jobInProgress.ResourceCapabilityId);
+            var duration = Agent.Name.Contains("Operator")
+                ? setupDuration
+                : setupDuration + _jobInProgress.JobDuration;
 
             //Start setup 
             Agent.DebugMessage(msg:
-                $"Call start Setup for Job {_jobInProgress.Current.Job.Name}  Key: {_jobInProgress.Current.Job.Key} " +
+                $"Call start Setup for Job {_jobInProgress.JobName}  Key: {_jobInProgress.JobKey} " +
                 $"Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}", CustomLogger.JOB, LogLevel.Warn);
             
-            _capabilityProviderManager.Mount(_jobInProgress.Current.CapabilityProvider.Id);
-            _jobInProgress.Start(Agent.CurrentTime, busyUntil);
+            _capabilityProviderManager.Mount(_jobInProgress.CapabilityProviderId);
+            _jobInProgress.Start(Agent.CurrentTime, duration);
 
             CreateSetupTask(setupDuration, JobType.SETUP);
 
@@ -447,7 +448,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal void FinishSetup() // only in case it is not required for processing.
         {
-            Agent.DebugMessage($"Finished Setup for {_jobInProgress.Current.Job.Name}, Resource is released to do next Task;", CustomLogger.JOB, LogLevel.Warn);
+            Agent.DebugMessage($"Finished Setup for {_jobInProgress.JobName }, Resource is released to do next Task;", CustomLogger.JOB, LogLevel.Warn);
             NextTask(); // should only start setup if operations are fine 
             UpdateProcessingItem();
         }
@@ -457,9 +458,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// </summary>
         internal void DoWork(FOperation operation)
         {
-            Agent.DebugMessage($"Call start Work for {_jobInProgress.Current.Job.Name} {operation.Operation.Name} {operation.Key} to process for {operation.Operation.RandomizedDuration}", CustomLogger.JOB, LogLevel.Warn);
+            Agent.DebugMessage($"Call start Work for {_jobInProgress.JobName} {operation.Operation.Name} {operation.Key} to process for {operation.Operation.RandomizedDuration}", CustomLogger.JOB, LogLevel.Warn);
 
-            _jobInProgress.Start(Agent.CurrentTime, Agent.CurrentTime + _jobInProgress.Current.Duration);
+            _jobInProgress.Start(Agent.CurrentTime, Agent.CurrentTime + _jobInProgress.JobDuration);
 
             CreateProcessingTask(operation);
 
@@ -474,17 +475,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             
             if (task.Equals("SETUP"))
             {
-                Agent.Send(instruction: BasicInstruction.FinishSetup.Create(message: Agent.Context.Self, target: _jobInProgress.Current.JobAgentRef));
+                Agent.Send(instruction: BasicInstruction.FinishSetup.Create(message: Agent.Context.Self, target: _jobInProgress.JobAgentRef));
             }
             else { 
-                Agent.Send(instruction: Job.Instruction.FinishProcessing.Create(Agent.Context.Self, _jobInProgress.Current.JobAgentRef));
+                Agent.Send(instruction: Job.Instruction.FinishProcessing.Create(Agent.Context.Self, _jobInProgress.JobAgentRef));
             }
         }
 
 
         internal void FinishBucket()
         {
-            Agent.DebugMessage(msg: $"Call finished work with {_jobInProgress.Current.Job.Name} {_jobInProgress.Current.Job.Key} take next...", CustomLogger.JOB, LogLevel.Warn);
+            Agent.DebugMessage(msg: $"Call finished work with {_jobInProgress.JobName} {_jobInProgress.JobKey} take next...", CustomLogger.JOB, LogLevel.Warn);
             NextTask();
             UpdateProcessingItem();
         }
@@ -565,7 +566,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 , end: Agent.CurrentTime + item.Operation.RandomizedDuration
                 , capability: _capabilityProviderManager.GetCurrentUsedCapability().Name
                 , operation: item.Operation.Name
-                , groupId: _jobInProgress.Current.Job.Name );
+                , groupId: _jobInProgress.JobName );
 
             //TODO NO tracking
             Agent.Context.System.EventStream.Publish(@event: pub);
@@ -579,8 +580,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 , start: Agent.CurrentTime
                 , end: Agent.CurrentTime + gap
                 , capability: _capabilityProviderManager.GetCurrentUsedCapability().Name
-                , operation: $"{type} for {_jobInProgress.Current.Job.Name}"
-                , groupId: _jobInProgress.Current.Job.Name );
+                , operation: $"{type} for {_jobInProgress.JobName}"
+                , groupId: _jobInProgress.JobName );
 
             //TODO NO tracking
             Agent.Context.System.EventStream.Publish(@event: pub);

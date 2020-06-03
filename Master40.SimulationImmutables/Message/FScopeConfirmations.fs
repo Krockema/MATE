@@ -8,6 +8,7 @@ open FProcessingSlots
     type public FScopeConfirmation =         
         {   
             Scopes : List<ITimeRange>
+            SetReadyAt : int64
         } 
             member this.GetScopeStart() = this.Scopes.Min(fun y -> y.Start)
             member this.GetScopeEnd() = this.Scopes.Max(fun y -> y.End)

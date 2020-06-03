@@ -245,10 +245,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         private void FinishJob(IJobResult jobResult)
         {
-            Agent.DebugMessage(msg: $"Finished Work with {_jobInProgress.Current.Job.Name} {_jobInProgress.Current.Job.Key} take next...");
+            Agent.DebugMessage(msg: $"Finished Work with {_jobInProgress.JobName} {_jobInProgress.JobKey} take next...");
             jobResult = jobResult.FinishedAt(Agent.CurrentTime);
 
-            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: jobResult, target: _jobInProgress.Current.Job.HubAgent));
+            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: jobResult, target: _jobInProgress.GanttItem.Job.HubAgent));
             _jobInProgress.Reset();
 
             // then requeue processing queue if the item was delayed 

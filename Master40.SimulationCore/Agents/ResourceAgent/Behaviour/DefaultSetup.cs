@@ -237,17 +237,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         internal virtual void DoSetup()
         {
             //Start setup if necessary 
-            var setupDuration = GetSetupTime(_jobInProgress.Current.CapabilityProvider.Id);
+            var setupDuration = GetSetupTime(_jobInProgress.CapabilityProviderId);
 
             if (setupDuration > 0)
             {
                 Agent.DebugMessage(
                     msg:
-                    $"Start with Setup for Job {_jobInProgress.Current.Job.Name}  Key: {_jobInProgress.Current.Job.Key} Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
-                _capabilityProviderManager.Mount(_jobInProgress.Current.Job.RequiredCapability.Id);
+                    $"Start with Setup for Job {_jobInProgress.JobName}  Key: {_jobInProgress.JobKey} Duration is {setupDuration} and start with Job at {Agent.CurrentTime + setupDuration}");
+                _capabilityProviderManager.Mount(_jobInProgress.CapabilityProviderId);
                 ResultStreamFactory.PublishResourceSetup(agent: Agent,
                                                          duration: setupDuration,
-                                                         capabilityProvider: _jobInProgress.Current.CapabilityProvider);
+                                                         capabilityProvider: _jobInProgress.CapabilityProvider);
                 
             }
 
@@ -260,19 +260,19 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         /// </summary>
         internal virtual void DoWork()
         {
-            var randomizedWorkDuration = _workTimeGenerator.GetRandomWorkTime(duration: _jobInProgress.Current.Job.Duration);
-            Agent.DebugMessage(msg: $"Starting Job {_jobInProgress.Current.Job.Name}  Key: {_jobInProgress.Current.Job.Key} new Duration is {randomizedWorkDuration}");
+            var randomizedWorkDuration = _workTimeGenerator.GetRandomWorkTime(duration: _jobInProgress.JobDuration);
+            Agent.DebugMessage(msg: $"Starting Job {_jobInProgress.JobName}  Key: {_jobInProgress.JobKey} new Duration is {randomizedWorkDuration}");
 
-            ResultStreamFactory.PublishJob(Agent, job: _jobInProgress.Current.Job, randomizedWorkDuration, _jobInProgress.Current.CapabilityProvider, _jobInProgress.Current.Job.Bucket);
+            ResultStreamFactory.PublishJob(Agent, job: _jobInProgress.GanttItem.Job, randomizedWorkDuration, _jobInProgress.CapabilityProvider, _jobInProgress.GanttItem.Job.Bucket);
 
 
-            var fOperationResult = new FOperationResult(key: _jobInProgress.Current.Job.Key
+            var fOperationResult = new FOperationResult(key: _jobInProgress.JobKey
                                              , creationTime: 0
                                                     , start: Agent.CurrentTime
                                                       , end: Agent.CurrentTime + randomizedWorkDuration
-                                         , originalDuration: _jobInProgress.Current.Job.Duration
+                                         , originalDuration: _jobInProgress.JobDuration
                                           , productionAgent: ActorRefs.Nobody
-                                       , capabilityProvider: _jobInProgress.Current.CapabilityProvider.Name);
+                                       , capabilityProvider: _jobInProgress.CapabilityProvider.Name);
 
             Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: fOperationResult, target: Agent.Context.Self), waitFor: randomizedWorkDuration);
 
@@ -280,10 +280,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal virtual void FinishJob(IJobResult jobResult)
         {
-            Agent.DebugMessage(msg: $"Finished Work with {_jobInProgress.Current.Job.Name} {_jobInProgress.Current.Job.Key} take next...");
+            Agent.DebugMessage(msg: $"Finished Work with {_jobInProgress.JobName} {_jobInProgress.JobKey} take next...");
             jobResult = jobResult.FinishedAt(Agent.CurrentTime);
 
-            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: jobResult, target: _jobInProgress.Current.Job.HubAgent));
+            Agent.Send(instruction: BasicInstruction.FinishJob.Create(message: jobResult, target: _jobInProgress.GanttItem.Job.HubAgent));
             _jobInProgress.Reset();
 
             // then requeue processing queue if the item was delayed 

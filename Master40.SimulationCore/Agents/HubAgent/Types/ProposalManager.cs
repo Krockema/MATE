@@ -187,8 +187,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                         if (processingResources.Count == 0)
                         {
                             mainProcessingSlots = new List<ITimeRange> { setupSlot, processingSlot };
-                            mainResources.ForEach(resourceRef => possibleProcessingPosition.Add(resourceRef, CreateScopeConfirmation(mainProcessingSlots), earliestProcessingStart));
-                            setupResources.ForEach(resourceRef => possibleProcessingPosition.Add(resourceRef, CreateScopeConfirmation(setupSlot)));
+                            mainResources.ForEach(resourceRef => possibleProcessingPosition.Add(resourceRef, CreateScopeConfirmation(mainProcessingSlots, earliestSetupStart), earliestProcessingStart));
+                            setupResources.ForEach(resourceRef => possibleProcessingPosition.Add(resourceRef, CreateScopeConfirmation(setupSlot, earliestSetupStart)));
                             break;
                         }
                     }
@@ -200,7 +200,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                     if (processingResources.Count == 0) //
                     {
                         mainProcessingSlots = new List<ITimeRange> { setupSlot, processingSlot };
-                        mainResources.ForEach(resourceRef => possibleProcessingPosition.Add(resourceRef, CreateScopeConfirmation(mainProcessingSlots), earliestProcessingStart));
+                        mainResources.ForEach(resourceRef => possibleProcessingPosition.Add(resourceRef, CreateScopeConfirmation(mainProcessingSlots, earliestSetupStart), earliestProcessingStart));
                         break;
                     }
                     
@@ -215,12 +215,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                     processingSlot = new FProcessingSlot(start: processingResourceSlot.Start, end: processingResourceSlot.End);
 
                     mainProcessingSlots = new List<ITimeRange> { setupSlot, processingSlot };
-                    mainResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(mainProcessingSlots)));
-                    processingResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(processingSlot), processingSlot.Start));
+                    mainResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(mainProcessingSlots, earliestSetupStart)));
+                    processingResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(processingSlot, earliestSetupStart), processingSlot.Start));
                     if (setupResources.Count > 0)
                     {
                         setupResources.ForEach(x =>
-                            possibleProcessingPosition.Add(x, CreateScopeConfirmation(new List<ITimeRange> { setupSlot } )));
+                            possibleProcessingPosition.Add(x, CreateScopeConfirmation(new List<ITimeRange> { setupSlot }, earliestSetupStart )));
                     }
                     break;
 
@@ -234,7 +234,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                     if (processingResources.Count == 0)
                     {
                         mainSlot = new FProcessingSlot(start: mainScope.Scope.Start, end: mainScope.Scope.Start + jobDuration);
-                        mainResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(mainSlot), mainSlot.Start));
+                        mainResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(mainSlot, mainSlot.Start), mainSlot.Start));
                         break;
                     }
                     processingSlot = FindProcessingSlot(possibleProcessingQueuingPositions.Where(x => x.IsQueueAble)
@@ -245,8 +245,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
                     mainSlot = new FProcessingSlot(start: processingSlot.Start, end: processingSlot.Start + jobDuration);
 
-                    mainResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(mainSlot)));
-                    processingResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(mainSlot), mainSlot.Start));
+                    mainResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(mainSlot, mainSlot.Start)));
+                    processingResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(mainSlot, mainSlot.Start), mainSlot.Start));
                     break;
                 }
 
@@ -255,14 +255,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return possibleProcessingPosition;
         }
 
-        private FScopeConfirmation CreateScopeConfirmation(List<ITimeRange> timeRanges)
+        private FScopeConfirmation CreateScopeConfirmation(List<ITimeRange> timeRanges, long setStartAt)
         {
-            return new FScopeConfirmation(ListModule.OfSeq(timeRanges));
+            return new FScopeConfirmation(ListModule.OfSeq(timeRanges), setStartAt);
         }
 
-        private FScopeConfirmation CreateScopeConfirmation(ITimeRange timeRange)
+        private FScopeConfirmation CreateScopeConfirmation(ITimeRange timeRange, long setStartAt)
         {
-            return new FScopeConfirmation(ListModule.OfSeq(new List<ITimeRange>() { timeRange }));
+            return new FScopeConfirmation(ListModule.OfSeq(new List<ITimeRange>() { timeRange }), setStartAt);
         }
 
 

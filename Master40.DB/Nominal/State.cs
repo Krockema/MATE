@@ -15,14 +15,14 @@
 
     public enum JobState
     {
-        Created,
-        InQueue,
         Revoked,
         RevokeStarted,
+        Created,
+        InQueue,
+        WillBeReady,
         Ready,
         InProcess,
-        Finish
-
+        Finish,
     }
 
     public enum ProducingState
