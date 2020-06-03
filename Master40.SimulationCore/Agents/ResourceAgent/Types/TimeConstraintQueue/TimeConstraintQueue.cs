@@ -42,7 +42,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
         public IConfirmation GetFirstIfSatisfiedAndSetReadyAtIsSmallerOrEqualThen(long currentTime, M_ResourceCapability resourceCapability = null)
         {
             var (key, confirmation) = GetFirst();
-            if (confirmation != null && ((FBucket)confirmation.Job).HasSatisfiedJob && confirmation.ScopeConfirmation.SetReadyAt <= currentTime)
+            if (confirmation != null 
+                && ((FBucket)confirmation.Job).HasSatisfiedJob 
+                && confirmation.ScopeConfirmation.SetReadyAt <= currentTime)
             {
                 return confirmation;
             }
@@ -296,11 +298,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             return this.Count > 0 ? this.Values.First() : null;
         }
 
-        public bool CheckScope(IConfirmation confirmation, long time, long resourceIsBusyUntil, int equippedCapability)
+        public bool CheckScope(IConfirmation confirmation, long time, long resourceIsBusyUntil, int equippedCapability, bool usedInSetup)
         {
             if (resourceIsBusyUntil > confirmation.ScopeConfirmation.GetScopeStart())
                 return false;
-
+            
             var hasSetup = confirmation.ScopeConfirmation.GetSetup();
             var priority = confirmation.Job.Priority(time);
             var allWithHigherPriority = this.Where(x => x.Value.Job.Priority(time) <= priority).ToList();
@@ -313,11 +315,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 
 
 
-
+            
             // check if setup is missing on "inProcessing" item
             if (pre.Value == null)
             {
-                if (confirmation.CapabilityProvider.ResourceCapabilityId.NotEqual(equippedCapability)
+                if (usedInSetup && confirmation.CapabilityProvider.ResourceCapabilityId.NotEqual(equippedCapability)
                     && hasSetup is null)
                 {
                         return false;
@@ -325,11 +327,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                 return true;
             }
             // check if setup is missing on previous item
-            if (pre.Value.CapabilityProvider.ResourceCapabilityId.NotEqual(confirmation.CapabilityProvider.ResourceCapabilityId) && hasSetup is null)
+            if (usedInSetup && pre.Value.CapabilityProvider.ResourceCapabilityId.NotEqual(confirmation.CapabilityProvider.ResourceCapabilityId) && hasSetup is null)
             {
                 return false;
             }
-                
+        
+
 
             var preReady = ((FBucket)pre.Value.Job).HasSatisfiedJob;
             var jobToPutReady = ((FBucket)confirmation.Job).HasSatisfiedJob;

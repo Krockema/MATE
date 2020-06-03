@@ -33,7 +33,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public M_ResourceCapabilityProvider CapabilityProvider => Current.CapabilityProvider;
         #endregion
 
-        public void Start(long currentTime, long duration)
+        public void Start(long currentTime)
         {
             if (IsWorking)
                 return;
