@@ -197,11 +197,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         public override bool PostAdvance()
         {
-            //if (Agent.CurrentTime % 50 == 0 || Agent.CurrentTime == 2)
-            //{
-            //    CreateGanttChartForRessource();
-            //}
-            ////TODO _JobInProgress.ContainsJobWithKey(Key)
+            if (Agent.CurrentTime % 50 == 0 || Agent.CurrentTime == 2)
+            {
+
+              CreateGanttChartForRessource();
+            }
+            //TODO _JobInProgress.ContainsJobWithKey(Key)
             if (_jobInProgress.IsSet 
                 && !_jobInProgress.IsWorking 
                 && _jobInProgress.IsCurrentDelayed(Agent.CurrentTime))
@@ -217,10 +218,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         private void CreateGanttChartForRessource()
         {
             List<GanttChartItem> ganttData = new List<GanttChartItem>();
-            if (_jobInProgress.IsSet)
+            if (_jobInProgress.IsSet) { 
                 ganttData.AddRange(CreateGanttProcessingQueueLog(new[] { _jobInProgress.GanttItem }, true));
-            // add from scope
-
+                // add from scope
+            }
+            ganttData.AddRange(CreateGanttProcessingQueueLog(_jobInProgress.GanttItems.ToArray(), true));
             var jobs = _scopeQueue.GetAllJobs().OrderBy(x => x.Job.Priority(Agent.CurrentTime)).ToList();
             if (jobs.Count > 0)
             {

@@ -29,6 +29,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public Guid JobKey => Current.Job.Key;
         public IActorRef JobAgentRef => Current.JobAgentRef;
         public IConfirmation GanttItem => Current;
+        public List<IConfirmation> GanttItems => this.ReadyElements.Values.ToList();
         public bool IsCurrentDelayed(long currentTime) => Current.ScopeConfirmation.GetScopeStart() < currentTime;
         public M_ResourceCapabilityProvider CapabilityProvider => Current.CapabilityProvider;
         #endregion

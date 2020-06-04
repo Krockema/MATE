@@ -111,8 +111,10 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
             _resourceDistinctResourceStates.TryGetValue(Agent.Sender, out var resourceStateHandle);
             resourceStateHandle.CurrentState = JobState.WillBeReady;
-          
-            Agent.DebugMessage($"AcknowledgeRevoke: Change _resourceDistinctResourceStates for {Agent.Sender.Path.Name} to {resourceStateHandle.CurrentState}", CustomLogger.JOBSTATE, LogLevel.Warn);
+
+            TryToStart();
+
+            Agent.DebugMessage($"ResourceWillBeReady: Change _resourceDistinctResourceStates for {Agent.Sender.Path.Name} to {resourceStateHandle.CurrentState}", CustomLogger.JOBSTATE, LogLevel.Warn);
         }
 
         private void RequestRequeueFromHub()
@@ -273,13 +275,23 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             requestingResource.Value.CurrentState = JobState.SetupReady;
             Agent.DebugMessage($"RequestSetupStart: Change _resourceSetupStates for {requestingResource.Key.Path.Name} to {requestingResource.Value.CurrentState}", CustomLogger.JOBSTATE, LogLevel.Warn);
 
+            TryToStart();
+        }
+
+        private void TryToStart()
+        {
+            Agent.DebugMessage(
+                $"Try to Start {_jobConfirmation.Job.Name}", CustomLogger.JOB, LogLevel.Warn);
+
             if (_resourceDistinctResourceStates.Values.All(x => x.CurrentState >= JobState.WillBeReady)
                 && _resourceSetupStates.Values.All(x => x.CurrentState.Equals(JobState.SetupReady)))
-            // if (_resourceSetupStates.Values.All(x => x.CurrentState >= JobState.WillBeReady)
-            //     && !_resourceDistinctResourceStates.Values.Any(x => x.CurrentState == JobState.RevokeStarted || x.CurrentState == JobState.Revoked)) 
-            // // indicates that all Items are in Processing Slot on each resource and therefore no message for requeue from resource can occour
+                // if (_resourceSetupStates.Values.All(x => x.CurrentState >= JobState.WillBeReady)
+                //     && !_resourceDistinctResourceStates.Values.Any(x => x.CurrentState == JobState.RevokeStarted || x.CurrentState == JobState.Revoked)) 
+                // // indicates that all Items are in Processing Slot on each resource and therefore no message for requeue from resource can occour
             {
-                Agent.DebugMessage($"All request for setup received for {_jobConfirmation.Job.Name}. Start fix Bucket sent to Hub!", CustomLogger.JOB, LogLevel.Warn);
+                Agent.DebugMessage(
+                    $"All request for setup received for {_jobConfirmation.Job.Name}. Start fix Bucket sent to Hub!",
+                    CustomLogger.JOB, LogLevel.Warn);
 
                 RequestToFixBucketOnHub();
             }

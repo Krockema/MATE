@@ -221,7 +221,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             if (finalCall)
             {
-                Collector.CreateKpi(Collector, (leadTime.Average(x => x.Dlz.Average()) / leadTime.Count()).ToString() , "AverageLeadTime", KpiType.LeadTime, true);    
+                //Collector.CreateKpi(Collector, (leadTime.Average(x => x.Dlz.Average()) / leadTime.Count()).ToString() , "AverageLeadTime", KpiType.LeadTime, true);    
             }
             
             //foreach (var item in leadTime)
