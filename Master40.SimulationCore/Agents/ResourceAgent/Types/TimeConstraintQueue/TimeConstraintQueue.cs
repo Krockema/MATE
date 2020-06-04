@@ -189,6 +189,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             if (!enumerator.MoveNext())
             {
                 isQueueAble = true;
+                // TODO Last Capability from _jobInProgress.ReadyElements
                 isRequiringSetup = (!capabilityProviderManager.AlreadyEquipped(resourceCapabilityId));
                 // ignore first round
                 // totalwork bis max
@@ -236,14 +237,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                         }
                     }
 
-                    if (requiredTime <= postScopeStart - earliestStart 
-                        && requiredTime > 0)
+                    if (requiredTime <= postScopeStart - earliestStart && requiredTime > 0)
                     {
                         positions.Add(new FQueueingScope(isQueueAble: true,
                                                         isRequieringSetup: isRequiringSetup, // setup is Required
                                                         scope: new FScope(start: earliestStart, end: postScopeStart)
                                                         ));
                     }
+
                     current = post;
                     if (usedForSetupAndProcess)
                     {

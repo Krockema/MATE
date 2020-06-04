@@ -323,7 +323,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         }
 
 
-        private bool SlotComparerSetup(ITimeRange mainResourcePos, ITimeRange toCompare, long processingTime, long setupTime) // doesnt work with worker
+        private bool SlotComparerSetup(ITimeRange mainResourcePos, ITimeRange toCompare, long processingTime, long setupTime) 
         {
             // calculate posible earliest start
             long earliestStart = (new[] { toCompare.Start, mainResourcePos.Start }).Max();
@@ -336,7 +336,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         }
 
 
-        private bool SlotComparerBasic(ITimeRange mainResourcePos, ITimeRange toCompare, long duration) // doesnt work with worker
+        private bool SlotComparerBasic(ITimeRange mainResourcePos, ITimeRange toCompare, long duration) 
         {
             // calculate posible earliest start
             long earliestStart = (new[] { toCompare.Start, mainResourcePos.Start }).Max();

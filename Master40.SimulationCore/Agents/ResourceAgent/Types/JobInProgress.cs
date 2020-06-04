@@ -34,13 +34,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public M_ResourceCapabilityProvider CapabilityProvider => Current.CapabilityProvider;
         #endregion
 
-        public void Start(long currentTime)
+        public void Start(long currentTime, long duration)
         {
             if (IsWorking)
                 return;
             
             StartedAt = currentTime;
-            ExpectedDuration = Current.Duration;
+            ExpectedDuration = duration; //Current.Duration;
             IsWorking = true;
         }
         public bool Set(IConfirmation jobConfirmation, long duration)
