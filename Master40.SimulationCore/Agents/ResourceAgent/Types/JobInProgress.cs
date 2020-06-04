@@ -5,6 +5,7 @@ using System.Linq;
 using Akka.Actor;
 using Master40.DB.DataModel;
 using NLog;
+using static FBuckets;
 using static IConfirmations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
@@ -12,6 +13,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
     public class JobInProgress
     {
         private IConfirmation Current { get; set; }
+        public CurrentOperation CurrentOperation { get; set; } = new CurrentOperation();
         private SortedList<long, IConfirmation> ReadyElements { get; } = new SortedList<long, IConfirmation>();
         public long ResourceIsBusyUntil => (ReadyElements.Count > 0) ? ReadyElements.Values.Max(x => x.ScopeConfirmation.GetScopeEnd()) 
                                                                      :  (StartedAt + ExpectedDuration);
@@ -19,9 +21,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public long StartedAt { get; private set; }
         public bool IsSet => Current != null;
         public bool IsWorking {get; private set; } = false;
-        
+        public bool ResetIsWorking() => IsWorking = false;
+
     #region Passthrough Properties
         public long JobDuration => Current.Job.Duration;
+        public long JobMaxDuration => ((FBucket) Current.Job).MaxBucketSize;
         public int ResourceCapabilityId => Current.CapabilityProvider.ResourceCapabilityId;
         public int CapabilityProviderId => Current.CapabilityProvider.Id;
         public string RequiredCapabilityName => Current.Job.RequiredCapability.Name;

@@ -14,6 +14,7 @@ using System.Linq;
 using Akka.Util.Internal;
 using Master40.Tools.ExtensionMethods;
 using Master40.Tools.Messages;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 using static FBuckets;
 using static FOperations;
@@ -274,7 +275,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                         IsFinalized = finalized.ToString(),
                         IsWorking = isWorking.ToString()
                     });
+                    //End here if its a setup resource
                     if (Agent.Name.Contains("Operator")) continue;
+                    //for Empty space of Main Resources between End Setup and Start Processing 
                     ganttTransformation.Add(new GanttChartItem
                     {
                         article = $"{bucket.Job.Name} from {bucket.ScopeConfirmation.GetScopeStart()} to {bucket.ScopeConfirmation.GetScopeEnd()}",
@@ -301,10 +304,16 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 
                 operationStart = bucket.ScopeConfirmation.GetProcessing().Start;
                 var ops = ((FBucket) bucket.Job).Operations.OrderBy(x => x.Priority.Invoke(Agent.CurrentTime)).ToArray();
+
                 // Add bar for each operation
                 for (int j = 0; j < ops.Length; j++)
                 {
                     var operation = ops[j];
+                    var isCurrentOperation = false;
+                    if (_jobInProgress.CurrentOperation.Operation != null)
+                    {
+                        isCurrentOperation = _jobInProgress.CurrentOperation.Operation.Key.Equals(operation.Key);
+                    }
                     var operationEnd = operationStart + operation.Operation.Duration;
                     ganttTransformation.Add(new GanttChartItem
                     {
@@ -320,7 +329,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                         IsProcessing = inProcessing.ToString(),
                         IsReady = operation.StartConditions.Satisfied.ToString(),
                         IsFinalized = false.ToString(),
-                        IsWorking = false.ToString()
+                        IsWorking = isCurrentOperation.ToString()
 
                     });
                     operationStart = operationEnd;
@@ -458,7 +467,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var setupDuration = _capabilityProviderManager.GetSetupDurationBy(_jobInProgress.ResourceCapabilityId);
             var duration = Agent.Name.Contains("Operator")
                 ? setupDuration
-                : setupDuration + _jobInProgress.JobDuration;
+                : setupDuration + _jobInProgress.JobMaxDuration;
 
             //Start setup 
             Agent.DebugMessage(msg:
@@ -488,6 +497,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.DebugMessage($"Call start Work for {_jobInProgress.JobName} {operation.Operation.Name} {operation.Key} to process for {operation.Operation.RandomizedDuration}", CustomLogger.JOB, LogLevel.Warn);
 
             _jobInProgress.Start(Agent.CurrentTime, _jobInProgress.JobDuration);
+
+            _jobInProgress.CurrentOperation.Set(operation, Agent.CurrentTime);
+
             //_jobInProgress.Remove(operation)
 
             CreateProcessingTask(operation);
@@ -504,9 +516,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             if (task.Equals("SETUP"))
             {
                 Agent.Send(instruction: BasicInstruction.FinishSetup.Create(message: Agent.Context.Self, target: _jobInProgress.JobAgentRef));
+                _jobInProgress.ResetIsWorking();
             }
             else { 
                 Agent.Send(instruction: Job.Instruction.FinishProcessing.Create(Agent.Context.Self, _jobInProgress.JobAgentRef));
+                _jobInProgress.CurrentOperation.Reset();
             }
         }
 
