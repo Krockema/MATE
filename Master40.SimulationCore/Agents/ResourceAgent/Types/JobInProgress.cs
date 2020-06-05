@@ -6,6 +6,7 @@ using Akka.Actor;
 using Master40.DB.DataModel;
 using NLog;
 using static FBuckets;
+using static FOperations;
 using static IConfirmations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
@@ -20,7 +21,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         private long ExpectedDuration { get; set; }
         public long StartedAt { get; private set; }
         public bool IsSet => Current != null;
+        public bool SetupIsOngoing { get; set; }
+        public long LastTimeStartCall { get; private set; }
         public bool IsWorking {get; private set; } = false;
+        private Queue<FOperation> _finalOperations = new Queue<FOperation>();
         public bool ResetIsWorking() => IsWorking = false;
 
     #region Passthrough Properties
@@ -40,6 +44,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         public void Start(long currentTime, long duration)
         {
+            LastTimeStartCall = currentTime;
             if (IsWorking)
                 return;
             
@@ -56,6 +61,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             ExpectedDuration = duration;
             return true;
         }
+        /// <summary>
+        /// returns true if the update was successful
+        /// </summary>
+        /// <param name="jobConfirmation"></param>
+        /// <returns></returns>
         public bool UpdateJob(IConfirmation jobConfirmation)
         {
             
@@ -110,6 +120,24 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
                 Set(first, first.ScopeConfirmation.GetScopeEnd() - first.ScopeConfirmation.GetScopeStart());
             }
             return first;
+        }
+
+        public void DissolveBucketToQueue(long currentTime)
+        {
+            if (_finalOperations.Count > 0)
+            {
+                throw new Exception("Previous work was not done.");
+            }
+            _finalOperations = new Queue<FOperation>(((FBucket)Current.Job).Operations.OrderByDescending(prio => prio.Priority.Invoke(currentTime)));
+        }
+        public FOperation DequeueNextOperation()
+        {
+            return _finalOperations.Dequeue();
+        }
+
+        public FOperation[] OperationsAsArray()
+        {
+            return _finalOperations.ToArray();
         }
     }
 }

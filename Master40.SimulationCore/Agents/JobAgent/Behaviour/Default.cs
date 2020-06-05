@@ -400,7 +400,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             {
                 Agent.Send(instruction: BasicInstruction.FinalBucket.Create(jobConfirmation, target: resourceRef));
             }
-            _finalOperations = new Queue<FOperation>(((FBucket)_jobConfirmation.Job).Operations.OrderByDescending(prio => prio.DueTime));
+            _finalOperations = new Queue<FOperation>(((FBucket)_jobConfirmation.Job).Operations.OrderByDescending(prio => prio.Priority.Invoke(Agent.CurrentTime)));
             _processingStart = Agent.CurrentTime;
             foreach (var resource in _resourceProcessingStates)
             {
