@@ -284,7 +284,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 
                 if (possibleProcessingPositions.Count == 0)
                 {
-                    var postponedFor = (long) (bucket.MaxBucketSize * 0.8);
+                    // var postponedFor = (long) (bucket.MaxBucketSize * 0.8);
+                    var postponedFor = (long) (bucket.MaxBucketSize * 480);
                     Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(bucket.Key, target: Agent.Context.Self), waitFor: postponedFor);
                 }
 

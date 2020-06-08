@@ -60,8 +60,8 @@ namespace Master40.DB.Data.Initializer.Tables
             CapabilityToResourceDict.Add($"Worker", workers);
 
             CreateTools(_capability.CUTTING, setupTimeCutting, 1, workers);
-            CreateTools(_capability.DRILLING, setupTimeDrilling, 0, new List<M_Resource>{});
-            CreateTools(_capability.ASSEMBLING, setupTimeAssembling, 1, new List<M_Resource> {});
+            CreateTools(_capability.DRILLING, setupTimeDrilling, 0, workers);
+            CreateTools(_capability.ASSEMBLING, setupTimeAssembling, 1, workers);
         }
 
         

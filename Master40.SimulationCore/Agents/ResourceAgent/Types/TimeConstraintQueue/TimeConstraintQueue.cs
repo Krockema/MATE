@@ -105,19 +105,44 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
         public HashSet<IConfirmation> GetTail(long currentTime, IConfirmation jobConfirmation)
         {
 
+            /*
+             1320 <= 1305 && 1380 > 1305
+                false && true 
+                    --> false 
+            
+            1320 >= 1305 && 1314 >= 1503
+                true && false 
+                    --> false 
+
+                    1305 - 1368
+            raus -> 1320 - 1380 
+
+
+           to Remove |xxxxxxxx|<-------------------->|
+            new          |-------------------|
+
+                     |<------------>|xxxxxxxxxxxxxx|
+                         |-------------------|
+            */
             //   
             var toRequeue2 = 
                 this.Where(x => x.Key <= jobConfirmation.ScopeConfirmation.GetScopeStart()
-                                              && x.Value.ScopeConfirmation.GetScopeEnd() > jobConfirmation.ScopeConfirmation.GetScopeStart())
-                                                .Select(x => x.Value).ToHashSet();
+                             && x.Value.ScopeConfirmation.GetScopeEnd() > jobConfirmation.ScopeConfirmation.GetScopeStart())
+                    .Select(x => x.Value).ToHashSet();
 
-            // queued before another item?
+
+            var toRequeue3 = this.Where(x => (x.Value.ScopeConfirmation.GetScopeStart() >= jobConfirmation.ScopeConfirmation.GetScopeStart() 
+                                             && x.Value.ScopeConfirmation.GetScopeStart() < jobConfirmation.ScopeConfirmation.GetScopeEnd()) 
+                                            || (x.Value.ScopeConfirmation.GetScopeEnd() > jobConfirmation.ScopeConfirmation.GetScopeStart()
+                                             && x.Value.ScopeConfirmation.GetScopeEnd() <= jobConfirmation.ScopeConfirmation.GetScopeEnd()))
+                .Select(x => x.Value).ToHashSet();
+
             var toRequeue = this.Where(x => (x.Key >= jobConfirmation.ScopeConfirmation.GetScopeStart()
-                                                      && x.Value.Job.Priority(currentTime) >= jobConfirmation.Job.Priority(currentTime))
-                                                     // || (x.Value.ScopeConfirmation.GetScopeEnd() >= jobConfirmation.&& x.Value.Job.Priority(currentTime) >= jobConfirmation.Job.Priority(currentTime)
-                                                      )
+                                    && x.Value.Job.Priority(currentTime) >= jobConfirmation.Job.Priority(currentTime))
+                )
                                                   .Select(x => x.Value).ToHashSet();
             toRequeue.UnionWith(toRequeue2);
+            toRequeue.UnionWith(toRequeue3);
             return toRequeue;
         }
         
@@ -313,9 +338,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             var pre = allWithHigherPriority.OrderByDescending(x => x.Key)
                                            .FirstOrDefault(x => x.Key <= confirmation.ScopeConfirmation.GetScopeStart());
             var post = allWithHigherPriority.FirstOrDefault(x => x.Key > confirmation.ScopeConfirmation.GetScopeEnd());
-
-
-
             
             // check if setup is missing on "inProcessing" item
             if (pre.Value == null)
@@ -332,8 +354,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             {
                 return false;
             }
-        
-
 
             var preReady = ((FBucket)pre.Value.Job).HasSatisfiedJob;
             var jobToPutReady = ((FBucket)confirmation.Job).HasSatisfiedJob;
@@ -342,8 +362,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             if (pre.Value.Job.Priority(time) >= priority && !preReady && jobToPutReady)
                 fitStart = true;
 
-
-            
             //fitStart = pre.Value.ScopeConfirmation.GetScopeEnd() <= confirmation.ScopeConfirmation.GetScopeStart();
             if (post.Value != null)
                   fitEnd = post.Key > confirmation.ScopeConfirmation.GetScopeEnd();
