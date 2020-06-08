@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static FProposals;
+using static FQueueingScopes;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types
 {
@@ -22,11 +23,20 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             _capabilityProvider = capabilityProvider;
         }
 
+        public void ClearAllNotQueueAbleProposals()
+        {
+            foreach (var proposal in _proposals)
+            {
+                ((List<FQueueingScope>) proposal.PossibleSchedule).RemoveAll(x => !x.IsQueueAble);
+            }
+        }
+
         public List<FProposal> GetProposalsFor(List<IActorRef> actorRefs)
         {
             var proposals = new List<FProposal>();
+            //ClearAllNotQueueAbleProposals();
             actorRefs.ForEach(x => proposals.AddRange(_proposals.Where(y => y.ResourceAgent.Equals(x) 
-                                                                                    && !y.Postponed.IsPostponed)));
+                                                                           && !y.Postponed.IsPostponed)));
             return proposals;
         }
 

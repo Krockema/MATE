@@ -158,7 +158,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         /// </summary>
         private void StartDissolve()
         {
-            var allSetupReady = _resourceSetupStates.Values.All(x => x.CurrentState >= JobState.Ready);
+            var allSetupReady = _resourceSetupStates.Values.All(x => x.CurrentState >= JobState.SetupReady);
             var allProcessingReady = _resourceProcessingStates.Values.All(x => x.CurrentState >= JobState.WillBeReady);
 
             if (allSetupReady && allProcessingReady)

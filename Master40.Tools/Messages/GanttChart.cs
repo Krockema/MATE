@@ -28,5 +28,6 @@ namespace Master40.Tools.Messages
         public string IsReady { get; set; }
         public string IsFinalized { get; set; }
         public string IsWorking { get; set; }
+        public string IsFixed { get; set; }
     }
 }

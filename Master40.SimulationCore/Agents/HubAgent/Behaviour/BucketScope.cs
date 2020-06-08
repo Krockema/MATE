@@ -281,7 +281,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
 
                 List<PossibleProcessingPosition> possibleProcessingPositions = _proposalManager.CreatePossibleProcessingPositions(proposalForCapabilityProvider, bucket);
-
+                
                 if (possibleProcessingPositions.Count == 0)
                 {
                     var postponedFor = (long) (bucket.MaxBucketSize * 0.8);

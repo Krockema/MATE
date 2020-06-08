@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.FSharp.Collections;
-using NLog.LayoutRenderers.Wrappers;
 using static FBuckets;
 using static FProposals;
 using static FQueueingScopes;
@@ -294,7 +293,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                 var positionsToCompare = (proposalArray[stage].PossibleSchedule as List<FQueueingScope>);
                 var pos = positionsToCompare.FirstOrDefault(x => SlotComparerBasic(position.Scope, x.Scope, requiredDuration));
                 
-                if (pos == null)
+                if (pos == null || pos.IsQueueAble is false)
                     continue;
                 var min = (new[] { position.Scope.Start, pos.Scope.Start }).Max();
                 var max = (new[] { position.Scope.End, pos.Scope.End }).Min();

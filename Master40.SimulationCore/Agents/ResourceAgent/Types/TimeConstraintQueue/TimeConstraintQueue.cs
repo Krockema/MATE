@@ -108,7 +108,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             //   
             var toRequeue2 = 
                 this.Where(x => x.Key <= jobConfirmation.ScopeConfirmation.GetScopeStart()
-                                                      && x.Value.ScopeConfirmation.GetScopeEnd() > jobConfirmation.ScopeConfirmation.GetScopeStart())
+                                              && x.Value.ScopeConfirmation.GetScopeEnd() > jobConfirmation.ScopeConfirmation.GetScopeStart())
                                                 .Select(x => x.Value).ToHashSet();
 
             // queued before another item?

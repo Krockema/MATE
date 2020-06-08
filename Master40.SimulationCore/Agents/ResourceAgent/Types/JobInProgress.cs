@@ -4,6 +4,7 @@ using System.Data.HashFunction.xxHash;
 using System.Linq;
 using Akka.Actor;
 using Master40.DB.DataModel;
+using MessagePack.Resolvers;
 using NLog;
 using static FBuckets;
 using static FOperations;
@@ -17,8 +18,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public CurrentOperation CurrentOperation { get; set; } = new CurrentOperation();
         private SortedList<long, IConfirmation> ReadyElements { get; } = new SortedList<long, IConfirmation>();
         public long ResourceIsBusyUntil => (ReadyElements.Count > 0) ? ReadyElements.Values.Max(x => x.ScopeConfirmation.GetScopeEnd()) 
-                                                                     :  (StartedAt + ExpectedDuration);
-        private long ExpectedDuration { get; set; }
+                                                                     : ExpectedResourceIsBusyUntil;
+        private long ExpectedResourceIsBusyUntil { get; set; }
         public long StartedAt { get; private set; }
         public bool IsSet => Current != null;
         public bool SetupIsOngoing { get; set; }
@@ -42,23 +43,35 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public M_ResourceCapabilityProvider CapabilityProvider => Current.CapabilityProvider;
         #endregion
 
-        public void Start(long currentTime, long duration)
+        public void StartProcessing(long currentTime, long duration)
         {
             LastTimeStartCall = currentTime;
             if (IsWorking)
                 return;
-            
+
+            ExpectedResourceIsBusyUntil = currentTime + duration;
             StartedAt = currentTime;
-            ExpectedDuration = duration; //Current.Duration;
             IsWorking = true;
         }
+
+        public void StartSetup(long currentTime, long duration)
+        {
+            LastTimeStartCall = currentTime;
+            var max = (new long[] {Current.ScopeConfirmation.GetScopeEnd(), currentTime + duration}).Max();
+            ExpectedResourceIsBusyUntil = max; //Current.Duration;
+            StartedAt = currentTime;
+            IsWorking = true;
+        }
+
+
+
         public bool Set(IConfirmation jobConfirmation, long duration)
         {
             if (IsSet)
                 return false;
             Current = jobConfirmation;
             StartedAt = jobConfirmation.ScopeConfirmation.GetScopeStart();
-            ExpectedDuration = duration;
+            ExpectedResourceIsBusyUntil = jobConfirmation.ScopeConfirmation.GetScopeEnd();
             return true;
         }
         /// <summary>
@@ -72,7 +85,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             if(IsSet && Current.Key.Equals(jobConfirmation.Key))
             {
                 Current = Current.UpdateJob(jobConfirmation.Job);
-                ExpectedDuration = Current.Duration;
+                //ExpectedResourceIsBusyUntil = jobConfirmation.ScopeConfirmation.GetScopeEnd();
                 return true;
             }
 
@@ -87,7 +100,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
             Current = null;
             IsWorking = false;
             StartedAt = 0;
-            ExpectedDuration = 0;
+            ExpectedResourceIsBusyUntil = 0;
         }
 
         public IConfirmation RevokeJob(Guid confirmationKey)
@@ -137,7 +150,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         public FOperation[] OperationsAsArray()
         {
-            return _finalOperations.ToArray();
+            return SetupIsOngoing ? ((FBucket) Current.Job).Operations.ToArray() 
+                                  : _finalOperations.ToArray();
         }
     }
 }
