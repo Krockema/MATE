@@ -79,7 +79,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             foreach (var proposal in proposalForCapabilityProviders)
             {
                 var suitableQueuingPosition = GetSuitableQueueingPositionFromProposals(proposal, ((FBucket)job).MaxBucketSize);
-
+                if (suitableQueuingPosition._queuingDictionary.Count == 0)
+                    continue;
                 possibleProcessingPositions.Add(suitableQueuingPosition);
             }
 
@@ -327,9 +328,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             // calculate posible earliest start
             long earliestStart = (new[] { toCompare.Start, mainResourcePos.Start }).Max();
             // check setup scope 
-            var setupFit = (earliestStart + setupTime - 1 <= toCompare.End);
+            var setupFit = (earliestStart + setupTime <= toCompare.End);
             // check Queue scope
-            var queueFit = (earliestStart + setupTime + processingTime - 1 <= mainResourcePos.End);
+            var queueFit = (earliestStart + setupTime + processingTime <= mainResourcePos.End);
 
             return (setupFit && queueFit);
         }
@@ -340,9 +341,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             // calculate posible earliest start
             long earliestStart = (new[] { toCompare.Start, mainResourcePos.Start }).Max();
             // check setup scope 
-            var fitToCompare = (earliestStart + duration - 1 <= toCompare.End);
+            var fitToCompare = (earliestStart + duration <= toCompare.End);
             // check Queue scope
-            var fitMainResource = (earliestStart + duration - 1 <= mainResourcePos.End);
+            var fitMainResource = (earliestStart + duration <= mainResourcePos.End);
 
             return (fitToCompare && fitMainResource);
         }

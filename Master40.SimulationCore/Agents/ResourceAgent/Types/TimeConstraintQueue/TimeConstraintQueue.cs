@@ -125,24 +125,26 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                          |-------------------|
             */
             //   
-            var toRequeue2 = 
-                this.Where(x => x.Key <= jobConfirmation.ScopeConfirmation.GetScopeStart()
-                             && x.Value.ScopeConfirmation.GetScopeEnd() > jobConfirmation.ScopeConfirmation.GetScopeStart())
-                    .Select(x => x.Value).ToHashSet();
+            // var toRequeue2 = 
+            //     this.Where(x => x.Key <= jobConfirmation.ScopeConfirmation.GetScopeStart()
+            //                  && x.Value.ScopeConfirmation.GetScopeEnd() > jobConfirmation.ScopeConfirmation.GetScopeStart())
+            //         .Select(x => x.Value).ToHashSet();
+            // 
 
-
-            var toRequeue3 = this.Where(x => (x.Value.ScopeConfirmation.GetScopeStart() >= jobConfirmation.ScopeConfirmation.GetScopeStart() 
+            var toRequeue = this.Where(x => (x.Value.ScopeConfirmation.GetScopeStart() >= jobConfirmation.ScopeConfirmation.GetScopeStart() 
                                              && x.Value.ScopeConfirmation.GetScopeStart() < jobConfirmation.ScopeConfirmation.GetScopeEnd()) 
                                             || (x.Value.ScopeConfirmation.GetScopeEnd() > jobConfirmation.ScopeConfirmation.GetScopeStart()
-                                             && x.Value.ScopeConfirmation.GetScopeEnd() <= jobConfirmation.ScopeConfirmation.GetScopeEnd()))
-                .Select(x => x.Value).ToHashSet();
+                                             && x.Value.ScopeConfirmation.GetScopeEnd() <= jobConfirmation.ScopeConfirmation.GetScopeEnd())
+                                            || (x.Key >= jobConfirmation.ScopeConfirmation.GetScopeStart()
+                                               && x.Value.ScopeConfirmation.GetScopeStart() >= jobConfirmation.ScopeConfirmation.GetScopeEnd() // neu
+                                            && x.Value.Job.Priority(currentTime) >= jobConfirmation.Job.Priority(currentTime)))
+                                            .Select(x => x.Value).ToHashSet();
 
-            var toRequeue = this.Where(x => (x.Key >= jobConfirmation.ScopeConfirmation.GetScopeStart()
-                                    && x.Value.Job.Priority(currentTime) >= jobConfirmation.Job.Priority(currentTime))
-                )
-                                                  .Select(x => x.Value).ToHashSet();
-            toRequeue.UnionWith(toRequeue2);
-            toRequeue.UnionWith(toRequeue3);
+            // var toRequeue = this.Where()
+            //     )
+            //                                       .Select(x => x.Value).ToHashSet();
+            // toRequeue.UnionWith(toRequeue2);
+            // toRequeue.UnionWith(toRequeue3);
             return toRequeue;
         }
         

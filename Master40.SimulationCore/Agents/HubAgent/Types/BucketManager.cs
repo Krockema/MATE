@@ -178,9 +178,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         private bool ExceedMaxBucketSize(FBucket bucket,FOperation operation)
         {
-            return ((IJob) bucket).Duration + operation.Operation.Duration <=
-                   GetBucketSize(bucket.RequiredCapability.Id);
-
+            return ((IJob) bucket).Duration + operation.Operation.Duration <= bucket.MaxBucketSize;
+            //GetBucketSize(bucket.RequiredCapability.Id);
         }
 
         public FBucket GetBucketWithMostLeftCapacity(List<FBucket> buckets)

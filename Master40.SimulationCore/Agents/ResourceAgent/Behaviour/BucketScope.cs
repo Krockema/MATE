@@ -80,6 +80,25 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             return true;
         }
 
+        public override bool PostAdvance()
+        {
+            if (Agent.CurrentTime % 50 == 0 || Agent.CurrentTime == 2)
+            {
+
+                CreateGanttChartForRessource();
+            }
+            //TODO _JobInProgress.ContainsJobWithKey(Key)
+            if (_jobInProgress.IsSet
+                && !_jobInProgress.IsWorking
+                && _jobInProgress.IsCurrentDelayed(Agent.CurrentTime))
+            {
+                Agent.Send(Job.Instruction.DelayedStartNotification.Create(_jobInProgress.JobAgentRef));
+            }
+            UpdateProcessingItem();
+            RequeueIfNecessary();
+            return true;
+        }
+
         /// <summary>
         /// Register the Resource in the System on Startup and Save the Hub agent.
         /// </summary>
@@ -166,7 +185,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         internal void AcceptProposals(IConfirmation jobConfirmation)
         {
-            Agent.DebugMessage($"Start Acknowledge Job {jobConfirmation.Key} | scope : [{jobConfirmation.ScopeConfirmation.GetScopeStart()} to {jobConfirmation.ScopeConfirmation.GetScopeEnd()}]" +
+            Agent.DebugMessage($"Start Acknowledge Job {jobConfirmation.Key}  {jobConfirmation.Job.Name}  | scope : [{jobConfirmation.ScopeConfirmation.GetScopeStart()} to {jobConfirmation.ScopeConfirmation.GetScopeEnd()}]" +
                                $" with Priority {jobConfirmation.Job.Priority(Agent.CurrentTime)}" +
                                $" | scopeLimit: {_scopeQueue.Limit} | scope workload : {_scopeQueue.Workload} | Capacity left {_scopeQueue.Limit - _scopeQueue.Workload} " +
                                $" {((FBucket)jobConfirmation.Job).MaxBucketSize} ", CustomLogger.PRIORITY, LogLevel.Warn);
@@ -203,27 +222,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             UpdateProcessingItem();
         }
-
-        public override bool PostAdvance()
-        {
-            if (Agent.CurrentTime % 50 == 0 || Agent.CurrentTime == 2)
-            {
-
-              CreateGanttChartForRessource();
-            }
-            //TODO _JobInProgress.ContainsJobWithKey(Key)
-            if (_jobInProgress.IsSet 
-                && !_jobInProgress.IsWorking 
-                && _jobInProgress.IsCurrentDelayed(Agent.CurrentTime))
-            {
-                Agent.Send(Job.Instruction.DelayedStartNotification.Create(_jobInProgress.JobAgentRef));
-            }
-            UpdateProcessingItem();
-            RequeueIfNecessary();
-            return true;
-        }
-
-
 
         private void CreateGanttChartForRessource()
         {
