@@ -140,20 +140,18 @@
         }
         chart.data.datasets[index].data.push([start, end, op, rgbColor, element.Start, element.End, element.GroupId, colorIndex]);
 
-
- 
-
-        //              });
-        var steps = Math.round((maxTime - minTime) / 10);
         var min = parseInt(minTime) > chart.options.scales.xAxes[1].ticks.min ? parseInt(minTime) : chart.options.scales.xAxes[1].ticks.min;
         var max = parseInt(maxTime) > chart.options.scales.xAxes[1].ticks.max ? parseInt(maxTime) : chart.options.scales.xAxes[1].ticks.max;
-        chart.options.scales.xAxes[1].ticks.min = min;
-        chart.options.scales.xAxes[1].ticks.max = max;
-        //chart.options.scales.xAxes[0].ticks.min = new Date(1262304000 + parseInt(min+60)).toISOString();
-        //chart.options.scales.xAxes[0].ticks.max = new Date(1262304000 + parseInt(max+60)).toISOString();
-        chart.options.scales.xAxes[1].ticks.stepSize = steps;
-        //            };
 
+        var timeend = parseInt(Math.ceil(max / 50.0)) * 50;
+        timestart = (parseInt(Math.ceil((timeend - 500) / 50.0)) * 50);
+        var steps = Math.round((timeend - timestart) / 5);
+        timestart = timestart - 50;
+        chart.options.scales.xAxes[1].ticks.min = parseInt(timestart);
+        chart.options.scales.xAxes[1].ticks.max = parseInt(timeend);
+        chart.options.scales.xAxes[0].time.max = 1262304000 + timeend;
+        chart.options.scales.xAxes[0].time.min = 1262304000 + timestart;
+        chart.options.scales.xAxes[1].ticks.stepSize = steps; 
 
         // var targetCtx = document.getElementById("chartCanvas");
         // var resizeTo = steps * window.devicePixelRatio * document.getElementById("scaling").value;

@@ -23,11 +23,11 @@
     background: #343a40;
     border-right: 1px solid #e5e5e5;
     position: fixed;
-    top: 50px;
+    top: 36px;
     bottom: 0;
     height: 100%;
     left: 0;
-    width: 60px;
+    width: 44px;
     overflow: hidden;
     -webkit-transition: width .05s linear;
     transition: width .05s linear;
@@ -145,15 +145,15 @@ ul ul .sub-menu {
     line-height: 28px;
     /* border-bottom: 1px solid #23282e; */
 }
-ul ul .sub-menu .nav-text:before {
-    font-family: FontAwesome;
-    content: "\f101";
-    display: inline-block;
-    padding-left: 30px;
-}
+    ul ul .sub-menu .nav-text:before {
+        font-family: 'Font Awesome 5 Free';
+        content: "\f101";
+        display: inline-block;
+        padding-left: 30px;
+    }
 
 ul .sub-menu .nav-text:before {
-    font-family: FontAwesome;
+    font-family: 'Font Awesome 5 Free';
     content: "\f105";
     display: inline-block;
     padding-left: 15px;
@@ -163,7 +163,7 @@ ul .sub-menu .nav-text:before {
 
 .main-menu ul :not(collapsed) .arrow:before,
 .main-menu li :not(collapsed) .arrow:before {
-    font-family: FontAwesome;
+    font-family: 'Font Awesome 5 Free';
     content: "\f078";
     display: inline-block;
     padding-left: 10px;

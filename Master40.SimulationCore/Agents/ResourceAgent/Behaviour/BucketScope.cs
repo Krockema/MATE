@@ -82,11 +82,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         public override bool PostAdvance()
         {
-            if (Agent.CurrentTime % 50 == 0 || Agent.CurrentTime == 2)
-            {
-
-                CreateGanttChartForRessource();
-            }
+            //if (Agent.CurrentTime % 50 == 0 || Agent.CurrentTime == 2)
+            //{
+            //
+            //    CreateGanttChartForRessource();
+            //}
             //TODO _JobInProgress.ContainsJobWithKey(Key)
             if (_jobInProgress.IsSet
                 && !_jobInProgress.IsWorking

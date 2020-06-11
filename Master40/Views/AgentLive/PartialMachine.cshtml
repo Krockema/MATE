@@ -16,7 +16,7 @@
             <canvas id="@name"></canvas>
         </div>
     </div>
-    <div class="machineText text-center">@Model.Name  <button class="btn btn-xs" type="button" onclick="breakDown('@name')">
+    <div class="machineText text-center">@Model.Name.Replace("Resource ","").Replace("Operator", "Op.")  <button class="btn btn-xs" type="button" onclick="breakDown('@name')">
         <i class="fa fa-fire float-right" style="width: 15px"></i>
     </button> </div>
 

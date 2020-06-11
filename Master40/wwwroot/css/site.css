@@ -139,8 +139,8 @@ textarea {
 
 /* Common styles for all types */
 .bs-callout {
-    padding: 20px;
-    margin: 20px 0;
+    padding: 10px 20px;
+    margin: 5px 0;
     border: 1px solid #eee;
     border-left-width: 5px;
     border-radius: 3px;
@@ -210,4 +210,13 @@ textarea {
 
 .card-header-btn {
     padding: 0 !important;
+}
+
+.card-body {
+    padding: 5px !important;
+}
+
+* {
+    font-size: 12px;
+    line-height: 1;
 }

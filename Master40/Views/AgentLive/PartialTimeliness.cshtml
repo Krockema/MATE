@@ -1,25 +1,22 @@
 ﻿@{ 
 }
 <style>
-    .chartLayerTimeliness > canvas {
-        width: 100px;
-        height: 200px;
-    }
-    .chartContainerTimeliness {
+    .chartLayerTimeliness {
+        overflow-x: hidden;
         position: relative;
-        width: 200px;
-        height: 220px;
-        margin-left: 20px;
-        margin-right: 20px;
+        min-width: 150px;
+        height: 195px;
+        width: 99%;
+        margin: 0 auto;
     }
 </style>
-<div style="float:left;">
+<div style="float: left;">
     <div class="chartContainerTimeliness">
-        <div class="chartLayerTimeliness" >
+        <div class="chartLayerTimeliness">
 
             <!--div id="js-legend" class="chart-legend"><div-->
 
-            <canvas id="TimelinessElement" style="height: 200px"></canvas>
+            <canvas id="TimelinessElement" ></canvas>
         </div>
         <div class="text-center">
             <b>
@@ -57,7 +54,7 @@
                 }
             }
         }
-    );;
+    );
     processingProxy.on("Timeliness", function (msg) {
         // console.log("Timeliness :" + msg);
         TimelinessChart.data.datasets[0].data = [msg, 100 - msg];

@@ -41,14 +41,6 @@
     }
 </style>
 
-<div class="row">
-    <div class="col-12">
-        <h2>Agent System</h2>
-    </div>
-
-</div>
-
-
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-9 col-md-9">
@@ -164,7 +156,7 @@
             <div class="col-lg-12 col-md-12">
                 <div class="card" style="margin-top: 10px;">
                     <div class="card-header">
-                        <b>Storage Value in Euro </b>
+                        <b>Machine Gantt Timeline </b>
                     </div>
                     <div style="text-align: center" class="card-body"> <partial name="~/Views/AgentLive/PartialGantt.cshtml" /></div>
                 </div>
@@ -181,17 +173,26 @@
 </div>
 <div class="col-lg-3 col-md-3">
     <div class="container-fluid">
+        
         <div class="row">
-            <div class="card" style="margin-top: 20px">
+            <div class="col-12" style="padding-right: 0px; padding-left: 0px;">
+                <div class="bs-callout bs-callout-info" id="AgentSystemCallout">
+                    <h4>Agent System</h4>
+                    Controlls
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card" style="margin-top: 10px; width: 100%">
                 <div class="card-header">
                     Control Panel
                 </div>
                 <div class="card-body">
                     <div class=" ">
                         <div class="form-group row" style="">
-                            <label class="col-md-8 col-form-label">Sim.Config</label>
-                            <select class="form-control col-lg-4 pull-right" id="simulationType"
-                                    style="max-width: 100px; margin-left: 15px;">
+                            <label class="col-md-5 col-form-label pull-left">Type</label>
+                            <select class="form-control col-md-6 pull-right" id="simulationType"
+                                    style="width: 100px; margin-left: 15px;">
                                 <option selected>Choose...</option>
                                 <option value="1">None</option>
                                 <option value="2">DefaultSetup</option>
@@ -212,13 +213,13 @@
                             </div>
                         </div>
                         <div class="row form-group" style="">
-                            <label class="col-md-8 col-form-label">Estimated throughput time</label>
+                            <label class="col-md-8 col-form-label">Estimated throughput</label>
                             <div class="col-md-4">
                                 <input id="estimatedThroughputTime" class="form-control" value="600">
                             </div>
                         </div>
                         <div class="row">
-                            <label class="col-md-8 col-form-label">Start simulation run</label>
+                            <label class="col-md-8 col-form-label">Start simulation</label>
                             <div class="col-md-4">
                                 <button class="btn btn-outline-secondary ladda-button" id="simulationStart-btn"
                                         type="button" onclick="startAgents()">
@@ -229,9 +230,9 @@
                     </div>
                 </div>
             </div>
-        </div
+        </div>
         <div class="row">
-             <partial name="~/Views/AgentLive/Summary.cshtml" />
+            <partial name="~/Views/AgentLive/Summary.cshtml"/>
         </div>
     </div>
 </div>
