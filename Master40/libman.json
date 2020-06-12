@@ -14,9 +14,10 @@
       "library": "font-awesome@5.13.0",
       "destination": "wwwroot/lib/font-awesome/"
     },
-    {
-      "library": "bootstrap-growl@1.0.0",
-      "destination": "wwwroot/lib/bootstrap-growl/"
+    // before: bootstrap-growl
+    { 
+      "library": "bootstrap-notify@0.2.0",
+      "destination": "wwwroot/lib/bootstrap-notify/"
     },
     {
       "library": "jquery-validate@1.19.0",

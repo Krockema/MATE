@@ -150,8 +150,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         public FOperation[] OperationsAsArray()
         {
-            return SetupIsOngoing ? ((FBucket) Current.Job).Operations.ToArray() 
-                                  : _finalOperations.ToArray();
+            return _finalOperations.Any() ? _finalOperations.ToArray() 
+                                            : ((FBucket) Current.Job).Operations.ToArray();
         }
     }
 }

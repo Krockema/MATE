@@ -300,7 +300,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                 var max = (new[] { position.Scope.End, pos.Scope.End }).Min();
 
                 reducedSlots.Add(new FQueueingScope(isQueueAble: pos.IsQueueAble && position.IsQueueAble
-                                                        , isRequieringSetup: false
+                                                        , isRequieringSetup: pos.IsRequieringSetup && position.IsRequieringSetup
                                                         , new FScope(start: min, end: max)));
             }
             if (proposalArray.Length >= stage) return reducedSlots;

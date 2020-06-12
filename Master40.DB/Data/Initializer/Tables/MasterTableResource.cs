@@ -59,13 +59,20 @@ namespace Master40.DB.Data.Initializer.Tables
             }
             CapabilityToResourceDict.Add($"Worker", workers);
 
+            List<M_Resource> drillingTools = new List<M_Resource>();
+            foreach (var drillCapability in _capability.DRILLING.ChildResourceCapabilities)
+            {
+                drillingTools.Add(CreateNewResource($"{drillCapability.Name}", true));
+            }
+            CapabilityToResourceDict.Add($"Tool", drillingTools);
+
             CreateTools(_capability.CUTTING, setupTimeCutting, 1, workers);
-            CreateTools(_capability.DRILLING, setupTimeDrilling, 0, workers);
+            CreateTools(_capability.DRILLING, setupTimeDrilling, 0, workers, drillingTools);
             CreateTools(_capability.ASSEMBLING, setupTimeAssembling, 1, workers);
         }
 
         
-        private void CreateTools(M_ResourceCapability capability, long setupTime, int numberOfOperators, List<M_Resource> workerToAssign)
+        private void CreateTools(M_ResourceCapability capability, long setupTime, int numberOfOperators, List<M_Resource> workerToAssign, List<M_Resource> resourceToolsToAssign = null)
         {
             List<M_Resource> tools = new List<M_Resource>();
             List<M_ResourceSetup> setups = new List<M_ResourceSetup>();
@@ -76,14 +83,7 @@ namespace Master40.DB.Data.Initializer.Tables
             {
                 operators.Add(CreateNewResource(capability.Name + " Operator " + i, true));
             }
-
-            // foreach resource of a given type
-            // nur resource
-            // resource + Setup 
-            // resource + Setup + Worker
-
-
-
+            
             foreach (var resource in CapabilityToResourceDict.Single(x => x.Key == capability.Name).Value)
             {
                 // With operators 
@@ -106,6 +106,14 @@ namespace Master40.DB.Data.Initializer.Tables
                                     };
                                     var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false);
                                     tools.Add(tool);
+
+                                    if(resourceToolsToAssign != null)
+                                    {
+                                        var toolObject =
+                                            resourceToolsToAssign.Single(x => x.Name.Equals("Resource " + subCapability.Name + " "));
+                                        setups.Add((CreateNewSetup(toolObject, capabilityProvider, true, true,0)));
+                                    }
+
                                     // CreateNewSetup(resource, capabilityProvider, usedInProcessing,usedInSetup, setupTime)
                                     setups.Add(CreateNewSetup(op, capabilityProvider, false, true, 0));
                                     setups.Add(CreateNewSetup(tool, capabilityProvider, true, true, setupTime));
@@ -126,6 +134,13 @@ namespace Master40.DB.Data.Initializer.Tables
                                 };
                                 var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false);
                                 tools.Add(tool);
+
+                                if (resourceToolsToAssign != null)
+                                {
+                                    var toolObject =
+                                        resourceToolsToAssign.Single(x => x.Name.Equals("Resource " + subCapability.Name + " "));
+                                    setups.Add((CreateNewSetup(toolObject, capabilityProvider, true, true, 0)));
+                                }
                                 setups.Add(CreateNewSetup(op, capabilityProvider, false, true, 0));
                                 setups.Add(CreateNewSetup(tool, capabilityProvider, true, true, setupTime));
                                 setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, 0));
@@ -149,8 +164,17 @@ namespace Master40.DB.Data.Initializer.Tables
                                     Name = $"Provides {subCapability.Name} {resource.Name} {worker.Name}",
                                     ResourceCapabilityId = subCapability.Id,
                                 };
-                                var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false);
+                                // Tool
+                                var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", isPhysical: false);
                                 tools.Add(tool);
+
+                                if (resourceToolsToAssign != null)
+                                {
+                                    var toolObject =
+                                        resourceToolsToAssign.Single(x => x.Name.Equals("Resource " + subCapability.Name + " "));
+                                    setups.Add((CreateNewSetup(toolObject, capabilityProvider, true, true, 0)));
+                                }
+
                                 setups.Add(CreateNewSetup(tool, capabilityProvider, true, true, setupTime));
                                 setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, 0));
                                 setups.Add(CreateNewSetup(worker, capabilityProvider, true, false, 0));
@@ -171,6 +195,14 @@ namespace Master40.DB.Data.Initializer.Tables
                             };
                             var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false);
                             tools.Add(tool);
+
+                            if (resourceToolsToAssign != null)
+                            {
+                                var toolObject =
+                                    resourceToolsToAssign.Single(x => x.Name.Equals("Resource " + subCapability.Name + " "));
+                                setups.Add((CreateNewSetup(toolObject, capabilityProvider, true, true, 0)));
+                            }
+
                             setups.Add(CreateNewSetup(tool, capabilityProvider, true, true, setupTime));
                             setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, 0));
                             capabilityProviders.Add(capabilityProvider);

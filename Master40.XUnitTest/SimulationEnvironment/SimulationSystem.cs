@@ -55,12 +55,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
         public void ResetResultsDB(string connectionString)
         
         {
-            MasterDBContext masterCtx = MasterDBContext.GetContext(masterCtxString);
+            MasterDBContext masterCtx = MasterDBContext.GetContext(testCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Small, true);
             
-            ResultContext results = ResultContext.GetContext(resultCon: masterResultCtxString);
+            ResultContext results = ResultContext.GetContext(resultCon: testResultCtxString);
             results.Database.EnsureDeleted();
             results.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(results);
@@ -143,14 +143,14 @@ namespace Master40.XUnitTest.SimulationEnvironment
                                         , ModelSize resourceModelSize, ModelSize setupModelSize
                                         , double arrivalRate, bool distributeSetupsExponentially)
         {
-            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PRIORITY, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.SCHEDULING, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.DISPOPRODRELATION, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PROPOSAL, LogLevel.Warn, LogLevel.Warn);
-            //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOB, LogLevel.Warn, LogLevel.Warn);
+            LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOB, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.ENQUEUE, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOBSTATE, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace, LogLevel.Trace);
@@ -167,17 +167,17 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.AddOption(new DBConnectionString(testResultCtxString));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 5)); 
+            simConfig.ReplaceOption(new OrderQuantity(value: 1)); 
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
             simConfig.ReplaceOption(new Seed(value: seed));
             simConfig.ReplaceOption(new SettlingStart(value: 0));
-            simConfig.ReplaceOption(new SimulationEnd(value: 2880));
+            simConfig.ReplaceOption(new SimulationEnd(value: 1440));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
             simConfig.ReplaceOption(new DebugSystem(value: true));
-            simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
+            simConfig.ReplaceOption(new WorkTimeDeviation(0.0));
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 

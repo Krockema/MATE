@@ -101,31 +101,31 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
           
             LogToDB(writeResultsToDB: finalCall);
 
-            //if (finalCall)
-            //{
-            //    var list = new List<GanttChartItem>();
-            //    foreach (var item in _taskArchive)
-            //    {
-            //        list.Add(new GanttChartItem
-            //        {
-            //            articleId = "none",
-            //            article = "none",
-            //            end =item.End.ToString(),
-            //            groupId = item.GroupId,
-            //            IsFinalized = "true",
-            //            IsProcessing = "true",
-            //            IsReady = "true",
-            //            IsWorking = "true",
-            //            operation = item.Operation,
-            //            operationId = item.Operation,
-            //            resource = item.Resource,
-            //            priority = "none",
-            //            start = item.Start.ToString()
-            //        });
-            //    }
-            //    CustomFileWriter.WriteToFile($"Logs//ResourceRunAt-{Collector.Time}.log",
-            //        JsonConvert.SerializeObject(list));
-            //}
+            if (finalCall)
+            {
+                var list = new List<GanttChartItem>();
+                foreach (var item in _taskArchive)
+                {
+                    list.Add(new GanttChartItem
+                    {
+                        articleId = "none",
+                        article = "none",
+                        end =item.End.ToString(),
+                        groupId = item.GroupId,
+                        IsFinalized = "true",
+                        IsProcessing = "true",
+                        IsReady = "true",
+                        IsWorking = "true",
+                        operation = item.Operation,
+                        operationId = item.Operation,
+                        resource = item.Resource,
+                        priority = "none",
+                        start = item.Start.ToString()
+                    });
+                }
+                CustomFileWriter.WriteToFile($"Logs//ResourceRunAt-{Collector.Time}.log",
+                    JsonConvert.SerializeObject(list));
+            }
 
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from WorkSchedule");
