@@ -14,14 +14,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             IBehaviour behaviour;
             switch (simType)
             {
-                case SimulationType.DefaultSetup:
-                    behaviour = DefaultSetup(workTimeGenerator: workTimeGenerator, capabilityProvider);
-                    break;
-                case SimulationType.DefaultSetupStack:
-                    behaviour = DefaultSetupStack(workTimeGenerator: workTimeGenerator, capabilityProvider);
-                    break;
-                case SimulationType.BucketScope:
-                    behaviour = BucketScope(workTimeGenerator: workTimeGenerator, capabilityProvider);
+                case SimulationType.Default:
+                    behaviour = Default(workTimeGenerator: workTimeGenerator, capabilityProvider);
                     break;
                 default:
                     behaviour = Default(workTimeGenerator: workTimeGenerator, capabilityProvider);
@@ -39,34 +33,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                             , workTimeGenerator: workTimeGenerator
                             , capabilityProvider: capabilityProvider);
 
-        }
-
-        private static IBehaviour DefaultSetup(WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider)
-        {
-            //TODO - create config item.
-            return new DefaultSetup(planingJobQueueLength: 45
-                , fixedJobQueueSize: 1
-                , workTimeGenerator: workTimeGenerator
-                , capabilityProvider: capabilityProvider);
-
-        }
-        
-        private static IBehaviour BucketScope(WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider)
-        {
-            //TODO - create config item.
-            return new BucketScope(planingJobQueueLength: 960
-                , fixedJobQueueSize: 1
-                , workTimeGenerator: workTimeGenerator
-                , capabilityProvider: capabilityProvider);
-        }
-
-        private static IBehaviour DefaultSetupStack(WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider)
-        {
-            //TODO - create config item.
-            return new DefaultSetupStack(planingJobQueueLength: 45
-                , fixedJobQueueSize: 1
-                , workTimeGenerator: workTimeGenerator
-                , capabilityProvider: capabilityProvider);
         }
 
 

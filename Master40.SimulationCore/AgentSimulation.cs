@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AkkaSim.SpecialActors;
 using static FCapabilityProviderDefinitions;
 using static FSetEstimatedThroughputTimes;
 

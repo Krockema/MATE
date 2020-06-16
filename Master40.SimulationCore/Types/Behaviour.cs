@@ -11,7 +11,7 @@ namespace Master40.SimulationCore.Types
     {
         protected Behaviour(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker = null
                           , object obj = null
-                          , SimulationType simulationType = SimulationType.None)
+                          , SimulationType simulationType = SimulationType.Default)
         {
             ChildMaker = childMaker;
             Object = obj;

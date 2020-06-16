@@ -28,7 +28,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         private ResultContext _ctxResult = ResultContext.GetContext(resultCon:
             "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true");
 
-        [Params(SimulationType.DefaultSetup, SimulationType.DefaultSetupStack, SimulationType.BucketScope)]
+        [Params(SimulationType.Default)]
         public SimulationType SimulationType;
         
         [Params(0.0200,0.0210, 0.0220,0.0230,0.0240, 0.0250, 0.0260, 0.0270, 0.0280, 0.0290, 0.0300)]

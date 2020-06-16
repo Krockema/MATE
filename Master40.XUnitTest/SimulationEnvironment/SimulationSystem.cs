@@ -49,18 +49,18 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         //[Fact(Skip = "manual test")]
         [Theory]
-        //[InlineData(testResultCtxString)] 
-        //[InlineData(masterResultCtxString)]
-        [InlineData(testCtxString)]
-        public void ResetResultsDB(string connectionString)
+        //[InlineData(remoteMasterCtxString, remoteResultCtxString)] 
+        [InlineData(masterCtxString, masterResultCtxString)]
+        //[InlineData(testCtxString, testResultCtxString)]
+        public void ResetResultsDB(string connectionString, string resultConnectionString)
         
         {
-            MasterDBContext masterCtx = MasterDBContext.GetContext(testCtxString);
+            MasterDBContext masterCtx = MasterDBContext.GetContext(connectionString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Small, true);
             
-            ResultContext results = ResultContext.GetContext(resultCon: testResultCtxString);
+            ResultContext results = ResultContext.GetContext(resultCon: resultConnectionString);
             results.Database.EnsureDeleted();
             results.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(results);
@@ -138,7 +138,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         [Theory]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
-        [InlineData(SimulationType.BucketScope, 1100, 240, 1920, 1337, ModelSize.TestModel, ModelSize.Medium, 0.03, false)]
+        [InlineData(SimulationType.Default, 1100, 240, 1920, 1337, ModelSize.TestModel, ModelSize.Medium, 0.03, false)]
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput, int seed
                                         , ModelSize resourceModelSize, ModelSize setupModelSize
                                         , double arrivalRate, bool distributeSetupsExponentially)
@@ -150,6 +150,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.SCHEDULING, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.DISPOPRODRELATION, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PROPOSAL, LogLevel.Warn, LogLevel.Warn);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.INITIALIZE, LogLevel.Warn, LogLevel.Warn);
             LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOB, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.ENQUEUE, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOBSTATE, LogLevel.Warn, LogLevel.Warn);

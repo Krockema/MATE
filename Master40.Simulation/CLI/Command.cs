@@ -11,6 +11,7 @@ namespace Master40.Simulation.CLI
              new Help()
             , new DBConnectionString()
             , new DebugAgents()
+            , new TimeToAdvance()
             , new DebugSystem()
             , new EstimatedThroughPut()
             , new KpiTimeSpan()

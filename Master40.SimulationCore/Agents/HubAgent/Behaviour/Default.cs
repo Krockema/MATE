@@ -5,32 +5,35 @@ using Master40.SimulationCore.Agents.HubAgent.Types;
 using Master40.SimulationCore.Agents.JobAgent;
 using Master40.SimulationCore.Agents.ResourceAgent;
 using Master40.SimulationCore.Helper;
+using Master40.SimulationCore.Helper.DistributionProvider;
+using Master40.Tools.ExtensionMethods;
 using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Master40.SimulationCore.Helper.DistributionProvider;
-using Master40.Tools.ExtensionMethods;
 using static FBuckets;
 using static FJobResourceConfirmations;
 using static FOperations;
 using static FProposals;
 using static FQueueingScopes;
 using static FRequestProposalForCapabilityProviders;
+using static FResourceInformations;
 using static FScopeConfirmations;
 using static FUpdateStartConditions;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
-    public class BucketScope : DefaultSetup
+    public class Default : SimulationCore.Types.Behaviour
     {
-        public BucketScope(long maxBucketSize, WorkTimeGenerator workTimeGenerator, SimulationType simulationType = SimulationType.BucketScope)
-            : base(simulationType: simulationType)
+        public Default(long maxBucketSize, WorkTimeGenerator workTimeGenerator, SimulationType simulationType = SimulationType.Default) : base(childMaker: null, simulationType: simulationType)
         {
             _bucketManager = new BucketManager(maxBucketSize: maxBucketSize);
             _workTimeGenerator = workTimeGenerator;
         }
+        internal OperationManager _operations { get; set; } = new OperationManager();
+        internal CapabilityManager _capabilityManager { get; set; } = new CapabilityManager();
+        internal ProposalManager _proposalManager { get; set; } = new ProposalManager();
         private BucketManager _bucketManager { get; }
         private WorkTimeGenerator _workTimeGenerator { get; }
         public override bool Action(object message)
@@ -38,55 +41,43 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             var success = true;
             switch (message)
             {
+                //Initialize
+                case Hub.Instruction.Default.AddResourceToHub msg: AddResourceToHub(resourceInformation: msg.GetObjectFromMessage); break;
+
+                //Jobs
                 case Hub.Instruction.Default.EnqueueJob msg: AssignJob(msg.GetObjectFromMessage); break;
-                //case Hub.Instruction.BucketScope.EnqueueOperation msg: EnqueueOperation(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.EnqueueBucket msg: EnqueueBucket(msg.GetObjectFromMessage); break;
+                case Hub.Instruction.BucketScope.DissolveBucket msg: DissolveBucket(msg.GetObjectFromMessage); break;
+                case BasicInstruction.UpdateStartConditions msg: UpdateAndForwardStartConditions(msg.GetObjectFromMessage); break;
+
+                //Manage Work for Resource
+                case Hub.Instruction.Default.ProposalFromResource msg: ProposalFromResource(fProposal: msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.SetBucketFix msg: SetBucketFix(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.RequestFinalBucket msg: SendFinalBucket(msg.GetObjectFromMessage); break;
-                case Hub.Instruction.BucketScope.DissolveBucket msg: DissolveBucket(msg.GetObjectFromMessage); break;
-                case Hub.Instruction.Default.AddResourceToHub msg: AddResourceToHub(resourceInformation: msg.GetObjectFromMessage); break;
+                case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
                 default:
-                    success = base.Action(message);
+                     throw new Exception("No message exists");
                     break;
             }
             return success;
         }
 
-        private void SetBucketFix(Guid bucketKey)
+        internal void AddResourceToHub(FResourceInformation resourceInformation)
         {
-            var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucketKey);
-            var bucket = jobConfirmation.Job as FBucket;
-            //refuse bucket if not exits anymore
-            if (bucket == null) return;
-            
-            bucket = bucket.SetFixPlanned;
-            _bucketManager.Replace(bucket);
-            
-            Agent.DebugMessage($"{((FBucket)jobConfirmation.Job).Name} has been set fix, but can still add more operations.", CustomLogger.JOB, LogLevel.Warn);
-
-            Agent.Send(Job.Instruction.BucketIsFixed.Create(jobConfirmation.JobAgentRef));
-        }
-
-        private void SendFinalBucket(Guid bucketKey)
-        {
-            var jobConfirmation = BucketCleanup(bucketKey);
-            var bucket = jobConfirmation.Job as FBucket;
-
-            bucket.Operations.ForEach(operation =>
+            foreach (var capabilityProvider in resourceInformation.ResourceCapabilityProvider)
             {
-                operation.Operation.RandomizedDuration =
-                    _workTimeGenerator.GetRandomWorkTime(operation.Operation.Duration);
+                var capabilityDefinition = _capabilityManager.GetCapabilityDefinition(capabilityProvider.ResourceCapability);
 
-                Agent.DebugMessage($"{operation.Operation.Name} {operation.Key} from {((FBucket)jobConfirmation.Job).Name} has new work time of {operation.Operation.RandomizedDuration}.", CustomLogger.JOB, LogLevel.Warn);
+                capabilityDefinition.AddResourceRef(resourceId: resourceInformation.ResourceId, resourceRef: resourceInformation.Ref);
 
-                //RemoveJobFromBucketManager(operation.Key);
-            });
+                System.Diagnostics.Debug.WriteLine($"Create capability provider at {Agent.Name}" +
+                                                   $" with capability provider {capabilityProvider.Name} " +
+                                                   $" from {Agent.Context.Sender.Path.Name}" +
+                                                   $" with capability {capabilityDefinition.ResourceCapability.Name}", CustomLogger.INITIALIZE, LogLevel.Warn);
 
-            jobConfirmation.Job = bucket;
-            Agent.DebugMessage($"Send finalized {jobConfirmation.Job.Name} with {((FBucket)jobConfirmation.Job).Operations.Count()} operations to Job Agent.", CustomLogger.JOB, LogLevel.Warn);
-
-            Agent.Send(BasicInstruction.FinalBucket.Create(jobConfirmation.ToImmutable(), jobConfirmation.JobAgentRef));
-
+            }
+            // Added Machine Agent To Machine Pool
+            Agent.DebugMessage(msg: "Added Resource Agent " + resourceInformation.Ref.Path.Name + " to Resource Pool: " + resourceInformation.RequiredFor, CustomLogger.INITIALIZE, LogLevel.Warn);
         }
 
         private void DissolveBucket(Guid bucketKey)
@@ -109,7 +100,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             //TODO multiple reset from one setupdefinition?
             else
             {
-                new Exception($"something went wrong with reset Bucket");
+                new Exception($"Something went wrong while reset bucket with {bucketKey}");
             }
 
         }
@@ -121,7 +112,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             Agent.DebugMessage(msg: $"Got New Item to Enqueue: {operation.Operation.Name} {operation.Key}" + 
                                     $"| with start condition: {operation.StartConditions.Satisfied} with Id: {operation.Key}" +
                                     $"| ArticleProvided: {operation.StartConditions.ArticlesProvided} " +
-                                    $"| PreCondition: {operation.StartConditions.PreCondition}");
+                                    $"| PreCondition: {operation.StartConditions.PreCondition}", CustomLogger.JOB, LogLevel.Warn);
 
             operation.UpdateHubAgent(hub: Agent.Context.Self);
 
@@ -137,7 +128,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             Agent.DebugMessage(msg: $"Original FOperation before add to Bucket : {fOperation.Operation.Name} {fOperation.Key}" +
                                     $"| with start condition: {fOperation.StartConditions.Satisfied} with Id: {fOperation.Key}" +
                                     $"| ArticleProvided: {fOperation.StartConditions.ArticlesProvided} " +
-                                    $"| PreCondition: {fOperation.StartConditions.PreCondition}");
+                                    $"| PreCondition: {fOperation.StartConditions.PreCondition}", CustomLogger.JOB, LogLevel.Warn);
 
             var operationInBucket = _bucketManager.GetBucketByOperationKey(fOperation.Key);
             
@@ -154,10 +145,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 var bucket = ((FBucket) jobConfirmation.Job);
                 var operationInsideBucket = bucket.Operations.Single(x => x.Key.Equals(fOperation.Key));
                 
-                Agent.DebugMessage(msg: $"FOperation inside Bucket {operationInsideBucket.Operation.Name} {bucket.Key}" +
+                Agent.DebugMessage(msg: $"FOperation {operationInsideBucket.Operation.Name} inside Bucket {bucket.Name} {bucket.Key}" +
                                         $"| with start condition: {operationInsideBucket.StartConditions.Satisfied} with Id: {operationInsideBucket.Key}" +
                                         $"| ArticleProvided: {operationInsideBucket.StartConditions.ArticlesProvided} " +
-                                        $"| PreCondition: {operationInsideBucket.StartConditions.PreCondition}");
+                                        $"| PreCondition: {operationInsideBucket.StartConditions.PreCondition}", CustomLogger.JOB, LogLevel.Warn);
 
                 Agent.DebugMessage($"Operation {fOperation.Operation.Name} {fOperation.Key} was added to {bucket.Name} {bucket.Key} Send to {jobConfirmation.JobAgentRef.Path.Name}", CustomLogger.ENQUEUE, LogLevel.Warn);
 
@@ -176,15 +167,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             RequestDissolveBucket(fOperation);
         }
         
-        /// <summary>
-        /// TODO:
-        /// Message to JobAgent with order to Dissolve
-        /// JobAgent withdraws, Proposals/Slots
-        /// JobAgent sends Operations to Requeue
-        /// JobAgent Dissolves
-        /// </summary>
-        /// <param name="operation"></param>
-        private void RequestDissolveBucket(FOperation operation)
+        internal void RequestDissolveBucket(FOperation operation)
         {
             var bucketsToDissolve = _bucketManager.FindAllBucketsLaterForwardStart(operation);
 
@@ -209,7 +192,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (jobConfirmation == null)
             {
                 //if bucket already deleted in BucketManager, also delete bucket in proposalmanager
-                Agent.DebugMessage($"{((FBucket)jobConfirmation.Job).Name} has no Corresponding jobConfirmation return;.", CustomLogger.PROPOSAL, LogLevel.Warn);
+                Agent.DebugMessage($"{((FBucket)jobConfirmation.Job).Name} has no corresponding jobConfirmation.", CustomLogger.PROPOSAL, LogLevel.Warn);
                 _proposalManager.Remove(bucketKey);
                 return;
             }
@@ -246,7 +229,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             });
         }
 
-        internal override void ProposalFromResource(FProposal fProposal)
+        internal void ProposalFromResource(FProposal fProposal)
         {
             // get related operation and add proposal.
             var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(fProposal.JobKey);
@@ -358,7 +341,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             return jobConfirmation;
         }
 
-        internal override void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
+        internal void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
         {
             Agent.DebugMessage(msg: $"Received: Update and forward start condition for {startCondition.OperationKey}" +
                                     $"| ArticleProvided: {startCondition.ArticlesProvided} " +
@@ -395,5 +378,53 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             Agent.DebugMessage($"Requeue {i} of {remember} operations finished", CustomLogger.ENQUEUE, LogLevel.Warn);
         }
+        internal virtual void WithdrawRequiredArticles(Guid operationKey)
+        {
+            var operation = _operations.GetJobBy(operationKey) as FOperation;
+
+            Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles
+                .Create(message: operation.Key
+                    , target: operation.ProductionAgent));
+        }
+
+        #region Job to Resource
+
+        private void SetBucketFix(Guid bucketKey)
+        {
+            var jobConfirmation = _bucketManager.GetConfirmationByBucketKey(bucketKey);
+            var bucket = jobConfirmation.Job as FBucket;
+            //refuse bucket if not exits anymore
+            if (bucket == null) return;
+
+            bucket = bucket.SetFixPlanned;
+            _bucketManager.Replace(bucket);
+
+            Agent.DebugMessage($"{((FBucket)jobConfirmation.Job).Name} has been set fix, but can still add more operations.", CustomLogger.JOB, LogLevel.Warn);
+
+            Agent.Send(Job.Instruction.BucketIsFixed.Create(jobConfirmation.JobAgentRef));
+        }
+
+        private void SendFinalBucket(Guid bucketKey)
+        {
+            var jobConfirmation = BucketCleanup(bucketKey);
+            var bucket = jobConfirmation.Job as FBucket;
+
+            bucket.Operations.ForEach(operation =>
+            {
+                operation.Operation.RandomizedDuration =
+                    _workTimeGenerator.GetRandomWorkTime(operation.Operation.Duration);
+
+                Agent.DebugMessage($"{operation.Operation.Name} {operation.Key} from {((FBucket)jobConfirmation.Job).Name} has new work time of {operation.Operation.RandomizedDuration}.", CustomLogger.JOB, LogLevel.Warn);
+
+                //RemoveJobFromBucketManager(operation.Key);
+            });
+
+            jobConfirmation.Job = bucket;
+            Agent.DebugMessage($"Send finalized {jobConfirmation.Job.Name} with {((FBucket)jobConfirmation.Job).Operations.Count()} operations to Job Agent.", CustomLogger.JOB, LogLevel.Warn);
+
+            Agent.Send(BasicInstruction.FinalBucket.Create(jobConfirmation.ToImmutable(), jobConfirmation.JobAgentRef));
+
+        }
+#endregion
     }
 }

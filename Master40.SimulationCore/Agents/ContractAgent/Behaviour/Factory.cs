@@ -10,9 +10,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
             IBehaviour behaviour;
             switch (simType)
             {
-                case SimulationType.Bucket: behaviour = Default();
-                    break;
-                case SimulationType.DefaultSetup: behaviour = Default();
+                case SimulationType.Default: behaviour = Default();
                     break;
                 default:
                     behaviour = Default();

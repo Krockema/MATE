@@ -11,31 +11,20 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             IBehaviour behaviour;
             switch (simType)
             {
-                case SimulationType.DefaultSetup:
-                    behaviour = DefaultSetup();
-                    break;
-                case SimulationType.DefaultSetupStack:
-                    behaviour = DefaultSetup();
-                    break;
-                case SimulationType.BucketScope:
-                    behaviour = BucketScope(maxBucketSize, workTimeGenerator);
+                case SimulationType.Default:
+                    behaviour = Default(maxBucketSize, workTimeGenerator);
                     break;
                 default:
-                    behaviour =  DefaultSetup();
+                    behaviour = Default(maxBucketSize, workTimeGenerator);
                     break;
             }
 
             return behaviour;
         }
         
-        private static IBehaviour DefaultSetup()
+        private static IBehaviour Default(long maxBucketSize, WorkTimeGenerator workTimeGenerator)
         {
-            return new DefaultSetup();
-        }
-
-        private static IBehaviour BucketScope(long maxBucketSize, WorkTimeGenerator workTimeGenerator)
-        {
-            return new BucketScope(maxBucketSize: maxBucketSize, workTimeGenerator: workTimeGenerator);
+            return new Default(maxBucketSize: maxBucketSize, workTimeGenerator: workTimeGenerator);
         }
 
     }

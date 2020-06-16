@@ -101,7 +101,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
           
             LogToDB(writeResultsToDB: finalCall);
 
-            if (finalCall)
+            //TODO For Debugging reasons, maybe add another flag for using this / not working with frontend
+            /*if (finalCall)
             {
                 var list = new List<GanttChartItem>();
                 foreach (var item in _taskArchive)
@@ -125,7 +126,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
                 }
                 CustomFileWriter.WriteToFile($"Logs//ResourceRunAt-{Collector.Time}.log",
                     JsonConvert.SerializeObject(list));
-            }
+            }*/
 
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from WorkSchedule");

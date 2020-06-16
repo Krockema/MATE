@@ -9,7 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\AkkaSim\AkkaSim\AkkaSim.csproj" />
+    <PackageReference Include="AkkaSim" Version="0.5.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Master40.SimulationImmutables\Master40.SimulationImmutables.fsproj" />
     <ProjectReference Include="..\Master40.Tools\Master40.Tools.csproj" />
   </ItemGroup>

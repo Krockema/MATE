@@ -12,7 +12,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             IBehaviour behaviour;
             switch (simType)
             {
-                case SimulationType.DefaultSetup:
+                case SimulationType.Default:
                     behaviour = Default();
                     break;
                 default:

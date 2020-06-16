@@ -1,3 +1,4 @@
+using System;
 using Master40.DB.Data.Context;
 using Master40.DB.Nominal;
 using Master40.DB.ReportingModel;
@@ -39,16 +40,14 @@ namespace Master40.Controllers
             var simKind = SimulationType.None;
             switch (simulationType)
             {
-                case 1: simKind = SimulationType.None; break;
-                case 2: simKind = SimulationType.DefaultSetup; break;
-                case 3: simKind = SimulationType.DefaultSetupStack; break;
-                case 4: simKind = SimulationType.BucketScope; break;
+                case 1: simKind = SimulationType.Default; break;
                 default: return;
             }
             // using Default Test Values
             var simConfig = ArgumentConverter.ConfigurationConverter(_resultCtx, 1);
             // update customized Items
             simConfig.ReplaceOption(new SimulationKind(value: simKind));
+            simConfig.ReplaceOption(new TimeToAdvance(value: TimeSpan.FromMilliseconds(50)));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: orderAmount));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: estimatedThroughputTime));

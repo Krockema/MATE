@@ -11,7 +11,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             IBehaviour behaviour;
             switch (simType)
             {
-                case SimulationType.DefaultSetup:
+                case SimulationType.Default:
                     behaviour = Default(jobConfirmation);
                     break;
                 default:
