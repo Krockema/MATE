@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Akka.Actor;
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using Master40.DB.Data.Context;
 using Master40.DB.Nominal;
@@ -11,6 +6,9 @@ using Master40.Simulation.CLI;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {

@@ -240,7 +240,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var jobInProgressHasChanged = false;
             while (foundItem)
             {
-                var item = _scopeQueue.GetFirstIfSatisfiedAndSetReadyAtIsSmallerOrEqualThen(currentTime: Agent.CurrentTime,
+                var item = _scopeQueue.GetFirstIfSatisfiedAndSetReadyAtIsSmallerOrEqualThan(currentTime: Agent.CurrentTime,
                                                                                           _capabilityProviderManager.GetCurrentUsedCapability());
                 if (item == null)
                 {

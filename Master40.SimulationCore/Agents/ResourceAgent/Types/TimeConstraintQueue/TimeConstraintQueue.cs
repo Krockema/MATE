@@ -16,17 +16,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
     public class TimeConstraintQueue : SortedList<long, IConfirmation>, IJobQueue
     {
         public int Limit { get; set; }
-        
+        public long Workload => this.Values.Sum(x => x.Job.Duration);
         public TimeConstraintQueue(int limit)
         {
             Limit = limit;
-        }
-
-        public IConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
-        {
-            var (key, value) = GetFirstSatisfied(currentTime);
-            this.Remove(key);
-            return value;
         }
 
         public IConfirmation GetFirstIfSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
@@ -38,7 +31,15 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             }
             return null;
         }
-        public IConfirmation GetFirstIfSatisfiedAndSetReadyAtIsSmallerOrEqualThen(long currentTime, M_ResourceCapability resourceCapability = null)
+
+        public IConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
+        {
+            var (key, value) = GetFirstSatisfied(currentTime);
+            this.Remove(key);
+            return value;
+        }
+
+        public IConfirmation GetFirstIfSatisfiedAndSetReadyAtIsSmallerOrEqualThan(long currentTime, M_ResourceCapability resourceCapability = null)
         {
             var (key, confirmation) = GetFirst();
             if (confirmation != null 
@@ -104,32 +105,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
         public HashSet<IConfirmation> GetTail(long currentTime, IConfirmation jobConfirmation)
         {
 
-            /*
-             1320 <= 1305 && 1380 > 1305
-                false && true 
-                    --> false 
-            
-            1320 >= 1305 && 1314 >= 1503
-                true && false 
-                    --> false 
-
-                    1305 - 1368
-            raus -> 1320 - 1380 
-
-
-           to Remove |xxxxxxxx|<-------------------->|
-            new          |-------------------|
-
-                     |<------------>|xxxxxxxxxxxxxx|
-                         |-------------------|
-            */
-            //   
-            // var toRequeue2 = 
-            //     this.Where(x => x.Key <= jobConfirmation.ScopeConfirmation.GetScopeStart()
-            //                  && x.Value.ScopeConfirmation.GetScopeEnd() > jobConfirmation.ScopeConfirmation.GetScopeStart())
-            //         .Select(x => x.Value).ToHashSet();
-            // 
-
             var toRequeue = this.Where(x => (x.Value.ScopeConfirmation.GetScopeStart() >= jobConfirmation.ScopeConfirmation.GetScopeStart() 
                                              && x.Value.ScopeConfirmation.GetScopeStart() < jobConfirmation.ScopeConfirmation.GetScopeEnd()) 
                                             || (x.Value.ScopeConfirmation.GetScopeEnd() > jobConfirmation.ScopeConfirmation.GetScopeStart()
@@ -139,11 +114,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                                             && x.Value.Job.Priority(currentTime) >= jobConfirmation.Job.Priority(currentTime)))
                                             .Select(x => x.Value).ToHashSet();
 
-            // var toRequeue = this.Where()
-            //     )
-            //                                       .Select(x => x.Value).ToHashSet();
-            // toRequeue.UnionWith(toRequeue2);
-            // toRequeue.UnionWith(toRequeue3);
             return toRequeue;
         }
         
@@ -163,17 +133,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                                 , long currentTime, CapabilityProviderManager cpm
                                 , long resourceBlockedUntil, IActorRef resourceRef)
         {
-            // 1. Für welche Prozessschritte werde ich gebraucht
-            // 2. Errechne meine benötigte Dauer
-            // 3. Gib mögliche Zeiträume zurück
 
-            // 1. Zu Erstens
             var resourceCapabilityProvider = cpm.GetCapabilityProviderByCapability(jobProposal.CapabilityId);
             var setup = resourceCapabilityProvider.ResourceSetups.Single(x => resourceRef.Equals(x.Resource.IResourceRef));
 
-            // 1 Methode für Resource setup, Processing
-
-            // Methode für Resource Setup + Processing
             var requiredDuration = 0L;
             if (setup.UsedInProcess)
                 requiredDuration += ((FBucket)jobProposal.Job).MaxBucketSize;
@@ -215,10 +178,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             if (!enumerator.MoveNext())
             {
                 isQueueAble = true;
-                // TODO Last Capability from _jobInProgress.ReadyElements
                 isRequiringSetup = (!capabilityProviderManager.AlreadyEquipped(resourceCapabilityId));
                 // ignore first round
-                // totalwork bis max
+                // totalwork = max
             }
             else
             {
@@ -290,34 +252,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                 }
             }
 
-            //
             enumerator.Dispose();
             // Queue contains no job --> Add queable item
             positions.Add(new FQueueingScope(isQueueAble: isQueueAble,
                                                 isRequieringSetup: isRequiringSetup,
                                                 scope: new FScope(start: earliestStart, end: long.MaxValue)));
             return positions;
-        }
-
-
-
-
-        private long GetRequiredSetupTime(CapabilityProviderManager cpm, int resourceCapabilityId)
-        {
-            if (cpm.AlreadyEquipped(resourceCapabilityId)) return 0L;
-            return cpm.GetSetupDurationBy(resourceCapabilityId);
-        }
-
-        private long GetSetupTimeIfEquipped(CapabilityProviderManager cpm, int capabilityProviderId)
-        {
-            if (cpm.AlreadyEquipped(capabilityProviderId)) return cpm.GetSetupDurationBy(capabilityProviderId);
-            return 0L;
-        }
-
-        private long GetRequiredSetupTime(CapabilityProviderManager cpm, int currentId, FRequestProposalForCapability requestProposalForCapabilityProvider)
-        {
-            if (currentId == requestProposalForCapabilityProvider.Job.RequiredCapability.Id) return 0L;
-            return cpm.GetSetupDurationBy(requestProposalForCapabilityProvider.CapabilityId);
         }
 
         public IConfirmation FirstOrNull()
@@ -400,7 +340,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             return false;
         }
 
-        public long Workload => this.Values.Sum(x => x.Job.Duration);
+        
     }
 }
 
