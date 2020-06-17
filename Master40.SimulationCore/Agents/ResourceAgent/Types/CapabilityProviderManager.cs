@@ -12,6 +12,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             _resourceCapabilityProviders = resourceCapabilityProvider;
             _capabilityInUse = new CapabilityProviderInUse();
+
         }
 
         internal void Mount(int capabilityProviderId)

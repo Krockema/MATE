@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Master40.Tools.Messages
+﻿namespace Master40.SimulationCore.Reporting
 {
     public class GanttChartItem
     {
