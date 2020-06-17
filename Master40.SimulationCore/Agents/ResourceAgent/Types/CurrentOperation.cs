@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using static FOperations;
+﻿using static FOperations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 {

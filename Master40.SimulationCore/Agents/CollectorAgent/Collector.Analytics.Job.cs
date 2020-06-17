@@ -259,12 +259,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             var totalPlannedDowntime = 0L;
             var totalBreakTime = 0L;
             double runTime = totalProductionTime - (totalPlannedDowntime - totalBreakTime);
-            
-            /* ------------- WorkTime --------------------*/
+
+            /* ------------- WorkTime --------------------*/ //TODO add unplanned breakdown
             var breakDown = 0L;
-
-            //TODO Selstame Konstante - muss geklärt werden
-
+            
             List<ISimulationResourceData> allSimulationResourceSetups = new List<ISimulationResourceData>();
             allSimulationResourceSetups.AddRange(simulationResourceSetups.Where(x => x.Start >= startInterval + 50).ToList());
             allSimulationResourceSetups.AddRange(simulationResourceSetupsForDb.Where(x => x.Start >= startInterval + 50).ToList());
@@ -289,7 +287,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             /* ------------- zeroToleranceTime --------------------*/
 
-            //TODO Max Quality Goods
+            //TODO Feature: Branch QualityManagement
             var goodGoods = 35L;
             var badGoods = 0L;
             var totalGoods = goodGoods + badGoods;
@@ -315,11 +313,10 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             return totalOEEString;
 
-            //TODO Implement View for GUI
+            //TODO Feature: vX.0 Enhance GUI with details about OEE
 
         }
 
-        //TODO implement Interface for ISimulationJob (FCreateSimluationOperation, FCreateSimulationBucket)
         private void CreateJob(FCreateSimulationJob simJob)
         {
             var fOperation = ((FOperation)simJob.Job);

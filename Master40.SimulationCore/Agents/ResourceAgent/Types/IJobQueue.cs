@@ -1,8 +1,7 @@
-﻿using Master40.DB.DataModel;
+﻿using Akka.Actor;
+using Master40.DB.DataModel;
 using System;
 using System.Collections.Generic;
-using Akka.Actor;
-using static FJobConfirmations;
 using static FQueueingScopes;
 using static FRequestProposalForCapabilityProviders;
 using static IConfirmations;

@@ -31,7 +31,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             _bucketManager = new BucketManager(maxBucketSize: maxBucketSize);
             _workTimeGenerator = workTimeGenerator;
         }
-        internal OperationManager _operations { get; set; } = new OperationManager();
         internal CapabilityManager _capabilityManager { get; set; } = new CapabilityManager();
         internal ProposalManager _proposalManager { get; set; } = new ProposalManager();
         private BucketManager _bucketManager { get; }
@@ -50,14 +49,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case Hub.Instruction.BucketScope.DissolveBucket msg: DissolveBucket(msg.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateStartConditions msg: UpdateAndForwardStartConditions(msg.GetObjectFromMessage); break;
 
-                //Manage Work for Resource
+                //Communication with Resource
                 case Hub.Instruction.Default.ProposalFromResource msg: ProposalFromResource(fProposal: msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.SetBucketFix msg: SetBucketFix(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.RequestFinalBucket msg: SendFinalBucket(msg.GetObjectFromMessage); break;
-                case BasicInstruction.WithdrawRequiredArticles msg: WithdrawRequiredArticles(operationKey: msg.GetObjectFromMessage); break;
-                default:
-                     throw new Exception("No message exists");
-                    break;
+
+                default: return false;
             }
             return success;
         }
@@ -76,7 +73,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                                                    $" with capability {capabilityDefinition.ResourceCapability.Name}", CustomLogger.INITIALIZE, LogLevel.Warn);
 
             }
-            // Added Machine Agent To Machine Pool
             Agent.DebugMessage(msg: "Added Resource Agent " + resourceInformation.Ref.Path.Name + " to Resource Pool: " + resourceInformation.RequiredFor, CustomLogger.INITIALIZE, LogLevel.Warn);
         }
 
@@ -97,10 +93,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
                 Agent.Send(Job.Instruction.TerminateJob.Create(Agent.Sender));
             }
-            //TODO multiple reset from one setupdefinition?
             else
             {
-                new Exception($"Something went wrong while reset bucket with {bucketKey}");
+                new Exception($"Dissolve failed while remove {bucket.Name} {bucketKey}.");
             }
 
         }
@@ -250,9 +245,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 // item Postponed by All resources ? -> requeue after given amount of time.
                 var proposalForCapabilityProvider = propSet.GetValidProposal();
-                if (proposalForCapabilityProvider.Count() == 0)
+                if (proposalForCapabilityProvider.Count == 0)
                 {
-                    var postponedFor = propSet.PostponedUntil; // TODO: Naming Until != For
+                    var postponedFor = propSet.PostponedFor;
 
                     _proposalManager.RemoveAllProposalsFor(bucket.Key);
 
@@ -268,7 +263,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 if (possibleProcessingPositions.Count == 0)
                 {
                     _proposalManager.RemoveAllProposalsFor(bucket.Key);
-                    // var postponedFor = (long) (bucket.MaxBucketSize * 0.8);
+                    //TODO check wether this can be adjustable
                     var postponedFor = (long) (bucket.MaxBucketSize * 0.5);
                     Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(bucket.Key, target: Agent.Context.Self), waitFor: postponedFor);
                     return;
@@ -378,16 +373,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             Agent.DebugMessage($"Requeue {i} of {remember} operations finished", CustomLogger.ENQUEUE, LogLevel.Warn);
         }
-        internal virtual void WithdrawRequiredArticles(Guid operationKey)
-        {
-            var operation = _operations.GetJobBy(operationKey) as FOperation;
-
-            Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles
-                .Create(message: operation.Key
-                    , target: operation.ProductionAgent));
-        }
-
-        #region Job to Resource
 
         private void SetBucketFix(Guid bucketKey)
         {
@@ -425,6 +410,5 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             Agent.Send(BasicInstruction.FinalBucket.Create(jobConfirmation.ToImmutable(), jobConfirmation.JobAgentRef));
 
         }
-#endregion
     }
 }

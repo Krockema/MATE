@@ -59,10 +59,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 case Resource.Instruction.Default.RevokeJob msg: RevokeJob(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.Default.DoWork msg: DoWork(msg.GetObjectFromMessage); break;
                 case BasicInstruction.FinalBucket msg: FinalizedBucket(msg.GetObjectFromMessage); break;
-                case Resource.Instruction.BucketScope.FinishBucket msg: FinishBucket(); break;
-                case Resource.Instruction.BucketScope.FinishTask msg: FinishTask(msg.GetObjectFromMessage); break;
+                case Resource.Instruction.Default.FinishBucket msg: FinishBucket(); break;
+                case Resource.Instruction.Default.FinishTask msg: FinishTask(msg.GetObjectFromMessage); break;
                 case Resource.Instruction.Default.TryToWork msg: UpdateProcessingItem(); break;
-                case Resource.Instruction.BucketScope.DoSetup msg: DoSetup(); break;
+                case Resource.Instruction.Default.DoSetup msg: DoSetup(); break;
                 case BasicInstruction.FinishSetup msg: FinishSetup(); break;
                 default:
                     success = base.Action(message);
@@ -348,7 +348,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
             CreateSetupTask(setupDuration, JobType.SETUP);
 
-            Agent.Send(Resource.Instruction.BucketScope.FinishTask.Create("SETUP", Agent.Context.Self), waitFor: setupDuration);
+            Agent.Send(Resource.Instruction.Default.FinishTask.Create("SETUP", Agent.Context.Self), waitFor: setupDuration);
         }
 
         internal void FinishSetup() // only in case it is not required for processing.
@@ -371,7 +371,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             _jobInProgress.CurrentOperation.Set(operation, Agent.CurrentTime);
             CreateProcessingTask(operation);
 
-            Agent.Send(Resource.Instruction.BucketScope.FinishTask.Create("PROCESSING", Agent.Context.Self), waitFor: operation.Operation.RandomizedDuration);
+            Agent.Send(Resource.Instruction.Default.FinishTask.Create("PROCESSING", Agent.Context.Self), waitFor: operation.Operation.RandomizedDuration);
         }
 
         private void FinishTask(string task)

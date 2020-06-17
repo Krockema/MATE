@@ -5,16 +5,10 @@ using static IConfirmations;
 
 namespace Master40.SimulationCore.Agents.JobAgent
 {
-    /// <summary>
-    /// --------- General sequence
-    /// </summary>
-
     public partial class Job : Agent, IAgent
     {
-
         IActorRef IAgent.Guardian => ActorRefs.NoSender;
 
-        // public Constructor
         public static Props Props(ActorPaths actorPaths, IConfirmation jobConfirmation,long time, bool debug, IActorRef principal)
         {
             return Akka.Actor.Props.Create(factory: () => new Job(actorPaths, jobConfirmation, time, debug, principal));

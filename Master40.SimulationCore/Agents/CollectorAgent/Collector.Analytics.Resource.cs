@@ -101,7 +101,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
           
             LogToDB(writeResultsToDB: finalCall);
 
-            //TODO For Debugging reasons, maybe add another flag for using this / not working with frontend
+            //TODO Only For Debugging
             /*if (finalCall)
             {
                 var list = new List<GanttChartItem>();
@@ -262,7 +262,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
                 }));
 
             //Persist Jobs
-            // TODO make it better
+            //TODO Find another way to archive list
 
             var tasksToArchive = operationTasks.Where(x => x.End < lastIntervalStart).ToList();
             tasksToArchive.AddRange(setupTasks.Where(op => op.End < lastIntervalStart));

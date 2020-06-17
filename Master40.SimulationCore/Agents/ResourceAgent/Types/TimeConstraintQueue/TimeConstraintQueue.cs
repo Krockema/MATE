@@ -1,16 +1,15 @@
 ﻿using Akka.Actor;
 using Master40.DB.DataModel;
+using Master40.Tools.ExtensionMethods;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Master40.Tools.ExtensionMethods;
 using static FBuckets;
 using static FQueueingScopes;
 using static FRequestProposalForCapabilityProviders;
 using static FScopes;
 using static IConfirmations;
 using static IJobs;
-using static ITimeRanges;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 {

@@ -1,6 +1,5 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
-using static FJobConfirmations;
 using static FJobResourceConfirmations;
 
 namespace Master40.SimulationCore.Agents.JobAgent

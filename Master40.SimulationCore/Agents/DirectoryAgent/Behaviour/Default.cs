@@ -26,12 +26,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
 
         internal HubManager hubManager { get; set; } = new HubManager();
         internal HubManager storageManager { get; set; } = new HubManager();
-        /// <summary>
-        /// Returns the Default Behaviour Set for Contract Agent.
-        /// </summary>
-        /// <returns></returns>
-
-
+ 
         public override bool Action(object message)
         {
             switch (message)
