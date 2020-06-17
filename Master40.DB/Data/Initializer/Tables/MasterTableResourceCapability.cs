@@ -52,7 +52,7 @@ namespace Master40.DB.Data.Initializer.Tables
             {
                 var capability = new M_ResourceCapability
                 {
-                    Name = parent.Name + " Tool Nr. " + i,
+                    Name = parent.Name + " Tool Nr " + i,
                     ParentResourceCapabilityId = parent.Id
                 };
 

@@ -31,8 +31,8 @@
 <script>
     var TimelinessElement = document.getElementById("TimelinessElement");
     var TimelinessChart = new Chart(TimelinessElement, {
-            "type": "bar"
-            , "data": {
+        "type": "bar",
+        "data": {
                 "datasets": [
                     {
                         "type": "bar"
@@ -43,7 +43,14 @@
                         , "data": [95.0, 5.0]
                     }], "labels": ["in time", "too late"]
             }, "options": {
-                "responsive": true, "maintainAspectRatio": false, "legend": { "display": false }
+            "responsive": true
+            , "animation": {
+                "responsiveAnimationDuration": 0
+                , "animateScale" : true
+            }
+            , "maintainAspectRatio": false
+            , "responsiveAnimationDuration" : 0
+            , "legend": { "display": false }
                 , "scales": {
                     "yAxes": [{
                         "type": "linear", "id": "first-x-axis"
