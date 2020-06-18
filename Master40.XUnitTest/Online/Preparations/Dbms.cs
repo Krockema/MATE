@@ -40,5 +40,18 @@ namespace Master40.XUnitTest.Online.Preparations
                 return ConnectionsStrings.DbConnectionZppUnix;
             }
         }
+
+        public static string getResultDatabaseContextString()
+        {
+            if (ConnectionsStrings.IsWindows)
+            {
+                return ConnectionsStrings.ResultDbConnectionZppWindows;
+            }
+            else
+            {
+                return ConnectionsStrings.DbConnectionZppUnix;
+            }
+        }
+
     }
 }

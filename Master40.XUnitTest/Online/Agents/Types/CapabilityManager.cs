@@ -8,6 +8,13 @@ namespace Master40.XUnitTest.Online.Agents.Types
 {
     public class CapabilityManager
     {
+        /// <summary>
+        /// What to Test?
+        ///
+        /// ValidCreation of Cabibility Manager and inhiret capabilites?
+        /// </summary>
+
+
         [Fact]
         public void TestSetCapabilies()
         {

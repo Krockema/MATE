@@ -15,7 +15,7 @@ namespace Master40.XUnitTest.Online.Model
         {
             DataBase = Dbms.GetNewMasterDataBase();
             MasterDBInitializerTruck.DbInitialize(context: DataBase.DbContext, resourceModelSize: ModelSize.Medium,
-                setupModelSize: ModelSize.Medium);
+                setupModelSize: ModelSize.Medium, 3, new []{1,0,1});
         }
 
         [Fact(Skip = "Activate after merge")]

@@ -9,7 +9,7 @@ namespace Master40.DB.Data.Initializer
 {
     public static class MasterDBInitializerTruck
     {
-        public static void DbInitialize(MasterDBContext context, ModelSize resourceModelSize, ModelSize setupModelSize, bool distributeSetupsExponentially = false)
+        public static void DbInitialize(MasterDBContext context, ModelSize resourceModelSize, ModelSize setupModelSize, int numberOfWorkersForProcessing, int[] numberOfOperatorsForSetup, bool distributeSetupsExponentially = false)
         {
             context.Database.EnsureCreated();
 
@@ -59,7 +59,7 @@ namespace Master40.DB.Data.Initializer
                 default: throw new ArgumentException();
             }
 
-            resources.CreateResourceTools(setupTimeCutting: 10, setupTimeDrilling: 15, setupTimeAssembling: 20, numberOfWorkers: 3);
+            resources.CreateResourceTools(setupTimeCutting: 10, setupTimeDrilling: 15, setupTimeAssembling: 20, numberOfWorkers: numberOfWorkersForProcessing, numberOfOperatorsForSetup);
             resources.SaveToDB(context);
 
             // Article Definitions

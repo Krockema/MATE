@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
-using static FQueueingPositions;
-using static FQueueingsScopes;
+using static FQueueingScopes;
 
 namespace Master40.XUnitTest.Online.Agents.Types
 {

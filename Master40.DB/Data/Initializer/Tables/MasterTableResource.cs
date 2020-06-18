@@ -47,7 +47,7 @@ namespace Master40.DB.Data.Initializer.Tables
             return new M_Resource() { Name = resourceName + " " + number?.ToString(), Capacity = 1, IsPhysical = isPhysical };
         }
 
-        internal void CreateResourceTools(int setupTimeCutting, int setupTimeDrilling, int setupTimeAssembling, int numberOfWorkers)
+        internal void CreateResourceTools(int setupTimeCutting, int setupTimeDrilling, int setupTimeAssembling, int numberOfWorkers, int[] numberOfOperators)
         {
             List<M_Resource> workers = new List<M_Resource>();
             for (int i = 1; i < 1 + numberOfWorkers; i++)
@@ -63,9 +63,9 @@ namespace Master40.DB.Data.Initializer.Tables
             }
             CapabilityToResourceDict.Add($"Tool", drillingTools);
 
-            CreateTools(_capability.CUTTING, setupTimeCutting, 1, workers);
-            CreateTools(_capability.DRILLING, setupTimeDrilling, 0, workers, drillingTools);
-            CreateTools(_capability.ASSEMBLING, setupTimeAssembling, 1, workers);
+            CreateTools(_capability.CUTTING, setupTimeCutting, numberOfOperators[0], workers);
+            CreateTools(_capability.DRILLING, setupTimeDrilling, numberOfOperators[1], workers, drillingTools);
+            CreateTools(_capability.ASSEMBLING, setupTimeAssembling, numberOfOperators[2], workers);
         }
 
         

@@ -7,9 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Online\**" />
-    <EmbeddedResource Remove="Online\**" />
-    <None Remove="Online\**" />
+    <Compile Remove="Online\Agents\**" />
+    <Compile Remove="Online\Model\**" />
+    <Compile Remove="Online\Simulation\**" />
+    <EmbeddedResource Remove="Online\Agents\**" />
+    <EmbeddedResource Remove="Online\Model\**" />
+    <EmbeddedResource Remove="Online\Simulation\**" />
+    <None Remove="Online\Agents\**" />
+    <None Remove="Online\Model\**" />
+    <None Remove="Online\Simulation\**" />
   </ItemGroup>
 
   <ItemGroup>

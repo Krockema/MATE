@@ -18,7 +18,7 @@ namespace Master40.XUnitTest.Online.Simulation
             {
                 var probe = this.CreateTestProbe();
 
-                var wi = MessageFactory.ToOperationItem(new M_Operation() { Duration = 5 }, 15, productionAgent: probe, firstOperation: false, 0);
+                var wi = MessageFactory.ToOperationItem(new M_Operation() { Duration = 5 }, 15, 100, probe, firstOperation: false, 0, 0);
 
                 var w1 = ((IJob)wi).Priority(0);
                 Debug.WriteLine(value: w1);
@@ -36,11 +36,11 @@ namespace Master40.XUnitTest.Online.Simulation
                 var probe = this.CreateTestProbe();
                 var hubProbe = this.CreateTestProbe();
 
-                var w1 = MessageFactory.ToOperationItem(new M_Operation() { Duration = 10, ResourceCapability = new M_ResourceCapability() { Name = "Cut" }}, 50, productionAgent: probe, firstOperation: false, 0);
-                var w2 = MessageFactory.ToOperationItem(new M_Operation() { Duration = 5, ResourceCapability = new M_ResourceCapability() { Name = "Cut" }}, 20, productionAgent: probe, firstOperation: false, 0);
-                var w3 = MessageFactory.ToOperationItem(new M_Operation() { Duration = 15, ResourceCapability = new M_ResourceCapability() { Name = "Cut" }}, 100, productionAgent: probe, firstOperation: false, 0);
+                var w1 = MessageFactory.ToOperationItem(new M_Operation() { Duration = 10, ResourceCapability = new M_ResourceCapability() { Name = "Cut" }}, 50, 100, probe, firstOperation: false, 0, 0);
+                var w2 = MessageFactory.ToOperationItem(new M_Operation() { Duration = 5, ResourceCapability = new M_ResourceCapability() { Name = "Cut" }}, 20,  100, probe, firstOperation: false, 0, 0);
+                var w3 = MessageFactory.ToOperationItem(new M_Operation() { Duration = 15, ResourceCapability = new M_ResourceCapability() { Name = "Cut" }}, 100, 100, probe, firstOperation: false, 0, 0);
 
-                var bucket1 = MessageFactory.ToBucketItem(operation: w1, hubProbe, time: time, 480);
+                var bucket1 = MessageFactory.ToBucketScopeItem(operation: w1, hubProbe, time: time, 480);
                 var prio1 = ((IJob)bucket1).Priority(time);
                 Assert.Equal(expected: prio1, actual: (double)40);
 
