@@ -1,65 +1,60 @@
 ﻿using Akka.TestKit.Xunit;
-using Akka.Actor;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
 using Master40.DB.Data.Initializer;
 using Master40.DB.Nominal;
 using Master40.Simulation.CLI;
 using Master40.SimulationCore;
-using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Environment.Options;
-using Master40.Tools.ExtensionMethods;
-using Master40.XUnitTest.Online.Preparations;
-using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 namespace Master40.XUnitTest.Online.Integration
 {
     public class ProductionTest : TestKit
     {
-
-        private ProductionDomainContext _context;
-        private string _databaseConnectionString;
-        private ResultContext _resultContext;
-        private string _resultConnectionString;
+        private DataBase<ProductionDomainContext> _contextDataBase;
+        private DataBase<ResultContext> _resultContextDataBase;
 
         public ProductionTest()
         {
-            _databaseConnectionString = Dbms.getDbContextString();
-            _context = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
-                .UseSqlServer(connectionString: _databaseConnectionString)
-                .Options);
-            _context.Database.EnsureDeleted();
-            _context.Database.EnsureCreated();
-
-            _resultConnectionString = Dbms.getResultDatabaseContextString();
-            _resultContext = ResultContext.GetContext(resultCon: _resultConnectionString);
-            _resultContext.Database.EnsureDeleted();
-            _resultContext.Database.EnsureCreated();
-
+            _contextDataBase = DB.Dbms.GetNewMasterDataBase();
+            _resultContextDataBase = DB.Dbms.GetNewResultDataBase();
+            
         }
 
+        /// <summary>
+        /// Model is limited to three groups atm
+        /// </summary>
+        /// <param name="orderQuantity"></param>
+        /// <param name="resourceModelSize"></param>
+        /// <param name="setupModelSize"></param>
+        /// <param name="numberOfWorkers"></param>
+        /// <param name="numberOfOperators"></param>
+        /// <param name="secondResource"></param>
+        /// <returns></returns>
         [Theory]
-        [InlineData(5, ModelSize.Medium, ModelSize.Small, 0, new []{0,0,0})]
-        [InlineData(5, ModelSize.Medium, ModelSize.Small, 2, new[] { 0, 0, 0 })]
-        [InlineData(5, ModelSize.Medium, ModelSize.Small, 0, new[] { 1, 1, 1 })]
-        [InlineData(5, ModelSize.Medium, ModelSize.Small, 3, new[] { 1, 0, 1 })]
+        [InlineData(1, 5, ModelSize.Medium, ModelSize.Small, 0, new []{ 0, 0, 0}, false)]
+        //[InlineData(2, 5, ModelSize.Medium, ModelSize.Small, 2, new[] { 0, 0, 0 }, false)]
+        //[InlineData(3, 5, ModelSize.Medium, ModelSize.Small, 0, new[] { 1, 1, 1 }, false)]
+        //[InlineData(4, 5, ModelSize.Medium, ModelSize.Small, 3, new[] { 1, 0, 1 }, false)]
 
-        [InlineData(5, ModelSize.TestModel, ModelSize.Small, 3, new[] { 1, 0, 1 })]
-        public async Task RunProduction(int orderQuantity, ModelSize resourceModelSize, ModelSize setupModelSize, int numberOfWorkers, int[] numberOfOperators)
+        //[InlineData(5, 5, ModelSize.Medium, ModelSize.Small, 0, new[] { 1, 0, 1 }, false)]
+        public async Task RunProduction(int uniqueSimNum, int orderQuantity, ModelSize resourceModelSize, ModelSize setupModelSize, int numberOfWorkers, int[] numberOfOperators, bool secondResource)
         {
             //Handle this one in our Resource Model?
             var assert = true;
-            MasterDBInitializerTruck.DbInitialize(_context, resourceModelSize, setupModelSize, numberOfWorkers, numberOfOperators);
-            //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
+            MasterDBInitializerTruck.DbInitialize(_contextDataBase.DbContext, resourceModelSize, setupModelSize, numberOfWorkers, numberOfOperators, secondResource);
 
-            var simContext = new AgentSimulation(DBContext: _context, messageHub: new ConsoleHub());
-            var simConfig = ArgumentConverter.ConfigurationConverter(_resultContext, 1);
-            // update customized Items
-            simConfig.AddOption(new DBConnectionString(_resultConnectionString));
+            ResultDBInitializerBasic.DbInitialize(_resultContextDataBase.DbContext);
+
+            var simContext = new AgentSimulation(DBContext: _contextDataBase.DbContext, messageHub: new ConsoleHub());
+            var simConfig = ArgumentConverter.ConfigurationConverter(_resultContextDataBase.DbContext, 1);
+
+            simConfig.AddOption(new DBConnectionString(_resultContextDataBase.ConnectionString.Value));
             simConfig.AddOption(new TimeToAdvance(new TimeSpan(0L)));
             simConfig.AddOption(new KpiTimeSpan(240));
             simConfig.AddOption(new DebugAgents(false));
@@ -76,7 +71,7 @@ namespace Master40.XUnitTest.Online.Integration
             simConfig.ReplaceOption(new SimulationEnd(value: 4380));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: 480));
-            simConfig.ReplaceOption(new SimulationNumber(value: 3));
+            simConfig.ReplaceOption(new SimulationNumber(value: uniqueSimNum));
             simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.0));
 
@@ -98,16 +93,19 @@ namespace Master40.XUnitTest.Online.Integration
             // all Production / Job Agents finished ? 
 
             var processedOrders = 
-                _resultContext.Kpis
+                _resultContextDataBase.DbContext.Kpis
                 .Single(x => x.IsFinal.Equals(true) && x.Name.Equals("OrderProcessed")).Value;
 
             if (processedOrders != orderQuantity)
             {
                 assert = false;
             }
-            
+
+            _contextDataBase.DbContext.Dispose();
+
+            _resultContextDataBase.DbContext.Dispose();
             //Add more KPIs to check
-            
+
             //Check amount of contract agents
             Assert.True(assert);
 

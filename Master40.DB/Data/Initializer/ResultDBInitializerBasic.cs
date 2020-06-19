@@ -9,7 +9,8 @@ namespace Master40.DB.Data.Initializer
 {
     public static class ResultDBInitializerBasic
     {
-        [ThreadStatic] private static int _simulationId = 1;
+        //[ThreadStatic] 
+        private static int _simulationId = 1;
         public static void DbInitialize(ResultContext context)
         {
             context.Database.EnsureCreated();

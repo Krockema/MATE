@@ -86,6 +86,16 @@ namespace Master40.DB
         public static DataBase<ResultContext> GetNewResultDataBase()
         {
             DataBase<ResultContext> dataBase = new DataBase<ResultContext>(Constants.DbWithSuffixResults());
+
+            if (UseLocalDb() && Constants.IsWindows)
+            {
+                Constants.IsLocalDb = true;
+            }
+            else if (Constants.IsWindows)
+            {
+                Constants.IsLocalDb = false;
+            }
+
             dataBase.ConnectionString = GetResultConnectionString(dataBase.DataBaseName);
             dataBase.DbContext = new ResultContext(
                 new DbContextOptionsBuilder<ResultContext>()
