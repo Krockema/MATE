@@ -18,7 +18,7 @@ namespace Master40.XUnitTest.Online.Model
                 setupModelSize: ModelSize.Medium, 3, new []{1,0,1});
         }
 
-        [Fact(Skip = "Activate after merge")]
+        [Fact]
         public void HasBoms()
         {
             var articles = DataBase.DbContext.Articles.Include(x => x.ArticleBoms);
