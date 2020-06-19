@@ -237,6 +237,7 @@ namespace Master40.SimulationCore
         {
             WorkTimeGenerator randomWorkTime = WorkTimeGenerator.Create(configuration: configuration);
             var maxBucketSize = configuration.GetOption<MaxBucketSize>().Value;
+            var timeConstraintQueueLength = configuration.GetOption<TimeConstraintQueueLength>().Value;
 
             // Get All Resources that have an Agent (that are limited)
             //var resources = _dBContext.Resources.ToList(); // all Resources
@@ -253,6 +254,7 @@ namespace Master40.SimulationCore
                     , resource: resource
                     , capabilityProvider: capabilityProviders
                     , maxBucketSize: maxBucketSize
+                    , timeConstraintQueueLength: timeConstraintQueueLength
                     , debug: _debugAgents);
                         _simulation.SimulationContext
                     .Tell(message: Directory.Instruction

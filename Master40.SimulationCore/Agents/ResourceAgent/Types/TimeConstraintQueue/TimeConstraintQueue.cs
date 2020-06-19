@@ -131,11 +131,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 
         public List<FQueueingScope> GetQueueAbleTime(FRequestProposalForCapability jobProposal
                                 , long currentTime, CapabilityProviderManager cpm
-                                , long resourceBlockedUntil, IActorRef resourceRef)
+                                , long resourceBlockedUntil, int resourceId)
         {
 
+            //TODO Right now only take the first
             var resourceCapabilityProvider = cpm.GetCapabilityProviderByCapability(jobProposal.CapabilityId);
-            var setup = resourceCapabilityProvider.ResourceSetups.Single(x => resourceRef.Equals(x.Resource.IResourceRef));
+            var setup = resourceCapabilityProvider.ResourceSetups.Single(x => resourceId.Equals(x.Resource.Id));
 
             var requiredDuration = 0L;
             if (setup.UsedInProcess)

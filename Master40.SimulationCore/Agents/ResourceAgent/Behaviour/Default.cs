@@ -30,16 +30,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     public class Default : SimulationCore.Types.Behaviour
     {
-        public Default(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider, SimulationType simulationType = SimulationType.None)
+        public Default(int timeConstraintQueueLength, int resourceId, WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider, SimulationType simulationType = SimulationType.None)
             : base(simulationType: simulationType)
         {
+            _resourceId = resourceId;
             _workTimeGenerator = workTimeGenerator;
             _capabilityProviderManager = new CapabilityProviderManager(capabilityProvider);
             _agentDictionary = new AgentDictionary();
-            // SCOPELIMIT something like 960
-            _scopeQueue = new TimeConstraintQueue(limit: 480);
+            // SCOPELIMIT something like 480
+            _scopeQueue = new TimeConstraintQueue(limit: timeConstraintQueueLength);
         }
 
+        internal int _resourceId { get; }
         internal JobInProgress _jobInProgress { get; set; } = new JobInProgress();
         internal WorkTimeGenerator _workTimeGenerator { get; }
         internal CapabilityProviderManager _capabilityProviderManager { get; }
@@ -167,7 +169,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                                                                 , currentTime: Agent.CurrentTime
                                                                 , cpm: _capabilityProviderManager
                                                                 , resourceBlockedUntil: _jobInProgress.ResourceIsBusyUntil
-                                                                , Agent.Context.Self );
+                                                                , resourceId: _resourceId );
 
             //TODO Sets Postponed to calculated Duration of Bucket
             var fPostponed = new FPostponed(offset: queuePositions.Any(x => x.IsQueueAble) ? 0 : Convert.ToInt32(_scopeQueue.Workload * 0.8));

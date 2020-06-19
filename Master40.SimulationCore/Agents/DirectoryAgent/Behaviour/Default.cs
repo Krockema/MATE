@@ -117,7 +117,9 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                          , message: ResourceAgent.Behaviour
                                                                                 .Factory.Get(simType: SimulationType
                                                                                  , workTimeGenerator: resourceCapabilityProviderDefinition.WorkTimeGenerator as WorkTimeGenerator
-                                                                                 , resourceCapabilityProvider)));
+                                                                                 , resourceCapabilityProvider
+                                                                                 , timeConstraintQueueLength: resourceCapabilityProviderDefinition.TimeConstraintQueueLength
+                                                                                 , resourceId: resource.Id)));
         }
 
         /// <summary>

@@ -21,7 +21,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
                                                 , long currentTime
                                                 , CapabilityProviderManager cpm
                                                 , long resourceBlockedUntil
-                                                , IActorRef resourceRef);
+                                                , int resourceId);
         HashSet<IConfirmation> GetTail(long currentTime, IConfirmation jobConfirmation);
         bool CapacitiesLeft();
         T GetJobAs<T>(Guid key);

@@ -38,11 +38,11 @@ namespace Master40.XUnitTest.Online.Integration
         /// <returns></returns>
         [Theory]
         [InlineData(1, 5, ModelSize.Medium, ModelSize.Small, 0, new []{ 0, 0, 0}, false)]
-        //[InlineData(2, 5, ModelSize.Medium, ModelSize.Small, 2, new[] { 0, 0, 0 }, false)]
-        //[InlineData(3, 5, ModelSize.Medium, ModelSize.Small, 0, new[] { 1, 1, 1 }, false)]
-        //[InlineData(4, 5, ModelSize.Medium, ModelSize.Small, 3, new[] { 1, 0, 1 }, false)]
+        [InlineData(2, 5, ModelSize.Medium, ModelSize.Small, 2, new[] { 0, 0, 0 }, false)]
+        [InlineData(3, 5, ModelSize.Medium, ModelSize.Small, 0, new[] { 1, 1, 1 }, false)]
+        [InlineData(4, 5, ModelSize.Medium, ModelSize.Small, 3, new[] { 1, 0, 1 }, false)]
 
-        //[InlineData(5, 5, ModelSize.Medium, ModelSize.Small, 0, new[] { 1, 0, 1 }, false)]
+        [InlineData(5, 5, ModelSize.Medium, ModelSize.Small, 0, new[] { 1, 0, 1 }, false)]
         public async Task RunProduction(int uniqueSimNum, int orderQuantity, ModelSize resourceModelSize, ModelSize setupModelSize, int numberOfWorkers, int[] numberOfOperators, bool secondResource)
         {
             //Handle this one in our Resource Model?
@@ -74,6 +74,7 @@ namespace Master40.XUnitTest.Online.Integration
             simConfig.ReplaceOption(new SimulationNumber(value: uniqueSimNum));
             simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.0));
+            simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 
