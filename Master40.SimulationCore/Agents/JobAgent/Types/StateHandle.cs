@@ -1,8 +1,4 @@
 ﻿using Master40.DB.Nominal;
-using NLog.LayoutRenderers;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Master40.SimulationCore.Agents.JobAgent.Types
 {

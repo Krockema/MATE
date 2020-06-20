@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.HashFunction.xxHash;
-using System.Linq;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Master40.DB.DataModel;
-using MessagePack.Resolvers;
-using NLog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using static FBuckets;
 using static FOperations;
 using static IConfirmations;

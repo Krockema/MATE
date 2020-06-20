@@ -1,19 +1,19 @@
 ﻿using Akka.TestKit.Xunit;
+using AkkaSim.Logging;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
+using Master40.DB.DataModel;
 using Master40.DB.Nominal;
 using Master40.Simulation.CLI;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
-using System.Linq;
-using System.Threading.Tasks;
-using AkkaSim.Logging;
 using Master40.SimulationCore.Helper;
 using Microsoft.EntityFrameworkCore;
-using NLog;
-using Xunit;
-using Master40.DB.DataModel;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using NLog;
+using System.Linq;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {
@@ -50,8 +50,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
         //[Fact(Skip = "manual test")]
         [Theory]
         //[InlineData(remoteMasterCtxString, remoteResultCtxString)] 
-        [InlineData(masterCtxString, masterResultCtxString)]
-        //[InlineData(testCtxString, testResultCtxString)]
+        //[InlineData(masterCtxString, masterResultCtxString)]
+        [InlineData(testCtxString, testResultCtxString)]
         public void ResetResultsDB(string connectionString, string resultConnectionString)
         
         {
@@ -168,12 +168,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.AddOption(new DBConnectionString(testResultCtxString));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 1)); 
+            simConfig.ReplaceOption(new OrderQuantity(value: 5)); 
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
             simConfig.ReplaceOption(new Seed(value: seed));
             simConfig.ReplaceOption(new SettlingStart(value: 0));
-            simConfig.ReplaceOption(new SimulationEnd(value: 1440));
+            simConfig.ReplaceOption(new SimulationEnd(value: 2880));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));

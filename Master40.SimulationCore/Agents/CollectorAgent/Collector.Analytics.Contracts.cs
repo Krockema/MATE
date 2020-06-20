@@ -157,7 +157,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                                 , OriginId  = op.CustomerOrder.Id
                                                 , SimulationNumber = Collector.simulationNumber.Value
                                                 , SimulationType = Collector.simulationKind.Value
-                                                , SimulationConfigurationId = Collector.simulationId.Value };  // TODO
+                                                , SimulationConfigurationId = Collector.simulationId.Value };
 
             simulationOrders.Add(item: order);
 

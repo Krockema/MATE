@@ -35,19 +35,16 @@ namespace Master40.DB.Data.Initializer.Tables
         private void CreateResourceGroup(int numberOfResources, M_ResourceCapability capability)
         {
             List<M_Resource> resourceGroup = new List<M_Resource>();
-            List<M_ResourceSetup> resoruceSetups = new List<M_ResourceSetup>();
-            //List<M_ResourceCapabilityProvider> resourceCapabilityProviders = new List<M_ResourceCapabilityProvider>();
             for (int i = 1; i <= numberOfResources; i++)
             {
                 var resource = CreateNewResource(capability.Name, true, i);
                 resourceGroup.Add(resource);
             }
-            // CapabilityToSetupDict.Add(capability.Name, resoruceSetups);
             CapabilityToResourceDict.Add(capability.Name, resourceGroup);
         }
         private M_Resource CreateNewResource(string resourceName, bool isPhysical, int? number = null)
         {
-            return new M_Resource() { Name = "Resource " + resourceName + " " + number?.ToString(), Capacity = 1, IsPhysical = isPhysical };
+            return new M_Resource() { Name = resourceName + " " + number?.ToString(), Capacity = 1, IsPhysical = isPhysical };
         }
 
         internal void CreateResourceTools(int setupTimeCutting, int setupTimeDrilling, int setupTimeAssembling, int numberOfWorkers)
@@ -110,7 +107,7 @@ namespace Master40.DB.Data.Initializer.Tables
                                     if(resourceToolsToAssign != null)
                                     {
                                         var toolObject =
-                                            resourceToolsToAssign.Single(x => x.Name.Equals("Resource " + subCapability.Name + " "));
+                                            resourceToolsToAssign.Single(x => x.Name.Equals(subCapability.Name + " "));
                                         setups.Add((CreateNewSetup(toolObject, capabilityProvider, true, true,0)));
                                     }
 
@@ -138,7 +135,7 @@ namespace Master40.DB.Data.Initializer.Tables
                                 if (resourceToolsToAssign != null)
                                 {
                                     var toolObject =
-                                        resourceToolsToAssign.Single(x => x.Name.Equals("Resource " + subCapability.Name + " "));
+                                        resourceToolsToAssign.Single(x => x.Name.Equals(subCapability.Name + " "));
                                     setups.Add((CreateNewSetup(toolObject, capabilityProvider, true, true, 0)));
                                 }
                                 setups.Add(CreateNewSetup(op, capabilityProvider, false, true, 0));
@@ -171,7 +168,7 @@ namespace Master40.DB.Data.Initializer.Tables
                                 if (resourceToolsToAssign != null)
                                 {
                                     var toolObject =
-                                        resourceToolsToAssign.Single(x => x.Name.Equals("Resource " + subCapability.Name + " "));
+                                        resourceToolsToAssign.Single(x => x.Name.Equals(subCapability.Name + " "));
                                     setups.Add((CreateNewSetup(toolObject, capabilityProvider, true, true, 0)));
                                 }
 
@@ -199,7 +196,7 @@ namespace Master40.DB.Data.Initializer.Tables
                             if (resourceToolsToAssign != null)
                             {
                                 var toolObject =
-                                    resourceToolsToAssign.Single(x => x.Name.Equals("Resource " + subCapability.Name + " "));
+                                    resourceToolsToAssign.Single(x => x.Name.Equals(subCapability.Name + " "));
                                 setups.Add((CreateNewSetup(toolObject, capabilityProvider, true, true, 0)));
                             }
 

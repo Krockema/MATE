@@ -65,7 +65,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return _proposals.TrueForAll(x => !x.Postponed.IsPostponed);
         }
 
-        public long PostponedUntil()
+        public long PostponedFor()
         {
             return _proposals.Max(x => x.Postponed.Offset);
         }

@@ -103,10 +103,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     }
                     public Guid GetObjectFromMessage { get => (Guid)Message; }
                 }
-            }
 
-            public class BucketScope
-            {
                 public class RequeueBucket : SimulationMessage
                 {
                     public static RequeueBucket Create(Guid message, IActorRef target)
@@ -153,7 +150,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     private FinishTask(string message, IActorRef target) : base(message: message, target: target)
                     {
                     }
-                    public string GetObjectFromMessage  => (string)Message; 
+                    public string GetObjectFromMessage => (string)Message;
                 }
 
                 public class AskToRequeue : SimulationMessage
@@ -180,9 +177,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     public Guid GetObjectFromMessage { get => (Guid)Message; }
                 }
 
+
             }
         }
-
 
     }
 }

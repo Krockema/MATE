@@ -8,6 +8,7 @@ namespace Master40.SimulationCore.Helper
     public class CustomLogger
     {
         public const string INITIALIZE = "Initialize";
+        public const string STOCK = "Stock";
         public const string PROPOSAL = "Proposal";
         public const string JOB = "BaseJobInfo";
         public const string ENQUEUE = "Enqueue";

@@ -1,8 +1,7 @@
-﻿using Master40.DB.DataModel;
+﻿using Akka.Actor;
+using Master40.DB.DataModel;
 using System;
 using System.Collections.Generic;
-using Akka.Actor;
-using static FJobConfirmations;
 using static FQueueingScopes;
 using static FRequestProposalForCapabilityProviders;
 using static IConfirmations;
@@ -14,7 +13,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
     {
         IConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null);
         IConfirmation GetFirstIfSatisfied(long currentTime, M_ResourceCapability resourceCapability = null);
-        IConfirmation GetFirstIfSatisfiedAndSetReadyAtIsSmallerOrEqualThen(long currentTime, M_ResourceCapability resourceCapability = null); 
+        IConfirmation GetFirstIfSatisfiedAndSetReadyAtIsSmallerOrEqualThan(long currentTime, M_ResourceCapability resourceCapability = null); 
         void Enqueue(IConfirmation jobConfirmation);
         bool HasQueueAbleJobs();
         bool FirstJobIsQueueAble();

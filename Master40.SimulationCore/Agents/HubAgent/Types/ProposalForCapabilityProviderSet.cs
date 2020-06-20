@@ -17,7 +17,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
         public bool AnyProposalReady => this.Any(x => x.NoPostponed());
 
-        public long PostponedUntil => this.Min(x => x.PostponedUntil());
+        public long PostponedFor => this.Min(x => x.PostponedFor());
 
         public int ReceivedProposals => this.Sum(x => x.ReceivedProposals);
     }

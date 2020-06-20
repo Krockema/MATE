@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
 using NLog;
+using NLog.Fluent;
 using static FAgentInformations;
 using static FArticleProviders;
 using static FArticles;
@@ -73,7 +74,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
         {
             // Save Request Item.
             _fArticle = requestArticle;
-            Agent.DebugMessage($"{_fArticle.Article.Name} {_fArticle.Key} is Requested to Produce.");
+            Agent.DebugMessage($"{_fArticle.Article.Name} {_fArticle.Key} is Requested to Produce.", CustomLogger.STOCK, LogLevel.Warn);
             // get related Storage Agent
             Agent.Send(instruction: Directory.Instruction.RequestAgent
                                     .Create(discriminator: requestArticle.Article.Name
@@ -82,7 +83,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 
         internal void ResponseFromDirectory(FAgentInformation hubInfo)
         {
-            Agent.DebugMessage(msg: "Acquired stock Agent: " + hubInfo.Ref.Path.Name + " from " + Agent.Sender.Path.Name);
+            Agent.DebugMessage(msg: "Acquired stock Agent: " + hubInfo.Ref.Path.Name + " from " + Agent.Sender.Path.Name, CustomLogger.INITIALIZE, LogLevel.Warn);
 
             _fArticle = _fArticle.UpdateStorageAgent(s: hubInfo.Ref);
             // Create Request to Storage Agent 
@@ -97,11 +98,11 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 
             Agent.DebugMessage(msg: reservation.Quantity + " " 
                                 + _fArticle.Article.Name + " are reserved and " 
-                                + _quantityToProduce + " " + _fArticle.Article.Name + " need to be produced!");
+                                + _quantityToProduce + " " + _fArticle.Article.Name + " need to be produced!", CustomLogger.STOCK, LogLevel.Warn);
 
             if (reservation.IsInStock && !_fArticle.Article.ToBuild)
             {
-                Agent.DebugMessage(msg: $"Start forward scheduling for article: {_fArticle.Article.Name} {_fArticle.Key} at: {Agent.CurrentTime}");
+                Agent.DebugMessage(msg: $"Start forward scheduling for article: {_fArticle.Article.Name} {_fArticle.Key} at: {Agent.CurrentTime}", CustomLogger.SCHEDULING, LogLevel.Warn);
                 PushForwardTimeToParent(earliestStartForForwardScheduling: Agent.CurrentTime);
             }
 
@@ -125,7 +126,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                 if (_fArticle.IsHeadDemand)
                 {
                     var nextRequestAt = _fArticle.DueTime - Agent.CurrentTime;
-                    Agent.DebugMessage(msg: $"Ask storage for Article {_fArticle.Key} in + {nextRequestAt}");
+                    Agent.DebugMessage(msg: $"Ask storage for Article {_fArticle.Key} in + {nextRequestAt}", CustomLogger.STOCK, LogLevel.Warn);
 
                     Agent.Send(instruction: ProvideArticleAtDue.Create(message: _fArticle.Key, target: _fArticle.StorageAgent)
                                  , waitFor: nextRequestAt);
@@ -165,7 +166,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
         internal void ProvideRequest(FArticleProvider fArticleProvider)
         {
             // TODO: Might be problematic due to inconsistent _fArticle != Storage._fArticle
-            Agent.DebugMessage(msg: $"Request for {_fArticle.Quantity} {_fArticle.Article.Name} {_fArticle.Key} provided from {Agent.Sender.Path.Name} to {Agent.VirtualParent.Path.Name}");
+            Agent.DebugMessage(msg: $"Request for {_fArticle.Quantity} {_fArticle.Article.Name} {_fArticle.Key} provided from {Agent.Sender.Path.Name} to {Agent.VirtualParent.Path.Name}", CustomLogger.STOCK, LogLevel.Warn);
 
             _fArticle = _fArticle.UpdateFinishedAt(f: Agent.CurrentTime);
 
@@ -189,7 +190,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 
         internal void WithdrawArticleFromStock()
         {
-            Agent.DebugMessage(msg: $"Withdraw article {_fArticle.Article.Name} {_fArticle.Key} from Stock exchange {_fArticle.StockExchangeId}");
+            Agent.DebugMessage(msg: $"Withdraw article {_fArticle.Article.Name} {_fArticle.Key} from Stock exchange {_fArticle.StockExchangeId}", CustomLogger.STOCK, LogLevel.Warn);
             Agent.Send(instruction: WithdrawArticle
                               .Create(message: _fArticle.StockExchangeId
                                      , target: _fArticle.StorageAgent));

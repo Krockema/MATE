@@ -7,11 +7,12 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
     public class CapabilityProviderManager
     {
         private List<M_ResourceCapabilityProvider> _resourceCapabilityProviders { get; set; } = new List<M_ResourceCapabilityProvider>();
-        private CapabilityProviderInUse _capabilityInUse { get; set; } 
+        private CapabilityProviderInUse _capabilityInUse { get; set; }
         public CapabilityProviderManager(List<M_ResourceCapabilityProvider> resourceCapabilityProvider)
         {
             _resourceCapabilityProviders = resourceCapabilityProvider;
             _capabilityInUse = new CapabilityProviderInUse();
+
         }
 
         internal void Mount(int capabilityProviderId)
@@ -56,7 +57,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
 
         internal long GetSetupDurationBy(int resourceCapabilityId)
         {
-            //TODO Take care if 1 Capability can be done by multiply tools
+            //TODO Take care if one Capability can be done by multiply tools
             var setupTime = _resourceCapabilityProviders.First(x => x.ResourceCapabilityId == resourceCapabilityId)
                                                         .ResourceSetups.Sum(x => x.SetupTime);
             return setupTime;
@@ -66,21 +67,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         {
             return _resourceCapabilityProviders;
         }
+
         internal List<M_ResourceCapability> GetAllCapabilities()
         {
             return _resourceCapabilityProviders.Select(x => x.ResourceCapability).ToList();
         }
-
-        internal object GetCapabilityProviderName()
-        {
-            string capabilityProviderName = "was not set";
-            if (_capabilityInUse.ResourceCapabilityProvider != null)
-                capabilityProviderName = _capabilityInUse.ResourceCapabilityProvider.Name;
-            return capabilityProviderName;
-        }
-
-        internal int CurrentSetupId => _capabilityInUse.SetupId();
-        
 
     }
 }

@@ -290,7 +290,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
 
                 bucketSizeTuple.Value.Ratio = (double)bucketSizeTuple.Value.Duration / sumCapability;
                 bucketSizeTuple.Value.Size = Convert.ToInt64(Math.Round(bucketSizeTuple.Value.Ratio * MaxBucketSize, 0));
-                if (bucketSizeTuple.Value.Size < 60) // to ensure a minimal bucket size. // TODO May Obsolet
+                if (bucketSizeTuple.Value.Size < 60) //TODO Probably not necessary
                 {
                     bucketSizeTuple.Value.Size = 60;
                 }
