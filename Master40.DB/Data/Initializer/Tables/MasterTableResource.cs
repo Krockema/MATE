@@ -59,15 +59,15 @@ namespace Master40.DB.Data.Initializer.Tables
             }
             CapabilityToResourceDict.Add($"Worker", workers);
 
-            List<M_Resource> drillingTools = new List<M_Resource>();
-            foreach (var drillCapability in _capability.DRILLING.ChildResourceCapabilities)
-            {
-                drillingTools.Add(CreateNewResource($"{drillCapability.Name}", true));
-            }
-            CapabilityToResourceDict.Add($"Tool", drillingTools);
+           // List<M_Resource> drillingTools = new List<M_Resource>();
+           // foreach (var drillCapability in _capability.DRILLING.ChildResourceCapabilities)
+           // {
+           //     drillingTools.Add(CreateNewResource($"{drillCapability.Name}", true));
+           // }
+           // CapabilityToResourceDict.Add($"Tool", drillingTools);
 
             CreateTools(_capability.CUTTING, setupTimeCutting, 1, workers);
-            CreateTools(_capability.DRILLING, setupTimeDrilling, 0, workers, drillingTools);
+            CreateTools(_capability.DRILLING, setupTimeDrilling, 0, workers) /* , drillingTools) */ ;
             CreateTools(_capability.ASSEMBLING, setupTimeAssembling, 1, workers);
         }
 

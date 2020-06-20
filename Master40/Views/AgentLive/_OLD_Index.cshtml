@@ -1,0 +1,229 @@
+@model IEnumerable<Master40.DB.DataModel.M_Resource>
+
+@{
+    ViewBag.Title = "Agent Basic";
+
+    Layout = "_Layout";
+}
+
+<style>
+    .offline {
+        color: #a94442;
+        background-color: rgba(169, 68, 68, .2);
+        border-radius: 4px;
+        border: solid 1px #ebccd1;
+        -webkit-box-shadow: 0 1px 1px rgba(169, 68, 68, .8);
+        box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+    }
+
+    .online {
+        border-radius: 4px;
+        border: solid 1px rgba(125, 180, 86, 0.4);
+        background-color: rgba(125, 180, 86, 0.05);
+        -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+        box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+    }
+
+    .chartLayer, textLayer {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+    }
+
+    .textLayer {
+        z-index: -10;
+        color: #666;
+        display: flex;
+        justify-content: center; /* align horizontal */
+        align-items: center; /* align vertical */
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-9 col-md-9">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12" style="margin-top: 0px">
+                        <div class="row">
+
+                        </div>
+                    </div>
+                    <div class="col-lg-9">
+                        <div class="card" style="margin-top: 10px;">
+                            <div class="card-header">
+                                <b>Work in Progress</b>
+                            </div>
+                            <div style="text-align: center" class="card-body"><partial name="~/Views/AgentLive/PartialContract.cshtml" /></div>
+                        </div>
+                    </div>
+                   
+            <div class="col-lg-3 col-md-3">
+                <div class="card"  style="margin-top: 10px;">
+                    <div class="card-header">
+                        <b>Timeliness</b>
+                    </div>
+                    <div class="card-body"> <partial name="~/Views/AgentLive/PartialTimeliness.cshtml"/></div>
+                </div>
+            </div>
+        </div>
+                <div class="row">
+                    <div class="col-lg-9 col-md-9">
+                        <div class="card"  style="margin-top: 10px;">
+                            <div class="card-header">
+                                <b>Machine Workload</b>
+                            </div>
+                            <div class="card-body">
+                                <div class="row" style="text-align: center">
+
+                                    @{
+                                        var containerSize = 150;
+                                        var textPadding = 75;
+                                        var fontSize = 15;
+                                        if (Model.Count() > 6)
+                                        {
+                                            containerSize = 75;
+                                            textPadding = 35;
+                                            fontSize = 10;
+                                        }
+                                        @Html.Raw(value: @"
+                                                <style>
+                                                    .chartContainer {
+                                                        position: relative;
+                                                        background-color: transparent;
+                                                        width:" + 95 + @"%;
+                                                        height:" + 75 + @"px;
+                                                    }
+                                                    .machineText {
+                                                        font:" + fontSize + @"px Helvetica;
+                                                    }
+                                                    .textLayer {
+                                                        padding-top:" + textPadding + @"px;
+                                                        font: bold" + fontSize + @"px Helvetica;
+                                                </style>")
+                                        ;
+                                    }
+                                    @foreach (var section in Model.OrderBy(keySelector: x => x.Id))
+                                    {
+                                        <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+                                            
+                                                <partial name="~/Views/AgentLive/PartialMachine.cshtml" model="section"/>
+                                            
+                                        </div>
+                                    }
+                                </div>
+                                <div> <partial name="~/Views/AgentLive/PartialTotalWorkLoad.cshtml" /></div>
+                    </div>
+                </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="card" style="margin-top: 10px;">
+                        <div class="card-header">
+                            <b>Throughput Times</b>
+                        </div>
+                        <div style="text-align: center" class="card-body"> <partial name="~/Views/AgentLive/PartialThroughput.cshtml"/></div>
+                    </div>
+                </div>
+                </div>
+        <div class="row">
+            <div class="col-lg-12 col-md-12">
+                <div class="card" style="margin-top: 10px;">
+                    <div class="card-header">
+                        <b>Machine Gantt Timeline </b>
+                    </div>
+                    <div style="text-align: center" class="card-body"> <partial name="~/Views/AgentLive/PartialGantt.cshtml" /></div>
+                </div>
+                <div class="card" style="margin-top: 10px;">
+
+                    <div class="card-header">
+                        <b>Storage Value in Euro </b>
+                    </div>
+                    <div style="text-align: center" class="card-body"> <partial name="~/Views/AgentLive/PartialStock.cshtml"/></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-lg-3 col-md-3">
+    <div class="container-fluid">
+        
+        <div class="row">
+            <div class="col-12" style="padding-right: 0px; padding-left: 0px;">
+                
+            </div>
+        </div>
+
+
+    </div>
+</div>
+</div>
+</div>
+<script>
+
+    processingProxy.on("clientListener", function (msg) {
+        if (msg == "ProcessingComplete") {
+            $(".MessageDisplay").prepend('<div class="alert alert-info">Completed Processing</div>');
+            $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Completed Processing</div>');
+            var l = Ladda.create(document.querySelector("#simulationStart-btn"));
+            l.toggle();
+
+            $("#statusCallout").replaceWith("<div class='bs-callout bs-callout-warning' id='statusCallout'>"
+                + "<h4> Status</h4>"
+                + "Finished"
+                + "</div>");
+
+        } else if (msg == "SignalReady") {
+            $('#ajax-busy').hide();
+        } else if (msg == "ProcessingUpdate" || msg == "MrpProcessingComplete") {
+            // do nothing
+        } else {
+            $(".MessageDisplay").prepend(msg);
+            //$(".MessageDisplayRunning").prepend(msg);
+        }
+    });
+
+    processingProxy.on("orderListener", function (msg) {
+        var serialized = JSON.parse(msg);
+        $("#orders").replaceWith("<p id='orders'><b>" + serialized[0] + "</b></p>");
+        updateTimeliness(serialized[1]);
+    });
+
+    processingProxy.on("oeeListener", function (msg) {
+        $("#oee").replaceWith("<p id='oee'><b>" + msg + " %</b></p>");
+    });
+
+    // Start Agents
+    function startAgents() {
+        $(".MessageDisplayRunning").html("");
+        var l = Ladda.create(document.querySelector("#simulationStart-btn"));
+        l.start();
+        l.toggle();
+        var simulationType = document.querySelector("#simulationType").value;
+        var orderAmount = document.querySelector("#orderAmount").value;
+        var arivalRate = document.querySelector("#interArrivalRate").value;
+        var estimatedThroughputTime = document.querySelector("#estimatedThroughputTime").value;
+
+        $("#statusCallout").replaceWith("<div class='bs-callout bs-callout-success' id='statusCallout'>"
+            + "<h4> Status</h4>"
+            + "Running"
+            + "</div>");
+    
+        $.get("AgentLive/RunAsync/" + simulationType + "/orderAmount/" + orderAmount + "/arivalRate/" + arivalRate + "/estimatedThroughputTime/" + estimatedThroughputTime);
+    }
+
+    // Start Agents
+
+    function breakDown(machine) {
+        $.get("AgentLive/MachineBreakdown/" + machine);
+    }
+
+    $(document).ready(function () {
+        // Block Interactions
+        $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Preparing System</div>');
+        //$('#ajax-busy').show();
+        // make make use of full size and hide overflow
+        $('#main').removeClass("container").addClass("container-fluid").css("overflow-x", "hidden");
+    });
+</script>

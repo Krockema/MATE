@@ -28,7 +28,9 @@ namespace Master40.Controllers
         public async Task<IActionResult> Index()
         {
             var resources = await _context.Resources.Where(x => x.IsPhysical)
-                                              .Include(navigationPropertyPath: a => a.ResourceSetups).ToListAsync();
+                                              .Include(navigationPropertyPath: a => a.ResourceSetups)
+                                              .ThenInclude(x => x.ResourceCapabilityProvider)
+                                              .ThenInclude(x => x.ResourceCapability).ToListAsync();
 
             ViewData[index: "machines"] = resources.Select(selector: x => x.Name).ToList();
             return View(model: resources);
@@ -51,7 +53,7 @@ namespace Master40.Controllers
             simConfig.ReplaceOption(new OrderArrivalRate(value: arivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: orderAmount));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: estimatedThroughputTime));
-            simConfig.ReplaceOption(new KpiTimeSpan(value: 480));
+            simConfig.ReplaceOption(new KpiTimeSpan(value: 60));
             simConfig.ReplaceOption(new Seed(value: 1337));
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
             simConfig.ReplaceOption(new SimulationEnd(value: 20160));

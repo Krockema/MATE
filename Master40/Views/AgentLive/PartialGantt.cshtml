@@ -1,35 +1,41 @@
-﻿@{
-
+﻿@model IEnumerable<Master40.DB.DataModel.M_Resource>
+@{
+    var resources = Json.Serialize(Model.Select(x => x.Name.Replace("Resource", "").Replace(" ", "")).ToList());
+    var chartHeight = (Model.Count() * 14 + 10) + "px";
 }
 <style>
     .chartAreaWrapperGantt {
         position: relative;
-        height: 200px;
+        height: @chartHeight;
         width: 100%;
     }
 </style>
 
-<div class="chartWrapper">
-    <div class="chartAreaWrapper">
+<div class="card" style="margin-top: 10px;">
+    <div class="card-header">
+        <b>Machine Gantt</b>
+    </div>
+    <div class="card-body">
         <div id="chartAreaWrapperGantt">
-            <canvas id="ganttCanvas" height="250"></canvas>
+            <canvas id="ganttCanvas"></canvas>
         </div>
     </div>
-    <!--  <label>Scaling: </label><input type="number" id="scaling" value="150">
-      <input type="button" id="resize" value="Try">-->
 </div>
 
 <script>
     var rectangleSet = false;
-    var globalColorIndex = 0;
     var data = {
         "type": "timeline",
+        data: {
+            labels: @resources,
+            fontSize: 8
+        },
         "options": {
             responsive: true,
             maintainAspectRatio: false,
             tooltips: {
                 callbacks: {
-                    label: function (tooltipItem, data) {
+                    label: function(tooltipItem, data) {
                         var label = [' Start  : ' + tooltipItem.yLabel[4]];
                         label.push(' End    : ' + tooltipItem.yLabel[5]);
                         label.push(' Priority : ' + tooltipItem.yLabel[6]);
@@ -39,19 +45,20 @@
                         label.push(' IsWorking : ' + tooltipItem.yLabel[10]);
                         return label;
                     },
-                    title: function (tooltipItem, data) {
+                    title: function(tooltipItem, data) {
                         return tooltipItem[0].yLabel[2];
                     }
                 }
             },
             "elements": {
-                "colorFunction": function (text, data, dataset, index) {
+                "colorFunction": function(text, data, dataset, index) {
                     return Color(data[3]);
                 },
-                "showText": true,
+                "showText": false,
                 "textPadding": 15
             },
             scales: {
+                yAxes: [ { ticks: { fontSize: 10 } }],
                 xAxes: [
                     {
                         id: 'time',
@@ -66,9 +73,11 @@
                         ticks: {
                             min: 0,
                             max: 1,
-                            stepSize: 420
+                            stepSize: 500,
+                            fontSize: 8
                         }
-                    }]
+                    }
+                ]
             }
         }
     };
@@ -83,7 +92,19 @@
     }
 
     function shiftGanttArray(list, timeScope) {
-        return list.data.filter(x => x[4] > timeScope || (x[5] > timeScope && x[4] < timeScope));
+        var loopCondition = list.length > 0;
+        while (loopCondition) {
+            if (list[0][5] < timeScope) {
+                list.shift();
+                continue;
+            }
+            if (list[0][4] < timeScope && list[0][5] >= timeScope) {
+                list[0][4] = timeScope;
+                list[0][0] = new Date(1262304000 + parseInt(timeScope)).toISOString();
+                continue;
+            }
+            loopCondition = false;
+        }
     }
 
     function resizeChart() {
@@ -99,18 +120,21 @@
         var minTime = maxTime - 500;
         var seed = new Math.seedrandom('randomSeed');
         var randomNr = seed();
+        var colorIndex = element.GroupId.substring(8, element.GroupId.indexOf(")"));;
         //var uniques = GetUniqueOrders(parsed_json);
         //var uniqueIterator = uniques.values();
         //for (i = 0; i < uniques.size; i++) {
         //    var comparable = uniqueIterator.next().value;
         //    var group = parsed_json.filter(f => f.groupId === comparable);
         //  group.forEach(element => {
-        var index = 0;
-        var colorIndex = 0;
-        if (!chart.data.labels.includes(element.Resource)) {
-            chart.data.labels.push(element.Resource);
+        var res = element.Resource.replace('Resource', '');
+        var index = chart.data.labels.indexOf(res);
+        if (index === -1) {
+            //chart.data.labels.push(element.Resource);
+            index = chart.data.labels.indexOf(res);
+            //resizeChart(chart);
         }
-        index = chart.data.labels.indexOf(element.Resource);
+
         var start = new Date(1262304000 + parseInt(element.Start)).toISOString();
         var end = new Date(1262304000 + parseInt(element.End)).toISOString();
         var op = element.Operation;
@@ -118,17 +142,28 @@
         if (chart.data.datasets[index] === undefined) {
             chart.data.datasets.push(data);
         }
-        var dataSet = [];
-        for (var i = 0; i < chart.data.datasets.length; i++) {
-            chart.data.datasets[i].data = shiftGanttArray(chart.data.datasets[i], minTime);
-            dataSet.push(chart.data.datasets[i].data.filter(f => f[6] === element.GroupId));
-        }
 
-        if (dataSet.flat()[0] != undefined) {
-            colorIndex = dataSet.flat()[0][7];
-        } else {
-            colorIndex = globalColorIndex;
-            globalColorIndex++;
+        // Axis scaling
+        // var min = parseInt(minTime) > chart.options.scales.xAxes[1].ticks.min ? parseInt(minTime) : chart.options.scales.xAxes[1].ticks.min;
+        var max = parseInt(maxTime) > chart.options.scales.xAxes[1].ticks.max ? parseInt(maxTime) : chart.options.scales.xAxes[1].ticks.max;
+        var timeend = parseInt(Math.ceil(max / 50.0)) * 50;
+        timestart = (parseInt(Math.ceil((timeend - 500) / 50.0)) * 50);
+        var steps = Math.round((timeend - timestart) / 5);
+        chart.options.scales.xAxes[1].ticks.min = parseInt(timestart);
+        chart.options.scales.xAxes[1].ticks.max = parseInt(timeend);
+        chart.options.scales.xAxes[0].time.max = 1262304000 + timeend;
+        chart.options.scales.xAxes[0].time.min = 1262304000 + timestart;
+        chart.options.scales.xAxes[1].ticks.stepSize = steps;
+
+        // Shift unused Data and find color code
+        for (var i = 0; i < chart.data.datasets.length; i++) {
+            shiftGanttArray(chart.data.datasets[i].data, minTime);
+            /* if (colorIndex !== -1) continue;
+            colorIndex = chart.data.datasets[i].data.findIndex(f => f[6] === element.GroupId);
+            if (colorIndex === -1) continue;
+            colorIndex = chart.data.datasets[i].data[colorIndex][7];
+            */
+
         }
         // function goldenRatioColor(index, hue, saturation, value)
         var colorCode = goldenRatioColor(colorIndex, randomNr, 0.90, 0.80);
@@ -140,32 +175,18 @@
         }
         chart.data.datasets[index].data.push([start, end, op, rgbColor, element.Start, element.End, element.GroupId, colorIndex]);
 
-        var min = parseInt(minTime) > chart.options.scales.xAxes[1].ticks.min ? parseInt(minTime) : chart.options.scales.xAxes[1].ticks.min;
-        var max = parseInt(maxTime) > chart.options.scales.xAxes[1].ticks.max ? parseInt(maxTime) : chart.options.scales.xAxes[1].ticks.max;
-
-        var timeend = parseInt(Math.ceil(max / 50.0)) * 50;
-        timestart = (parseInt(Math.ceil((timeend - 500) / 50.0)) * 50);
-        var steps = Math.round((timeend - timestart) / 5);
-        timestart = timestart - 50;
-        chart.options.scales.xAxes[1].ticks.min = parseInt(timestart);
-        chart.options.scales.xAxes[1].ticks.max = parseInt(timeend);
-        chart.options.scales.xAxes[0].time.max = 1262304000 + timeend;
-        chart.options.scales.xAxes[0].time.min = 1262304000 + timestart;
-        chart.options.scales.xAxes[1].ticks.stepSize = steps; 
-
         // var targetCtx = document.getElementById("chartCanvas");
         // var resizeTo = steps * window.devicePixelRatio * document.getElementById("scaling").value;
         // chart.canvas.width = resizeTo;
-        
         chart.update(0);
     }
 
 
-    processingProxy.on("ganttChart", function (msg) {
-        //console.log("Contracts : " + msg);
-        ganttChart(msg);
-    });
-
+    processingProxy.on("ganttChart",
+        function(msg) {
+            //console.log("Contracts : " + msg);
+            ganttChart(msg);
+        });
 
 </script>
 

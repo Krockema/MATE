@@ -71,6 +71,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 toLate++;
             }
             
+
             Collector.messageHub.SendToAllClients(msg: message);
             UpdateOrder(item: finishedArticle);
 
@@ -78,11 +79,11 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             finishedOrderParts++;
             totalOrders++;
             var percent = Math.Round((decimal) Collector.Time / Collector.maxTime * 100, 0);
-
             Collector.messageHub.ProcessingUpdate(finishedOrderParts, (int)percent, 
-                $" Progress({percent} %) " + message
-                , totalOrders);
-            Collector.messageHub.SendToClient(listener: "orderListener", msg: totalOrders.ToString());
+                                                    $" Progress({percent} %) " + message
+                                                    , totalOrders);
+            var timeliness = new[] { totalOrders.ToString(), (finishedArticle.ProvidedAt - finishedArticle.DueTime).ToString()};
+            Collector.messageHub.SendToClient(listener: "orderListener", msg: JsonConvert.SerializeObject(timeliness));
 
         }
 
@@ -103,7 +104,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             if (inTime != 0)
             {
                 timelines = (inTime / (inTime + toLate) * 100);
-                Collector.messageHub.SendToClient(listener: "Timeliness", msg: timelines.ToString().Replace(oldValue: ",", newValue: "."));
+                //Collector.messageHub.SendToClient(listener: "Timeliness", msg: timelines.ToString().Replace(oldValue: ",", newValue: "."));
             }
 
             newOrderParts = 0;
