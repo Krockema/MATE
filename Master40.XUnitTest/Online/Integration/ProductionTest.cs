@@ -37,7 +37,7 @@ namespace Master40.XUnitTest.Online.Integration
         /// <param name="secondResource"></param>
         /// <returns></returns>
         [Theory]
-        [InlineData(1, 5, ModelSize.Medium, ModelSize.Small, 0, new []{ 0, 0, 0}, false)]
+        [InlineData(1, 5, ModelSize.Medium, ModelSize.Small, 0, new[] { 0, 0, 0 }, false)]
         [InlineData(2, 5, ModelSize.Medium, ModelSize.Small, 2, new[] { 0, 0, 0 }, false)]
         [InlineData(3, 5, ModelSize.Medium, ModelSize.Small, 0, new[] { 1, 1, 1 }, false)]
         [InlineData(4, 5, ModelSize.Medium, ModelSize.Small, 3, new[] { 1, 0, 1 }, false)]
@@ -62,6 +62,7 @@ namespace Master40.XUnitTest.Online.Integration
             simConfig.AddOption(new MaxDeliveryTime(2880));
             simConfig.AddOption(new TransitionFactor(3));
             simConfig.ReplaceOption(new SimulationKind(value: SimulationType.Default));
+            simConfig.ReplaceOption(new DebugSystem(false));
             simConfig.ReplaceOption(new OrderArrivalRate(value: 0.15));
             simConfig.ReplaceOption(new OrderQuantity(value: orderQuantity));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: 1920));
