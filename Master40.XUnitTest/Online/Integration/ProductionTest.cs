@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Master40.XUnitTest.Online.Integration
@@ -37,17 +38,17 @@ namespace Master40.XUnitTest.Online.Integration
         /// <param name="secondResource"></param>
         /// <returns></returns>
         [Theory]
-        [InlineData(1, 5, ModelSize.Medium, ModelSize.Small, 0, new[] { 0, 0, 0 }, false)]
-        [InlineData(2, 5, ModelSize.Medium, ModelSize.Small, 2, new[] { 0, 0, 0 }, false)]
-        [InlineData(3, 5, ModelSize.Medium, ModelSize.Small, 0, new[] { 1, 1, 1 }, false)]
-        [InlineData(4, 5, ModelSize.Medium, ModelSize.Small, 3, new[] { 1, 0, 1 }, false)]
+        [InlineData(1, 5, ModelSize.Medium, ModelSize.Small, ModelSize.None, 0, false)]
+        [InlineData(2, 5, ModelSize.Medium, ModelSize.Small, ModelSize.None, 2, false)]
+        [InlineData(3, 5, ModelSize.Medium, ModelSize.Small, ModelSize.Medium, 0, false)]
+        [InlineData(4, 5, ModelSize.Medium, ModelSize.Small, ModelSize.Small, 3, false)]
 
-        [InlineData(5, 5, ModelSize.Medium, ModelSize.Small, 0, new[] { 1, 0, 1 }, false)]
-        public async Task RunProduction(int uniqueSimNum, int orderQuantity, ModelSize resourceModelSize, ModelSize setupModelSize, int numberOfWorkers, int[] numberOfOperators, bool secondResource)
+        [InlineData(5, 5, ModelSize.Medium, ModelSize.Small, ModelSize.Small, 0, false)]
+        public async Task RunProduction(int uniqueSimNum, int orderQuantity, ModelSize resourceModelSize, ModelSize setupModelSize, ModelSize operatorModelSize, int numberOfWorkers, bool secondResource)
         {
             //Handle this one in our Resource Model?
             var assert = true;
-            MasterDBInitializerTruck.DbInitialize(_contextDataBase.DbContext, resourceModelSize, setupModelSize, numberOfWorkers, numberOfOperators, secondResource);
+            MasterDBInitializerTruck.DbInitialize(_contextDataBase.DbContext, resourceModelSize, setupModelSize, operatorModelSize, numberOfWorkers, secondResource);
 
             ResultDBInitializerBasic.DbInitialize(_resultContextDataBase.DbContext);
 
@@ -89,11 +90,6 @@ namespace Master40.XUnitTest.Online.Integration
                 assert = false;
             }
 
-            // What to check?
-            // Any Exception thrown? 
-            // all contracts terminated ? 
-            // all Production / Job Agents finished ? 
-
             var processedOrders = 
                 _resultContextDataBase.DbContext.Kpis
                 .Single(x => x.IsFinal.Equals(true) && x.Name.Equals("OrderProcessed")).Value;
@@ -103,13 +99,21 @@ namespace Master40.XUnitTest.Online.Integration
                 assert = false;
             }
 
+            assert = CheckForOverlappingOperations(_resultContextDataBase.DbContext.SimulationJobs);
+
+
             _contextDataBase.DbContext.Dispose();
 
             _resultContextDataBase.DbContext.Dispose();
-            //Add more KPIs to check
 
-            //Check amount of contract agents
             Assert.True(assert);
+
+        }
+
+        public bool CheckForOverlappingOperations(DbSet<DB.ReportingModel.Job> jobs )
+        {
+            //Enhance KPIs before implemenation
+            return true;
 
         }
 

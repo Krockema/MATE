@@ -58,7 +58,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             MasterDBContext masterCtx = MasterDBContext.GetContext(connectionString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Small, 3, new []{1,0,1}, true);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Small, ModelSize.Small, 3,  true);
             
             ResultContext results = ResultContext.GetContext(resultCon: resultConnectionString);
             results.Database.EnsureDeleted();
@@ -79,7 +79,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             MasterDBContext masterCtx = MasterDBContext.GetContext(remoteMasterCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Small, setupModelSize: ModelSize.Small, 3, new []{1,0,1}, false);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Small, setupModelSize: ModelSize.Small, ModelSize.Small, 3, false);
 
             HangfireDBContext dbContext = new HangfireDBContext(options: new DbContextOptionsBuilder<HangfireDBContext>()
                 .UseSqlServer(connectionString: hangfireCtxString)
@@ -161,7 +161,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             var masterCtx = ProductionDomainContext.GetContext(testCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, 3, new int[]{1, 0, 1}, distributeSetupsExponentially);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, ModelSize.Small, 3, distributeSetupsExponentially);
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(DBContext: masterCtx, messageHub: new ConsoleHub());
             var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(_ctxResult, 1);

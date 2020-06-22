@@ -1,8 +1,10 @@
 ﻿using Akka.TestKit.Xunit;
 using Master40.DB;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
 using Master40.DB.Data.Initializer;
 using Microsoft.EntityFrameworkCore;
+using System;
 using Xunit;
 using Dbms = Master40.XUnitTest.Online.Preparations.Dbms;
 
@@ -10,45 +12,53 @@ namespace Master40.XUnitTest.Online.Agents.Types
 {
     public class ArticleCache : TestKit
     {
-        private ProductionDomainContext _masterDBContext;
-        private string _dbConnectionString;
+        private DataBase<ProductionDomainContext> _contextDataBase;
         public ArticleCache()
         {
-            _dbConnectionString = Dbms.getDbContextString();
-            _masterDBContext = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
-                                .UseSqlServer(connectionString: _dbConnectionString)
-                                .Options);
-            _masterDBContext.Database.EnsureDeleted();
-            _masterDBContext.Database.EnsureCreated();
-            MasterDbInitializerTable.DbInitialize(context: _masterDBContext);
-         }
 
+            _contextDataBase = DB.Dbms.GetNewMasterDataBase();
 
-        [Fact(Skip = "Datamodel fix required")]
+            InitializeTestModel();
+        }
+
+        [Fact]
         public void AddArticle()
         {
-            var _articleCache = new SimulationCore.Types.ArticleCache(connectionString: _dbConnectionString);
+            var _articleCache = new SimulationCore.Types.ArticleCache(connectionString: _contextDataBase.ConnectionString);
             //BUG need to change system for new IDs not given from Db - see new Database for each test
-            var article = _articleCache.GetArticleById(id: 1, transitionFactor: 3);
-            Assert.Equal(actual: article.Name, expected: "Tisch");
-        }
+            var article = _articleCache.GetArticleById(id: 10081, transitionFactor: 3);
+            Assert.Equal(actual: article.Name, expected: "Dump-Truck");
 
-        [Fact(Skip = "Datamodel fix required")]
+        }
+        
+        [Fact]
         public void AddArticleWithoutOperation()
         {
-            var _articleCache = new SimulationCore.Types.ArticleCache(connectionString: _dbConnectionString);
-            var article = _articleCache.GetArticleById(id: 6, transitionFactor: 3);
-            Assert.Equal(actual: article.Name, expected: "Schrauben");
+            _contextDataBase = DB.Dbms.GetNewMasterDataBase();
+
+            InitializeTestModel();
+            var _articleCache = new SimulationCore.Types.ArticleCache(connectionString: _contextDataBase.ConnectionString);
+            var article = _articleCache.GetArticleById(id: 10456, transitionFactor: 3);
+            Assert.Equal(actual: article.Name, expected: "Wheel");
+
         }
 
-        [Fact(Skip = "Datamodel fix required")]
+        [Fact]
         public void AddExistingArticle()
         {
-            var _articleCache = new SimulationCore.Types.ArticleCache(connectionString: _dbConnectionString);
-            var article = _articleCache.GetArticleById(id: 6, transitionFactor: 3);
-            var article2 = _articleCache.GetArticleById(id: 6, transitionFactor: 3);
+            _contextDataBase = DB.Dbms.GetNewMasterDataBase();
+
+            InitializeTestModel();
+            var _articleCache = new SimulationCore.Types.ArticleCache(connectionString: _contextDataBase.ConnectionString);
+            var article = _articleCache.GetArticleById(id: 10772, transitionFactor: 3);
+            var article2 = _articleCache.GetArticleById(id: 10772, transitionFactor: 3);
 
             Assert.Equal(expected: article2.Name, actual: article.Name);
+        }
+
+        private void InitializeTestModel()
+        {
+            MasterDBInitializerTruck.DbInitialize(_contextDataBase.DbContext, ModelSize.TestModel, ModelSize.Small, ModelSize.Small, 0, false);
         }
     }
 }

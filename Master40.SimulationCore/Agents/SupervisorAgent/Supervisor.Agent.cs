@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using Master40.DB.Data.Helper.Types;
 using static FArticles;
 using static FSetEstimatedThroughputTimes;
 using Master40.SimulationCore.Agents.SupervisorAgent.Types;
@@ -68,7 +69,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
         {
             _productionDomainContext = productionDomainContext;
             _dataBaseConnection = _productionDomainContext.Database.GetDbConnection();
-            _articleCache = new ArticleCache(connectionString: _dataBaseConnection.ConnectionString);
+            _articleCache = new ArticleCache(connectionString: new DbConnectionString(_dataBaseConnection.ConnectionString));
             _messageHub = messageHub;
             _orderGenerator = new OrderGenerator(simConfig: configuration, productionDomainContext: _productionDomainContext
                                               , productIds: estimatedThroughputTimes.Select(x => x.ArticleId).ToList());

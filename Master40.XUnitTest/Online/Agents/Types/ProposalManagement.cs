@@ -361,7 +361,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
         }
 
 
-        private bool SlotComparerSetup(FQueueingPosition mainResourcePos, FQueueingPosition toCompare) // doesnt work with worker
+        private bool SlotComparerSetup(FQueueingScopes.FQueueingScope mainResourcePos, FQueueingScopes.FQueueingScope toCompare) // doesnt work with worker
         {
             // calculate posible earliest start
             long earliestStart = (new[] { toCompare.Start, mainResourcePos.Start }).Max();

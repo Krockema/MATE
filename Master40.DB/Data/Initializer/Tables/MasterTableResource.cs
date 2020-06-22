@@ -47,7 +47,7 @@ namespace Master40.DB.Data.Initializer.Tables
             return new M_Resource() { Name = resourceName + " " + number?.ToString(), Capacity = 1, IsPhysical = isPhysical };
         }
 
-        internal void CreateResourceTools(int setupTimeCutting, int setupTimeDrilling, int setupTimeAssembling, int numberOfWorkers, int[] numberOfOperators, bool secondResource)
+        internal void CreateResourceTools(int setupTimeCutting, int setupTimeDrilling, int setupTimeAssembling, int[] numberOfOperators, int numberOfWorkers, bool secondResource)
         {
             List<M_Resource> workers = new List<M_Resource>();
             for (int i = 1; i < 1 + numberOfWorkers; i++)

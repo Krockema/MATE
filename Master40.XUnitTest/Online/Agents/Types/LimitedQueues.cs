@@ -3,6 +3,7 @@ using Akka.TestKit.Xunit;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.XUnitTest.Online.Preparations;
 using System.Collections.Generic;
+using Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue;
 using Xunit;
 using static FJobConfirmations;
 using static FOperations;
@@ -44,7 +45,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
         [Fact]
         public void AddToItemLimitedQueue()
         {
-            var jobQueueItemLimited = new JobQueueItemLimited(limit: 1);
+            var jobQueueItemLimited = new TimeConstraintQueue(limit: 480);
             var jobConfirmation1 = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10), new FQueueingPosition(true, true, 10, 20, 10), 10,
                 null);
             var addItemStatus = jobQueueItemLimited.Enqueue(jobConfirmation1);

@@ -1,4 +1,5 @@
 ﻿using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper.Types;
 using Master40.DB.DataModel;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,19 +10,19 @@ namespace Master40.SimulationCore.Types
 {
     public class ArticleCache
     {
-        public ArticleCache(string connectionString)
+        public ArticleCache(DbConnectionString connectionString)
         {
             _connectionString = connectionString;
         }
 
         private Dictionary<int, M_Article> _cache = new Dictionary<int, M_Article>();
-        private string _connectionString = "";
+        private readonly DbConnectionString _connectionString = new DbConnectionString(string.Empty);
 
         public M_Article GetArticleById(int id, decimal transitionFactor)
         {
             if (!_cache.TryGetValue(key: id,value: out M_Article obj))
             {
-                using (var ctx = MasterDBContext.GetContext(connectionString: _connectionString))
+                using (var ctx = MasterDBContext.GetContext(connectionString: _connectionString.Value))
                 {
                     obj = ctx.Articles.Include(navigationPropertyPath: x => x.ArticleType)
                                       .Include(navigationPropertyPath: x => x.Unit)

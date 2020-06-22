@@ -15,7 +15,7 @@ namespace Master40.XUnitTest.Online.Model
         {
             DataBase = Dbms.GetNewMasterDataBase();
             MasterDBInitializerTruck.DbInitialize(context: DataBase.DbContext, resourceModelSize: ModelSize.Medium,
-                setupModelSize: ModelSize.Medium, 3, new []{1,0,1}, false);
+                setupModelSize: ModelSize.Medium, ModelSize.Small, 3, false);
         }
 
         [Fact]
@@ -25,7 +25,7 @@ namespace Master40.XUnitTest.Online.Model
             Assert.True(articles.All(x => x.ArticleBoms.Count >= 0));
         }
 
-        [Fact(Skip = "Activate after merge")]
+        [Fact]
         public void AllBomsWithOperation()
         {
             var boms = DataBase.DbContext.ArticleBoms;
