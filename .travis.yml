@@ -12,7 +12,7 @@ install:
 
 script:
   - dotnet build
-  - dotnet test Master40.XUnitTest/Master40.XUnitTest.csproj --filter Master40.XUnitTest.Online
+  - dotnet test Master40.XUnitTest/Master40.XUnitTest.csproj  -v:n --filter Master40.XUnitTest.Online
 
 
 notifications:
