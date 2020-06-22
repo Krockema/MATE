@@ -8,13 +8,13 @@
 
   <ItemGroup>
     <Compile Remove="Online\Agents\**" />
-    <Compile Remove="Online\Model\**" />
+    <Compile Remove="Online\Integration\**" />
     <Compile Remove="Online\Simulation\**" />
     <EmbeddedResource Remove="Online\Agents\**" />
-    <EmbeddedResource Remove="Online\Model\**" />
+    <EmbeddedResource Remove="Online\Integration\**" />
     <EmbeddedResource Remove="Online\Simulation\**" />
     <None Remove="Online\Agents\**" />
-    <None Remove="Online\Model\**" />
+    <None Remove="Online\Integration\**" />
     <None Remove="Online\Simulation\**" />
   </ItemGroup>
 

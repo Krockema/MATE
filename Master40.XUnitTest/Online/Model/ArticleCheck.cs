@@ -25,7 +25,7 @@ namespace Master40.XUnitTest.Online.Model
             Assert.True(articles.All(x => x.ArticleBoms.Count >= 0));
         }
 
-        [Fact]
+        [Fact(Skip = "for test reasons skipped")]
         public void AllBomsWithOperation()
         {
             var boms = DataBase.DbContext.ArticleBoms;
