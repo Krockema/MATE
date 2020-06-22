@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -20,40 +21,82 @@ namespace Master40.Controllers
         // GET: Resources
         public async Task<IActionResult> Index()
         {
-            var Resources = _context.Resources.Include(navigationPropertyPath: m => m.ResourceSetups);
-            
-            var mermaid = @"graph LR;
-                p>Production Line]
-                Finish((<img src='/images/Production/Dump-Truck.svg' width='20' ><br> Finish))
-                Start((<img src='/images/Production/saw.svg' width='20'><img src='/images/Production/plate.svg' width='20'><br> Start))
-                ";
+            var resources = _context.Resources.Include(navigationPropertyPath: m => m.ResourceSetups)
+                                                .ThenInclude(navigationPropertyPath: m => m.ResourceCapabilityProvider)
+                                                .Where(x => x.IsPhysical);
+            var oddRows = Math.Round(resources.Count() / 3.0 + 0.49 , MidpointRounding.ToPositiveInfinity);
+            var evenRows = oddRows - 1;
+            var width =  99 / oddRows;
+            var mermaid = @"<style>
+                                        #hexGrid {
+                                            padding-bottom: " + (width / 4).ToString().Replace(",", ".") + @"%
+                                        }
+                                        .hex {
+                                            width: "+ width.ToString().Replace(",",".") + @"%; /* = 100 / 5 */
+                                            
+                                        }
+                                        .hex:nth-child(" + (evenRows + oddRows) + @"n+" + (oddRows +1) + @") { /* first hexagon of even rows */
+                                            margin-left: " + (width / 2).ToString().Replace(",", ".") + @"%; /* = width of .hex / 2  to indent even rows */
+                                        }
+                                        .hexLink {
+                                            background-size: 70%;
+                                            background-position: center;
+                                            background-repeat: no-repeat;
+                                        }
+                                        .imgDrill {
+                                            background-image: url(/images/Production/drill.svg);
+                                            background-color: rgb(108, 117, 125, 0.2);
+                                           
+                                        }
+                                        .imgSaw {
+                                            background-image: url(/images/Production/saw.svg);
+                                            background-color: rgb(108, 117, 125, 0.4);
+                                           
+                                        }
+                                        .imgAssembly {
+                                            background-image: url(/images/Production/assemblys.svg);
+                                            background-color: rgb(108, 117, 125, 0.6);
+                                           
+                                        }
+                                        .imgOperator {
+                                            background-image: url(/images/Production/operator.svg);
+                                            background-color: rgb(108, 117, 125, 0.3);
+                                           
+                                        }
+                                        .imgWorker {
+                                            background-image: url(/images/Production/worker.svg);
+                                            background-color: rgb(108, 117, 125, 0.5);
+                                           
+                                        }
+                            </style>";
+                                                        // = @"graph LR;
+                // p>Production Line]
+                // Finish((<img src='/images/Production/Dump-Truck.svg' width='20' ><br> Finish))
+                // Start((<img src='/images/Production/saw.svg' width='20'><img src='/images/Production/plate.svg' width='20'><br> Start))
+                // ";
 
-
-            var machineGroups = _context.ResourceCapabilities.ToList();
-            for (int g = 0; g < machineGroups.Count; g++)
+            foreach (var resource in resources)
             {
-                var start = (g == 0) ? "Start-->" : "\r\n";
-                var machine = Resources.Where(predicate: x => machineGroups[g].Name == x.ResourceSetups.SingleOrDefault().Name);
-                var i = 1;
-                var thisGroup = machineGroups[index: g].Name;
-                var nextGroup = (g+1 < machineGroups.Count)? machineGroups[index: g+1].Name : "Finish";
-                mermaid += start + thisGroup + "{ }";
-                mermaid += "\r\n subgraph " + thisGroup;
+                var name = resource.Name.Contains("Operator") ? "imgOperator"
+                            : resource.Name.Contains("Assembl") ? "imgAssembly"
+                                : resource.Name.Contains("Cut") ?  "imgSaw"
+                                    : resource.Name.Contains("Drill") ? "imgDrill"
+                                        : resource.Name.Contains("Worker") ? "imgWorker"
+                                            : "imgWaterJet";
+                    ;
 
-
-                var end = "\r\n end ";
-                foreach (var m in machine)
-                {
-                    var name = m.Name.Replace(oldValue: " ", newValue: "_").ToString();
-                    mermaid += "\r\n" + thisGroup + "-->" + name + "(<img src='" + machineGroups[index: g] + "' width='40' height='40'>)";
-                    end += "\r\n" + name + "-->" + nextGroup;
-                    i++;
-                }
-                mermaid = mermaid + end;
+                mermaid += @"<li class='hex'>
+                    <div class='hexIn'>
+                    <a class='hexLink " + name + @"' href='#'>
+                    <h1>" + resource.Name.Replace("Resource ", "") + @"</h1>
+                    <p> with " + resource.ResourceSetups.Count() +
+                    @" possible setups</p>
+                    </a>
+                    </div>
+                    </li>";
             }
-           
             ViewData[index: "Resources"] = mermaid;
-            return View(model: await Resources.ToListAsync());
+            return View(model: await resources.ToListAsync());
         }
 
         // GET: Resources/Details/5

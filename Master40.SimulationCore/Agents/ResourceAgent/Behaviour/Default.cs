@@ -87,7 +87,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             
             if (Agent.CurrentTime % 50 == 0 || Agent.CurrentTime == 2)
             { 
-                GanttStatistics.CreateGanttChartForRessource(_jobInProgress, _scopeQueue, Agent);
+               // GanttStatistics.CreateGanttChartForRessource(_jobInProgress, _scopeQueue, Agent);
             }
             
             //TODO _JobInProgress.ContainsJobWithKey(Key)
