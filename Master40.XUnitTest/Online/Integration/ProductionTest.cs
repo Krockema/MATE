@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.DB.ReportingModel;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 using Xunit.Abstractions;
@@ -27,7 +28,7 @@ namespace Master40.XUnitTest.Online.Integration
             _testOutputHelper = testOutputHelper;
             _contextDataBase = DB.Dbms.GetNewMasterDataBase();
             _resultContextDataBase = DB.Dbms.GetNewResultDataBase();
-            
+
         }
 
         /// <summary>
@@ -45,16 +46,18 @@ namespace Master40.XUnitTest.Online.Integration
         [InlineData(2, 5, ModelSize.Medium, ModelSize.Small, ModelSize.None, 2, false)]
         [InlineData(3, 5, ModelSize.Medium, ModelSize.Small, ModelSize.Medium, 0, false)]
         [InlineData(4, 5, ModelSize.Medium, ModelSize.Small, ModelSize.Small, 3, false)]
-
+        
         [InlineData(5, 5, ModelSize.Medium, ModelSize.Small, ModelSize.Small, 0, false)]
-        public void RunProduction(int uniqueSimNum, int orderQuantity, ModelSize resourceModelSize, ModelSize setupModelSize, ModelSize operatorModelSize, int numberOfWorkers, bool secondResource)
+        public void RunProduction(int uniqueSimNum, int orderQuantity, ModelSize resourceModelSize,
+            ModelSize setupModelSize, ModelSize operatorModelSize, int numberOfWorkers, bool secondResource)
         {
             _testOutputHelper.WriteLine("DatabaseString: " + _contextDataBase.ConnectionString.Value);
 
             _testOutputHelper.WriteLine("ResultDatabaseString: " + _resultContextDataBase.ConnectionString.Value);
             //Handle this one in our Resource Model?
             var assert = true;
-            MasterDBInitializerTruck.DbInitialize(_contextDataBase.DbContext, resourceModelSize, setupModelSize, operatorModelSize, numberOfWorkers, secondResource);
+            MasterDBInitializerTruck.DbInitialize(_contextDataBase.DbContext, resourceModelSize, setupModelSize,
+                operatorModelSize, numberOfWorkers, secondResource);
             _testOutputHelper.WriteLine("MasterDBInitialized finished");
             ResultDBInitializerBasic.DbInitialize(_resultContextDataBase.DbContext);
             _testOutputHelper.WriteLine("ResultDBInitializerBasic finished");
@@ -93,10 +96,10 @@ namespace Master40.XUnitTest.Online.Integration
             _testOutputHelper.WriteLine("simulation.RunAsync() finished");
             Within(TimeSpan.FromSeconds(120), async () =>
             {
-                 simContext.StateManager.ContinueExecution(simulation);
-                 await sim;
-                 if (sim.IsCompletedSuccessfully) assert = true;
-                 //Assert.True(sim.IsCompletedSuccessfully);
+                simContext.StateManager.ContinueExecution(simulation);
+                await sim;
+                if (sim.IsCompletedSuccessfully) assert = true;
+                //Assert.True(sim.IsCompletedSuccessfully);
             }).Wait();
 
             Console.WriteLine("Finish with the simulation with " + assert);
@@ -106,9 +109,9 @@ namespace Master40.XUnitTest.Online.Integration
             //     assert = false;
             // }
 
-            var processedOrders = 
+            var processedOrders =
                 _resultContextDataBase.DbContext.Kpis
-                .Single(x => x.IsFinal.Equals(true) && x.Name.Equals("OrderProcessed")).Value;
+                    .Single(x => x.IsFinal.Equals(true) && x.Name.Equals("OrderProcessed")).Value;
 
             if (processedOrders != orderQuantity)
             {
@@ -117,21 +120,60 @@ namespace Master40.XUnitTest.Online.Integration
 
             Console.WriteLine("Finish validate orders processed with " + assert);
 
-            //assert = CheckForOverlappingOperations(_resultContextDataBase.DbContext.SimulationJobs);
+
+            if (AnyOverlappingTaskItemsExistsOnOneMachine())
+            {
+                assert = false;
+            }
+
+            Console.WriteLine("Finish if any overlapping process exists on one machine" + assert);
 
             _contextDataBase.DbContext.Dispose();
-
             _resultContextDataBase.DbContext.Dispose();
 
             Assert.True(assert);
 
         }
 
-        public bool CheckForOverlappingOperations(DbSet<DB.ReportingModel.Job> jobs )
+        public bool AnyOverlappingTaskItemsExistsOnOneMachine()
         {
-            //Enhance KPIs before implemenation
-            return true;
+            var overlapping = false;
+            //Iterate taskitems and check for overlapping
+            var taskItems = _resultContextDataBase.DbContext.TaskItems;
 
+            var resourceList = taskItems.Select(x => new {x.Resource}).Distinct().ToList();
+
+            foreach (var resource in resourceList)
+            {
+                var resourceTasks = taskItems.Where(x => x.Resource.Equals(resource.Resource)).ToList();
+
+                overlapping = CheckIfAnyTasksOverlapps(resourceTasks);
+
+                if(overlapping) break;
+
+            }
+
+            return overlapping;
+
+        }
+        
+        private bool CheckIfAnyTasksOverlapps(List<TaskItem> tasks)
+        {
+            bool overlap = false;
+            foreach (var task in tasks)
+            {
+                var otherTasks = tasks.Where(x => !x.Id.Equals(task.Id));
+
+                foreach (var comparedTask in otherTasks)
+                {
+                    overlap = task.Start < comparedTask.End && comparedTask.Start < task.End;
+
+                    if (overlap)
+                        break;
+                }
+            }
+
+            return overlap;
         }
 
     }
