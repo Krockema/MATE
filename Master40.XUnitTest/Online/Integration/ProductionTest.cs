@@ -88,8 +88,7 @@ namespace Master40.XUnitTest.Online.Integration
 
             var simulation = simContext.InitializeSimulation(configuration: simConfig).Result;
             _testOutputHelper.WriteLine("simContext.InitializeSimulation finished");
-            //Assert.True(simulation.IsReady());
-            _testOutputHelper.WriteLine("simulation.IsReady finished");
+
             var sim = simulation.RunAsync();
             _testOutputHelper.WriteLine("simulation.RunAsync() finished");
             Within(TimeSpan.FromSeconds(120), async () =>
@@ -97,15 +96,9 @@ namespace Master40.XUnitTest.Online.Integration
                 simContext.StateManager.ContinueExecution(simulation);
                 await sim;
                 if (sim.IsCompletedSuccessfully) assert = true;
-                //Assert.True(sim.IsCompletedSuccessfully);
             }).Wait();
 
-            Console.WriteLine("Finish with the simulation with " + assert);
-            // var taskException = Record.ExceptionAsync(async () => await sim);
-            // if (taskException.IsCanceled || taskException.Exception != null)
-            // {
-            //     assert = false;
-            // }
+            Console.WriteLine("Simulation finished | Status: " + assert);
 
             var processedOrders =
                 _resultContextDataBase.DbContext.Kpis
@@ -116,7 +109,7 @@ namespace Master40.XUnitTest.Online.Integration
                 assert = false;
             }
 
-            Console.WriteLine("Finish validate orders processed with " + assert);
+            Console.WriteLine("Validate order quantity | Status: " + assert);
 
 
             if (AnyOverlappingTaskItemsExistsOnOneMachine())
@@ -124,7 +117,7 @@ namespace Master40.XUnitTest.Online.Integration
                 assert = false;
             }
 
-            Console.WriteLine("Finish if any overlapping process exists on one machine" + assert);
+            Console.WriteLine("Check for overlapping Jobs | Status: " + assert);
 
             _contextDataBase.DbContext.Dispose();
             _resultContextDataBase.DbContext.Dispose();
@@ -136,15 +129,13 @@ namespace Master40.XUnitTest.Online.Integration
         public bool AnyOverlappingTaskItemsExistsOnOneMachine()
         {
             var overlapping = false;
-            //Iterate taskitems and check for overlapping
             var taskItems = _resultContextDataBase.DbContext.TaskItems;
-
+            
             var resourceList = taskItems.Select(x => new {x.Resource}).Distinct().ToList();
 
             foreach (var resource in resourceList)
             {
                 var resourceTasks = taskItems.Where(x => x.Resource.Equals(resource.Resource)).ToList();
-
                 overlapping = CheckIfAnyTasksOverlapps(resourceTasks);
 
                 if(overlapping) break;
@@ -160,15 +151,18 @@ namespace Master40.XUnitTest.Online.Integration
             bool overlap = false;
             foreach (var task in tasks)
             {
-                var otherTasks = tasks.Where(x => !x.Id.Equals(task.Id));
-
-                foreach (var comparedTask in otherTasks)
+                foreach (var comparedTask in tasks)
                 {
+                    if (comparedTask.Id.Equals(task.Id)) continue;
+
                     overlap = task.Start < comparedTask.End && comparedTask.Start < task.End;
 
                     if (overlap)
                         break;
                 }
+
+                if (overlap)
+                    break;
             }
 
             return overlap;
