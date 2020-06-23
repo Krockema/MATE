@@ -8,23 +8,20 @@ using Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
+using Master40.Tools.ExtensionMethods;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Master40.SimulationCore.Reporting;
-using Master40.Tools.ExtensionMethods;
-using Master40.Tools.Messages;
-using Newtonsoft.Json;
 using static FBuckets;
+using static FCreateTaskItems;
 using static FOperations;
 using static FPostponeds;
 using static FRequestProposalForCapabilityProviders;
 using static FResourceInformations;
 using static IConfirmations;
-using LogLevel = NLog.LogLevel;
 using static IJobs;
 using Directory = Master40.SimulationCore.Agents.DirectoryAgent.Directory;
-using static FCreateTaskItems;
+using LogLevel = NLog.LogLevel;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -87,10 +84,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             //TODO only debugging reasons
             
-            if (Agent.CurrentTime % 50 == 0 || Agent.CurrentTime == 2)
-            { 
-                GanttStatistics.CreateGanttChartForRessource(_jobInProgress, _scopeQueue, Agent);
-            }
+            //if (Agent.CurrentTime % 50 == 0 || Agent.CurrentTime == 2)
+            //{ 
+            //    GanttStatistics.CreateGanttChartForRessource(_jobInProgress, _scopeQueue, Agent);
+            //}
             
             //TODO _JobInProgress.ContainsJobWithKey(Key)
             if (_jobInProgress.IsSet

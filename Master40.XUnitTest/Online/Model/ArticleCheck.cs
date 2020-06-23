@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
@@ -21,6 +22,7 @@ namespace Master40.XUnitTest.Online.Model
         [Fact]
         public void HasBoms()
         {
+            Console.WriteLine("DatabaseString: " + DataBase.ConnectionString.Value);
             var articles = DataBase.DbContext.Articles.Include(x => x.ArticleBoms);
             Assert.True(articles.All(x => x.ArticleBoms.Count >= 0));
         }
