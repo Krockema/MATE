@@ -47,7 +47,7 @@ namespace Master40.XUnitTest.Online.Integration
         [InlineData(4, 5, ModelSize.Medium, ModelSize.Small, ModelSize.Small, 3, false)]
 
         [InlineData(5, 5, ModelSize.Medium, ModelSize.Small, ModelSize.Small, 0, false)]
-        public async Task RunProduction(int uniqueSimNum, int orderQuantity, ModelSize resourceModelSize, ModelSize setupModelSize, ModelSize operatorModelSize, int numberOfWorkers, bool secondResource)
+        public void RunProduction(int uniqueSimNum, int orderQuantity, ModelSize resourceModelSize, ModelSize setupModelSize, ModelSize operatorModelSize, int numberOfWorkers, bool secondResource)
         {
             _testOutputHelper.WriteLine("DatabaseString: " + _contextDataBase.ConnectionString.Value);
 
@@ -84,17 +84,23 @@ namespace Master40.XUnitTest.Online.Integration
             simConfig.ReplaceOption(new WorkTimeDeviation(0.0));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
 
-            var simulation = await simContext.InitializeSimulation(configuration: simConfig);
+            var simulation = simContext.InitializeSimulation(configuration: simConfig).Result;
+            Assert.True(simulation.IsReady());
 
             var sim = simulation.RunAsync();
             simContext.StateManager.ContinueExecution(simulation);
 
-
-            var taskException = Record.ExceptionAsync(async () => await sim);
-            if (taskException.IsCanceled || taskException.Exception != null)
+            Within(TimeSpan.FromSeconds(120), async () =>
             {
-                assert = false;
-            }
+                await sim;
+                Assert.True(sim.IsCompletedSuccessfully);
+            }).Wait();
+
+            // var taskException = Record.ExceptionAsync(async () => await sim);
+            // if (taskException.IsCanceled || taskException.Exception != null)
+            // {
+            //     assert = false;
+            // }
 
             var processedOrders = 
                 _resultContextDataBase.DbContext.Kpis
