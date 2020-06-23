@@ -9,7 +9,7 @@ services:
 
 install:
   - source $TRAVIS_BUILD_DIR/.travis/stage_install.sh
-  - dotnet restore -r linux-musl-x64
+  - dotnet restore
 
 script:
   - dotnet build

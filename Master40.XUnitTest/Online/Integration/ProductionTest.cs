@@ -3,15 +3,13 @@ using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
 using Master40.DB.Data.Initializer;
 using Master40.DB.Nominal;
+using Master40.DB.ReportingModel;
 using Master40.Simulation.CLI;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Master40.DB.ReportingModel;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 using Xunit.Abstractions;
 
