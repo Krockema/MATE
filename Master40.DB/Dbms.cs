@@ -3,7 +3,6 @@ using Master40.DB.Data.Helper;
 using Master40.DB.Data.Helper.Types;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using NLog.Extensions.Logging;
 using System;
 using System.Data;
 

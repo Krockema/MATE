@@ -8,11 +8,23 @@
 
   <ItemGroup>
     <Compile Remove="Online\Agents\**" />
+    <Compile Remove="Online\Model\**" />
     <Compile Remove="Online\Simulation\**" />
+    <Compile Remove="SimulationEnvironment\**" />
+    <Compile Remove="Test\**" />
+    <Compile Remove="Zpp\**" />
     <EmbeddedResource Remove="Online\Agents\**" />
+    <EmbeddedResource Remove="Online\Model\**" />
     <EmbeddedResource Remove="Online\Simulation\**" />
+    <EmbeddedResource Remove="SimulationEnvironment\**" />
+    <EmbeddedResource Remove="Test\**" />
+    <EmbeddedResource Remove="Zpp\**" />
     <None Remove="Online\Agents\**" />
+    <None Remove="Online\Model\**" />
     <None Remove="Online\Simulation\**" />
+    <None Remove="SimulationEnvironment\**" />
+    <None Remove="Test\**" />
+    <None Remove="Zpp\**" />
   </ItemGroup>
 
   <ItemGroup>

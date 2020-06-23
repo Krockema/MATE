@@ -12,16 +12,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Master40.XUnitTest.Online.Integration
 {
     public class ProductionTest : TestKit
     {
+        private readonly ITestOutputHelper _testOutputHelper;
         private DataBase<ProductionDomainContext> _contextDataBase;
         private DataBase<ResultContext> _resultContextDataBase;
 
-        public ProductionTest()
+        public ProductionTest(ITestOutputHelper testOutputHelper)
         {
+            _testOutputHelper = testOutputHelper;
             _contextDataBase = DB.Dbms.GetNewMasterDataBase();
             _resultContextDataBase = DB.Dbms.GetNewResultDataBase();
             
@@ -46,9 +49,9 @@ namespace Master40.XUnitTest.Online.Integration
         [InlineData(5, 5, ModelSize.Medium, ModelSize.Small, ModelSize.Small, 0, false)]
         public async Task RunProduction(int uniqueSimNum, int orderQuantity, ModelSize resourceModelSize, ModelSize setupModelSize, ModelSize operatorModelSize, int numberOfWorkers, bool secondResource)
         {
-            Console.WriteLine("DatabaseString: " + _contextDataBase.ConnectionString.Value);
+            _testOutputHelper.WriteLine("DatabaseString: " + _contextDataBase.ConnectionString.Value);
 
-            Console.WriteLine("ResultDatabaseString: " + _resultContextDataBase.ConnectionString.Value);
+            _testOutputHelper.WriteLine("ResultDatabaseString: " + _resultContextDataBase.ConnectionString.Value);
             //Handle this one in our Resource Model?
             var assert = true;
             MasterDBInitializerTruck.DbInitialize(_contextDataBase.DbContext, resourceModelSize, setupModelSize, operatorModelSize, numberOfWorkers, secondResource);
