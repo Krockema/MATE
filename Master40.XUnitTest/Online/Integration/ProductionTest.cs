@@ -61,13 +61,13 @@ namespace Master40.XUnitTest.Online.Integration
             var simContext = new AgentSimulation(DBContext: _contextDataBase.DbContext, messageHub: new ConsoleHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(_resultContextDataBase.DbContext, 1);
 
-            simConfig.AddOption(new DBConnectionString(_resultContextDataBase.ConnectionString.Value));
-            simConfig.AddOption(new TimeToAdvance(new TimeSpan(0L)));
-            simConfig.AddOption(new KpiTimeSpan(240));
-            simConfig.AddOption(new DebugAgents(false));
-            simConfig.AddOption(new MinDeliveryTime(1440));
-            simConfig.AddOption(new MaxDeliveryTime(2880));
-            simConfig.AddOption(new TransitionFactor(3));
+            simConfig.ReplaceOption(new DBConnectionString(_resultContextDataBase.ConnectionString.Value));
+            simConfig.ReplaceOption(new TimeToAdvance(new TimeSpan(0L)));
+            simConfig.ReplaceOption(new KpiTimeSpan(240));
+            simConfig.ReplaceOption(new DebugAgents(false));
+            simConfig.ReplaceOption(new MinDeliveryTime(1440));
+            simConfig.ReplaceOption(new MaxDeliveryTime(2880));
+            simConfig.ReplaceOption(new TransitionFactor(3));
             simConfig.ReplaceOption(new SimulationKind(value: SimulationType.Default));
             simConfig.ReplaceOption(new DebugSystem(false));
             simConfig.ReplaceOption(new OrderArrivalRate(value: 0.15));
@@ -86,15 +86,13 @@ namespace Master40.XUnitTest.Online.Integration
 
             var simulation = simContext.InitializeSimulation(configuration: simConfig).Result;
             Assert.True(simulation.IsReady());
-
             var sim = simulation.RunAsync();
-            simContext.StateManager.ContinueExecution(simulation);
-
             Within(TimeSpan.FromSeconds(120), async () =>
             {
-                await sim;
-                Assert.True(sim.IsCompletedSuccessfully);
-            }).Wait();
+                 simContext.StateManager.ContinueExecution(simulation);
+                 await sim;
+                 Assert.True(sim.IsCompletedSuccessfully);
+             }).Wait();
 
             // var taskException = Record.ExceptionAsync(async () => await sim);
             // if (taskException.IsCanceled || taskException.Exception != null)
