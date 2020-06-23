@@ -95,9 +95,11 @@ namespace Master40.XUnitTest.Online.Integration
             {
                  simContext.StateManager.ContinueExecution(simulation);
                  await sim;
+                 if (sim.IsCompletedSuccessfully) assert = true;
                  //Assert.True(sim.IsCompletedSuccessfully);
-             }).Wait();
+            }).Wait();
 
+            Console.WriteLine("Finish with the simulation with " + assert);
             // var taskException = Record.ExceptionAsync(async () => await sim);
             // if (taskException.IsCanceled || taskException.Exception != null)
             // {
@@ -112,6 +114,8 @@ namespace Master40.XUnitTest.Online.Integration
             {
                 assert = false;
             }
+
+            Console.WriteLine("Finish validate orders processed with " + assert);
 
             //assert = CheckForOverlappingOperations(_resultContextDataBase.DbContext.SimulationJobs);
 
