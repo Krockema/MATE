@@ -167,6 +167,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(_ctxResult, 1);
             // update customized Items
             simConfig.AddOption(new DBConnectionString(testResultCtxString));
+            simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: 5)); 
@@ -200,7 +201,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             Assert.True(condition: simWasReady);
         }
 
-        [Fact]
+        [Fact (Skip = "Offline")]
         public void AggreteResults()
         {
             var  _resultContext = ResultContext.GetContext(remoteResultCtxString);

@@ -11,5 +11,6 @@ namespace Master40.Tools.SignalR
         void StartSimulation(string simId, string simNumber);
         void EndSimulation(string msg, string simId, string simNumber);
         void ProcessingUpdate(int simId, int finished, string simType, int max);
+        void GuardianState(object msg);
     }
 }

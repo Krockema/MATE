@@ -10,6 +10,10 @@ using Master40.SimulationCore.Environment.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Actor;
+using Master40.SimulationCore.Agents.Guardian;
+using Master40.SimulationCore.Helper;
+using Newtonsoft.Json;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -61,13 +65,13 @@ namespace Master40.XUnitTest.Online.Integration
 
             _testOutputHelper.WriteLine("ResultDatabaseString: " + _resultContextDataBase.ConnectionString.Value);
             //Handle this one in our Resource Model?
-            var assert = true;
             MasterDBInitializerTruck.DbInitialize(_contextDataBase.DbContext, resourceModelSize, setupModelSize,
                 operatorModelSize, numberOfWorkers, secondResource);
             _testOutputHelper.WriteLine("MasterDBInitialized finished");
             ResultDBInitializerBasic.DbInitialize(_resultContextDataBase.DbContext);
             _testOutputHelper.WriteLine("ResultDBInitializerBasic finished");
-            var simContext = new AgentSimulation(DBContext: _contextDataBase.DbContext, messageHub: new ConsoleHub());
+            var messageHub = new ConsoleHub();
+            var simContext = new AgentSimulation(DBContext: _contextDataBase.DbContext, messageHub: messageHub);
             var simConfig = ArgumentConverter.ConfigurationConverter(_resultContextDataBase.DbContext, 1);
             _testOutputHelper.WriteLine("ArgumentConverter finished");
 
@@ -103,34 +107,25 @@ namespace Master40.XUnitTest.Online.Integration
             {
                 simContext.StateManager.ContinueExecution(simulation);
                 await sim;
-                if (sim.IsCompletedSuccessfully) assert = true;
             }).Wait();
-
-            Console.WriteLine("Simulation finished | Status: " + assert);
-
+            
             var processedOrders =
                 _resultContextDataBase.DbContext.Kpis
                     .Single(x => x.IsFinal.Equals(true) && x.Name.Equals("OrderProcessed")).Value;
 
-            if (processedOrders != orderQuantity)
+            Assert.Equal(orderQuantity, processedOrders); 
+
+            Assert.False(AnyOverlappingTaskItemsExistsOnOneMachine());
+            
+            foreach (var obj in messageHub.Logs)
             {
-                assert = false;
+                dynamic guardChildCounter = JsonConvert.DeserializeObject(obj);
+                Assert.Equal(0, int.Parse(guardChildCounter[1].Value));
             }
-
-            Console.WriteLine("Validate order quantity | Status: " + assert);
-
-
-            if (AnyOverlappingTaskItemsExistsOnOneMachine())
-            {
-                assert = false;
-            }
-
-            Console.WriteLine("Check for overlapping Jobs | Status: " + assert);
-
+            
             _contextDataBase.DbContext.Dispose();
             _resultContextDataBase.DbContext.Dispose();
 
-            Assert.True(assert);
 
         }
 

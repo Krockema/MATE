@@ -31,7 +31,7 @@ namespace Master40.SimulationCore.Agents.Guardian
         public override void AroundPostStop()
         {
             // Only for debugging reasons, make sure that all childs finished if all orders are delivered
-            System.Diagnostics.Debug.WriteLine($"{this.Self.Path.Name} children counter: {((GuardianBehaviour)this.Behaviour).counterChilds}");
+            ((GuardianBehaviour)this.Behaviour).LogChildCounter();
             base.AroundPostStop();
         }
 
@@ -39,7 +39,7 @@ namespace Master40.SimulationCore.Agents.Guardian
         protected override void Finish()
         {
             
-            ((GuardianBehaviour)this.Behaviour).counterChilds--;
+            ((GuardianBehaviour)this.Behaviour).RemoveChild();
             //System.Diagnostics.Debug.WriteLine($"{this.Self.Path.Name} finished child and has {((GuardianBehaviour)this.Behaviour).counterChilds} now");
 
         }
