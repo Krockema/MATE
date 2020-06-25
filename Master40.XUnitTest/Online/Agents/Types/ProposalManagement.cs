@@ -51,6 +51,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
             WorkerResource = new M_Resource { Name = "Worker", IResourceRef = workerTestProbe.Ref };
             MachineResource2 = new M_Resource { Name = "Machine2", IResourceRef = machine2TestProbe.Ref };
 
+
             _proposalForCapabilityProvider = new ProposalForCapabilityProvider(
                 new M_ResourceCapabilityProvider
                 {
@@ -237,21 +238,24 @@ namespace Master40.XUnitTest.Online.Agents.Types
             // assert for all
             System.Diagnostics.Debug.WriteLine("Evaluating: " + description);
             var toAssert = possibleProcessingPositions.OrderBy(x => x._queuingDictionary).First();
-            toAssert._queuingDictionary.ForEach(pair =>
+            var operatorPath = ((IActorRef) OperatorResource.IResourceRef).Path.Name;
+            var workerPath = ((IActorRef)WorkerResource.IResourceRef).Path.Name;
+
+
+            foreach (var pair in toAssert._queuingDictionary)
             {
-                switch (pair.Key.ToString())
+                if (operatorPath == pair.Key.Path.Name)
                 {
-                    case string a when a.Contains("testActor2"): //Operator
-                        Assert.Equal(estimatedOperatorStart, pair.Value.GetScopeStart());
-                        break;
-                    case string b when b.Contains("testActor4"): //Worker
-                        Assert.Equal(estimatedWorkerStart, pair.Value.GetScopeStart());
-                        break;
-                    default: // Machine
-                        Assert.Equal(estimatedMachineStart, pair.Value.GetScopeStart());
-                        break;
+                    Assert.Equal(estimatedOperatorStart, pair.Value.GetScopeStart());
+                    continue;
                 }
-            });
+                if (workerPath == pair.Key.Path.Name)
+                {
+                    Assert.Equal(estimatedWorkerStart, pair.Value.GetScopeStart());
+                    continue;
+                }
+                Assert.Equal(estimatedMachineStart, pair.Value.GetScopeStart());
+            }
         }
     }
 }
