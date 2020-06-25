@@ -6,20 +6,21 @@ using Master40.SimulationCore.Helper;
 using Master40.XUnitTest.Online.Preparations;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.FSharp.Collections;
 using Xunit;
 using static FJobConfirmations;
-using static FQueueingPositions;
-using static IJobs;
+using static FQueueingScopes;
+using static FScopes;
 
 namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
 {
-    public class BucketScope : TestKit
+    public class Default : TestKit
     {
-        private TimeConstraintQueue JobQueueScopeLimited { get; } = new TimeConstraintQueue(limit: 1000);
+        private TimeConstraintQueue timeConstraintQueue { get; } = new TimeConstraintQueue(limit: 1000);
         private List<M_ResourceCapability> tools { get; set; } = new List<M_ResourceCapability>();
         private IActorRef hubAgentActorRef { get; }
 
-        public BucketScope()
+        public Default()
         {
             hubAgentActorRef = CreateTestProbe();
         }
@@ -28,12 +29,25 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
         public void UpdateAndRequeuePlanedJobs()
         {
             PrepareModel();
-            var newJobItem = new FJobConfirmation(TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 15,
-                    dueTime: 45, capability: tools[2]), new FQueueingPosition(true, true, 20, 35, 15), 15,
-                null);
-            JobQueueScopeLimited.Enqueue(newJobItem);
 
-            var jobsToRequeue = JobQueueScopeLimited.CutTail(0, newJobItem);
+            var job = TypeFactory.CreateDummyFOperationItem(
+                jobName: "Sample Operation 7",
+                jobDuration: 15,
+                dueTime: 45,
+                capability: tools[2]);
+
+            var newJobConfirmation = TypeFactory.CreateDummyFJobConfirmations();
+
+            var newJobItem = new FJobConfirmation(TypeFactory.CreateDummyFOperationItem(jobName: "Sample Operation 7",
+                    jobDuration: 15,
+                    dueTime: 45,
+                    capability: tools[2]),
+                new FScopeConfirmations.FScopeConfirmation(new FSharpList<ITimeRanges.ITimeRange>(){new FScope(20, 35)}, setReadyAt: 35)
+                    ,} 15
+                    ,null);
+            timeConstraintQueue.Enqueue(newJobItem);
+
+            var jobsToRequeue = timeConstraintQueue.CutTail(0, newJobItem);
 
             Assert.True(jobsToRequeue.Count.Equals(1));
             Assert.True(jobsToRequeue.Where(x => x.Job.Name.Equals("Sample Operation 6")).ToList().Count.Equals(1));
@@ -46,11 +60,11 @@ namespace Master40.XUnitTest.Online.Agents.Resource.Behaviour
             PrepareModel();
             
             var newJobItem =
-                TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 7", jobDuration: 5, dueTime: 140, capability: tools[2]);
+                TypeFactory.CreateDummyFOperationItem(jobName: "Sample Operation 7", jobDuration: 5, dueTime: 140, capability: tools[2]);
             
             var bucket = newJobItem.ToBucketScopeItem(hubAgentActorRef, 0, 480);
             var jobProposalRequest = new FRequestProposalForCapabilityProviders.FRequestProposalForCapabilityProvider(bucket, newJobItem.SetupKey);
-            var queueableTime = JobQueueScopeLimited.GetQueueAbleTime(jobProposalRequest, currentTime: 0, cpm: null).First();
+            var queueableTime = timeConstraintQueue.GetQueueAbleTime(jobProposalRequest, currentTime: 0, cpm: null).First();
 
             Assert.Equal(expected: 125L, actual: queueableTime.Start);
         }

@@ -7,24 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Online\Agents\**" />
-    <Compile Remove="Online\Model\**" />
+    <Compile Remove="Online\Agents\Resource\**" />
     <Compile Remove="Online\Simulation\**" />
-    <Compile Remove="SimulationEnvironment\**" />
     <Compile Remove="Test\**" />
     <Compile Remove="Zpp\**" />
-    <EmbeddedResource Remove="Online\Agents\**" />
-    <EmbeddedResource Remove="Online\Model\**" />
+    <EmbeddedResource Remove="Online\Agents\Resource\**" />
     <EmbeddedResource Remove="Online\Simulation\**" />
-    <EmbeddedResource Remove="SimulationEnvironment\**" />
     <EmbeddedResource Remove="Test\**" />
     <EmbeddedResource Remove="Zpp\**" />
-    <None Remove="Online\Agents\**" />
-    <None Remove="Online\Model\**" />
+    <None Remove="Online\Agents\Resource\**" />
     <None Remove="Online\Simulation\**" />
-    <None Remove="SimulationEnvironment\**" />
     <None Remove="Test\**" />
     <None Remove="Zpp\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Online\Agents\Types\BucketManagers.cs" />
+    <Compile Remove="Online\Agents\Types\TimeConstraintQueue.cs" />
   </ItemGroup>
 
   <ItemGroup>

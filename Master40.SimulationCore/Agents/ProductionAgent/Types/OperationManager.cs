@@ -74,10 +74,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
             _articleProvider.Add(new DispoArticleDictionary(operation: fOperation));
         }
 
-        public int CreateRequiredArticles(FArticle articleToProduce, IActorRef requestingAgent, long currentTime, Agent agent)
+        public int CreateRequiredArticles(FArticle articleToProduce, IActorRef requestingAgent, long currentTime)
         {
             List<ArticleProvider> listAP = new List<ArticleProvider>();
-            agent.DebugMessage($" Creating required articles for {articleToProduce.Article.Name} | remainingDuration: {articleToProduce.RemainingDuration}", CustomLogger.SCHEDULING, LogLevel.Warn);
             var remainingDuration = articleToProduce.RemainingDuration;
             foreach (var fOperation in GetOperations.OrderByDescending(x => x.Operation.HierarchyNumber)) {
                 remainingDuration += fOperation.Operation.Duration;
@@ -91,7 +90,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
                 
                 foreach (var bom in fOperation.Operation.ArticleBoms)
                 {
-                    agent.DebugMessage($" Creating required article {bom.Name} for {articleToProduce.Article.Name} | | remainingDuration: {remainingDuration}", CustomLogger.SCHEDULING, LogLevel.Warn);
                     var createdArticleProvider = new ArticleProvider(provider: ActorRefs.Nobody,
                                                                       article: bom.ToRequestItem(requestItem: articleToProduce
                                                                             , requester: requestingAgent

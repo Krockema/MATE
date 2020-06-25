@@ -18,7 +18,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
         public void AddAndRetrieveOperationByKey()
         {
             var operationManager = new OperationManager();
-            var job = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10);
+            var job = TypeFactory.CreateDummyFOperationItem(jobName: "Sample Operation 1", jobDuration: 10);
             operationManager.AddOperation(job);
             var returnedJob = operationManager.GetByOperationKey(job.Key);
 
@@ -30,7 +30,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
         public void GetOperationsByCapability()
         {
             var operationManager = new OperationManager();
-            var job = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10);
+            var job = TypeFactory.CreateDummyFOperationItem(jobName: "Sample Operation 1", jobDuration: 10);
             var returnedJob = operationManager.GetOperationByCapability("Sewing");
             Assert.True(returnedJob != null);
         }
@@ -39,15 +39,15 @@ namespace Master40.XUnitTest.Online.Agents.Types
         public void SetArticleProvided()
         {
             var operationManager = new OperationManager();
-            var bom = new M_ArticleBom() { ArticleChild = new M_Article() {Name = "Wood"} };
-            var job = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10, bom: bom );
+            var bom = new M_ArticleBom() { ArticleChild = new M_Article() {Name = "Wood"}, Quantity = 1};
+            var job = TypeFactory.CreateDummyFOperationItem(jobName: "Sample Operation 1", jobDuration: 10, bom: bom );
             var article = new M_Article()
             {
                 Name = "Bear"
                 , Operations = new List<M_Operation>() { job.Operation }
                 , ArticleBoms = new List<M_ArticleBom>() { bom }
             };
-            var fArticle = TypeFactory.CreateDummyArticle(59, 0, article, 1);
+            var fArticle = TypeFactory.CreateDummyArticle(59, 59, 0, article, 1);
             operationManager.AddOperation(job);
             var numberOfRequiredDispos = operationManager.CreateRequiredArticles(fArticle, ActorRefs.Nobody, 0);
             Assert.True(numberOfRequiredDispos == 1);
@@ -59,7 +59,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
         public void ProvideArticle()
         {
             var operationManager = new OperationManager();
-            var job = TypeFactory.CreateDummyJobItem(jobName: "Sample Operation 1", jobDuration: 10);
+            var job = TypeFactory.CreateDummyFOperationItem(jobName: "Sample Operation 1", jobDuration: 10);
             operationManager.AddOperation(job);
             var returnedJob = operationManager.GetByOperationKey(job.Key);
 

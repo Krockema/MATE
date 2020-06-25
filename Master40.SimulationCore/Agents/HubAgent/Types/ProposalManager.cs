@@ -72,7 +72,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return _proposalDictionary.Remove(jobKey);
         }
 
-        internal List<PossibleProcessingPosition> CreatePossibleProcessingPositions(List<ProposalForCapabilityProvider> proposalForCapabilityProviders, IJob job)
+        public List<PossibleProcessingPosition> CreatePossibleProcessingPositions(List<ProposalForCapabilityProvider> proposalForCapabilityProviders, IJob job)
         {
             var possibleProcessingPositions = new List<PossibleProcessingPosition>();
 

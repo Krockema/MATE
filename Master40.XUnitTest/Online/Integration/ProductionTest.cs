@@ -28,24 +28,32 @@ namespace Master40.XUnitTest.Online.Integration
             _resultContextDataBase = DB.Dbms.GetNewResultDataBase();
 
         }
-
+        // TODO Add test if all Contract, Dispo and Production Agents finished (i.e. using ConsoleHub)
         /// <summary>
-        /// Model is limited to three groups atm
+        /// Scenario:
+        /// - producing 5 products
+        /// - seed 1337 to test dynamic pegging
+        /// - different models for resource, tools, operators and workers
+        ///
+        /// Result / Objects to test:
+        /// - simulation finish
+        /// - produce all 5 products
+        /// - no overlapping jobs on machine (based one the written Kpi)
         /// </summary>
+        /// <param name="uniqueSimNum"></param>
         /// <param name="orderQuantity"></param>
         /// <param name="resourceModelSize"></param>
         /// <param name="setupModelSize"></param>
+        /// <param name="operatorModelSize"></param>
         /// <param name="numberOfWorkers"></param>
-        /// <param name="numberOfOperators"></param>
         /// <param name="secondResource"></param>
-        /// <returns></returns>
         [Theory]
-        [InlineData(1, 5, ModelSize.Medium, ModelSize.Small, ModelSize.None, 0, false)]
-        [InlineData(2, 5, ModelSize.Medium, ModelSize.Small, ModelSize.None, 2, false)]
-        [InlineData(3, 5, ModelSize.Medium, ModelSize.Small, ModelSize.Medium, 0, false)]
-        [InlineData(4, 5, ModelSize.Medium, ModelSize.Small, ModelSize.Small, 3, false)]
+        [InlineData(1, 5, ModelSize.Medium, ModelSize.Medium, ModelSize.None, 0, false)]
+        [InlineData(2, 5, ModelSize.Medium, ModelSize.Medium, ModelSize.None, 2, false)]
+        [InlineData(3, 5, ModelSize.Medium, ModelSize.Medium, ModelSize.Medium, 0, false)]
+        [InlineData(4, 5, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3, false)]
         
-        [InlineData(5, 5, ModelSize.Medium, ModelSize.Small, ModelSize.Small, 0, false)]
+        [InlineData(5, 5, ModelSize.TestModel, ModelSize.Medium, ModelSize.Small, 0, false)]
         public void RunProduction(int uniqueSimNum, int orderQuantity, ModelSize resourceModelSize,
             ModelSize setupModelSize, ModelSize operatorModelSize, int numberOfWorkers, bool secondResource)
         {
@@ -76,7 +84,7 @@ namespace Master40.XUnitTest.Online.Integration
             simConfig.ReplaceOption(new OrderQuantity(value: orderQuantity));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: 1920));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
-            simConfig.ReplaceOption(new Seed(value: 150));
+            simConfig.ReplaceOption(new Seed(value: 1337));
             simConfig.ReplaceOption(new SettlingStart(value: 0));
             simConfig.ReplaceOption(new SimulationEnd(value: 4380));
             simConfig.ReplaceOption(new SaveToDB(value: true));

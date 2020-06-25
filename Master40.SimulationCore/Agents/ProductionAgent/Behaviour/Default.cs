@@ -162,8 +162,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
             var requiredDispoAgents = OperationManager.CreateRequiredArticles(articleToProduce: fArticle
                                                                                 , requestingAgent: Agent.Context.Self
-                                                                                , currentTime: Agent.CurrentTime
-                                                                                , Agent);
+                                                                                , currentTime: Agent.CurrentTime);
 
             for (var i = 0; i < requiredDispoAgents; i++)
             {

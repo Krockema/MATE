@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.CodeAnalysis.FindSymbols;
-using Xunit;
+﻿using Xunit;
 
 namespace Master40.XUnitTest.Online.Agents.Types
 {
@@ -16,7 +12,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
 
 
         [Fact]
-        public void TestSetCapabilies()
+        public void TestSetCapability()
         {
 
         }
