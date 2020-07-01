@@ -1,24 +1,16 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Master40.DB.DataModel
 {
     public class M_Resource : BaseEntity
     {
-        // TODO: why is this required ?
-        // public int ResourceId { get; set; }
         public string Name { get; set; }
-        public int Count { get; set; }
-        /*
-         * Defines a list of Capabilities that can be 
-         */
+        public bool IsPhysical { get; set; }
         public virtual ICollection<M_ResourceSetup> ResourceSetups { get; set; }
-        public virtual ICollection<M_ResourceCapability> ResourceCapabilities { get; set; }
-
         public int Capacity { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<T_ProductionOrderOperation> ProductionOrderOperations { get; set; }
-
+        [NotMapped]
+        public object IResourceRef { get; set; }
         public override string ToString()
         {
             return Name;

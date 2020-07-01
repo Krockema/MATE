@@ -12,7 +12,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             IBehaviour behaviour;
             switch (simType)
             {
-                case SimulationType.DefaultSetup:
+                case SimulationType.Default:
                     behaviour = Default();
                     break;
                 default:
@@ -35,9 +35,10 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
         /// </summary>
         /// <param name="operation"></param>
         /// <returns></returns>
-        public static FUpdateStartCondition GetStartCondition(this FOperation operation)
+        public static FUpdateStartCondition GetStartCondition(this FOperation operation, long customerDue)
         {
             return new FUpdateStartCondition(operationKey: operation.Key
+                , customerDue: customerDue
                 , preCondition: operation.StartConditions.PreCondition
                 , articlesProvided: operation.StartConditions.ArticlesProvided);
         }

@@ -23,8 +23,8 @@ namespace Master40.DB.Data.Context
         public DbSet<M_ArticleToBusinessPartner> ArticleToBusinessPartners { get; set; }
         public DbSet<M_BusinessPartner> BusinessPartners { get; set; }
         public DbSet<M_Resource> Resources { get; set; }
-        public DbSet<M_ResourceTool> ResourceTools { get; set; }
         public DbSet<M_ResourceCapability> ResourceCapabilities { get; set; }
+        public DbSet<M_ResourceCapabilityProvider> ResourceCapabilityProviders { get; set; }
         public DbSet<M_ResourceSetup> ResourceSetups { get; set; }
         public DbSet<M_Stock> Stocks { get; set; }
         public DbSet<M_Unit> Units { get; set; }
@@ -75,9 +75,7 @@ namespace Master40.DB.Data.Context
             modelBuilder.Entity<M_Operation>()
                 .ToTable(name: "M_Operation")
                 .HasOne(navigationExpression: m => m.ResourceCapability);
-            modelBuilder.Entity<M_Operation>()
-                .ToTable(name: "M_Operation")
-                .HasOne(navigationExpression: m => m.ResourceTool);
+
             modelBuilder.Entity<M_ArticleType>()
                 .ToTable(name: "M_ArticleType");
 
@@ -90,28 +88,16 @@ namespace Master40.DB.Data.Context
             modelBuilder.Entity<M_Resource>()
                 .ToTable(name: "M_Resource");
 
-            modelBuilder.Entity<M_ResourceTool>()
-                .ToTable(name: "M_ResourceTool");
+           modelBuilder.Entity<M_ResourceCapability>()
+               .ToTable(name: "M_ResourceCapability")
+               .HasOne(navigationExpression: p => p.ParentResourceCapability)
+               .WithMany(navigationExpression: pe => pe.ChildResourceCapabilities)
+               .HasForeignKey(foreignKeyExpression: fk => fk.ParentResourceCapabilityId)
+               .OnDelete(deleteBehavior: DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<M_ResourceCapability>()
-                .ToTable(name: "M_ResourceCapability");
+           //'FK_M_ResourceCapability_M_ResourceCapability_ParentResourceCapabilityId' on table 'M_ResourceCapability'
+           //may cause cycles or multiple cascade paths.Specify ON DELETE NO ACTION or ON UPDATE NO ACTION, or modify other FOREIGN KEY constraints.
 
-            modelBuilder.Entity<M_ResourceSetup>()
-                .ToTable(name: "M_ResourceSetup")
-                .HasOne(navigationExpression: re => re.Resource)
-                .WithMany(navigationExpression: r => r.ResourceSetups)
-                .HasForeignKey(foreignKeyExpression: re => re.ResourceId);
-
-            modelBuilder.Entity<M_ResourceSetup>()
-                .HasOne(navigationExpression: re => re.ResourceTool)
-                .WithMany(navigationExpression: r => r.ResourceSetups)
-                .HasForeignKey(foreignKeyExpression: re => re.ResourceToolId);
-
-            modelBuilder.Entity<M_ResourceSetup>()
-                .HasOne(navigationExpression: re => re.ResourceCapability)
-                .WithMany(navigationExpression: r => r.ResourceSetups)
-                .HasForeignKey(foreignKeyExpression: re => re.ResourceCapabilityId);
-                
             modelBuilder.Entity<M_Stock>()
                 .ToTable(name: "M_Stock");
 
@@ -138,6 +124,16 @@ namespace Master40.DB.Data.Context
 
             modelBuilder.Entity<T_StockExchange>()
                 .ToTable(name: "T_StockExchange");
+
+            modelBuilder.Entity<M_ResourceCapability>()
+                .ToTable(name: "M_ResourceCapability");
+
+            modelBuilder.Entity<M_ResourceCapabilityProvider>()
+                .ToTable(name: "M_ResourceCapabilityProvider");
+
+            modelBuilder.Entity<M_ResourceSetup>()
+                .ToTable(name: "M_ResourceSetup");
+
 
             modelBuilder.Entity<T_ProductionOrderBom>()
                 .ToTable(name: "T_ProductionOrderBom")

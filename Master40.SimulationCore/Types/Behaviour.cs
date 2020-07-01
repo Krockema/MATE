@@ -11,7 +11,7 @@ namespace Master40.SimulationCore.Types
     {
         protected Behaviour(Func<IUntypedActorContext, AgentSetup, IActorRef> childMaker = null
                           , object obj = null
-                          , SimulationType simulationType = SimulationType.None)
+                          , SimulationType simulationType = SimulationType.Default)
         {
             ChildMaker = childMaker;
             Object = obj;
@@ -24,5 +24,6 @@ namespace Master40.SimulationCore.Types
         public Func<IUntypedActorContext, AgentSetup, IActorRef> ChildMaker { get; }
         public Agent Agent { get; set; }
         public virtual bool AfterInit() { return true; }
+        public virtual bool PostAdvance() { return true; }
     }
 }

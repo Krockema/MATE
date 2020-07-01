@@ -2,8 +2,7 @@
   "version": "1.0.0",
   "name": "asp.net",
   "private": true,
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {},
   "main": "index.js",
   "scripts": {

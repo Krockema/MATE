@@ -1,3 +1,4 @@
+using System;
 using Master40.DB.Data.Context;
 using Master40.DB.Nominal;
 using Master40.DB.ReportingModel;
@@ -26,9 +27,13 @@ namespace Master40.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            ViewData[index: "machines"] = _context.Resources.Select(selector: x => x.Name).ToList();
-            var masterDBContext = _context.Resources.Include(navigationPropertyPath: a => a.ResourceCapabilities);
-            return View(model: await masterDBContext.ToListAsync());
+            var resources = await _context.Resources.Where(x => x.IsPhysical)
+                                              .Include(navigationPropertyPath: a => a.ResourceSetups)
+                                              .ThenInclude(x => x.ResourceCapabilityProvider)
+                                              .ThenInclude(x => x.ResourceCapability).ToListAsync();
+
+            ViewData[index: "machines"] = resources.Select(selector: x => x.Name).ToList();
+            return View(model: resources);
         }
 
         [HttpGet(template: "[Controller]/RunAsync/{simulationType}/orderAmount/{orderAmount}/arivalRate/{arivalRate}/estimatedThroughputTime/{estimatedThroughputTime}")]
@@ -37,24 +42,23 @@ namespace Master40.Controllers
             var simKind = SimulationType.None;
             switch (simulationType)
             {
-                case 1: simKind = SimulationType.None; break;
-                case 2: simKind = SimulationType.DefaultSetup; break;
-                case 3: simKind = SimulationType.DefaultSetupStack; break;
-                case 4: simKind = SimulationType.BucketScope; break;
+                case 1: simKind = SimulationType.Default; break;
                 default: return;
             }
             // using Default Test Values
             var simConfig = ArgumentConverter.ConfigurationConverter(_resultCtx, 1);
             // update customized Items
             simConfig.ReplaceOption(new SimulationKind(value: simKind));
+            simConfig.ReplaceOption(new TimeToAdvance(value: TimeSpan.FromMilliseconds(50)));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: orderAmount));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: estimatedThroughputTime));
-            simConfig.ReplaceOption(new KpiTimeSpan(value: 480));
+            simConfig.ReplaceOption(new KpiTimeSpan(value: 60));
             simConfig.ReplaceOption(new Seed(value: 1337));
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
             simConfig.ReplaceOption(new SimulationEnd(value: 20160));
             simConfig.ReplaceOption(new SaveToDB(value: false));
+            simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             // simConfig.ReplaceOption(new DebugSystem(true));
             // new DBConnectionString(value: "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true")
  

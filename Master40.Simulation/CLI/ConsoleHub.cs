@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using AkkaSim.Logging;
 using Master40.Tools.Messages;
 using Master40.Tools.SignalR;
+using Newtonsoft.Json;
 using NLog;
+using NLog.Fluent;
 
 namespace Master40.Simulation.CLI
 {
@@ -10,7 +13,7 @@ namespace Master40.Simulation.CLI
     {
         Logger _logger = LogManager.GetLogger(TargetNames.LOG_AGENTS);
 
-
+        public List<string> Logs= new List<string>();
 
         public void SendToAllClients(string msg, MessageType msgType)
         {
@@ -39,10 +42,16 @@ namespace Master40.Simulation.CLI
             _logger.Log(LogLevel.Info, $"msg");
         }
 
+        public void GuardianState(object msg)
+        {
+            Logs.Add(JsonConvert.SerializeObject(msg));
+        }
+
         public void EndSimulation(string msg, string simId, string simNumber)
         {
             _logger.Log(LogLevel.Info, $"Simulation Id: { simId } | No. { simNumber } Finished.");
         }
+
     }
 
 }

@@ -7,20 +7,17 @@
       "destination": "wwwroot/lib/Chart.js/"
     },
     {
-      "library": "twitter-bootstrap@4.3.1",
+      "library": "twitter-bootstrap@4.5.0",
       "destination": "wwwroot/lib/bootstrap/"
     },
     {
-      "library": "moment.js@2.24.0",
-      "destination": "wwwroot/lib/moment.js/"
-    },
-    {
-      "library": "font-awesome@5.12.0-1",
+      "library": "font-awesome@5.13.0",
       "destination": "wwwroot/lib/font-awesome/"
     },
-    {
-      "library": "bootstrap-growl@1.0.0",
-      "destination": "wwwroot/lib/bootstrap-growl/"
+    // before: bootstrap-growl
+    { 
+      "library": "bootstrap-notify@0.2.0",
+      "destination": "wwwroot/lib/bootstrap-notify/"
     },
     {
       "library": "jquery-validate@1.19.0",
@@ -39,8 +36,21 @@
       "destination": "wwwroot/lib/popper.js/"
     },
     {
-      "library": "jquery@3.4.1",
+      "library": "jquery@3.5.1",
       "destination": "wwwroot/lib/jquery/"
+    },
+    {
+      "library": "moment.js@2.26.0",
+      "destination": "wwwroot/lib/moment/"
+    },
+    {
+      "library": "seedrandom@3.0.5",
+      "destination": "wwwroot/lib/seedrandom/"
+    },
+    {
+      "library": "modernizr@2.8.3",
+      "destination": "wwwroot/lib/modernizr/"
     }
+
   ]
 }

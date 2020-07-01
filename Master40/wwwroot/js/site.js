@@ -120,4 +120,9 @@ Chart.plugins.register({
         }
     },
 });
-
+function shiftArray(list, size) {
+    if (list.length > size) {
+        return list.slice(0, size);
+    }
+    return list;
+}

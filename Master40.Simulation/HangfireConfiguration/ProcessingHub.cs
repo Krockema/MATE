@@ -103,5 +103,10 @@ namespace Master40.Simulation.HangfireConfiguration
                 _connection.SendCoreAsync(msg, args);
             }
         }
+
+        public void GuardianState(object msg)
+        {
+            // not required yet
+        }
     }
 }

@@ -24,17 +24,9 @@ namespace Master40.Simulation.CLI.Arguments.Simulation
                 {
                     result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.Central));
                 }
-                else if (arg.Equals(value: SimulationType.Bucket.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
+                else if (arg.Equals(value: SimulationType.Default.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
                 {
-                    result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.Bucket));
-                }
-                else if (arg.Equals(value: SimulationType.BucketScope.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
-                {
-                    result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.BucketScope));
-                }
-                else if (arg.Equals(value: SimulationType.DefaultSetupStack.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
-                {
-                    result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.DefaultSetupStack));
+                    result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.Default));
                 }
                 else
                 {

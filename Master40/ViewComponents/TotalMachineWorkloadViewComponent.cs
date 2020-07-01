@@ -43,8 +43,8 @@ namespace Master40.ViewComponents
                 // create Dataset for each Lable
                 data.Datasets = new List<Dataset>();
 
-                var endSum = _context.SimulationJobs.Where(predicate: x => x.Resource == machine).Sum(selector: x => x.End);
-                var startSum = _context.SimulationJobs.Where(predicate: x => x.Resource == machine).Sum(selector: x => x.Start);
+                var endSum = _context.SimulationJobs.Where(predicate: x => x.CapabilityProvider == machine).Sum(selector: x => x.End);
+                var startSum = _context.SimulationJobs.Where(predicate: x => x.CapabilityProvider == machine).Sum(selector: x => x.Start);
                 var max = _context.SimulationJobs.Max(selector: x => x.End);
                 var work = endSum - startSum;
                 var wait = max - work;

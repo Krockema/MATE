@@ -37,7 +37,7 @@ namespace Zpp.DataLayer.impl
         public List<Resource> GetResourcesByResourceCapabilityId(Id resourceCapabilityId)
         {
             var setupIds = _dbMasterDataCache.M_ResourceSetupGetAll()
-                .Where(x => x.ResourceCapabilityId.Equals(resourceCapabilityId.GetValue()))
+                .Where(x => x.ResourceCapabilityProviderId.Equals(resourceCapabilityId.GetValue()))
                 .Select(i => i.ResourceId);
             var resources = _dbMasterDataCache.ResourceGetAll()
                 .Where(x => setupIds.Contains(x.GetValue().Id)).ToList();

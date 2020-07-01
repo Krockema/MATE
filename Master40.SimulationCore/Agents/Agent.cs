@@ -3,11 +3,9 @@ using AkkaSim;
 using AkkaSim.Interfaces;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Types;
+using NLog;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using Akka.Event;
 using LogLevel = NLog.LogLevel;
 
 namespace Master40.SimulationCore.Agents
@@ -32,7 +30,7 @@ namespace Master40.SimulationCore.Agents
         // internal LogWriter LogWriter { get; set; }
         // Diagnostic Tools
         public bool DebugThis { get; private set; }
-        
+
         /// <summary>
         /// Basic Agent
         /// </summary>
@@ -57,6 +55,7 @@ namespace Master40.SimulationCore.Agents
             {
                 case BasicInstruction.Initialize i: InitializeAgent(behaviour: i.GetObjectFromMessage); break;
                 case BasicInstruction.ChildRef c: AddChild(childRef: c.GetObjectFromMessage); break;
+                case BasicInstruction.Break msg: PostAdvanceBreak(); break;
                 default:
                     if (!Behaviour.Action(message: (ISimulationMessage)o))
                         throw new Exception(message: this.Name + " is sorry, he doesn't know what to do!");
@@ -112,6 +111,23 @@ namespace Master40.SimulationCore.Agents
         }
 
         /// <summary>
+        /// Logging the debug Message to Systems.Diagnosics.Debug.WriteLine
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="LogLevel" optional="true">Nlog.LogLevel</para>
+        internal void DebugMessage(string msg, string customLogger, LogLevel logLevel = null)
+        {
+            Logger CustomLogger = LogManager.GetLogger(customLogger);
+            //if (!DebugThis) return;
+            if (logLevel == null)
+                logLevel = LogLevel.Debug;
+            //Debug.WriteLine(message: logItem, category: "AgentMessage");
+            CustomLogger.Log(logLevel
+                        , "Time({TimePeriod}).Agent({Name}): {msg}"
+                        , new object[] { TimePeriod, Name, msg });
+        }
+
+        /// <summary>
         /// Creates a Instuction Set and Sends it to the TargetAgent,
         /// ATTENTION !! BE CAERFULL WITH WAITFOR !!
         /// </summary>
@@ -146,7 +162,18 @@ namespace Master40.SimulationCore.Agents
             DebugMessage(msg: Self + " finish has been called by " + Sender);
             base.Finish();
         }
+        // protected override void PostAdvance()
+        // {
+        //     // 
+        // }
 
-    
+        private void PostAdvanceBreak()
+        {
+            // if (Agent.CurrentTime == 2000)
+            // {
+            //     System.Diagnostics.Debugger.Break();
+            // }
+        }
+
     }
 }

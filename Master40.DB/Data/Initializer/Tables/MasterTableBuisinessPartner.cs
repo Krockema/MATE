@@ -15,6 +15,8 @@ namespace Master40.DB.Data.Initializer.Tables
                 KREDITOR_MATERIAL_WHOLSALE
             };
 
+            
+
             context.BusinessPartners.AddRange(businessPartner);
             context.SaveChanges();
             return businessPartner;

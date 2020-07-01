@@ -3,12 +3,10 @@
 open System
 open Akka.Actor
 open FOperations
-open FProposals
 open System.Linq
 open FStartConditions
 open IKeys
 open IJobs
-open System.Linq
 open Master40.DB.DataModel
 open FUpdateStartConditions
 
@@ -24,15 +22,14 @@ open FUpdateStartConditions
           Scope : int64
           Start : int64
           End : int64 
-          StartConditions : FStartCondition
+          mutable StartConditions : FStartCondition
           Priority : FBucket -> int64 -> double
-          ResourceAgent : IActorRef
           mutable HubAgent : IActorRef
           Operations : Set<FOperation>
-          Tool : M_ResourceTool
-          MaxBucketSize : double
-          MinBucketSize : double
-          Proposals : System.Collections.Generic.List<FProposal> 
+          RequiredCapability : M_ResourceCapability
+          mutable SetupKey : int32
+          MaxBucketSize : int64
+          MinBucketSize : int64
           Bucket : string
           } interface IKey with
                 member this.Key  with get() = this.Key
@@ -46,28 +43,25 @@ open FUpdateStartConditions
                 member this.End with get() = this.End
                 member this.ForwardEnd with get() = this.ForwardEnd
                 member this.ForwardStart with get() = this.ForwardStart
-                member this.Proposals with get() = this.Proposals
                 member this.Start with get() = this.Start
                 member this.StartConditions with get() = this.StartConditions
                 member this.Priority time = this.Priority this time 
-                member this.ResourceAgent with get() = this.ResourceAgent
                 member this.HubAgent with get() = this.HubAgent
-                member this.Tool with get() = this.Tool
+                member this.RequiredCapability with get() = this.RequiredCapability
                 member this.Duration = this.Operations.Sum(fun y -> (int64)y.Operation.Duration)
-                member this.UpdateEstimations estimatedStart resourceAgent = { this with End = estimatedStart +  this.Operations.Sum(fun y -> (int64)y.Operation.Duration);
-                                                                                         Start = (int64)estimatedStart;
-                                                                                         ResourceAgent = resourceAgent } :> IJob
+                member this.SetupKey with get() = this.SetupKey
+                member this.UpdateEstimations estimatedStart = { this with End = estimatedStart +  this.Operations.Sum(fun y -> (int64)y.Operation.Duration);
+                                                                                         Start = (int64)estimatedStart; } :> IJob
                 member this.Bucket with get() = this.Bucket
+                member this.ResetSetup() = this.SetupKey <- -1
                 member this.UpdateBucket bucketId = { this with Bucket = bucketId} :> IJob
 
          // Returns new Object with Updated Due
-        member this.UpdateResourceAgent r = { this with ResourceAgent = r }
         member this.UpdateHubAgent hub =  this.HubAgent <- hub 
         member this.AddOperation op = { this with Operations = this.Operations.Add(op)}
         member this.RemoveOperation op = { this with Operations = this.Operations.Remove(op)}
-        member this.SetStartConditions(startCondition : FUpdateStartCondition) = this.StartConditions.ArticlesProvided <- startCondition.ArticlesProvided 
-                                                                                 this.StartConditions.PreCondition <- startCondition.PreCondition
         member this.SetFixPlanned = { this with IsFixPlanned = true}
+        member this.SetStartConditions preCondition articleProvided = this.StartConditions <- { PreCondition = preCondition; ArticlesProvided = articleProvided } 
         member this.GetCapacityLeft = (this.BackwardStart - this.ForwardStart) - this.Operations.Sum(fun y -> (int64)y.Operation.Duration)
         member this.HasSatisfiedJob = this.Operations.Any(fun y -> y.StartConditions.Satisfied)
-        member this.UpdateBucket bucketId = { this with Bucket = bucketId}
+        member this.UpdateBucket bucketId = { this with Bucket = bucketId }

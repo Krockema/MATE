@@ -1,20 +1,15 @@
 ﻿using System;
 using Akka.Actor;
 using System.Collections.Generic;
-using Master40.DB.DataModel;
+using System.Linq;
 
 namespace Master40.SimulationCore.Types
 {
-    public class AgentDictionary : Dictionary<IActorRef, object>
+    public class AgentDictionary : Dictionary<object, IActorRef>
     {
         public List<IActorRef> ToSimpleList()
         {
-            var actors = new List<IActorRef>();
-            foreach (var item in this)
-            {
-                actors.Add(item: item.Key);
-            }
-            return actors;
+            return this.Select(x => x.Value).ToList();
         }
     }
 

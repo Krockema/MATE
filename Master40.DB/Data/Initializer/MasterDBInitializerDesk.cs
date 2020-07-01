@@ -8,6 +8,7 @@ namespace Master40.DB.Data.Initializer
 {
     public class MasterDBInitializerDesk
     {
+        /*
         private const string RESOURCE_CAPABILITY_WELDING = "Schweißen";
         private const string RESOURCE_CAPABILITY_ASSEMBLING = "Montage";
         private const string RESOURCE_CAPABILITY_PACKING = "Verpacken";
@@ -442,5 +443,6 @@ namespace Master40.DB.Data.Initializer
                 },
             };
         }
+        */
     }
 }
