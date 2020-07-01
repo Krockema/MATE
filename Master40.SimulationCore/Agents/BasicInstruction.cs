@@ -39,7 +39,7 @@ namespace Master40.SimulationCore.Agents
             }
             public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
         }
-        public class JobForwardEnd : SimulationMessage
+        public class JobForwardEnd :  SimulationMessage
         {
             public static JobForwardEnd Create(long message, IActorRef target)
             {

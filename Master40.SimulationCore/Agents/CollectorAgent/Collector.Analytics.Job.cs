@@ -166,9 +166,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 foreach (var resource in resourcesDatas) { 
                     var tuple = resource._workTime + " " + resource._setupTime;
                     var machine = resource._resource;
-                    Collector.messageHub.SendToClient(listener: machine, msg: tuple);
-                    Collector.CreateKpi(Collector, resource._workTime.Replace(".",","), machine, KpiType.ResourceUtilizationTotal, true);
-                    Collector.CreateKpi(Collector, resource._setupTime.Replace(".", ","), machine, KpiType.ResourceSetupTotal, true);
+                    //Collector.messageHub.SendToClient(listener: machine, msg: tuple);
+                    //Collector.CreateKpi(Collector, resource._workTime.Replace(".",","), machine, KpiType.ResourceUtilizationTotal, true);
+                    //Collector.CreateKpi(Collector, resource._setupTime.Replace(".", ","), machine, KpiType.ResourceSetupTotal, true);
                 }
 
                 var toSend = new
@@ -181,7 +181,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
                 // Einschwingzeit - Ende der Simulation
                 var OEE = OverallEquipmentEffectiveness(resources: _resources, 0 + Collector.Config.GetOption<TimePeriodForThroughputCalculation>().Value, Collector.Time);
-                Collector.CreateKpi(Collector, OEE, "OEE", KpiType.Ooe, true);
+                //Collector.CreateKpi(Collector, OEE, "OEE", KpiType.Ooe, true);
 
                 Collector.messageHub.SendToClient(listener: "totalUtilizationListener", msg: JsonConvert.SerializeObject(value: toSend ));
             }

@@ -8,38 +8,37 @@ using Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
+using Master40.Tools.ExtensionMethods;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Master40.SimulationCore.Reporting;
-using Master40.Tools.ExtensionMethods;
-using Master40.Tools.Messages;
-using Newtonsoft.Json;
 using static FBuckets;
+using static FCreateTaskItems;
 using static FOperations;
 using static FPostponeds;
 using static FRequestProposalForCapabilityProviders;
 using static FResourceInformations;
 using static IConfirmations;
-using LogLevel = NLog.LogLevel;
 using static IJobs;
 using Directory = Master40.SimulationCore.Agents.DirectoryAgent.Directory;
-using static FCreateTaskItems;
+using LogLevel = NLog.LogLevel;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     public class Default : SimulationCore.Types.Behaviour
     {
-        public Default(int planingJobQueueLength, int fixedJobQueueSize, WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider, SimulationType simulationType = SimulationType.None)
+        public Default(int timeConstraintQueueLength, int resourceId, WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider, SimulationType simulationType = SimulationType.None)
             : base(simulationType: simulationType)
         {
+            _resourceId = resourceId;
             _workTimeGenerator = workTimeGenerator;
             _capabilityProviderManager = new CapabilityProviderManager(capabilityProvider);
             _agentDictionary = new AgentDictionary();
-            // SCOPELIMIT something like 960
-            _scopeQueue = new TimeConstraintQueue(limit: 480);
+            // SCOPELIMIT something like 480
+            _scopeQueue = new TimeConstraintQueue(limit: timeConstraintQueueLength);
         }
 
+        internal int _resourceId { get; }
         internal JobInProgress _jobInProgress { get; set; } = new JobInProgress();
         internal WorkTimeGenerator _workTimeGenerator { get; }
         internal CapabilityProviderManager _capabilityProviderManager { get; }
@@ -84,11 +83,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         public override bool PostAdvance()
         {
             //TODO only debugging reasons
-            
-            if (Agent.CurrentTime % 50 == 0 || Agent.CurrentTime == 2)
-            { 
-               // GanttStatistics.CreateGanttChartForRessource(_jobInProgress, _scopeQueue, Agent);
-            }
+            //if (Agent.CurrentTime % 50 == 0 || Agent.CurrentTime == 2)
+            //{ 
+            //    GanttStatistics.CreateGanttChartForRessource(_jobInProgress, _scopeQueue, Agent);
+            //}
             
             //TODO _JobInProgress.ContainsJobWithKey(Key)
             if (_jobInProgress.IsSet
@@ -167,7 +165,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                                                                 , currentTime: Agent.CurrentTime
                                                                 , cpm: _capabilityProviderManager
                                                                 , resourceBlockedUntil: _jobInProgress.ResourceIsBusyUntil
-                                                                , Agent.Context.Self );
+                                                                , resourceId: _resourceId );
 
             //TODO Sets Postponed to calculated Duration of Bucket
             var fPostponed = new FPostponed(offset: queuePositions.Any(x => x.IsQueueAble) ? 0 : Convert.ToInt32(_scopeQueue.Workload * 0.8));

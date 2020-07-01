@@ -3,13 +3,27 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Configurations>Debug;Release;Azure</Configurations>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Online\**" />
-    <EmbeddedResource Remove="Online\**" />
-    <None Remove="Online\**" />
+    <Compile Remove="Online\Agents\Resource\**" />
+    <Compile Remove="Online\Simulation\**" />
+    <Compile Remove="Test\**" />
+    <Compile Remove="Zpp\**" />
+    <EmbeddedResource Remove="Online\Agents\Resource\**" />
+    <EmbeddedResource Remove="Online\Simulation\**" />
+    <EmbeddedResource Remove="Test\**" />
+    <EmbeddedResource Remove="Zpp\**" />
+    <None Remove="Online\Agents\Resource\**" />
+    <None Remove="Online\Simulation\**" />
+    <None Remove="Test\**" />
+    <None Remove="Zpp\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Online\Agents\Types\BucketManagers.cs" />
+    <Compile Remove="Online\Agents\Types\TimeConstraintQueue.cs" />
   </ItemGroup>
 
   <ItemGroup>

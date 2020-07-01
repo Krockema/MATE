@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
-using static FQueueingPositions;
-using static FQueueingsScopes;
+using static FQueueingScopes;
 
 namespace Master40.XUnitTest.Online.Agents.Types
 {
@@ -25,8 +24,8 @@ namespace Master40.XUnitTest.Online.Agents.Types
         {
             _queue = new TimeConstraintQueue(100);
             _output = output;
-            // T0 1 2 3 4 5 6 7 8 9 10 11 12 13 
-            // I0 1 1 - - - 2 2 - 3  4  4  -  -   
+            // T0 1 2 3 4 5 6 7 8 9 10 11 12 13
+            // I0 1 1 - - - 2 2 - 3  4  4  -  -
             _queue.Add(1, new FJobConfirmations.FJobConfirmation(null, new FQueueingScope(true, true, 1, 3, 2), 2, null));
             _queue.Add(6, new FJobConfirmations.FJobConfirmation(null, new FQueueingScope(true, true, 6, 8, 2), 2, null));
             _queue.Add(9, new FJobConfirmations.FJobConfirmation(null, new FQueueingScope(true, true, 9, 10, 1), 1, null));

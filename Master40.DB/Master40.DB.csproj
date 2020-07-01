@@ -4,7 +4,7 @@
     
     <StartupObject />
     <Configurations>Debug;Release;Azure</Configurations>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Data\Helper\DistributionProvider\**" />

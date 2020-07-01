@@ -58,7 +58,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             MasterDBContext masterCtx = MasterDBContext.GetContext(connectionString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Small, true);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Small, ModelSize.Small, 3,  true);
             
             ResultContext results = ResultContext.GetContext(resultCon: resultConnectionString);
             results.Database.EnsureDeleted();
@@ -79,7 +79,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             MasterDBContext masterCtx = MasterDBContext.GetContext(remoteMasterCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Small, setupModelSize: ModelSize.Small);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Small, setupModelSize: ModelSize.Small, ModelSize.Small, 3, false);
 
             HangfireDBContext dbContext = new HangfireDBContext(options: new DbContextOptionsBuilder<HangfireDBContext>()
                 .UseSqlServer(connectionString: hangfireCtxString)
@@ -139,9 +139,10 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Theory]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
         [InlineData(SimulationType.Default, 1100, 240, 1920, 1337, ModelSize.TestModel, ModelSize.Medium, 0.03, false)]
-        public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput, int seed
-                                        , ModelSize resourceModelSize, ModelSize setupModelSize
-                                        , double arrivalRate, bool distributeSetupsExponentially)
+        public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput,
+            int seed
+            , ModelSize resourceModelSize, ModelSize setupModelSize
+            , double arrivalRate, bool distributeSetupsExponentially)
         {
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
@@ -160,12 +161,13 @@ namespace Master40.XUnitTest.SimulationEnvironment
             var masterCtx = ProductionDomainContext.GetContext(testCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, distributeSetupsExponentially);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, ModelSize.Small, 3, distributeSetupsExponentially);
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(DBContext: masterCtx, messageHub: new ConsoleHub());
             var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(_ctxResult, 1);
             // update customized Items
             simConfig.AddOption(new DBConnectionString(testResultCtxString));
+            simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: 5)); 
@@ -199,7 +201,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             Assert.True(condition: simWasReady);
         }
 
-        [Fact]
+        [Fact (Skip = "Offline")]
         public void AggreteResults()
         {
             var  _resultContext = ResultContext.GetContext(remoteResultCtxString);

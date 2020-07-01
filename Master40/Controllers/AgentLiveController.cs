@@ -58,6 +58,7 @@ namespace Master40.Controllers
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
             simConfig.ReplaceOption(new SimulationEnd(value: 20160));
             simConfig.ReplaceOption(new SaveToDB(value: false));
+            simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             // simConfig.ReplaceOption(new DebugSystem(true));
             // new DBConnectionString(value: "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true")
  
