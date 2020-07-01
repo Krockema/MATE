@@ -1,4 +1,4 @@
-﻿namespace Master40.MessageSystem.Messages
+﻿namespace Master40.Tools.Messages
 {
     public enum MessageType
     {

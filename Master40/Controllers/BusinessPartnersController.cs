@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Context;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
 
 namespace Master40.Controllers
 {
@@ -19,7 +19,7 @@ namespace Master40.Controllers
         // GET: BusinessPartners
         public async Task<IActionResult> Index()
         {
-            return View(await _context.BusinessPartners.ToListAsync());
+            return View(model: await _context.BusinessPartners.ToListAsync());
         }
 
         // GET: BusinessPartners/Details/5
@@ -31,13 +31,13 @@ namespace Master40.Controllers
             }
 
             var businessPartner = await _context.BusinessPartners
-                .SingleOrDefaultAsync(m => m.Id == id);
+                .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (businessPartner == null)
             {
                 return NotFound();
             }
 
-            return View(businessPartner);
+            return View(model: businessPartner);
         }
 
         // GET: BusinessPartners/Create
@@ -51,15 +51,15 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BusinessPartnerId,Name,Debitor,Kreditor")] BusinessPartner businessPartner)
+        public async Task<IActionResult> Create([Bind("BusinessPartnerId,Name,Debitor,Kreditor")] M_BusinessPartner businessPartner)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(businessPartner);
+                _context.Add(entity: businessPartner);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
+                return RedirectToAction(actionName: "Index");
             }
-            return View(businessPartner);
+            return View(model: businessPartner);
         }
 
         // GET: BusinessPartners/Edit/5
@@ -70,12 +70,12 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var businessPartner = await _context.BusinessPartners.SingleOrDefaultAsync(m => m.Id == id);
+            var businessPartner = await _context.BusinessPartners.SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (businessPartner == null)
             {
                 return NotFound();
             }
-            return View(businessPartner);
+            return View(model: businessPartner);
         }
 
         // POST: BusinessPartners/Edit/5
@@ -83,7 +83,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BusinessPartnerId,Name,Debitor,Kreditor")] BusinessPartner businessPartner)
+        public async Task<IActionResult> Edit(int id, [Bind("BusinessPartnerId,Name,Debitor,Kreditor")] M_BusinessPartner businessPartner)
         {
             if (id != businessPartner.Id)
             {
@@ -94,12 +94,12 @@ namespace Master40.Controllers
             {
                 try
                 {
-                    _context.Update(businessPartner);
+                    _context.Update(entity: businessPartner);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!BusinessPartnerExists(businessPartner.Id))
+                    if (!BusinessPartnerExists(id: businessPartner.Id))
                     {
                         return NotFound();
                     }
@@ -108,9 +108,9 @@ namespace Master40.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction("Index");
+                return RedirectToAction(actionName: "Index");
             }
-            return View(businessPartner);
+            return View(model: businessPartner);
         }
 
         // GET: BusinessPartners/Delete/5
@@ -122,29 +122,29 @@ namespace Master40.Controllers
             }
 
             var businessPartner = await _context.BusinessPartners
-                .SingleOrDefaultAsync(m => m.Id == id);
+                .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (businessPartner == null)
             {
                 return NotFound();
             }
 
-            return View(businessPartner);
+            return View(model: businessPartner);
         }
 
         // POST: BusinessPartners/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName(name: "Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var businessPartner = await _context.BusinessPartners.SingleOrDefaultAsync(m => m.Id == id);
-            _context.BusinessPartners.Remove(businessPartner);
+            var businessPartner = await _context.BusinessPartners.SingleOrDefaultAsync(predicate: m => m.Id == id);
+            _context.BusinessPartners.Remove(entity: businessPartner);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction(actionName: "Index");
         }
 
         private bool BusinessPartnerExists(int id)
         {
-            return _context.BusinessPartners.Any(e => e.Id == id);
+            return _context.BusinessPartners.Any(predicate: e => e.Id == id);
         }
     }
 }

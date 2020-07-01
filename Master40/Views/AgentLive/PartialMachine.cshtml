@@ -1,0 +1,78 @@
+﻿@model Master40.DB.DataModel.M_Resource
+@{ 
+    var name = Model.Name.Replace(oldValue: " ", newValue: "");
+    var percent = "0 %";
+}
+
+<div style="float:left; margin: 5px; min-width: 100px ">
+    <div class="chartContainer">
+        <div class="textLayer @name">
+            <span class="@name">@percent</span>
+        </div>
+        <div class="chartLayer online" id="chartContainer_@name">
+
+            <!--div id="js-legend" class="chart-legend"><div-->
+
+            <canvas id="@name"></canvas>
+        </div>
+    </div>
+    <div class="machineText text-center">@Model.Name  <button class="btn btn-xs" type="button" onclick="breakDown('@name')">
+        <i class="fa fa-fire float-right" style="width: 15px"></i>
+    </button> </div>
+
+
+</div>
+    <style>
+
+    </style>
+    <script>
+        var @name = document.getElementById("@Model.Name.Replace(oldValue: " ", newValue: "")");
+        var Workload_@name =
+            new Chart(@name,
+                {
+                    "type": "doughnut"
+                    , "data": {
+                        "datasets": [{
+                            "type": "pie"
+                            , "backgroundColor": ["rgba(3,79,175, .3)", "rgba(246, 167, 30,  .3)", "rgba(0, 0, 0, 0.1)"]
+                            , "borderColor": ["rgba(3,79,175, .6)", "rgba(246, 167, 30,  .6)", "rgba(0, 0, 0, 0.3)"]
+                            , "borderWidth": 1, "data": [0, 0, 100]
+                        }]
+                        , "labels": ["Working", "Setup", "Empty"]
+                    }, "options": {
+                        "cutoutPercantage": 80, "rotation": 2.5132741228718345, "circumference": 4.39822971502571, "responsive": true, "maintainAspectRatio": false
+                        , "title": { "position": "top", "fontSize": 24, "fontStyle": "bold", "text": "Resource Workload" }
+                        , "legend": { "display": false, "position": "bottom" }
+                    }
+                }
+            );
+
+        processingProxy.on("@name", function (msg) {
+
+            var a = msg.split(/ /);
+            console.log(@name + msg);
+            work = a[0] * 100.0, 0;
+            setup = a[1] * 100.0, 0;
+            idle = 100 - work - setup;
+            console.log(@name + " Work: " + work + " Setup: " + setup + " Idle " + idle);
+            if (isNaN(msg)) msg = 0;
+          
+            document.getElementsByClassName("@name")[0].innerHTML = Math.round(work + setup, 0)  + " %";
+            (Workload_@name).data.datasets[0].data = [work, setup, idle];
+            (Workload_@name).update();
+        });
+
+        processingProxy.on("Machine(@name)_State", function (msg) {
+            console.log("@name :" + msg);
+            if (msg === 'offline') {
+                document.getElementById("chartContainer_@name").className =
+                    document.getElementById("chartContainer_@name").className.replace('online', 'offline');
+            } else {
+                document.getElementById("chartContainer_@name").className =
+                    document.getElementById("chartContainer_@name").className.replace('offline', 'online');
+            }
+        });
+    </script>
+
+
+

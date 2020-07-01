@@ -11,14 +11,14 @@ namespace Master40.DB.Data.Helper
     {
         public IQueryable<dynamic> GetDbSetByType(string fullname)
         {
-            Type targetType = Type.GetType(fullname);
+            Type targetType = Type.GetType(typeName: fullname);
 
             var model = GetType()
                 .GetRuntimeProperties()
-                .FirstOrDefault(o => o.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>) &&
-                    o.PropertyType.GenericTypeArguments.Contains(targetType));
+                .FirstOrDefault(predicate: o => o.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>) &&
+                    o.PropertyType.GenericTypeArguments.Contains(value: targetType));
 
-            return (IQueryable<dynamic>) model?.GetValue(this);
+            return (IQueryable<dynamic>) model?.GetValue(obj: this);
         }
     }
 }

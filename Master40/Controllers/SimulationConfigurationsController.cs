@@ -1,32 +1,29 @@
 using System.Linq;
 using System.Threading.Tasks;
-using Hangfire;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Context;
-using Master40.DB.Enums;
-using Master40.DB.Models;
-using Master40.Simulation.Simulation;
-using Master40.Tools.Simulation;
 using System.Collections.Generic;
+using Master40.DB.DataModel;
+using Master40.DB.ReportingModel;
 
 namespace Master40.Controllers
 {
     public class SimulationConfigurationsController : Controller
     {
         private readonly MasterDBContext _context;
-        private readonly ISimulator _simulator;
+        private readonly ResultContext _resultContext;
 
-        public SimulationConfigurationsController(MasterDBContext context, ISimulator simulator)
+        public SimulationConfigurationsController(MasterDBContext context, ResultContext resultContext)
         {
             _context = context;
-            _simulator = simulator;
+            _resultContext = resultContext;
         }
 
         // GET: SimulationConfigurations
         public async Task<IActionResult> Index()
         {
-            return View(await _context.SimulationConfigurations.ToListAsync());
+            return View(model: await _resultContext.SimulationConfigurations.ToListAsync());
         }
 
         // GET: SimulationConfigurations/Details/5
@@ -37,15 +34,15 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var simulationConfiguration = await _context.SimulationConfigurations
-                .SingleOrDefaultAsync(m => m.Id == id);
+            var simulationConfiguration = await _resultContext.SimulationConfigurations
+                .SingleOrDefaultAsync(predicate: m => m.Id == id);
 
             if (simulationConfiguration == null)
             {
                 return NotFound();
             }
 
-            return PartialView("Details", simulationConfiguration);
+            return PartialView(viewName: "Details", model: simulationConfiguration);
         }
 
         // GET: SimulationConfigurations/Create
@@ -63,11 +60,11 @@ namespace Master40.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(simulationConfiguration);
+                _context.Add(entity: simulationConfiguration);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
+                return RedirectToAction(actionName: "Index");
             }
-            return PartialView("Create", simulationConfiguration);
+            return PartialView(viewName: "Create", model: simulationConfiguration);
         }
 
         // GET: SimulationConfigurations/Edit/5
@@ -78,12 +75,12 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var simulationConfiguration = await _context.SimulationConfigurations.SingleOrDefaultAsync(m => m.Id == id);
+            var simulationConfiguration = await _resultContext.SimulationConfigurations.SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (simulationConfiguration == null)
             {
                 return NotFound();
             }
-            return PartialView("Edit", simulationConfiguration);
+            return PartialView(viewName: "Edit", model: simulationConfiguration);
         }
 
         // POST: SimulationConfigurations/Edit/5
@@ -102,12 +99,12 @@ namespace Master40.Controllers
             {
                 try
                 {
-                    _context.Update(simulationConfiguration);
+                    _context.Update(entity: simulationConfiguration);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SimulationConfigurationExists(simulationConfiguration.Id))
+                    if (!SimulationConfigurationExists(id: simulationConfiguration.Id))
                     {
                         return NotFound();
                     }
@@ -116,9 +113,9 @@ namespace Master40.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction("Index");
+                return RedirectToAction(actionName: "Index");
             }
-            return PartialView("Details", simulationConfiguration);
+            return PartialView(viewName: "Details", model: simulationConfiguration);
         }
 
         // GET: SimulationConfigurations/Delete/5
@@ -129,116 +126,117 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var simulationConfiguration = await _context.SimulationConfigurations
-                .SingleOrDefaultAsync(m => m.Id == id);
+            var simulationConfiguration = await _resultContext.SimulationConfigurations
+                .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (simulationConfiguration == null)
             {
                 return NotFound();
             }
 
-            return PartialView("Delete", simulationConfiguration);
+            return PartialView(viewName: "Delete", model: simulationConfiguration);
         }
 
         // POST: SimulationConfigurations/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName(name: "Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var simulationConfiguration = await _context.SimulationConfigurations.SingleOrDefaultAsync(m => m.Id == id);
-            _context.SimulationConfigurations.Remove(simulationConfiguration);
+            var simulationConfiguration = await _resultContext.SimulationConfigurations.SingleOrDefaultAsync(predicate: m => m.Id == id);
+            _resultContext.SimulationConfigurations.Remove(entity: simulationConfiguration);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction(actionName: "Index");
         }
 
         private bool SimulationConfigurationExists(int id)
         {
-            return _context.SimulationConfigurations.Any(e => e.Id == id);
+            return _resultContext.SimulationConfigurations.Any(predicate: e => e.Id == id);
         }
 
-        [HttpGet("[Controller]/Central/{simulationId}")]
+        [HttpGet(template: "[Controller]/Central/{simulationId}")]
         public void Central(int simulationId)
         {
-            var runs = _context.SimulationConfigurations.Single(x => x.Id == simulationId).ConsecutiveRuns;
-            string run = "";
-            for (int i = 0; i < runs; i++)
-            {
-                if (run == "")
-                { // initial Run.
-                    run = BackgroundJob.Enqueue<ISimulator>(
-                        x => _simulator.Simulate(simulationId));
-                } // consecutive Runs 
-                else
-                {
-                    run = BackgroundJob.ContinueWith<ISimulator>(run,
-                        x => _simulator.Simulate(simulationId));
-                }
-            }
+            var runs = _resultContext.SimulationConfigurations.Single(predicate: x => x.Id == simulationId).ConsecutiveRuns;
+            // string run = "";
+            //  for (int i = 0; i < runs; i++)
+            //  {
+                 // if (run == "")
+                 // { // initial Run.
+                 //     run = BackgroundJob.Enqueue<ISimulator>(
+                 //         x => _simulator.Simulate(simulationId));
+                 // } // consecutive Runs 
+                 // else
+                 // {
+                 //     run = BackgroundJob.ContinueWith<ISimulator>(run,
+                 //         x => _simulator.Simulate(simulationId));
+                 // }
+            // }
         }
 
 
-        [HttpGet("[Controller]/Decentral/{simulationId}")]
+        [HttpGet(template: "[Controller]/Decentral/{simulationId}")]
         public void Decentral(int simulationId)
         {
-            var runs = _context.SimulationConfigurations.Single(x => x.Id == simulationId).ConsecutiveRuns;
-            string run = "";
-            for (int i = 0; i < runs; i++)
-            {
-                if (run == "")
-                { // initial Run.
-                    run = BackgroundJob.Enqueue<ISimulator>(
-                          x => _simulator.AgentSimulatioAsync(simulationId));
-                } // consecutive Runs 
-                else
-                {
-                   run =  BackgroundJob.ContinueWith<ISimulator>(run ,
-                          x => _simulator.AgentSimulatioAsync(simulationId));
-                }
-            }
+            var runs = _resultContext.SimulationConfigurations.Single(predicate: x => x.Id == simulationId).ConsecutiveRuns;
+            // string run = "";
+            // for (int i = 0; i < runs; i++)
+            // {
+            //     if (run == "")
+            //     { // initial Run.
+            //         run = BackgroundJob.Enqueue<ISimulator>(
+            //               x => _simulator.AgentSimulatioAsync(simulationId));
+            //     } // consecutive Runs 
+            //     else
+            //     {
+            //        run =  BackgroundJob.ContinueWith<ISimulator>(run ,
+            //               x => _simulator.AgentSimulatioAsync(simulationId));
+            //     }
+            // }
         }
 
-        [HttpGet("[Controller]/ConsolidateRuns/{simId1}/{simType1}")]
+        [HttpGet(template: "[Controller]/ConsolidateRuns/{simId1}/{simType1}")]
         public async Task<IActionResult> ConsolidateRuns(int simId1, string simType1)
         {
-            return ViewComponent("MergedMachineWorkload", new List<string> {simId1.ToString(),simType1 });
+            return await Task.Run(() => ViewComponent(componentName: "MergedMachineWorkload",
+                arguments: new List<string> {simId1.ToString(), simType1}));
         }
 
-        [HttpGet("[Controller]/ConsolidateRuns/{simId1}/{simType1}/{simId2}/{simType2}/{simId3}/{simType3}/{simId4}/{simType4}")]
+        [HttpGet(template: "[Controller]/ConsolidateRuns/{simId1}/{simType1}/{simId2}/{simType2}/{simId3}/{simType3}/{simId4}/{simType4}")]
         public async Task<IActionResult> ConsolidateRuns(int simId1, string simType1, int simId2, string simType2, int simId3, string simType3, int simId4, string simType4)
         {
-            return ViewComponent("MergedMachineWorkload", new List<string> { simId1.ToString(), simType1, simId2.ToString(), simType2, simId3.ToString(), simType3, simId4.ToString(), simType4 });
+            return await Task.Run(() => ViewComponent(componentName: "MergedMachineWorkload", arguments: new List<string> { simId1.ToString(), simType1, simId2.ToString(), simType2, simId3.ToString(), simType3, simId4.ToString(), simType4 }));
         }
 
-        [HttpGet("[Controller]/ConsolidateRuns/{simId1}/{simType1}/{simId2}/{simType2}/{simId3}/{simType3}")]
+        [HttpGet(template: "[Controller]/ConsolidateRuns/{simId1}/{simType1}/{simId2}/{simType2}/{simId3}/{simType3}")]
         public async Task<IActionResult> ConsolidateRuns(int simId1, string simType1, int simId2, string simType2, int simId3, string simType3)
         {
-            return ViewComponent("MergedMachineWorkload", new List<string> { simId1.ToString(), simType1, simId2.ToString(), simType2, simId3.ToString(), simType3 });
+            return  await Task.Run(() => ViewComponent(componentName: "MergedMachineWorkload", arguments: new List<string> { simId1.ToString(), simType1, simId2.ToString(), simType2, simId3.ToString(), simType3 }));
         }
 
-        [HttpGet("[Controller]/ConsolidateRuns/{simId1}/{simType1}/{simId2}/{simType2}")]
+        [HttpGet(template: "[Controller]/ConsolidateRuns/{simId1}/{simType1}/{simId2}/{simType2}")]
         public async Task<IActionResult> ConsolidateRuns(int simId1, string simType1, int simId2, string simType2)
         {
-            return ViewComponent("MergedMachineWorkload", new List<string> { simId1.ToString(), simType1, simId2.ToString(), simType2 });
+            return  await Task.Run(() => ViewComponent(componentName: "MergedMachineWorkload", arguments: new List<string> { simId1.ToString(), simType1, simId2.ToString(), simType2 }));
         }
 
-        [HttpGet("[Controller]/ConsolidateLeadTimes/{simId1}/{simType1}")]
+        [HttpGet(template: "[Controller]/ConsolidateLeadTimes/{simId1}/{simType1}")]
         public async Task<IActionResult> ConsolidateLeadTimes(int simId1, string simType1)
         {
-            return ViewComponent("ProductLeadTimeBoxPlot", new List<string> { simId1.ToString(), simType1});
+            return  await Task.Run(() => ViewComponent(componentName: "ProductLeadTimeBoxPlot", arguments: new List<string> { simId1.ToString(), simType1}));
         }
-        [HttpGet("[Controller]/ConsolidateLeadTimes/{simId1}/{simType1}/{simId2}/{simType2}/{simId3}/{simType3}")]
+        [HttpGet(template: "[Controller]/ConsolidateLeadTimes/{simId1}/{simType1}/{simId2}/{simType2}/{simId3}/{simType3}")]
         public async Task<IActionResult> ConsolidateLeadTimes(int simId1, string simType1, int simId2, string simType2, int simId3, string simType3)
         {
-            return ViewComponent("ProductLeadTimeBoxPlot", new List<string> { simId1.ToString(), simType1 , simId2.ToString(), simType2, simId3.ToString(), simType3});
+            return  await Task.Run(() => ViewComponent(componentName: "ProductLeadTimeBoxPlot", arguments: new List<string> { simId1.ToString(), simType1 , simId2.ToString(), simType2, simId3.ToString(), simType3}));
         }
-        [HttpGet("[Controller]/ConsolidateLeadTimes/{simId1}/{simType1}/{simId2}/{simType2}")]
+        [HttpGet(template: "[Controller]/ConsolidateLeadTimes/{simId1}/{simType1}/{simId2}/{simType2}")]
         public async Task<IActionResult> ConsolidateLeadTimes(int simId1, string simType1, int simId2, string simType2)
         {
-            return ViewComponent("ProductLeadTimeBoxPlot", new List<string> { simId1.ToString(), simType1, simId2.ToString(), simType2 });
+            return  await Task.Run(() => ViewComponent(componentName: "ProductLeadTimeBoxPlot", arguments: new List<string> { simId1.ToString(), simType1, simId2.ToString(), simType2 }));
         }
-        [HttpGet("[Controller]/ConsolidateLeadTimes/{simId1}/{simType1}/{simId2}/{simType2}/{simId3}/{simType3}/{simId4}/{simType4}")]
+        [HttpGet(template: "[Controller]/ConsolidateLeadTimes/{simId1}/{simType1}/{simId2}/{simType2}/{simId3}/{simType3}/{simId4}/{simType4}")]
         public async Task<IActionResult> ConsolidateLeadTimes(int simId1, string simType1, int simId2, string simType2, int simId3, string simType3, int simId4, string simType4)
         {
-            return ViewComponent("ProductLeadTimeBoxPlot", new List<string> { simId1.ToString(), simType1, simId2.ToString(), simType2, simId3.ToString(), simType3, simId4.ToString(), simType4 });
+            return  await Task.Run(() => ViewComponent(componentName: "ProductLeadTimeBoxPlot", arguments: new List<string> { simId1.ToString(), simType1, simId2.ToString(), simType2, simId3.ToString(), simType3, simId4.ToString(), simType4 }));
         }
 
     }

@@ -1,5 +1,4 @@
-@using Master40.DB.Models
-@model Master40.DB.Models.OrderPart
+@model Master40.DB.DataModel.T_CustomerOrderPart
 
 <form asp-action="Edit">
     <div class="form-horizontal">
@@ -7,11 +6,11 @@
         <hr />
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="form-group">
-            <input type="hidden" asp-for="OrderId" />
-            <label asp-for="OrderId" class="control-label col-md-2"></label>
+            <input type="hidden" asp-for="CustomerOrderId" />
+            <label asp-for="CustomerOrderId" class="control-label col-md-2"></label>
             <div class="col-md-10">
-                <select asp-for="OrderId" class="form-control" asp-items="ViewBag.OrderId" disabled="disabled"></select>
-                <span asp-validation-for="OrderId" class="text-danger"></span>
+                <select asp-for="CustomerOrderId" class="form-control" asp-items="ViewBag.OrderId" disabled="disabled"></select>
+                <span asp-validation-for="CustomerOrderId" class="text-danger"></span>
             </div>
         </div>
         <div class="form-group">
@@ -45,5 +44,5 @@
 </form>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{await Html.RenderPartialAsync(partialViewName: "_ValidationScriptsPartial");}
 }

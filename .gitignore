@@ -79,7 +79,7 @@ Master40/.vs/
 .idea/
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
-
+wwwroot/lib/
 
 
 # MSTest test Results
@@ -299,21 +299,12 @@ paket-files/
 
 *.cache
 
-Master40/obj/*
-Master40/bin/*
-Master40.DB/obj/*
-Master40.DB/bin/*
-Master40.XUnitTest/obj/*
-Master40.XUnitTest/bin/*
-Master40.Simulation/obj/*
-Master40.Simulation/bin/*
-Master40.BusinessLogicCentral/obj/*
-Master40.BusinessLogicCentral/bin/*
-Master40.Tools/obj/*
-Master40.Tools/bin/*
-Master40.Agents/obj/*
-Master40.Agents/bin/*
-Master40.NSimulate/obj/*
-Master40.NSimulate/bin/*
-/Master40.DB/Data/Context/RawContext.cs
 /Master40/appsettings.Azure.json
+
+*.pyperf
+
+bin/
+obj/
+/Master40/wwwroot/lib/
+/Master40.XUnitTest/Zpp/Ordergraphs/GanttChart/*.json
+/Master40.XUnitTest/Zpp/Ordergraphs/*.txt

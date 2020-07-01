@@ -1,9 +1,9 @@
 ﻿@{
     ViewBag.Title = "Simulation Comparing";
     Layout = "_Layout";
-    int simid = (int)ViewData["simId"];
-    int simNr = (int)ViewData["simNr"];
-    string simName = (string)ViewData["simName"]; 
+    int simid = (int)ViewData[index: "simId"];
+    int simNr = (int)ViewData[index: "simNr"];
+    string simName = (string)ViewData[index: "simName"]; 
 }
 <style>
     .modal-dialog {
@@ -24,126 +24,135 @@
 <hr/>
 <div class="container-fluid">
     <div class="row">
-        <div id="decentralcontent" class="col-md-6 collapse in">
+        <div id="decentralcontent" class="col-lg-6 collapse show">
             <div class="row">
-                <div class="col-md-12">
-                    <div style="font-size: x-large" class="pull-left"><b>Decentral</b></div>
-                    
-                    <!-- asp-route="SimulationTimeline/SimulationCompare/-1/Decentral/3/1/@simid" -->
-                    <a href="/SimulationCompare/SimulationTimeline/-1/3/0/Decentral/@simid/1"   
-                       data-target="#modal-container" data-toggle="modal" class="btn btn-default pull-right">
-                        <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
-                    </a> 
-                    <button class="btn btn-default pull-right" onclick="togglDecentral()"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span></button>
-                    <button class="btn btn-default pull-right" onclick="MachineWorkLoads(@simid, 'Decentral', @simNr, 0)">Total</button>
-                    <button class="btn btn-default pull-right" onclick="MachineWorkLoads(@simid, 'Decentral', @simNr, 1)">Over Time</button>
+                <div class="col-lg-12">
+                    <div style="font-size: x-large" class="float-left">
+                        <b>Decentral</b>
+                    </div>
+                    <!-- asp-route="SimulationTimeline/SimulationCompare/-1/Decentral/3/1/@simid"
+                    -->
+                    <a href="/SimulationCompare/SimulationTimeline/-1/3/0/Decentral/@simid/1" data-target="#modal-container" data-toggle="modal" class="btn btn-outline-secondary btn-sm float-right">
+                        <i class="fa fa-tasks fa-1x fa-unset"></i>
+                    </a>
+                    <button class="btn btn-outline-secondary btn-sm float-right" onclick="togglDecentral()">
+                        <i class="fa fa-eye-slash fa-1x fa-unset"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm float-right" onclick="MachineWorkLoads(@simid, 'Decentral', @simNr, 0)">Total</button>
+                    <button class="btn btn-outline-secondary btn-sm float-right" onclick="MachineWorkLoads(@simid, 'Decentral', @simNr, 1)">Over Time</button>
                     <!-- Machine Workloads -->
                 </div>
             </div>
-            <hr />
+            <hr>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-12">
                     <div id="machineWorkload_Decentral" class="machineWorkload loading"></div>
                     <!-- Machine Workloads -->
                 </div>
             </div>
-            <hr />
+            <hr>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-12">
                     <h4>Product Lead Times (boxplot excluding outliers)</h4>
                     <div id="leadtime_Decentral" class="loading"></div>
                     <!-- Lead Time -->
                 </div>
             </div>
-            <hr/>
+            <hr>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-12">
                     <h4>Order Timeliness</h4>
-                    <div id="timeliness_Decentral"class="loading"></div>
+                    <div id="timeliness_Decentral" class="loading"></div>
                     <!-- Order Timeliness -->
                 </div>
             </div>
-            <hr />
+            <hr>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-12">
                     <h4>Order Distribution</h4>
                     <div id="orderevolution_Decentral" class="loading"></div>
                     <!-- Order Times -->
                 </div>
             </div>
-            <hr/>
+            <hr>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-12">
                     <h4>Stock Evolution</h4>
                     <div id="stockevolution_Decentral" class="loading"></div>
                     <!-- Stock Evolution -->
                 </div>
             </div>
-            <hr/>
+            <hr>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-12">
                     <h4>Article Idle Time</h4>
                     <div id="ArticleIdlePeriod_Decentral" class="loading"></div>
                     <!-- Idle Times -->
                 </div>
             </div>
         </div>
-        <div id="centralcontent" class="col-md-6 collapse in">
+        <div id="centralcontent" class="col-lg-6 collapse show">
             <div class="row">
-                <div class="col-md-12">
-                    <div style="font-size: x-large" class="pull-left"><b>Central</b></div>
-                    <a href="/SimulationCompare/SimulationTimeline/-1/Central/3/1/@simid/0"
-                       data-target="#modal-container" data-toggle="modal" class="btn btn-default pull-right">
-                        <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
+                <div class="col-lg-12">
+                    <div style="font-size: x-large" class="float-left">
+                        <b>Central</b>
+                    </div> <a href="/SimulationCompare/SimulationTimeline/-1/Central/3/1/@simid/0"
+                              data-target="#modal-container" data-toggle="modal" class="btn btn-outline-secondary btn-sm float-right">
+
+                               <i class="fa fa-tasks fa-1x fa-unset"></i>
+
                     </a>
-                    <button class="btn btn-default pull-right" onclick="togglCentral()"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span></button>
-                    <button class="btn btn-default pull-right" onclick="MachineWorkLoads(@simid, 'Central', @simNr, 0)">Total</button>
-                    <button class="btn btn-default pull-right" onclick="MachineWorkLoads(@simid, 'Central', @simNr, 1)">Over Time</button>
+                    <button class="btn btn-outline-secondary btn-sm float-right"
+                            onclick="togglCentral()">
+                        <i class="fa fa-eye-slash fa-1x fa-unset"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm float-right" onclick="MachineWorkLoads(@simid, 'Central', @simNr, 0)">Total</button>
+                    <button class="btn btn-outline-secondary btn-sm float-right" onclick="MachineWorkLoads(@simid, 'Central', @simNr, 1)">Over Time</button>
                     <!-- Machine Workloads -->
                 </div>
             </div>
-            <hr />
+            <hr>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-12">
                     <div id="machineWorkload_Central" class="machineWorkload loading"></div>
                     <!-- Machine Workloads -->
                 </div>
             </div>
-            <hr />
+            <hr>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-12">
                     <h4>Product Lead Times (boxplot excluding outliers)</h4>
                     <div id="leadtime_Central" class="loading"></div>
                     <!-- Lead Time -->
                 </div>
             </div>
-            <hr />
+            <hr>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-12">
                     <h4>Order Timeliness</h4>
                     <div id="timeliness_Central" class="loading"></div>
                     <!-- Order Timeliness -->
                 </div>
             </div>
-            <hr />
+            <hr>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-12">
                     <h4>Order Distribution</h4>
                     <div id="orderevolution_Central" class="loading"></div>
                     <!-- Order Times -->
                 </div>
             </div>
-            <hr />
+            <hr>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-12">
                     <h4>Stock Evolution</h4>
                     <div id="stockevolution_Central" class="loading"></div>
                     <!-- Stock Evolution -->
                 </div>
             </div>
-            <hr />
+            <hr>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-12">
                     <h4>Article Idle Time</h4>
                     <div id="ArticleIdlePeriod_Central" class="loading"></div>
                     <!-- Idle Times -->
@@ -153,12 +162,12 @@
     </div>
 </div>
 <div id="modal-container" class="modal fade hidden-print" tabindex="-1" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="loading center-div"> </div>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="loading center-div"> </div>
+            </div>
         </div>
     </div>
-</div>
 
 
     <script>
@@ -182,17 +191,17 @@
 
         function togglDecentral() {
             var dc = $('#decentralcontent');
-            if (dc.hasClass("in")){
-                dc.removeClass("in");
-                $('#centralcontent').removeClass("col-md-6").addClass("col-md-8 col-md-offset-2")
+            if (dc.hasClass("show")){
+                dc.removeClass("show");
+                $('#centralcontent').removeClass("col-lg-6").addClass("col-md-8 offset-2");
             }
         };
 
         function togglCentral() {
             var cc = $('#centralcontent');
-            if (cc.hasClass("in")){
-                cc.removeClass("in");
-                $('#decentralcontent').removeClass("col-md-6").addClass("col-md-8 col-md-offset-2")
+            if (cc.hasClass("show")){
+                cc.removeClass("show");
+                $('#decentralcontent').removeClass("col-lg-6").addClass("col-md-8 offset-2");
             }
         };
 
@@ -290,4 +299,4 @@
             }
         }).done(function (data) { $('.modal-content').html(data); });
     }
-</script>     
+    </script>

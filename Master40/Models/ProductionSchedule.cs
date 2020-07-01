@@ -24,7 +24,7 @@ namespace Master40.Models
         public string text { get; set; }
         public string desc { get; set; }
         public GanttType type { get; set; }
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(converterType: typeof(StringEnumConverter))]
         public GanttColors color { get; set; }
         public string start_date { get; set; }
         public int duration { get; set; }

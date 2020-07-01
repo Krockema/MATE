@@ -1,0 +1,1 @@
+sudo docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=123*Start#' -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-GA-ubuntu-16.04

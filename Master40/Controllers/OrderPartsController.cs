@@ -1,13 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Master40.DB.Data.Context;
+using Master40.DB.DataModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Master40.DB.Data.Repository;
-using Master40.DB.Models;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Master40.Controllers
 {
@@ -23,8 +20,8 @@ namespace Master40.Controllers
         // GET: OrderParts
         public async Task<IActionResult> Index()
         {
-            var orderDomainContext = _context.OrderParts.Include(o => o.Article).Include(o => o.Order);
-            return View(await orderDomainContext.ToListAsync());
+            var orderDomainContext = _context.CustomerOrderParts.Include(navigationPropertyPath: o => o.Article).Include(navigationPropertyPath: o => o.CustomerOrder);
+            return View(model: await orderDomainContext.ToListAsync());
         }
 
         // GET: OrderParts/Details/5
@@ -35,45 +32,45 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var orderPart = await _context.OrderParts
-                .Include(o => o.Article)
-                .Include(o => o.Order)
-                .SingleOrDefaultAsync(m => m.Id == id);
+            var orderPart = await _context.CustomerOrderParts
+                .Include(navigationPropertyPath: o => o.Article)
+                .Include(navigationPropertyPath: o => o.CustomerOrder)
+                .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (orderPart == null)
             {
                 return NotFound();
             }
 
-            return PartialView(@"..\OrderParts\Details", orderPart);
+            return PartialView(viewName: @"..\OrderParts\Details", model: orderPart);
         }
 
         // GET: OrderParts/Create
-        [HttpGet("OrderParts/Create/{OrderId}")]
+        [HttpGet(template: "OrderParts/Create/{OrderId}")]
         public IActionResult Create(string orderId)
         {
-            ViewData["ArticleId"] = new SelectList(_context.GetSellableArticles, "Id", "Name");
-            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Name", orderId);
+            ViewData[index: "ArticleId"] = new SelectList(items: _context.GetSellableArticles, dataValueField: "Id", dataTextField: "Name");
+            ViewData[index: "OrderId"] = new SelectList(items: _context.CustomerOrders, dataValueField: "Id", dataTextField: "Name", selectedValue: orderId);
             return PartialView();
         }
 
         // POST: OrderParts/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost("OrderParts/Create/{OrderId}")]
+        [HttpPost(template: "OrderParts/Create/{OrderId}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderId,ArticleId,Quantity,IsPlanned,Id")] OrderPart orderPart)
+        public async Task<IActionResult> Create([Bind("OrderId,ArticleId,Quantity,IsPlanned,Id")] T_CustomerOrderPart orderPart)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(orderPart);
+                _context.Add(entity: orderPart);
                 await _context.SaveChangesAsync();
                 var orders = await _context.GetAllOrders.ToListAsync();
-                ViewData["OrderId"] = orderPart.OrderId;
-                return View("../Orders/Index", orders);
+                ViewData[index: "OrderId"] = orderPart.CustomerOrderId;
+                return View(viewName: "../Orders/Index", model: orders);
             }
-            ViewData["ArticleId"] = new SelectList(_context.GetSellableArticles, "Id", "Name", orderPart.ArticleId);
-            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Name", orderPart.OrderId);
-            return PartialView("Create", orderPart);
+            ViewData[index: "ArticleId"] = new SelectList(items: _context.GetSellableArticles, dataValueField: "Id", dataTextField: "Name", selectedValue: orderPart.ArticleId);
+            ViewData[index: "OrderId"] = new SelectList(items: _context.CustomerOrders, dataValueField: "Id", dataTextField: "Name", selectedValue: orderPart.CustomerOrderId);
+            return PartialView(viewName: "Create", model: orderPart);
         }
 
         // GET: OrderParts/Edit/5
@@ -84,14 +81,14 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var orderPart = await _context.OrderParts.SingleOrDefaultAsync(m => m.Id == id);
+            var orderPart = await _context.CustomerOrderParts.SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (orderPart == null)
             {
                 return NotFound();
             }
-            ViewData["ArticleId"] = new SelectList(_context.GetSellableArticles, "Id", "Name", orderPart.ArticleId);
-            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Name", orderPart.OrderId);
-            return PartialView("Edit", orderPart);
+            ViewData[index: "ArticleId"] = new SelectList(items: _context.GetSellableArticles, dataValueField: "Id", dataTextField: "Name", selectedValue: orderPart.ArticleId);
+            ViewData[index: "OrderId"] = new SelectList(items: _context.CustomerOrders, dataValueField: "Id", dataTextField: "Name", selectedValue: orderPart.CustomerOrderId);
+            return PartialView(viewName: "Edit", model: orderPart);
         }
 
         // POST: OrderParts/Edit/5
@@ -99,7 +96,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("OrderId,ArticleId,Quantity,IsPlanned,Id")] OrderPart orderPart)
+        public async Task<IActionResult> Edit(int id, [Bind("OrderId,ArticleId,Quantity,IsPlanned,Id")] T_CustomerOrderPart orderPart)
         {
             if (id != orderPart.Id)
             {
@@ -110,12 +107,12 @@ namespace Master40.Controllers
             {
                 try
                 {
-                    _context.Update(orderPart);
+                    _context.Update(entity: orderPart);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!OrderPartExists(orderPart.Id))
+                    if (!OrderPartExists(id: orderPart.Id))
                     {
                         return NotFound();
                     }
@@ -125,12 +122,12 @@ namespace Master40.Controllers
                     }
                 }
 
-                ViewData["OrderId"] = orderPart.OrderId;
-                return View("../Orders/Index", await _context.GetAllOrders.ToListAsync());
+                ViewData[index: "OrderId"] = orderPart.CustomerOrderId;
+                return View(viewName: "../Orders/Index", model: await _context.GetAllOrders.ToListAsync());
             }
-            ViewData["ArticleId"] = new SelectList(_context.GetSellableArticles, "Id", "Name", orderPart.ArticleId);
-            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Name", orderPart.OrderId);
-            return PartialView("Details", orderPart);
+            ViewData[index: "ArticleId"] = new SelectList(items: _context.GetSellableArticles, dataValueField: "Id", dataTextField: "Name", selectedValue: orderPart.ArticleId);
+            ViewData[index: "OrderId"] = new SelectList(items: _context.CustomerOrders, dataValueField: "Id", dataTextField: "Name", selectedValue: orderPart.CustomerOrderId);
+            return PartialView(viewName: "Details", model: orderPart);
         }
 
         // GET: OrderParts/Delete/5
@@ -141,34 +138,34 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var orderPart = await _context.OrderParts
-                .Include(o => o.Article)
-                .Include(o => o.Order)
-                .SingleOrDefaultAsync(m => m.Id == id);
+            var orderPart = await _context.CustomerOrderParts
+                .Include(navigationPropertyPath: o => o.Article)
+                .Include(navigationPropertyPath: o => o.CustomerOrder)
+                .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (orderPart == null)
             {
                 return NotFound();
             }
 
-            return PartialView("Delete", orderPart);
+            return PartialView(viewName: "Delete", model: orderPart);
         }
 
         // POST: OrderParts/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName(name: "Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var orderPart = await _context.OrderParts.SingleOrDefaultAsync(m => m.Id == id);
-            _context.OrderParts.Remove(orderPart);
+            var orderPart = await _context.CustomerOrderParts.SingleOrDefaultAsync(predicate: m => m.Id == id);
+            _context.CustomerOrderParts.Remove(entity: orderPart);
             await _context.SaveChangesAsync();
             // return to Index
-            ViewData["OrderId"] = orderPart.OrderId;
-            return View("../Orders/Index", await _context.GetAllOrders.ToListAsync());
+            ViewData[index: "OrderId"] = orderPart.CustomerOrderId;
+            return View(viewName: "../Orders/Index", model: await _context.GetAllOrders.ToListAsync());
         }
 
         private bool OrderPartExists(int id)
         {
-            return _context.OrderParts.Any(e => e.Id == id);
+            return _context.CustomerOrderParts.Any(predicate: e => e.Id == id);
         }
     }
 }

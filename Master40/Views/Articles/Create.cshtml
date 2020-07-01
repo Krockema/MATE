@@ -1,8 +1,7 @@
-@using Master40.DB.Models
-@model Master40.DB.Models.Article
+@model Master40.DB.DataModel.M_Article
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData[index: "Title"] = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -66,5 +65,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{await Html.RenderPartialAsync(partialViewName: "_ValidationScriptsPartial");}
 }

@@ -1,0 +1,104 @@
+﻿@{
+
+}
+<style>
+    .chartAreaWrapperWorkload {
+        position: relative;
+        height: 200px;
+        width: 100%;
+    }
+</style>
+<div class="chartWrapper" style="float:left">
+    <div class="chartAreaWrapper">
+        <div class="chartAreaWrapperWorkload">
+            <!--div id="js-legend" class="chart-legend"><div-->
+            <canvas id="TotalWorkLoad" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    var TotalWorkLoadElement = document.getElementById("TotalWorkLoad");
+    var TotalWorkLoadChart =
+        new Chart(TotalWorkLoadElement, {
+            type: "scatter"
+            , data: {
+                datasets: [{
+                    "data": [{ "x": 0.0, "y": 100.0}, { "x": 2880.0, "y": 100.0 }]
+                    , "type": "line", "fill": true, "lineTension": 0.0, "backgroundColor": "rgba(0, 0, 0, 0.1)", "borderWidth": 1, "borderColor": "rgba(0, 0, 0, 0.3)", "pointRadius": [0, 0], "showLine": true, "label": "Settling time"
+                },
+                    {
+                    data: [{ "x": 0.0, "y": 0.0 }]
+                    , type: "line"
+                    , lineTension: 0.5
+                    , borderWidth: 1
+                    , borderColor: "rgba(3,79,175, .6)"
+                    , backgroundColor: "rgba(3,79,175, .3)"
+                    , pointBackgroundColor: "rgba(3,79,175, .6)"
+                    , showLine: true
+                    , fill: true
+                    , label: "Workload"
+                    , yAxisID: "first-y-axis"
+                    },
+                    {
+                        data: [{ "x": 0.0, "y": 0.0 }]
+                        , type: "line"
+                        , lineTension: 0.5
+                        , borderWidth: 1
+                        , borderColor: "rgba(246, 167, 30,  .6)"
+                        , backgroundColor: "rgba(246, 167, 30,  .3)"
+                        , pointBackgroundColor: "rgba(246, 167, 30,  .6)"
+                        , showLine: true
+                        , fill: "-1"
+                        , label: "Setup Times"
+                        , yAxisID: "first-y-axis"
+                    }]
+                , labels: ["Settling time", "Resources Total", "Setups Total"]
+            },
+            options: {
+                responsive: true
+                , maintainAspectRatio: false
+                , title: {
+                    position: "top"
+                    , fontSize: 24
+                    , fontStyle: "bold"
+                    , text: "Total Workload"
+                }, legend: {
+                    display: false
+                    , position: "bottom"
+                    , fullWidth: true
+                },
+                scales: {
+                    xAxes: [{
+                        type: "linear"
+                        , id: "first-x-axis"
+                        , scaleLabel: { display: true, labelString: "Time in min", fontSize: 12 }
+                        , ticks: { min: 0.0, max: 20000.0, display: true }
+                        , display: true
+                    }]
+                    , yAxes: [{
+                        type: "linear"
+                        , id: "first-y-axis"
+                        , scaleLabel: {
+                            display: true
+                            , labelString: "Workload in %"
+                            , fontSize: 12
+                        }
+                        , ticks: { min: 0.0, stepSize: 20, max: 100, display: true }
+                        , display: true
+                    }]
+                }
+            }
+        });
+
+    processingProxy.on("TotalTimes", function (msg) {
+        var serialized = JSON.parse(msg);
+        TotalWorkLoadChart.data.datasets[1].data.push({ x: serialized.Time, y: serialized.Load.Work });
+        var totalWorkLoad = parseFloat(serialized.Load.Work) + parseFloat(serialized.Load.Setup)
+        TotalWorkLoadChart.data.datasets[2].data.push({ x: serialized.Time, y: totalWorkLoad });
+        TotalWorkLoadChart.update();
+    });
+</script>
+
+
+

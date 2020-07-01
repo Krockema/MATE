@@ -1,17 +1,14 @@
 ﻿@model Master40.Models.GanttContext
-@using Master40.Models
 @using Newtonsoft.Json;
-@using System.Linq;
-@using Master40.DB.Data.Helper;
+
 @{
     string tasks = "[]", links = "[]";
     if (null != Model)
     {
-        tasks = JsonConvert.SerializeObject(Model.Tasks, Formatting.Indented, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
-        links = JsonConvert.SerializeObject(Model.Links, Formatting.Indented, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+        tasks = JsonConvert.SerializeObject(value: Model.Tasks, formatting: Formatting.Indented, settings: new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+        links = JsonConvert.SerializeObject(value: Model.Links, formatting: Formatting.Indented, settings: new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
         //string min = Model.Tasks.Where(x => x.IntFrom > 0).Min(x => x.IntFrom).GetDateFromMilliseconds().ToString("yyyy-MM-dd HH:mm");
         //string max = Model.Tasks.Max(x => x.IntTo).GetDateFromMilliseconds().ToString("yyyy-MM-dd HH:mm");
-        string dump = "stop";
     }
 
 }
@@ -214,10 +211,11 @@
         return false;
     });
 
-    var demo_tasks = {
-        "data": @Html.Raw(tasks),
-        "links": @Html.Raw(links)
+    var demo_tasks = new {
+        "data": @Html.Raw(value: tasks),
+        "links": @Html.Raw(value: links)
     };
+
     gantt.parse(demo_tasks);
     //gantt.refreshData();
 

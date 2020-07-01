@@ -1,0 +1,94 @@
+﻿@{ 
+
+}
+<style>
+     .chartThroughputWrapper {
+        overflow-x: hidden;
+        position: relative;
+        width: 250px;
+        height: 420px;
+        margin: 0 auto;
+    }
+
+
+</style>
+    <div class="chartWrapper" style="float:left">
+        <div class="chartAreaWrapper">
+            <div class="chartThroughputWrapper">
+                <!--div id="js-legend" class="chart-legend"><div-->
+                <canvas id="Throughput" height="400" width="120"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        var ThroughputElement = document.getElementById("Throughput");
+        var ThroughputChart = new Chart(ThroughputElement, {
+            type: 'boxplot',
+            data: {
+                // define label tree
+                labels: ['Dump-Truck', 'Race-Truck'],
+                datasets: [{
+                    label: 'Products',
+                    backgroundColor: 'rgba(170, 103, 8,  .4)',
+                    borderColor: 'rgba(170, 103, 8,  1)',
+                    borderWidth: 1,
+                    outlierColor: '#000000',
+                    padding: 10,
+                    itemRadius: 2,
+                    data: [
+                        [600, 650, 550]
+                       ,[600, 650, 550]   
+                    ]
+                }
+                ]
+        },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                legend: {
+                    display: false,
+                    position: 'bottom',
+                },
+                title: {
+                    display: false,
+                    text: 'Throughput Times'
+                }
+            }
+        });
+       
+
+        processingProxy.on("Throughput", function (msg) {
+            console.log("Throughput : " + msg);
+            var serialized = JSON.parse(msg);
+            for (item of serialized.leadTime) {
+                switch (item.ArticleName) {
+                    case "Race-Truck":
+                        item.Dlz.push(...ThroughputChart.data.datasets[0].data[1]);
+                        ThroughputChart.data.datasets[0].data[1] = shiftArray(item.Dlz);
+                        break;
+                    case "Dump-Truck":
+                        item.Dlz.push(...ThroughputChart.data.datasets[0].data[0]);
+                        ThroughputChart.data.datasets[0].data[0] = shiftArray(item.Dlz);
+                        break;
+                    default:
+                        console.log("Sorry, we are out of " + expr + ".");
+                }
+            }
+            ThroughputChart.update();
+
+            //                    console.log("Sorry, we are out of " + expr + ".");
+        });
+
+        function shiftArray(list) {
+            if (list.length > 50) {
+                return list.slice(0, 50);
+            }
+            return list;
+        }
+
+    </script>
+
+
+

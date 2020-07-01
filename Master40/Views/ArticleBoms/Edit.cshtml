@@ -1,8 +1,7 @@
-@using Master40.DB.Models
-@model Master40.DB.Models.ArticleBom
+@model Master40.DB.DataModel.M_ArticleBom
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData[index: "Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -55,5 +54,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{await Html.RenderPartialAsync(partialViewName: "_ValidationScriptsPartial");}
 }

@@ -6,9 +6,9 @@ namespace Master40.Models
     public class MenuItem
     {
         public int MenuItemId { get; set; }
-        [StringLength(50)]
+        [StringLength(maximumLength: 50)]
         public string MenuText { get; set; }
-        [StringLength(255)]
+        [StringLength(maximumLength: 255)]
         public string LinkUrl { get; set; }
         public string Symbol { get; set; }
         public string Action { get; set; }

@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+		<LangVersion>7.1</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="Test\**" />
+      <EmbeddedResource Remove="Test\**" />
+      <None Remove="Test\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Json.Net" Version="1.0.18" />
+      <PackageReference Include="OptimizedPriorityQueue" Version="4.2.0" />
+      <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
+    </ItemGroup>
+  <ItemGroup>
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>    
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
+      <ProjectReference Include="..\Master40.SimulationCore\Master40.SimulationCore.csproj" />
+      <ProjectReference Include="..\Master40.Tools\Master40.Tools.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="GraphicalRepresentation\" />
+      <Folder Include="Properties\" />
+      <Folder Include="Utils\Queue\" />
+    </ItemGroup>
+</Project>

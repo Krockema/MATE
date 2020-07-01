@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Master40.DB.Data.Context;
-using Master40.DB.Data.Repository;
-using Master40.DB.Models;
+using Master40.DB.Data.Initializer.Tables;
+using Master40.DB.DataModel;
 
 namespace Master40.Controllers
 {
@@ -31,16 +31,18 @@ namespace Master40.Controllers
                 .ThenInclude(b => b.ArticleChilds).ToList().Where(a => 1 == 1);
                 */
 
-            var masterDBContext = _context.Articles.Include(w => w.WorkSchedules)
-                .Where(a => a.Id == 1 || a.Id == 24).ToList();
+            var masterDBContext = _context.Articles
+                .Include(x => x.ArticleType)
+                .Include(navigationPropertyPath: w => w.Operations)
+                .Where(predicate: x => x.ArticleType.Name == MasterTableArticle.ARTICLE_PRODUCTS /* Equals("Product") */).ToList();
 
-            var articleList = new List<Article>();
+            var articleList = new List<M_Article>();
             foreach (var item in masterDBContext)
             {
-                var article = await _context.GetArticleBomRecursive(item, item.Id);
-                articleList.Add(article);
+                var article = await _context.GetArticleBomRecursive(article: item, articleId: item.Id);
+                articleList.Add(item: article);
             }
-            return View(articleList);
+            return View(model: articleList);
         }
 
         // GET: ArticleBoms/Details/5
@@ -52,22 +54,22 @@ namespace Master40.Controllers
             }
 
             var articleBom = await _context.ArticleBoms
-                .Include(a => a.ArticleChild)
-                .Include(a => a.ArticleParent)
-                .SingleOrDefaultAsync(m => m.Id == id);
+                .Include(navigationPropertyPath: a => a.ArticleChild)
+                .Include(navigationPropertyPath: a => a.ArticleParent)
+                .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (articleBom == null)
             {
                 return NotFound();
             }
 
-            return View(articleBom);
+            return View(model: articleBom);
         }
 
         // GET: ArticleBoms/Create
         public IActionResult Create()
         {
-            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "Id", "Name");
-            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "Id", "Name");
+            ViewData[index: "ArticleChildId"] = new SelectList(items: _context.Articles, dataValueField: "Id", dataTextField: "Name");
+            ViewData[index: "ArticleParentId"] = new SelectList(items: _context.Articles, dataValueField: "Id", dataTextField: "Name");
             return View();
         }
 
@@ -76,17 +78,17 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ArticleBomId,ArticleParentId,ArticleChildId,Quantity,Name")] ArticleBom articleBom)
+        public async Task<IActionResult> Create([Bind("ArticleBomId,ArticleParentId,ArticleChildId,Quantity,Name")] M_ArticleBom articleBom)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(articleBom);
+                _context.Add(entity: articleBom);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
+                return RedirectToAction(actionName: "Index");
             }
-            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "Id", "Name", articleBom.ArticleChildId);
-            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "Id", "Name", articleBom.ArticleParentId);
-            return View(articleBom);
+            ViewData[index: "ArticleChildId"] = new SelectList(items: _context.Articles, dataValueField: "Id", dataTextField: "Name", selectedValue: articleBom.ArticleChildId);
+            ViewData[index: "ArticleParentId"] = new SelectList(items: _context.Articles, dataValueField: "Id", dataTextField: "Name", selectedValue: articleBom.ArticleParentId);
+            return View(model: articleBom);
         }
 
         // GET: ArticleBoms/Edit/5
@@ -97,14 +99,14 @@ namespace Master40.Controllers
                 return NotFound();
             }
 
-            var articleBom = await _context.ArticleBoms.SingleOrDefaultAsync(m => m.Id == id);
+            var articleBom = await _context.ArticleBoms.SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (articleBom == null)
             {
                 return NotFound();
             }
-            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "Id", "Name", articleBom.ArticleChildId);
-            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "Id", "Name", articleBom.ArticleParentId);
-            return View(articleBom);
+            ViewData[index: "ArticleChildId"] = new SelectList(items: _context.Articles, dataValueField: "Id", dataTextField: "Name", selectedValue: articleBom.ArticleChildId);
+            ViewData[index: "ArticleParentId"] = new SelectList(items: _context.Articles, dataValueField: "Id", dataTextField: "Name", selectedValue: articleBom.ArticleParentId);
+            return View(model: articleBom);
         }
 
         // POST: ArticleBoms/Edit/5
@@ -112,7 +114,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ArticleBomId,ArticleParentId,ArticleChildId,Quantity,Name")] ArticleBom articleBom)
+        public async Task<IActionResult> Edit(int id, [Bind("ArticleBomId,ArticleParentId,ArticleChildId,Quantity,Name")] M_ArticleBom articleBom)
         {
             if (id != articleBom.Id)
             {
@@ -123,12 +125,12 @@ namespace Master40.Controllers
             {
                 try
                 {
-                    _context.Update(articleBom);
+                    _context.Update(entity: articleBom);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ArticleBomExists(articleBom.Id))
+                    if (!ArticleBomExists(id: articleBom.Id))
                     {
                         return NotFound();
                     }
@@ -137,11 +139,11 @@ namespace Master40.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction("Index");
+                return RedirectToAction(actionName: "Index");
             }
-            ViewData["ArticleChildId"] = new SelectList(_context.Articles, "Id", "Name", articleBom.ArticleChildId);
-            ViewData["ArticleParentId"] = new SelectList(_context.Articles, "Id", "Name", articleBom.ArticleParentId);
-            return View(articleBom);
+            ViewData[index: "ArticleChildId"] = new SelectList(items: _context.Articles, dataValueField: "Id", dataTextField: "Name", selectedValue: articleBom.ArticleChildId);
+            ViewData[index: "ArticleParentId"] = new SelectList(items: _context.Articles, dataValueField: "Id", dataTextField: "Name", selectedValue: articleBom.ArticleParentId);
+            return View(model: articleBom);
         }
 
         // GET: ArticleBoms/Delete/5
@@ -153,31 +155,31 @@ namespace Master40.Controllers
             }
 
             var articleBom = await _context.ArticleBoms
-                .Include(a => a.ArticleChild)
-                .Include(a => a.ArticleParent)
-                .SingleOrDefaultAsync(m => m.Id == id);
+                .Include(navigationPropertyPath: a => a.ArticleChild)
+                .Include(navigationPropertyPath: a => a.ArticleParent)
+                .SingleOrDefaultAsync(predicate: m => m.Id == id);
             if (articleBom == null)
             {
                 return NotFound();
             }
 
-            return View(articleBom);
+            return View(model: articleBom);
         }
 
         // POST: ArticleBoms/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName(name: "Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var articleBom = await _context.ArticleBoms.SingleOrDefaultAsync(m => m.Id == id);
-            _context.ArticleBoms.Remove(articleBom);
+            var articleBom = await _context.ArticleBoms.SingleOrDefaultAsync(predicate: m => m.Id == id);
+            _context.ArticleBoms.Remove(entity: articleBom);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction(actionName: "Index");
         }
 
         private bool ArticleBomExists(int id)
         {
-            return _context.ArticleBoms.Any(e => e.Id == id);
+            return _context.ArticleBoms.Any(predicate: e => e.Id == id);
         }
     }
 }

@@ -1,0 +1,19 @@
+language: csharp
+mono: none
+dist: bionic
+dotnet: 3.1.100
+
+services:
+  - docker
+
+install:
+  - source $TRAVIS_BUILD_DIR/.travis/stage_install.sh
+  - dotnet restore
+
+script:
+  - dotnet build
+  - dotnet test Master40.XUnitTest/Master40.XUnitTest.csproj --filter Master40.XUnitTest.Online
+
+
+notifications:
+  slack: infocomhtw:7H5jePcDELUv916neaRS3LQ1

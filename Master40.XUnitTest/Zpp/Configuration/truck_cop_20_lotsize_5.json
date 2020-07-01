@@ -1,0 +1,7 @@
+{
+  "CustomerOrderPartQuantity": 20,
+  "LotSize": 5,
+  "Name": "truck_cop_20_lotsize_5",
+  "DbSetInitializer": "Master40.DB.Data.Initializer.MasterDBInitializerTruck, Master40.DB",
+
+}

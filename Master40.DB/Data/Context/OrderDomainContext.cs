@@ -1,39 +1,38 @@
 ﻿using System.Linq;
-using Master40.DB.Data.Repository;
-using Master40.DB.Models;
+using Master40.DB.DataModel;
 using Microsoft.EntityFrameworkCore;
 
 namespace Master40.DB.Data.Context
 {
-    public class OrderDomainContext : OrderDomain
+    public class OrderDomainContext : MasterDBContext
     {
-        public OrderDomainContext(DbContextOptions<OrderDomainContext> options) : base(options) { }
+        public OrderDomainContext(DbContextOptions<MasterDBContext> options) : base(options: options) { }
 
 
         //complex Querys
-        public IQueryable<Order> GetAllOrders
+        public IQueryable<T_CustomerOrder> GetAllOrders
         {
             get
             {
-                return Orders.Include(x => x.OrderParts)
-                                .Include(x => x.BusinessPartner)
-                                .Where(x => x.BusinessPartner.Debitor)
+                return CustomerOrders.Include(navigationPropertyPath: x => x.CustomerOrderParts)
+                                .Include(navigationPropertyPath: x => x.BusinessPartner)
+                                .Where(predicate: x => x.BusinessPartner.Debitor)
                                 .AsNoTracking();
             }
         }
 
-        public IQueryable<Order> ById(int id) => Orders.Include(x => x.OrderParts)
-            .Include(x => x.BusinessPartner)
-            .Where(x => x.BusinessPartner.Debitor)
-            .Where(x => x.Id == id);
+        public IQueryable<T_CustomerOrder> ById(int id) => CustomerOrders.Include(navigationPropertyPath: x => x.CustomerOrderParts)
+            .Include(navigationPropertyPath: x => x.BusinessPartner)
+            .Where(predicate: x => x.BusinessPartner.Debitor)
+            .Where(predicate: x => x.Id == id);
 
-        public IQueryable<Article> GetSellableArticles => Articles.Include(x => x.ArticleType)
-                .Where(t => t.ArticleType.Name == "Assembly")
+        public IQueryable<M_Article> GetSellableArticles => Articles.Include(navigationPropertyPath: x => x.ArticleType)
+                .Where(predicate: t => t.ArticleType.Name == "Assembly")
                 .AsNoTracking();
         
 
-        public IQueryable<Article> GetPuchaseableArticles => Articles.Include(x => x.ArticleType)
-                    .Where(t => t.ArticleType.Name == "Material")
+        public IQueryable<M_Article> GetPuchaseableArticles => Articles.Include(navigationPropertyPath: x => x.ArticleType)
+                    .Where(predicate: t => t.ArticleType.Name == "Material")
                     .AsNoTracking();
             
         

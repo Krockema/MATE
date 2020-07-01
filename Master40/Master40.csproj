@@ -1,60 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseRazorBuildServer>false</UseRazorBuildServer>
+    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <Configurations>Debug;Release;Azure</Configurations>
     <Platforms>AnyCPU;x64</Platforms>
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
 
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;</PackageTargetFallback>
     <AssemblyName>Master40</AssemblyName>
-    <ApplicationIcon />
+    <ApplicationIcon>wwwroot\favicon.ico</ApplicationIcon>
     <OutputType>Exe</OutputType>
-    <StartupObject />
+    <StartupObject>Master40.Program</StartupObject>
+    <LangVersion>8.0</LangVersion>
+    <UserSecretsId>8704d405-f8e4-4ac1-bc7f-a240f95a29a5</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="BusinessLogic\**" />
-    <Content Remove="BusinessLogic\**" />
-    <EmbeddedResource Remove="BusinessLogic\**" />
-    </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="ChartJSCore" Version="1.2.4" />
-    <PackageReference Include="cldrjs" Version="0.5.0" />
-    <PackageReference Include="Hangfire" Version="1.6.19" />
-    <PackageReference Include="jquery-globalize" Version="1.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Localization" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="1.1.5" />
-    <PackageReference Include="Microsoft.Extensions.Localization" Version="2.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.1.1" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.1.1" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="2.5.0" />
-    <PackageReference Include="System.Composition" Version="1.2.0" />
+    <PackageReference Include="ChartJSCore" Version="1.5.7" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
+    <PackageReference Include="System.Composition" Version="1.4.0" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.0" />
     <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="1.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Lib\" />
-    <Folder Include="Views\AgentSimulation\" />
     <Folder Include="Views\Shared\Components\Menu\" />
+    <Folder Include="wwwroot\lib\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Master40.BusinessLogicMrp\Master40.BusinessLogicCentral.csproj" />
-    <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
     <ProjectReference Include="..\Master40.Simulation\Master40.Simulation.csproj" />
-    <ProjectReference Include="..\Master40.Tools\Master40.Tools.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Connected Services" />
   </ItemGroup>
 </Project>

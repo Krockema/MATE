@@ -1,9 +1,9 @@
 @{
-    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData["chart"];
+    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData[index: "chart"];
     string raw = "Chart Rendering Failed";
-    string machine = ViewData["Machine"].ToString().Replace(" ", "");
+    string machine = ViewData[index: "Machine"].ToString().Replace(oldValue: " ", newValue: "");
     if (chart != null) {
-        raw = chart.CreateChartCode(machine);
+        raw = chart.CreateChartCode(canvasId: machine);
     }
 }
 
@@ -30,7 +30,7 @@
         height: 100px;
     }
 </style>
-<h4>@ViewData["Machine"] Workload</h4>
+<h4>@ViewData[index: "Machine"] Workload</h4>
 <div class="chartWrapper">
     <div class="chartAreaWrapper">
         <div class="chartAreaWrapper2">
@@ -41,5 +41,5 @@
 </div>
 
 <script>
-    @Html.Raw(raw);
+    @Html.Raw(value: raw);
 </script>
