@@ -4,7 +4,7 @@ using Master40.DB.DataModel;
 
 namespace Master40.DB.Data.Initializer.Tables
 {
-    internal class MasterTableResourceCapability
+    public class MasterTableResourceCapability
     {
         internal M_ResourceCapability CUTTING;
         internal M_ResourceCapability DRILLING;

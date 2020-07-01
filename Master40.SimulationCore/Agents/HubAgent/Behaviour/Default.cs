@@ -217,7 +217,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             distinctResources.ForEach(resourceRef =>
             {
                 Agent.DebugMessage(msg: $"Ask for proposal at resource {resourceRef.Path.Name} with {jobConfirmation.Job.Name}", CustomLogger.PROPOSAL, LogLevel.Warn);
-                Agent.Send(instruction: Resource.Instruction.Default.RequestProposal
+                Agent.Send(instruction: ResourceAgent.Resource.Instruction.Default.RequestProposal
                     .Create(new FRequestProposalForCapability(jobConfirmation.Job
                             , capabilityId: jobConfirmation.Job.RequiredCapability.Id)
                             , target: resourceRef));

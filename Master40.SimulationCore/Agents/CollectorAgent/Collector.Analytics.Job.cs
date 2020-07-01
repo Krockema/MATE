@@ -33,8 +33,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private List<Job> simulationJobs { get; } = new List<Job>();
         private List<Job> simulationJobsForDb { get; } = new List<Job>();
-        private List<Setup> simulationResourceSetups { get; } = new List<Setup>();
-        private List<Setup> simulationResourceSetupsForDb { get; } = new List<Setup>();
+        private List<DB.ReportingModel.Setup> simulationResourceSetups { get; } = new List<DB.ReportingModel.Setup>();
+        private List<DB.ReportingModel.Setup> simulationResourceSetupsForDb { get; } = new List<DB.ReportingModel.Setup>();
         
         private KpiManager kpiManager { get; } = new KpiManager();
 
@@ -95,7 +95,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         /// <param name="simulationResourceSetup"></param>
         private void CreateSetup(FCreateSimulationResourceSetup simulationResourceSetup)
         {
-            var _SimulationResourceSetup = new Setup
+            var _SimulationResourceSetup = new DB.ReportingModel.Setup
             {
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,

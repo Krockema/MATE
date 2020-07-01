@@ -4,6 +4,7 @@ using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
 using Master40.DB.Data.Initializer;
+using Master40.DB.Nominal.Model;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 

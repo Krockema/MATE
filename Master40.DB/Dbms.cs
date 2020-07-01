@@ -15,7 +15,7 @@ namespace Master40.DB
         /// setx UseLocalDb true
         /// </summary>
         /// <returns></returns>
-        public static bool UseLocalDb()
+        private static bool UseLocalDb()
         {
             var environmentUseLocalDb = Environment.GetEnvironmentVariable("UseLocalDb", EnvironmentVariableTarget.User);
             if (environmentUseLocalDb != null)
@@ -55,12 +55,17 @@ namespace Master40.DB
             return new DbConnectionString(connectionString);
         }
 
-        public static DataBase<ProductionDomainContext> GetNewMasterDataBase(bool archive = false)
+        public static DataBase<ProductionDomainContext> GetNewMasterDataBase(bool archive = false, string dbName = "")
         {
-            var archiveSuffix = "";
-            if (archive) archiveSuffix = "_archive"; 
-            DataBase<ProductionDomainContext> dataBase = 
-                new DataBase<ProductionDomainContext>(Constants.DbWithSuffixMaster(archiveSuffix));
+            
+            if (dbName.Equals(""))
+            {
+                var archiveSuffix = "";
+                if (archive) archiveSuffix = "_archive";
+                dbName = Constants.DbWithSuffixMaster(archiveSuffix);
+            }
+
+            DataBase<ProductionDomainContext> dataBase = new DataBase<ProductionDomainContext>(dbName);
             if (UseLocalDb() && Constants.IsWindows)
             {
                     Constants.IsLocalDb = true;
@@ -82,9 +87,13 @@ namespace Master40.DB
             return dataBase;
         }
 
-        public static DataBase<ResultContext> GetNewResultDataBase()
+        public static DataBase<ResultContext> GetNewResultDataBase(string dbName = "")
         {
-            DataBase<ResultContext> dataBase = new DataBase<ResultContext>(Constants.DbWithSuffixResults());
+
+            if (dbName.Equals(""))
+                dbName = Constants.DbWithSuffixResults();
+
+            DataBase<ResultContext> dataBase = new DataBase<ResultContext>(dbName);
 
             if (UseLocalDb() && Constants.IsWindows)
             {
@@ -108,7 +117,7 @@ namespace Master40.DB
         }
 
 
-        public static bool CanConnect(string connectionString)
+        private static bool CanConnect(string connectionString)
         {
             bool canConnect = false;
             using (SqlConnection con = new SqlConnection(connectionString))

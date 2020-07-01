@@ -46,7 +46,7 @@ namespace Master40.DB.Data.Initializer.Tables
         {
             return new M_Resource() { Name = resourceName + " " + number?.ToString(), Capacity = 1, IsPhysical = isPhysical };
         }
-
+        
         internal void CreateResourceTools(int setupTimeCutting, int setupTimeDrilling, int setupTimeAssembling, int[] numberOfOperators, int numberOfWorkers, bool secondResource)
         {
             List<M_Resource> workers = new List<M_Resource>();
@@ -58,6 +58,7 @@ namespace Master40.DB.Data.Initializer.Tables
          
             List<M_Resource> drillingTools = new List<M_Resource>();
 
+            // Add a second primary resource that is required for setup and processing
             if (secondResource) {
                 foreach (var drillCapability in _capability.DRILLING.ChildResourceCapabilities)
                 {

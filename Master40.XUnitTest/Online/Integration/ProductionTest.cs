@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
+using Master40.DB.Nominal.Model;
 using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Helper;
 using Newtonsoft.Json;
