@@ -4,12 +4,16 @@
 <style>
     .chartAreaWrapperWorkload {
         position: relative;
-        height: 200px;
+        height: 150px;
         width: 100%;
     }
 </style>
-<div class="chartWrapper" style="float:left">
-    <div class="chartAreaWrapper">
+
+<div class="card" style="margin-top: 10px;">
+    <div class="card-header">
+        <b>Over all resource workload</b>
+    </div>
+    <div class="card-body">
         <div class="chartAreaWrapperWorkload">
             <!--div id="js-legend" class="chart-legend"><div-->
             <canvas id="TotalWorkLoad" height="200"></canvas>
@@ -34,7 +38,8 @@
                     , borderWidth: 1
                     , borderColor: "rgba(3,79,175, .6)"
                     , backgroundColor: "rgba(3,79,175, .3)"
-                    , pointBackgroundColor: "rgba(3,79,175, .6)"
+                        , pointBackgroundColor: "rgba(3,79,175, .6)"
+                    , pointRadius: [0, 0]
                     , showLine: true
                     , fill: true
                     , label: "Workload"
@@ -48,6 +53,7 @@
                         , borderColor: "rgba(246, 167, 30,  .6)"
                         , backgroundColor: "rgba(246, 167, 30,  .3)"
                         , pointBackgroundColor: "rgba(246, 167, 30,  .6)"
+                        , pointRadius: [0, 0]
                         , showLine: true
                         , fill: "-1"
                         , label: "Setup Times"
@@ -60,9 +66,10 @@
                 , maintainAspectRatio: false
                 , title: {
                     position: "top"
-                    , fontSize: 24
+                    , fontSize: 16
                     , fontStyle: "bold"
                     , text: "Total Workload"
+                    , display: false
                 }, legend: {
                     display: false
                     , position: "bottom"
@@ -72,9 +79,10 @@
                     xAxes: [{
                         type: "linear"
                         , id: "first-x-axis"
-                        , scaleLabel: { display: true, labelString: "Time in min", fontSize: 12 }
-                        , ticks: { min: 0.0, max: 20000.0, display: true }
+                        , scaleLabel: { display: false, labelString: "Time in min", fontSize: 8 }
+                        , ticks: { min: 0.0, max: 20000.0, display: true, fontSize: 8 }
                         , display: true
+                        
                     }]
                     , yAxes: [{
                         type: "linear"
@@ -82,15 +90,15 @@
                         , scaleLabel: {
                             display: true
                             , labelString: "Workload in %"
-                            , fontSize: 12
+                            , fontSize: 8
                         }
-                        , ticks: { min: 0.0, stepSize: 20, max: 100, display: true }
+                        , ticks: { min: 0.0, stepSize: 20, max: 100, display: true, fontSize: 8 }
                         , display: true
                     }]
                 }
             }
         });
-
+    
     processingProxy.on("TotalTimes", function (msg) {
         var serialized = JSON.parse(msg);
         TotalWorkLoadChart.data.datasets[1].data.push({ x: serialized.Time, y: serialized.Load.Work });

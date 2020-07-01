@@ -444,7 +444,7 @@
             yAxes: [{
                 type: 'category',
                 position: 'left',
-                barThickness: 20,
+                barThickness: 10,
                 categoryPercentage: 0.8,
                 barPercentage: 0.9,
                 offset: true,

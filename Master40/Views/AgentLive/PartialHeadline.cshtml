@@ -1,0 +1,56 @@
+﻿<div class="col-lg-3 col-md-3">
+    <div class="bs-callout bs-callout-dark" id="callout-xref-input-group">
+        <partial name="~/Views/AgentLive/PartialClock.cshtml"/>
+    </div>
+</div>
+<div class="col-lg-2 col-md-2">
+    <div class="bs-callout bs-callout-info" id="callout-xref-input-group">
+        <h4>Orders</h4>
+        <p id="orders">
+            <b>Finished: 0</b>
+        </p>
+        <p id="orders">
+            <b>Open: 0</b>
+        </p>
+    </div>
+</div>
+<div class="col-lg-2 col-md-2">
+    <div class="bs-callout bs-callout-info" id="callout-xref-input-group">
+        <h4>OEE</h4>
+        <p id="oee">
+            <b>0 %</b>
+        </p>
+        <p id="oee">
+            <b>?</b>
+        </p>
+    </div>
+</div>
+<div class="col-lg-2 col-md-2">
+    <div class="callout-button-position"><partial name="~/Views/AgentLive/Modals/PartialSummary.cshtml" /></div>
+    
+    <div class="bs-callout bs-callout-warning" id="statusCallout">
+        <h4>Status</h4>
+
+        <p id="simState">
+            <b>Ready</b>
+        </p>
+        <p id="empty">
+            <b>&nbsp;</b>
+        </p>
+    </div>
+</div>
+
+<div class="col-lg-3 col-md-3">
+    <div class="callout-button-position">
+        <partial name="~/Views/AgentLive/Modals/PartialMissionControl.cshtml" />
+    </div>
+    <div class="bs-callout bs-callout-dark" id="statusCallout">
+        <h4>Agent System</h4>
+        <p id="simState">
+            <b>Mission Control</b>
+        </p>
+        <p id="empty">
+            <b>&nbsp;</b>
+        </p>
+    </div>
+</div>

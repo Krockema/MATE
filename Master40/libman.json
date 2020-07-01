@@ -7,7 +7,7 @@
       "destination": "wwwroot/lib/Chart.js/"
     },
     {
-      "library": "twitter-bootstrap@4.3.1",
+      "library": "twitter-bootstrap@4.5.0",
       "destination": "wwwroot/lib/bootstrap/"
     },
     {

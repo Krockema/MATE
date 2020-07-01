@@ -55,7 +55,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 workers.Add(CreateNewResource("Worker " + i, true)); 
             }
             CapabilityToResourceDict.Add($"Worker", workers);
-            
+         
             List<M_Resource> drillingTools = new List<M_Resource>();
 
             if (secondResource) {

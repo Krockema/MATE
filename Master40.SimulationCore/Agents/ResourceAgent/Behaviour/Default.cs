@@ -83,7 +83,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         public override bool PostAdvance()
         {
             //TODO only debugging reasons
-            
             //if (Agent.CurrentTime % 50 == 0 || Agent.CurrentTime == 2)
             //{ 
             //    GanttStatistics.CreateGanttChartForRessource(_jobInProgress, _scopeQueue, Agent);

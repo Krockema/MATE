@@ -7,29 +7,34 @@
         position: relative;
         min-width: 150px;
         width: 99%;
-        height: 420px;
+        height: 120px;
         margin: 0 auto;
     }
 
 
 </style>
-    <div class="chartWrapper" style="float:left">
-        <div class="chartAreaWrapper">
-            <div class="chartThroughputWrapper">
-                <!--div id="js-legend" class="chart-legend"><div-->
-                <canvas id="Throughput" height="400" width="120"></canvas>
-            </div>
+<div class="card" style="margin-top: 10px;">
+    <div class="card-header">
+        <b>Throughput</b>
+    </div>
+    <div class="card-body">
+        <div class="chartThroughputWrapper">
+            <!--div id="js-legend" class="chart-legend"><div-->
+            <canvas id="Throughput"></canvas>
         </div>
     </div>
+</div>
 
     <script>
-
+        var throughput_labels = [];
+        var throughput_datasets = [];
         var ThroughputElement = document.getElementById("Throughput");
+
         var ThroughputChart = new Chart(ThroughputElement, {
             type: 'boxplot',
             data: {
                 // define label tree
-                labels: ['Dump-Truck', 'Race-Truck'],
+                labels: throughput_labels,
                 datasets: [{
                     label: 'Products',
                     backgroundColor: 'rgba(170, 103, 8,  .4)',
@@ -38,14 +43,22 @@
                     outlierColor: '#000000',
                     padding: 10,
                     itemRadius: 2,
-                    data: [
-                        [600, 650, 550]
-                       ,[600, 650, 550]   
-                    ]
+                    data: throughput_datasets
                 }
                 ]
         },
             options: {
+                scales: {
+                    xAxes: [
+                        {
+                            ticks: { fontSize: 10 } 
+                        }
+                    ],
+                    yAxes: [
+                        {
+                            ticks: { fontSize: 10 } 
+                        }]
+                    },
                 maintainAspectRatio: false,
                 responsive: true,
                 legend: {
@@ -64,30 +77,24 @@
             console.log("Throughput : " + msg);
             var serialized = JSON.parse(msg);
             for (item of serialized.leadTime) {
-                switch (item.ArticleName) {
-                    case "Race-Truck":
-                        item.Dlz.push(...ThroughputChart.data.datasets[0].data[1]);
-                        ThroughputChart.data.datasets[0].data[1] = shiftArray(item.Dlz);
-                        break;
-                    case "Dump-Truck":
-                        item.Dlz.push(...ThroughputChart.data.datasets[0].data[0]);
-                        ThroughputChart.data.datasets[0].data[0] = shiftArray(item.Dlz);
-                        break;
-                    default:
-                        console.log("Sorry, we are out of " + expr + ".");
+
+                var index = throughput_labels.indexOf(item.ArticleName);
+                if (index === -1) {
+                    index = ThroughputChart.data.labels.push(item.ArticleName) - 1 ;
+                }
+                if (throughput_datasets[index] === undefined) {
+                    throughput_datasets.push([item.Dlz]);
+                } else {
+                    item.Dlz.push(...throughput_datasets[index]);
+                    throughput_datasets[index] = shiftArray(item.Dlz, 50);
+
                 }
             }
             ThroughputChart.update();
 
+
             //                    console.log("Sorry, we are out of " + expr + ".");
         });
-
-        function shiftArray(list) {
-            if (list.length > 50) {
-                return list.slice(0, 50);
-            }
-            return list;
-        }
 
     </script>
 
