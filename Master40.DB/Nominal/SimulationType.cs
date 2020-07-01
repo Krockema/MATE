@@ -5,11 +5,6 @@
         None,
         Central,
         Decentral,
-        ForwardPlanning,
-        BackwardPlanning,
-        Bucket,
-        BucketScope,
-        DefaultSetup,
-        DefaultSetupStack
+        Default
     }
 }

@@ -13,14 +13,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Globalization;
 using Hangfire.Console;
-using Hangfire.SqlServer;
 using Master40.Models;
 using Master40.Simulation.HangfireConfiguration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 
 
 namespace Master40

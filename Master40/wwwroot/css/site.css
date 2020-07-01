@@ -139,8 +139,8 @@ textarea {
 
 /* Common styles for all types */
 .bs-callout {
-    padding: 20px;
-    margin: 20px 0;
+    padding: 10px 20px;
+    margin: 5px 0;
     border: 1px solid #eee;
     border-left-width: 5px;
     border-radius: 3px;
@@ -195,6 +195,15 @@ textarea {
         color: #1b809e;
     }
 
+.bs-callout-dark {
+    border-left-color: #d6d8d9;
+    border-color: #c6c8ca;
+}
+
+.bs-callout-dark h4 {
+    color: #1b1e21;
+}
+
 .bs-callout-success {
     border-left-color: #155724;
     background-color: #d6e9c6;
@@ -210,4 +219,13 @@ textarea {
 
 .card-header-btn {
     padding: 0 !important;
+}
+
+.card-body {
+    padding: 5px !important;
+}
+
+* {
+    font-size: 12px;
+    line-height: 1;
 }

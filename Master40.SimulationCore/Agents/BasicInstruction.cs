@@ -1,13 +1,16 @@
 ﻿using System;
 using Akka.Actor;
 using AkkaSim.Definitions;
+using Master40.SimulationCore.Agents.JobAgent;
 using Master40.SimulationCore.Types;
 using static FBreakDowns;
 using static FAgentInformations;
+using static IConfirmations;
 using static FArticles;
 using static FArticleProviders;
 using static IJobResults;
 using static FUpdateStartConditions;
+using static IJobs;
 
 namespace Master40.SimulationCore.Agents
 {
@@ -36,7 +39,7 @@ namespace Master40.SimulationCore.Agents
             }
             public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
         }
-        public class JobForwardEnd : SimulationMessage
+        public class JobForwardEnd :  SimulationMessage
         {
             public static JobForwardEnd Create(long message, IActorRef target)
             {
@@ -96,6 +99,18 @@ namespace Master40.SimulationCore.Agents
             }
         }
 
+        public class RemovedChildRef : SimulationMessage
+        {
+            public static RemovedChildRef Create(IActorRef target, bool logThis = false)
+            {
+                return new RemovedChildRef(message: null, target: target, logThis: logThis);
+            }
+            private RemovedChildRef(object message, IActorRef target, bool logThis) : base(message: message, target: target, logThis: logThis)
+            {
+            }
+        }
+        
+
         public class WithdrawRequiredArticles : SimulationMessage
         {
             public static WithdrawRequiredArticles Create(Guid message, IActorRef target)
@@ -143,5 +158,65 @@ namespace Master40.SimulationCore.Agents
             public FUpdateStartCondition GetObjectFromMessage { get => Message as FUpdateStartCondition; }
         }
 
+        public class UpdateJob : SimulationMessage
+        {
+            public static UpdateJob Create(IJob message, IActorRef target)
+            {
+                return new UpdateJob(message: message, target: target);
+            }
+            private UpdateJob(IJob message, IActorRef target) : base(message: message, target: target)
+            {
+            }
+            public IJob GetObjectFromMessage => Message as IJob; 
+        }
+
+        public class FinalBucket : SimulationMessage
+        {
+            public static FinalBucket Create(IConfirmation job, IActorRef target)
+            {
+                return new FinalBucket(message: job, target: target);
+            }
+            private FinalBucket(IConfirmation message, IActorRef target) : base(message: message, target: target)
+            {
+            }
+            public IConfirmation GetObjectFromMessage { get => Message as IConfirmation; }
+        }
+
+        public class Break : SimulationMessage
+        {
+            public static Break Create()
+            {
+                return new Break();
+            }
+            private Break() : base(null, ActorRefs.NoSender)
+            {
+            }
+        }
+
+        public class FinishSetup : SimulationMessage
+        {
+            public static FinishSetup Create(IActorRef message, IActorRef target)
+            {
+                return new FinishSetup(message: message, target: target);
+            }
+            private FinishSetup(IActorRef message, IActorRef target) : base(message: message, target: target)
+            {
+            }
+            public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
+        }
+
+        public class UpdateCustomerDueTimes : SimulationMessage
+        {
+            public static UpdateCustomerDueTimes Create(long message, IActorRef target)
+            {
+                return new UpdateCustomerDueTimes(message: message, target: target);
+            }
+            private UpdateCustomerDueTimes(object message, IActorRef target) : base(message: message, target: target)
+            {
+
+            }
+            public long GetObjectFromMessage => (long)Message;
+        }
+       
     }
 }

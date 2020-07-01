@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AkkaSim" Version="0.4.6" />
+    <PackageReference Include="AkkaSim" Version="0.5.2" />
   </ItemGroup>
 
   <ItemGroup>

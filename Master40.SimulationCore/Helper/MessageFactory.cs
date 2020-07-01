@@ -1,18 +1,18 @@
-﻿using System;
-using Master40.FunctionConverter;
-using Akka.Actor;
-using System.Collections.Generic;
+﻿using Akka.Actor;
 using Master40.DB.DataModel;
-using Microsoft.FSharp.Collections;
-using System.Linq;
-using static FArticles;
-using static FOperations;
-using static FProposals;
-using static FStartConditions;
-using static FBuckets;
-using static IJobs;
+using Master40.FunctionConverter;
 using Master40.SimulationCore.Types;
+using Microsoft.FSharp.Collections;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using static FArticles;
+using static FBuckets;
+using static FOperations;
+using static FStartConditions;
 using static FStockProviders;
+using static IJobs;
 
 namespace Master40.SimulationCore.Helper
 {
@@ -28,99 +28,59 @@ namespace Master40.SimulationCore.Helper
         /// <param name="firstOperation"></param>
         /// <param name="currentTime"></param>
         /// <returns></returns>
-        public static FOperation ToOperationItem(this M_Operation operation
+        public static FOperation ToOperationItem(this M_Operation m_operation
                                             , long dueTime
+                                            , long customerDue
                                             , IActorRef productionAgent
                                             , bool firstOperation
-                                            , long currentTime)
+                                            , long currentTime
+                                            , long remainingWork)
         {
             var prioRule = Extension.CreateFunc(
                     // Lamda zur Func.
-                    func: (time) => dueTime - operation.Duration - time
+                    func: (time) => (customerDue - time) - m_operation.Duration - remainingWork
                     // ENDE
                 );
 
             return new FOperation(key: Guid.NewGuid()
                                 , dueTime: dueTime
+                                , customerDue: customerDue
                                 , creationTime: currentTime
                                 , forwardStart: currentTime
-                                , forwardEnd: currentTime + operation.Duration + operation.AverageTransitionDuration
-                                , backwardStart: dueTime - operation.Duration - operation.AverageTransitionDuration
+                                , forwardEnd: currentTime + m_operation.Duration + m_operation.AverageTransitionDuration
+                                , backwardStart: dueTime - m_operation.Duration - m_operation.AverageTransitionDuration
                                 , backwardEnd: dueTime
+                                , remainingWork: remainingWork
                                 , end: 0
                                 , start: 0
                                 , startConditions: new FStartCondition(preCondition: firstOperation, articlesProvided: false)
                                 , priority: prioRule.ToFSharpFunc()
-                                , resourceAgent: ActorRefs.NoSender
+                                , setupKey: -1 // unset
+                                , isFinished: false
                                 , hubAgent: ActorRefs.NoSender
                                 , productionAgent: productionAgent
-                                , operation: operation
-                                , tool: operation.ResourceTool
-                                , proposals: new List<FProposal>()
+                                , operation: m_operation
+                                , requiredCapability: m_operation.ResourceCapability
                                 , bucket: String.Empty);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="operation"></param>
-        /// <param name="hubAgent"></param>
-        /// <param name="time"></param>
-        /// <returns></returns>
-        public static FBucket ToBucketItem(this FOperation operation, IActorRef hubAgent, long time)
-        {
-            // TO BE TESTET
-            var prioRule = Extension.CreateFunc(
-                    // Lamda zur Func.
-                    func: (bucket, currentTime) => bucket.Operations.Min(selector: y => ((IJob)y).Priority(time))
-                    // ENDE
-                );
-
-            var operations = new List<FOperation>();
-            operations.Add(item: operation);
-
-            return new FBucket(key: Guid.NewGuid()
-                                //, prioRule: prioRule.ToFSharpFunc()
-                                , priority: prioRule.ToFSharpFunc()
-                                , name: $"(Bucket({BucketNumber++})){operation.Operation.ResourceTool.Name}"
-                                , isFixPlanned: false
-                                , creationTime: time
-                                , forwardStart: operation.ForwardStart
-                                , forwardEnd: operation.ForwardEnd
-                                , backwardStart: operation.BackwardStart
-                                , backwardEnd: operation.BackwardEnd
-                                , scope: operation.BackwardStart - operation.ForwardStart
-                                , end: 0
-                                , start: 0
-                                , startConditions: new FStartCondition(preCondition: false, articlesProvided: false)
-                                , maxBucketSize: 1
-                                , minBucketSize: 1000
-                                , resourceAgent: ActorRefs.NoSender
-                                , hubAgent: hubAgent
-                                , operations: new FSharpSet<FOperation>(elements: operations)
-                                , tool: operation.Tool
-                                , proposals: new List<FProposal>()
-                                , bucket: String.Empty);
-        }
-
-        public static FBucket ToBucketScopeItem(this FOperation operation, IActorRef hubAgent, long time)
+        public static FBucket ToBucketScopeItem(this FOperation operation, IActorRef hubAgent, long time, long maxBucketSize)
         {
             //scope
             var scope = (operation.BackwardStart - operation.ForwardStart);
             // TO BE TESTET
             var prioRule = Extension.CreateFunc(
                 // Lamda zur Func.
-                func: (bucket, currentTime) => operation.BackwardEnd - scope - time
+                func: (bucket, currentTime) => bucket.Operations.Min(selector: y => ((IJob)y).Priority(currentTime))
                 // ENDE
             );
 
-            var operations = new List<FOperation>();
-            operations.Add(item: operation);
+            var operations = new List<FOperation> {operation};
 
             return new FBucket(key: Guid.NewGuid()
                 //, prioRule: prioRule.ToFSharpFunc()
                 , priority: prioRule.ToFSharpFunc()
-                , name: $"(Bucket({BucketNumber++})){operation.Operation.ResourceTool.Name}"
+                , name: $"(Bucket({BucketNumber++})){operation.RequiredCapability.Name}"
                 , isFixPlanned: false
                 , creationTime: time
                 , forwardStart: operation.ForwardStart
@@ -131,23 +91,25 @@ namespace Master40.SimulationCore.Helper
                 , end: 0
                 , start: 0
                 , startConditions: new FStartCondition(preCondition: false, articlesProvided: false)
-                , maxBucketSize: 1
+                , maxBucketSize: maxBucketSize
                 , minBucketSize: 1000
-                , resourceAgent: ActorRefs.NoSender
+                , setupKey: -1 //unset
                 , hubAgent: hubAgent
                 , operations: new FSharpSet<FOperation>(elements: operations)
-                , tool: operation.Tool
-                , proposals: new List<FProposal>()
+                , requiredCapability: operation.RequiredCapability
                 , bucket: String.Empty);
         }
 
 
         public static FArticle ToRequestItem(this T_CustomerOrderPart orderPart
                                             , IActorRef requester
+                                            , long customerDue
+                                            , long remainingDuration
                                             , long currentTime)
         {
-            return new FArticle(
-                key: Guid.NewGuid()
+            var article = new FArticle(
+                key: Guid.Empty
+                , keys: new FSharpSet<Guid>(new Guid[] { })
                 , dueTime: orderPart.CustomerOrder.DueTime
                 , quantity: orderPart.Quantity
                 , article: orderPart.Article
@@ -157,18 +119,27 @@ namespace Master40.SimulationCore.Helper
                 , stockExchangeId: Guid.Empty
                 , storageAgent: ActorRefs.NoSender
                 , isProvided: false
+                , customerDue: customerDue
+                , remainingDuration : remainingDuration
                 , providedAt: 0
                 , originRequester: requester
                 , dispoRequester: ActorRefs.Nobody
                 , providerList: new List<FStockProvider>()
                 , finishedAt: 0
             );
+            return article.CreateProductionKeys.SetPrimaryKey;
         }
 
-        public static FArticle ToRequestItem(this M_ArticleBom articleBom, FArticle requestItem, IActorRef requester, long currentTime)
+        public static FArticle ToRequestItem(this M_ArticleBom articleBom
+                                                , FArticle requestItem
+                                                , IActorRef requester
+                                                , long customerDue
+                                                , long remainingDuration
+                                                , long currentTime)
         {
-            return new FArticle(
-                key: Guid.NewGuid()
+            var article = new FArticle(
+                key: Guid.Empty
+                , keys: new FSharpSet<Guid>(new Guid[] { })
                 , dueTime: requestItem.DueTime
                 , creationTime: currentTime
                 , isProvided: false
@@ -177,6 +148,8 @@ namespace Master40.SimulationCore.Helper
                 , customerOrderId: requestItem.CustomerOrderId
                 , isHeadDemand: false
                 , providedAt: 0
+                , customerDue: customerDue
+                , remainingDuration: remainingDuration
                 , stockExchangeId: Guid.Empty
                 , storageAgent: ActorRefs.NoSender
                 , originRequester: requester
@@ -184,6 +157,7 @@ namespace Master40.SimulationCore.Helper
                 , providerList: new List<FStockProvider>()
                 , finishedAt: 0
             );
+            return article.CreateProductionKeys.SetPrimaryKey;
         }
     }
 

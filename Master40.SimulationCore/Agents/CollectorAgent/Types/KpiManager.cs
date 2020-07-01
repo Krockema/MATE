@@ -25,14 +25,14 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             {
                 ResourceSimulationData resourceSimulationData = new ResourceSimulationData(resource);
 
-                var resourceData = simulationResourceData.Where(x => x.Resource == resource).ToList();
+                var resourceData = simulationResourceData.Where(x => x.CapabilityProvider == resource).ToList();
                 resourceSimulationData._totalWorkTime = GetResourceTimeForInterval(resource, resourceData, startInterval, endInterval);
                 
                 var work = Math.Round(value: Convert.ToDouble(resourceSimulationData._totalWorkTime) / Convert.ToDouble(divisor), digits: 3).ToString(provider: _cultureInfo);
                 if (work == "NaN") work = "0";
                 resourceSimulationData._workTime = work;
 
-                var resourceSetupData = simulationResourceSetupData.Where(x => x.Resource == resource).ToList();
+                var resourceSetupData = simulationResourceSetupData.Where(x => x.CapabilityProvider == resource).ToList();
                 resourceSimulationData._totalSetupTime = GetResourceTimeForInterval(resource, resourceSetupData, startInterval, endInterval);
                 var setup = Math.Round(value: Convert.ToDouble(resourceSimulationData._totalSetupTime) / Convert.ToDouble(divisor), digits: 3).ToString(provider: _cultureInfo);
                 if (setup == "NaN") setup = "0";
@@ -61,17 +61,17 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
 
             var lower_borders = simulationResourceData.Where(x => x.Start < startInterval
                                                                   && x.End > startInterval
-                                                                  && x.Resource == resource).ToList()
+                                                                  && x.CapabilityProvider == resource).ToList()
                                                                     .Sum(y => y.End - startInterval);
 
             var upper_borders = simulationResourceData.Where(x => x.Start < endInterval
                                                                   && x.End > endInterval
-                                                                  && x.Resource == resource).ToList()
+                                                                  && x.CapabilityProvider == resource).ToList()
                                                                     .Sum(y => endInterval - y.Start);
 
             var between = simulationResourceData.Where(x => x.Start >= startInterval
                                                             && x.End <= endInterval
-                                                            && x.Resource == resource).ToList()
+                                                            && x.CapabilityProvider == resource).ToList()
                                                                     .Sum(y => y.End - y.Start);
 
             time = between + lower_borders + upper_borders;

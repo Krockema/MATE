@@ -1,11 +1,14 @@
-﻿using Master40.DB.DataModel;
+﻿using System;
+using Master40.DB.DataModel;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Helper;
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Actor;
+using NLog;
+using NLog.Fluent;
 using static FAgentInformations;
 using static FArticleProviders;
 using static FArticles;
@@ -14,16 +17,23 @@ using static FStockReservations;
 using static Master40.SimulationCore.Agents.Guardian.Instruction;
 using static Master40.SimulationCore.Agents.StorageAgent.Storage.Instruction;
 using static Master40.SimulationCore.Agents.SupervisorAgent.Supervisor.Instruction;
+using static Master40.Tools.ExtensionMethods.Negate;
 
 namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 {
     public class Default : SimulationCore.Types.Behaviour
     {
-        internal Default(SimulationType simulationType = SimulationType.None) 
-                        : base(childMaker: null, simulationType: simulationType) { }
+        internal Default(SimulationType simulationType = SimulationType.None)
+            : base(childMaker: null, simulationType: simulationType)
+        {
+            fArticlesToProvide = new Dictionary<IActorRef, Guid>();
+        }
 
 
         internal FArticle _fArticle { get; set; }
+
+        internal Dictionary<IActorRef, Guid> fArticlesToProvide;
+
         internal int _quantityToProduce { get; set; }
 
         public override bool Action(object message)
@@ -37,26 +47,43 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                 case Dispo.Instruction.ResponseFromSystemForBom r: ResponseFromSystemForBom(article: r.GetObjectFromMessage); break;
                 case Dispo.Instruction.WithdrawArticleFromStock r: WithdrawArticleFromStock(); break; // Withdraw initiated by ResourceAgent for Production
                 case BasicInstruction.ProvideArticle r: ProvideRequest(fArticleProvider: r.GetObjectFromMessage); break;
+                case BasicInstruction.UpdateCustomerDueTimes msg: UpdateCustomerDueTimes(msg.GetObjectFromMessage); break;
+                case BasicInstruction.RemoveVirtualChild msg: RemoveVirtualChild(); break;
+                case BasicInstruction.RemovedChildRef msg: TryToFinish(); break;
                 default: return false;
             }
             return true;
         }
-        
+        internal void UpdateCustomerDueTimes(long customerDue)
+        {
+            // Save Request Item.
+            _fArticle = _fArticle.UpdateCustomerDue(customerDue);
+            foreach (var productionRef in Agent.VirtualChildren)
+            {
+                Agent.Send(BasicInstruction.UpdateCustomerDueTimes.Create(customerDue, productionRef));
+            }
+        }
+
+        internal void RemoveVirtualChild()
+        {
+            Agent.VirtualChildren.Remove(Agent.Sender);
+            Agent.Send(BasicInstruction.RemovedChildRef.Create(Agent.Sender));
+            TryToRemoveChildRefFromProduction();
+        }
         internal void RequestArticle(FArticle requestArticle)
         {
             // Save Request Item.
             _fArticle = requestArticle;
-            Agent.DebugMessage($"{_fArticle.Article.Name} {_fArticle.Key} is Requested to Produce.");
+            Agent.DebugMessage($"{_fArticle.Article.Name} {_fArticle.Key} is Requested to Produce.", CustomLogger.STOCK, LogLevel.Warn);
             // get related Storage Agent
-            Agent.Send(instruction: Directory.Instruction
-                                .RequestAgent
-                                .Create(discriminator: requestArticle.Article.Name
-                                    , target: Agent.ActorPaths.StorageDirectory.Ref));
+            Agent.Send(instruction: Directory.Instruction.RequestAgent
+                                    .Create(discriminator: requestArticle.Article.Name
+                                        , target: Agent.ActorPaths.StorageDirectory.Ref));
         }
 
         internal void ResponseFromDirectory(FAgentInformation hubInfo)
         {
-            Agent.DebugMessage(msg: "Acquired stock Agent: " + hubInfo.Ref.Path.Name + " from " + Agent.Sender.Path.Name);
+            Agent.DebugMessage(msg: "Acquired stock Agent: " + hubInfo.Ref.Path.Name + " from " + Agent.Sender.Path.Name, CustomLogger.INITIALIZE, LogLevel.Warn);
 
             _fArticle = _fArticle.UpdateStorageAgent(s: hubInfo.Ref);
             // Create Request to Storage Agent 
@@ -71,21 +98,22 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 
             Agent.DebugMessage(msg: reservation.Quantity + " " 
                                 + _fArticle.Article.Name + " are reserved and " 
-                                + _quantityToProduce + " " + _fArticle.Article.Name + " need to be produced!");
+                                + _quantityToProduce + " " + _fArticle.Article.Name + " need to be produced!", CustomLogger.STOCK, LogLevel.Warn);
 
             if (reservation.IsInStock && !_fArticle.Article.ToBuild)
             {
-                Agent.DebugMessage(msg: $"Start forward scheduling for article: {_fArticle.Article.Name} {_fArticle.Key} at: {Agent.CurrentTime}");
+                Agent.DebugMessage(msg: $"Start forward scheduling for article: {_fArticle.Article.Name} {_fArticle.Key} at: {Agent.CurrentTime}", CustomLogger.SCHEDULING, LogLevel.Warn);
                 PushForwardTimeToParent(earliestStartForForwardScheduling: Agent.CurrentTime);
             }
 
 
-            if (reservation.IsInStock && !_fArticle.IsHeadDemand)
+            if (reservation.IsInStock && IsNot(_fArticle.IsHeadDemand))
             {
                 ProvideRequest(new FArticleProvider(articleKey: _fArticle.Key
                                                   , articleName: _fArticle.Article.Name
                                                   , stockExchangeId: reservation.TrackingId
                                                   , articleFinishedAt: Agent.CurrentTime
+                                                  , customerDue: _fArticle.CustomerDue
                                                   , provider: new List<FStockProvider>(new[] { new FStockProvider(reservation.TrackingId, "In Stock") })));
             }
 
@@ -98,7 +126,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                 if (_fArticle.IsHeadDemand)
                 {
                     var nextRequestAt = _fArticle.DueTime - Agent.CurrentTime;
-                    Agent.DebugMessage(msg: $"Ask storage for Article {_fArticle.Key} in + {nextRequestAt}");
+                    Agent.DebugMessage(msg: $"Ask storage for Article {_fArticle.Key} in + {nextRequestAt}", CustomLogger.STOCK, LogLevel.Warn);
 
                     Agent.Send(instruction: ProvideArticleAtDue.Create(message: _fArticle.Key, target: _fArticle.StorageAgent)
                                  , waitFor: nextRequestAt);
@@ -130,7 +158,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 
         private void PushForwardTimeToParent(long earliestStartForForwardScheduling)
         {
-            Agent.DebugMessage(msg:$"Earliest time to provide {_fArticle.Article.Name} {_fArticle.Key} at {earliestStartForForwardScheduling}");
+            Agent.DebugMessage(msg:$"Earliest time to provide {_fArticle.Article.Name} {_fArticle.Key} at {earliestStartForForwardScheduling}", CustomLogger.SCHEDULING, LogLevel.Warn);
             var msg = BasicInstruction.JobForwardEnd.Create(message: earliestStartForForwardScheduling, target: Agent.VirtualParent);
             Agent.Send(instruction: msg);
         }
@@ -138,22 +166,68 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
         internal void ProvideRequest(FArticleProvider fArticleProvider)
         {
             // TODO: Might be problematic due to inconsistent _fArticle != Storage._fArticle
-            Agent.DebugMessage(msg: $"Request for {_fArticle.Article.Name} {_fArticle.Key} provided from " + Agent.Sender);
+            Agent.DebugMessage(msg: $"Request for {_fArticle.Quantity} {_fArticle.Article.Name} {_fArticle.Key} provided from {Agent.Sender.Path.Name} to {Agent.VirtualParent.Path.Name}", CustomLogger.STOCK, LogLevel.Warn);
 
-            _fArticle = _fArticle.SetProvided.UpdateFinishedAt(f: Agent.CurrentTime);
+            _fArticle = _fArticle.UpdateFinishedAt(f: Agent.CurrentTime);
+
+            var providedArticles = fArticleProvider.Provider.Select(x => x.ProvidesArticleKey);
+            foreach (var articlesInProduction in fArticlesToProvide)
+            {
+                if (IsFalse(providedArticles.Contains(articlesInProduction.Value)) // is not original provider
+                    && Agent.VirtualChildren.Contains(articlesInProduction.Key)) // and ist not already finished to produce
+                {
+                        Agent.Send(BasicInstruction.UpdateCustomerDueTimes
+                            .Create(fArticleProvider.CustomerDue, articlesInProduction.Key));
+                }
+            }
+
             Agent.Send(instruction: BasicInstruction.ProvideArticle
                                                     .Create(message: fArticleProvider
                                                             ,target: Agent.VirtualParent 
                                                            ,logThis: false));
+            
         }
 
         internal void WithdrawArticleFromStock()
         {
-            Agent.DebugMessage(msg: $"Withdraw article {_fArticle.Article.Name} {_fArticle.Key} from Stock exchange {_fArticle.StockExchangeId}");
+            Agent.DebugMessage(msg: $"Withdraw article {_fArticle.Article.Name} {_fArticle.Key} from Stock exchange {_fArticle.StockExchangeId}", CustomLogger.STOCK, LogLevel.Warn);
             Agent.Send(instruction: WithdrawArticle
                               .Create(message: _fArticle.StockExchangeId
                                      , target: _fArticle.StorageAgent));
-            Agent.TryToFinish();
+            _fArticle = _fArticle.SetProvided;
+            TryToRemoveChildRefFromProduction();
+        }
+
+        private void TryToRemoveChildRefFromProduction()
+        {
+            if (_fArticle.IsHeadDemand)
+            {
+                TryToFinish();
+                return;
+            }
+
+            if (Agent.VirtualChildren.Count == 0 && _fArticle.IsProvided)
+            {
+                Agent.Send(BasicInstruction.RemoveVirtualChild.Create(Agent.VirtualParent));
+            }
+        }
+
+        internal void TryToFinish()
+        {
+            if (Agent.VirtualChildren.Count == 0 && _fArticle.IsProvided)
+            {
+                Agent.DebugMessage(
+                    msg: $"Shutdown for {_fArticle.Article.Name} " +
+                         $"(Key: {_fArticle.Key}, OrderId: {_fArticle.CustomerOrderId})"
+                    , CustomLogger.DISPOPRODRELATION, LogLevel.Debug);
+                Agent.TryToFinish();
+                return;
+            }
+
+            Agent.DebugMessage(
+                msg: $"Could not run shutdown for {_fArticle.Article.Name} " +
+                     $"(Key: {_fArticle.Key}, OrderId: {_fArticle.CustomerOrderId}) cause article is provided {_fArticle.IsProvided } and has childs left  {Agent.VirtualChildren.Count} "
+                , CustomLogger.DISPOPRODRELATION, LogLevel.Debug);
         }
     }
 }

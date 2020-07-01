@@ -14,7 +14,8 @@ namespace Master40.DB.ReportingModel.Interface
         long ExpectedDuration { get; set; }
         long Start { get; set; }
         long End { get; set; }
-        string Resource { get; set; }
-        string ResourceTool { get; set; }
+        string CapabilityProvider { get; set; }
+        string CapabilityName { get; set; }
+        int SetupId { get; set; }
     }
 }

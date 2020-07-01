@@ -1,0 +1,51 @@
+<button class="btn btn-outline-secondary ladda-button" id="controll-btn" type="button" data-toggle="modal" data-target="#staticBackdrop">
+    Show
+</button>
+
+<div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Mission Control</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row" style="">
+                    <label class="col-md-5 col-form-label pull-left">Type</label>
+                    <select class="form-control col-md-6 pull-right" id="simulationType"
+                            style="width: 100px; margin-left: 15px;">
+                        <option>Choose...</option>
+                        <option selected value="1">Default</option>
+                    </select>
+                </div>
+                <div class="form-group row" style="">
+                    <label class="col-md-8 col-form-label">Orders</label>
+                    <div class="col-md-4">
+                        <input id="orderAmount" class="form-control" value="550">
+                    </div>
+                </div>
+                <div class="row form-group" style="">
+                    <label class="col-md-8 col-form-label">Inter arrival rate</label>
+                    <div class="col-md-4">
+                        <input id="interArrivalRate" class="form-control" value="0.015">
+                    </div>
+                </div>
+                <div class="row form-group" style="">
+                    <label class="col-md-8 col-form-label">Estimated throughput</label>
+                    <div class="col-md-4">
+                        <input id="estimatedThroughputTime" class="form-control" value="1920">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button class="btn btn-outline-secondary ladda-button" id="simulationStart-btn" data-dismiss="modal"
+                        type="button" onclick="startAgents()">
+                    Launch!
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

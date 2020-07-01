@@ -10,9 +10,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
             IBehaviour behaviour;
             switch (simType)
             {
-                case SimulationType.Bucket: behaviour = Default(simType);
-                    break;
-                case SimulationType.DefaultSetup: behaviour = Default(simType);
+                case SimulationType.Default: behaviour = Default(simType);
                     break;
                 default: behaviour = Default(simType);
                     break;

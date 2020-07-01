@@ -1,68 +1,116 @@
-﻿@{ 
+﻿@{
 }
 <style>
-    .chartLayerTimeliness > canvas {
-        width: 100px;
-        height: 200px;
-    }
-    .chartContainerTimeliness {
+    .chartTimelinessWrapper {
+        overflow-x: hidden;
         position: relative;
-        width: 200px;
-        height: 220px;
-        margin-left: 20px;
-        margin-right: 20px;
+        min-width: 150px;
+        width: 99%;
+        height: 120px;
+        margin: 0 auto;
     }
+
+
 </style>
-<div style="float:left;">
-    <div class="chartContainerTimeliness">
-        <div class="chartLayerTimeliness" >
-
-            <!--div id="js-legend" class="chart-legend"><div-->
-
-            <canvas id="TimelinessElement" style="height: 200px"></canvas>
-        </div>
-        <div class="text-center">
-            <b>
-                <span id="valueTimeliness">
-                    In time: 95 %
-                </span>
-            </b>
-        </div>
+<div class="card" style="margin-top: 10px;">
+    <div class="card-header">
+        <b>Timeliness <span id="valueTimeliness"> 100 % </span></b>
+    </div>
+    <div class="card-body">
+    <div class="chartTimelinessWrapper">
+        <!--div id="js-legend" class="chart-legend"><div-->
+        <canvas id="TimelinessElement"></canvas>
+    </div>
     </div>
 </div>
+    <script>
+    var timeliness_label = [["Timeliness"]];
+    var timelines_data_core = [0];
+    var timeliness_data_inTime = [[0]];
+    var timeliness_data_tooLate = [[0]];
+        
+        var TimelinessElement = document.getElementById("TimelinessElement");
 
-<script>
-    var TimelinessElement = document.getElementById("TimelinessElement");
     var TimelinessChart = new Chart(TimelinessElement, {
-            "type": "bar"
-            , "data": {
-                "datasets": [
+        type: 'horizontalViolin',
+        data: {
+            // define label tree
+            labels: timeliness_label,
+            datasets: [
+                {
+                    label: 'Early',
+                    backgroundColor: ["rgba(214, 233, 198, 0.6)"],
+                    borderColor: ["rgba(21, 87, 36, 0.9)"],
+                    borderWidth: 1,
+                    outlierColor: '#000000',
+                    padding: 10,
+                    itemRadius: 2,
+                    data: timeliness_data_inTime
+                }, {
+                    label: 'Late',
+                    backgroundColor: ["rgba(227, 76, 87, 0.3)"],
+                    borderColor: ["rgba(227, 76, 87, 0.9)"],
+                    borderWidth: 1,
+                    outlierColor: '#000000',
+                    padding: 10,
+                    itemRadius: 2,
+                    data: timeliness_data_tooLate
+                }
+            ]
+        },
+        options: {
+            maintainAspectRatio: false,
+            responsive: true,
+            legend: { display: false, position: 'bottom' },
+            title: { display: false, text: 'Throughput Times' },
+            scales: {
+                xAxes: [
                     {
-                        "type": "bar"
-                        ,"label": "to late"
-                        , "backgroundColor": ["rgba(214, 233, 198, 0.6)", "rgba(227, 76, 87, 0.6)"]
-                        , "borderColor": ["rgba(21, 87, 36, 0.9)", "rgba(227, 76, 87, 0.9)"]
-                        , "borderWidth": 1
-                        , "data": [95.0, 5.0]
-                    }], "labels": ["in time", "too late"]
-            }, "options": {
-                "responsive": true, "maintainAspectRatio": false, "legend": { "display": false }
-                , "scales": {
-                    "yAxes": [{
-                        "type": "linear", "id": "first-x-axis"
-                        , "scaleLabel": { "display": true, "labelString": "Timeliness", "fontSize": 12 }
-                        , "ticks": { "max": 100.0, "min": 0, "stepSize": 20, "display": true }
-                        , "display": true, "stacked": false
-                    }], "xAxes": [{ "display": true, "stacked": false }]
+                        stacked: true,
+                        ticks: { fontSize: 10 } 
+                    }
+                ],
+                yAxes: [{
+                    display: false,
+                    scaleLabel: { display: false },
+                    stacked: true,
+                    ticks: { fontSize: 10 } 
+                    }]
                 }
             }
-        }
-    );;
-    processingProxy.on("Timeliness", function (msg) {
-        // console.log("Timeliness :" + msg);
-        TimelinessChart.data.datasets[0].data = [msg, 100 - msg];
-        TimelinessChart.update();
-        var val = Math.round(msg*100)/100;
-        $("#valueTimeliness").replaceWith("<span id='valueTimeliness'>In time: " + val + " %</span>");
+        });
+
+    //processingProxy.on("Timeliness", updateTimeliness);
+    
+    function updateTimeliness(serialized) {
+        timelines_data_core.unshift(parseInt(serialized));
+        timelines_data_core = shiftArray(timelines_data_core, 50);
+        timeliness_data_inTime = [[0]];
+        timeliness_data_tooLate = [[0]];
+        // var scale_timeliness = Math.abs(
+        var sum_pos = 0;
+        var sum_neg = 0;
+        timelines_data_core.forEach(x => {
+            var valueAsInt = parseInt(x);
+            if (valueAsInt <= 0) {
+                timeliness_data_inTime[0].push(valueAsInt);
+                sum_neg++;
+            } else {
+                timeliness_data_tooLate[0].push(valueAsInt);
+                sum_pos++;
+            }
     });
-</script>
+
+    TimelinessChart.data.datasets[0].data = timeliness_data_inTime;
+    TimelinessChart.data.datasets[1].data = timeliness_data_tooLate;
+    TimelinessChart.update();
+
+
+    var sum = sum_pos + sum_neg ;
+    var div = sum_neg / sum;
+    var val = Math.round(div * 100);
+    $("#valueTimeliness").replaceWith("<span id='valueTimeliness'>" + val +  " %</span>");
+
+    //console.log("Sorry, we are out of " + expr + ".");
+    };
+    </script>

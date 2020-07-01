@@ -3,6 +3,7 @@ using Master40.SimulationCore.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NLog;
 using static FArticleProviders;
 using static FArticles;
 using static FOperations;
@@ -11,10 +12,8 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
 {
     public class OperationManager
     {
-        private List<DispoArticleDictionary> _articleProvider = new List<DispoArticleDictionary>();
-
-
-        internal List<FOperation> GetOperations => _articleProvider.Select(x => x.Operation).ToList();
+        private List<DispoArticleDictionary> _articleProvider { get; }= new List<DispoArticleDictionary>();
+        internal List<FOperation> GetOperations => _articleProvider.Select(x => x.Operation).OrderBy(x => x.Operation.HierarchyNumber).ToList();
         internal List<IActorRef> GetProviderForOperation(Guid operationKey)
         {
             var articleTuple = _articleProvider.Single(x => x.Operation.Key == operationKey);
@@ -22,9 +21,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
             return provider;
         }
 
-        public List<FOperation> GetOperationByCapability(string skillName)
+        public List<FOperation> GetOperationByCapability(string capabilityName)
         {
-            var operations = _articleProvider.Where(x => x.Operation.Operation.ResourceCapability.Name == skillName)
+            var operations = _articleProvider.Where(x => x.Operation.RequiredCapability.Name == capabilityName)
                                              .Select(x => x.Operation)
                                              .ToList();
             return operations;
@@ -78,28 +77,29 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Types
         public int CreateRequiredArticles(FArticle articleToProduce, IActorRef requestingAgent, long currentTime)
         {
             List<ArticleProvider> listAP = new List<ArticleProvider>();
-            foreach (var fOperation in GetOperations) { 
+            var remainingDuration = articleToProduce.RemainingDuration;
+            foreach (var fOperation in GetOperations.OrderByDescending(x => x.Operation.HierarchyNumber)) {
+                remainingDuration += fOperation.Operation.Duration;
                 var provider = GetArticleDispoProvider(operationKey: fOperation.Key);
                 if (fOperation.Operation.ArticleBoms.Count == 0)
                 {
                     //TODO Log this somewhere - not in System Debug
                     //System.Diagnostics.Debug.WriteLine($"Operation {fOperation.Operation.Name} of Article {articleToProduce.Article.Name} has no RequiredArticles!");
-                    fOperation.StartConditions.ArticlesProvided = true;
+                    fOperation.SetStartConditions(fOperation.StartConditions.PreCondition, true);
                 }
-
+                
                 foreach (var bom in fOperation.Operation.ArticleBoms)
                 {
                     var createdArticleProvider = new ArticleProvider(provider: ActorRefs.Nobody,
-                        article: bom.ToRequestItem(requestItem: articleToProduce
-                            , requester: requestingAgent
-                            , currentTime: currentTime));
-                    listAP.Add(createdArticleProvider);
+                                                                      article: bom.ToRequestItem(requestItem: articleToProduce
+                                                                            , requester: requestingAgent
+                                                                            , remainingDuration: remainingDuration
+                                                                            , customerDue: articleToProduce.CustomerDue
+                                                                            , currentTime: currentTime));
+                                                                    listAP.Add(createdArticleProvider);
                     provider.DispoToArticleRelation.Add(createdArticleProvider);
-
                 }
             }
-            //TODO Log this somewhere
-            //System.Diagnostics.Debug.WriteLine($"ProductionAgent {articleToProduce.Article.Name} require {counter} Bom elements and therefore created {listAP.Count} Dispos.");
             return listAP.Count;
         }
 

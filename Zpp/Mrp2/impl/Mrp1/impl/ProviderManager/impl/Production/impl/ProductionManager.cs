@@ -127,8 +127,7 @@ namespace Zpp.Mrp2.impl.Mrp1.impl.Production.impl
             productionOrderOperation.Duration =
                 articleBom.Operation.Duration * (int) quantity.GetValue();
             // Tool has no meaning yet, ignore it
-            productionOrderOperation.ResourceToolId = articleBom.Operation.ResourceToolId;
-            productionOrderOperation.ResourceTool = articleBom.Operation.ResourceTool;
+            productionOrderOperation.ResourceToolId = null;
             productionOrderOperation.ResourceCapability = articleBom.Operation.ResourceCapability;
             productionOrderOperation.ResourceCapabilityId = articleBom.Operation.ResourceCapabilityId;
             productionOrderOperation.State = State.Created;

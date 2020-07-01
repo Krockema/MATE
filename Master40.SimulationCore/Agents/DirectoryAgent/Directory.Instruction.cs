@@ -1,8 +1,10 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.DB.DataModel;
-using static FAgentInformations;
-using static FResourceSetupDefinitions;
+using System.Collections.Generic;
+using static FCapabilityProviderDefinitions;
+using static FResourceHubInformations;
+using static FResourceInformations;
 
 namespace Master40.SimulationCore.Agents.DirectoryAgent
 {
@@ -10,18 +12,6 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
     {
         public class Instruction
         {
-            public class CreateHubAgent : SimulationMessage
-            {
-                public static CreateHubAgent Create(FAgentInformation message, IActorRef target)
-                {
-                    return new CreateHubAgent(message: message, target: target);
-                }
-                private CreateHubAgent(object message, IActorRef target) : base(message: message, target: target)
-                {
-                }
-                public FAgentInformation GetObjectFromMessage { get => Message as FAgentInformation; }
-            }
-
             public class RequestAgent : SimulationMessage
             {
                 public static RequestAgent Create(string discriminator, IActorRef target)
@@ -48,14 +38,14 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
 
             public class CreateMachineAgents : SimulationMessage
             {
-                public static CreateMachineAgents Create(FResourceSetupDefinition message, IActorRef target)
+                public static CreateMachineAgents Create(FCapabilityProviderDefinition message, IActorRef target)
                 {
                     return new CreateMachineAgents(message: message, target: target);
                 }
                 private CreateMachineAgents(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FResourceSetupDefinition GetObjectFromMessage { get => Message as FResourceSetupDefinition; }
+                public FCapabilityProviderDefinition GetObjectFromMessage { get => Message as FCapabilityProviderDefinition; }
             }
             public class CreateStorageAgents : SimulationMessage
             {
@@ -67,6 +57,30 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
                 {
                 }
                 public M_Stock GetObjectFromMessage { get => Message as M_Stock; }
+            }
+
+            public class ForwardRegistrationToHub : SimulationMessage
+            {
+                public static ForwardRegistrationToHub Create(FResourceInformation message, IActorRef target)
+                {
+                    return new ForwardRegistrationToHub(message: message, target: target);
+                }
+                private ForwardRegistrationToHub(object message, IActorRef target) : base(message: message, target: target)
+                {
+                }
+                public FResourceInformation GetObjectFromMessage { get => Message as FResourceInformation; }
+            }
+
+            public class CreateResourceHubAgents : SimulationMessage
+            {
+                public static CreateResourceHubAgents Create(FResourceHubInformation message, IActorRef target)
+                {
+                    return new CreateResourceHubAgents(message: message, target: target);
+                }
+                private CreateResourceHubAgents(object message, IActorRef target) : base(message: message, target: target)
+                {
+                }
+                public FResourceHubInformation GetObjectFromMessage { get => Message as FResourceHubInformation; }
             }
         }
     }

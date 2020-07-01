@@ -22,7 +22,7 @@ namespace Master40.ViewComponents
                     new List<MenuItem> {
                         new MenuItem { MenuItemId = 9, MenuId = 1, MenuText = "Operations", LinkUrl = "OperationCharts", MenuOrder = 1, ParentMenuItemId = 6, Action = "Index", Symbol = "fas fa-tasks" },
                         //new MenuItem { MenuItemId = 10, MenuId = 1, MenuText = "Machine Tools", LinkUrl = "OperationTools", MenuOrder = 1, ParentMenuItemId = 6, Action = "Index", Symbol = "fa-wrench" },
-                        new MenuItem { MenuItemId = 11, MenuId = 1, MenuText = "Resources", LinkUrl = "Machines", MenuOrder = 1, ParentMenuItemId = 6, Action = "Index", Symbol = "fas fa-cogs" }
+                        new MenuItem { MenuItemId = 11, MenuId = 1, MenuText = "Resources", LinkUrl = "Resources", MenuOrder = 1, ParentMenuItemId = 6, Action = "Index", Symbol = "fas fa-cogs" }
                     } },
                     new MenuItem { MenuItemId = 7, MenuId = 1, MenuText = "Article BOM", LinkUrl = "ArticleBoms", MenuOrder = 2, ParentMenuItemId = 1, Action = "Index", Symbol = "fas fa-sitemap" },
                     new MenuItem { MenuItemId = 8, MenuId = 1, MenuText = "Article Stock", LinkUrl = "Stocks", MenuOrder = 1, ParentMenuItemId = 1, Action = "Index", Symbol = "fas fa-box-open" } }

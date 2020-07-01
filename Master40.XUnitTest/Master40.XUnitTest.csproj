@@ -3,20 +3,34 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Configurations>Debug;Release;Azure</Configurations>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Online\Agents\Hub\**" />
-    <EmbeddedResource Remove="Online\Agents\Hub\**" />
-    <None Remove="Online\Agents\Hub\**" />
+    <Compile Remove="Online\Agents\Resource\**" />
+    <Compile Remove="Online\Simulation\**" />
+    <Compile Remove="Test\**" />
+    <Compile Remove="Zpp\**" />
+    <EmbeddedResource Remove="Online\Agents\Resource\**" />
+    <EmbeddedResource Remove="Online\Simulation\**" />
+    <EmbeddedResource Remove="Test\**" />
+    <EmbeddedResource Remove="Zpp\**" />
+    <None Remove="Online\Agents\Resource\**" />
+    <None Remove="Online\Simulation\**" />
+    <None Remove="Test\**" />
+    <None Remove="Zpp\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Akka.TestKit.Xunit" Version="1.3.17" />
+    <Compile Remove="Online\Agents\Types\BucketManagers.cs" />
+    <Compile Remove="Online\Agents\Types\TimeConstraintQueue.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Akka.TestKit.Xunit" Version="1.4.4" />
     <PackageReference Include="EfCore.InMemoryHelpers" Version="1.9.11" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.0" />
     <PackageReference Include="Microsoft.NETCore.Portable.Compatibility" Version="1.0.1" />
     <PackageReference Include="sqlite" Version="3.13.0" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.112" />

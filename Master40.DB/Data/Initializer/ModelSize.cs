@@ -5,6 +5,8 @@
         Small,
         Medium,
         Large,
-        XLarge
+        XLarge,
+        TestModel,
+        None,
     }
 }

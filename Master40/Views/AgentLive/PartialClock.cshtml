@@ -1,0 +1,108 @@
+﻿
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+
+<style>
+    .clockChartWrapper {
+        width: 125px;
+        position: relative;
+    }
+    .clockPositioner{
+        right: 0px;
+    }
+    #time {
+        margin-right: 10px;
+    }
+</style>
+
+
+<div id="ClockContainer" class="row">
+    <div class="col-12">
+        <h4>Clock</h4>
+        <p id="clock" class="position-relative">
+            <b>Current Day <span id="day">0</span> <span id="time" class="float-right">00:00</span></b>
+        </p>
+        <p id="clockEnd">
+            <b class="text-secondary">Ends in <span id="remainingDays">14</span></b>
+        </p>
+    </div>
+    <div class="position-absolute clockPositioner">
+        <div class="clockChartWrapper">
+            <canvas id="ClockCanvas"></canvas>
+        </div>
+    </div>
+</div>
+<script>
+    var deliveredData = {
+        labels: [
+            "Value"
+        ],
+        datasets: [
+            {
+                data: [100,0],
+                backgroundColor: [
+                    "#1b809e",
+                    "rgba(0,0,0,0)"
+                ],
+                borderWidth: [
+                    0, 0
+                ]
+            },
+            {
+                data: [0, 0],
+                backgroundColor: [
+                    "#aa6708",
+                    "rgba(0,0,0,0)"
+                ],
+                borderWidth: [
+                    0, 0
+                ]
+            }
+        ]
+    };
+
+    var deliveredOpt = {
+        responsive: true, maintainAspectRatio: true, 
+        cutoutPercentage: 70,
+        animation: {
+            animationRotate: true,
+            duration: 2000
+        },
+        legend: {
+            display: false
+        },
+        tooltips: {
+            enabled: false
+        }
+    };
+
+    var clock = new Chart($('#ClockCanvas'), {
+        type: 'RoundedDoughnut',
+        data: deliveredData,
+        options: deliveredOpt
+    });
+    clock.update();
+
+    processingProxy.on("clockListener",
+        function (msg) {
+
+            var parsedValue = parseInt(msg) % 1440;
+            var days = parseInt(parseInt(msg) / 1440);
+            var hh = parseInt(parsedValue / 60);
+            var mm = parseInt(parsedValue % 60);
+            document.getElementById("day").innerHTML = days;
+            document.getElementById("remainingDays").innerHTML = 14 - days;
+            document.getElementById('time').innerHTML = ("0" + hh).substr(-2, 2) + ":" + ("0" + mm).substr(-2, 2);
+            
+            var rest = 1440 - parsedValue;
+            deliveredData.datasets[0].data[0] = parsedValue;
+                    deliveredData.datasets[0].data[1] = rest;
+
+            var minutes_rest = 60 - mm;
+            deliveredData.datasets[1].data[0] = mm;
+            deliveredData.datasets[1].data[1] = minutes_rest;
+            clock.update(0);
+    });
+</script>

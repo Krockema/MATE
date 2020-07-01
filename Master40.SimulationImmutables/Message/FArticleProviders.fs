@@ -10,5 +10,6 @@ open FStockProviders
             ArticleName : string
             StockExchangeId : Guid
             ArticleFinishedAt : int64
+            CustomerDue : int64
             Provider : System.Collections.Generic.List<FStockProvider>
         }

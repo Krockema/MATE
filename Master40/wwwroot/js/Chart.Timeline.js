@@ -280,7 +280,7 @@
                 label: me.chart.data.labels[index],
                 datasetLabel: dataset.label,
                 text: text,
-                textColor: color.luminosity() > 0.5 ? '#000000' : '#ffffff'
+                textColor: color.luminosity() > 0.3 ? '#000000' : '#ffffff'
             };
 
             rectangle.draw = function () {
@@ -296,7 +296,7 @@
                 ctx.globalCompositeOperation = 'destination-over';
                 ctx.strokeRect(vm.x, vm.y, vm.width, vm.height);
 
-                ctx.globalAlpha = 0.5;
+                ctx.globalAlpha = 0.75;
                 ctx.globalCompositeOperation = 'source-over';
                 ctx.fillRect(vm.x, vm.y, vm.width, vm.height);
 
@@ -444,7 +444,7 @@
             yAxes: [{
                 type: 'category',
                 position: 'left',
-                barThickness: 20,
+                barThickness: 10,
                 categoryPercentage: 0.8,
                 barPercentage: 0.9,
                 offset: true,

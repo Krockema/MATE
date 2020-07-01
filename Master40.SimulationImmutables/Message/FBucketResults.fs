@@ -12,7 +12,7 @@ open IJobResults
           End : int64 
           OriginalDuration : int64
           ProductionAgent : IActorRef
-          ResourceAgent : IActorRef
+          CapabilityProvider : String
           } interface IKey with
                 member this.Key  with get() = this.Key
                 member this.CreationTime with get() = this.CreationTime
@@ -20,9 +20,8 @@ open IJobResults
                 member this.Key with get() = this.Key
                 member this.End with get() = this.End
                 member this.Start with get() = this.Start
-                member this.ResourceAgent with get() = this.ResourceAgent
+                member this.CapabilityProvider with get() = this.CapabilityProvider
                 member this.OriginalDuration with get() = this.OriginalDuration
                 member this.FinishedAt f = { this with End = f;
                                                        OriginalDuration = this.End - this.Start } :> IJobResult
         member this.UpdatePoductionAgent p = { this with ProductionAgent = p }
-        member this.UpdateResourceAgent r = { this with ResourceAgent = r }

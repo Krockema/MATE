@@ -40,7 +40,6 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
                 }
                 public Guid GetObjectFromMessage { get => (Guid)Message; }
             }
-
         }
     }
 }

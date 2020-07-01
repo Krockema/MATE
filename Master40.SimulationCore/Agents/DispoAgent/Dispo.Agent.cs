@@ -34,9 +34,13 @@ namespace Master40.SimulationCore.Agents.DispoAgent
 
         protected override void OnChildAdd(IActorRef childRef)
         {
-            var fArticle = ((Behaviour.Default)Behaviour)._fArticle;
-            this.Send(instruction: Production.Instruction.StartProduction.Create(message: fArticle, target: Sender));
-            this.DebugMessage(msg: "Dispo<" + fArticle.Article.Name + "(OrderId: " + fArticle.CustomerOrderId + ") > ProductionStart has been sent.");
+            var baseArticle = ((Behaviour.Default)Behaviour)._fArticle;
+            var fArticlesToProvide = ((Behaviour.Default)Behaviour).fArticlesToProvide;
+            var articleKey = baseArticle.Keys.ToArray()[fArticlesToProvide.Count];
+            baseArticle = baseArticle.SetKey(articleKey);
+            fArticlesToProvide.Add(Sender, articleKey);
+            this.Send(instruction: Production.Instruction.StartProduction.Create(message: baseArticle, target: Sender));
+            this.DebugMessage(msg: $"Dispo<{baseArticle.Article.Name } (OrderId: { baseArticle.CustomerOrderId }) > ProductionStart has been sent for { baseArticle.Key }.");
         }
     }
 }

@@ -7,7 +7,7 @@
 }
 
 <style>
-    .chartLayer.offline {
+    .offline {
         color: #a94442;
         background-color: rgba(169, 68, 68, .2);
         border-radius: 4px;
@@ -16,7 +16,7 @@
         box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
     }
 
-    .chartLayer.online {
+    .online {
         border-radius: 4px;
         border: solid 1px rgba(125, 180, 86, 0.4);
         background-color: rgba(125, 180, 86, 0.05);
@@ -39,196 +39,45 @@
         justify-content: center; /* align horizontal */
         align-items: center; /* align vertical */
     }
+    .callout-button-position{
+        position: absolute;
+        right: 20px;
+        bottom: 10px;
+    }
 </style>
 
-<div class="row">
-    <div class="col-12">
-        <h2>Agent System</h2>
-    </div>
-
-</div>
-
-
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-lg-9 col-md-9">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12 col-md-12" style="margin-top: 0px">
-                        <div class="row">
-                            <div class="col-lg-3 col-md-3">
-                                <div class="bs-callout bs-callout-info" id="callout-xref-input-group">
-                                    <h4>Clock</h4>
-                                    <p id="clock">
-                                        <b>0</b>
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="col-lg-3 col-md-3">
-                                <div class="bs-callout bs-callout-info" id="callout-xref-input-group">
-                                    <h4>Orders</h4>
-                                    <p id="orders">
-                                        <b>0</b>
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="col-lg-3 col-md-3">
-                                <div class="bs-callout bs-callout-info" id="callout-xref-input-group">
-                                    <h4>OEE</h4>
-                                    <p id="oee">
-                                        <b>0 %</b>
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="col-lg-3 col-md-3">
-                                <div class="bs-callout bs-callout-warning" id="statusCallout">
-                                    <h4>Status</h4>
-                                    Ready
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-9">
-                        <div class="card" style="margin-top: 10px;">
-                            <div class="card-header">
-                                <b>Work in Progress</b>
-                            </div>
-                            <div style="text-align: center" class="card-body"><partial name="~/Views/AgentLive/PartialContract.cshtml" /></div>
-                        </div>
-                    </div>
-                   
-            <div class="col-lg-3 col-md-3">
-                <div class="card"  style="margin-top: 10px;">
-                    <div class="card-header">
-                        <b>Timeliness</b>
-                    </div>
-                    <div class="card-body"> <partial name="~/Views/AgentLive/PartialTimeliness.cshtml"/></div>
+    <div class="row  overflow-hidden">
+        <partial name="~/Views/AgentLive/PartialHeadline.cshtml"/>
+    </div>
+    <div class="row d-flex flex-row-reverse">
+        <div class="col-lg-12 col-xl-6">
+
+            <partial name="~/Views/AgentLive/PartialResources.cshtml" />
+            <!-- begin tandem -->
+            <div class="row">
+                <div class="col-6">
+
+                    <partial name="~/Views/AgentLive/PartialTimeliness.cshtml" />
+
+                </div>
+                <div class="col-6">
+
+                    <partial name="~/Views/AgentLive/PartialThroughput.cshtml" />
+
+                    <!-- begin tandem -->
                 </div>
             </div>
+            <partial name="~/Views/AgentLive/PartialGantt.cshtml" />
         </div>
-                <div class="row">
-                    <div class="col-lg-9 col-md-9">
-                        <div class="card"  style="margin-top: 10px;">
-                            <div class="card-header">
-                                <b>Machine Workload</b>
-                            </div>
-                            <div class="card-body">
-                                <div style="text-align: center">
-                                    @{
-                                        var containerSize = 150;
-                                        var textPadding = 75;
-                                        var fontSize = 15;
-                                        if (Model.Count() > 6)
-                                        {
-                                            containerSize = 75;
-                                            textPadding = 35;
-                                            fontSize = 10;
-                                        }
-                                        @Html.Raw(value: @"
-                                                <style>
-                                                    .chartContainer {
-                                                        position: relative;
-                                                        background-color: transparent;
-                                                        width:" + containerSize + @"px;
-                                                        height:" + containerSize + @"px;
-                                                        margin-left: 5px;
-                                                        margin-right: 5px;
-                                                        margin-bottom: 5px;
-                                                    }
-                                                    .machineText {
-                                                        font:" + fontSize + @"px Helvetica;
-                                                    }
-                                                    .textLayer {
-                                                        padding-top:" + textPadding + @"px;
-                                                        font: bold" + fontSize + @"px Helvetica;
-                                                </style>");
-                                    }
-                                @foreach (var section in Model.OrderBy(keySelector: x => x.Id)){
-                                    <partial name="~/Views/AgentLive/PartialMachine.cshtml" model="section"/>
-                                }
-                        </div>
-                                <div> <partial name="~/Views/AgentLive/PartialTotalWorkLoad.cshtml" /></div>
-                    </div>
-                </div>
-                </div>
-                <div class="col-lg-3">
-                    <div class="card" style="margin-top: 10px;">
-                        <div class="card-header">
-                            <b>Throughput Times</b>
-                        </div>
-                        <div style="text-align: center" class="card-body"> <partial name="~/Views/AgentLive/PartialThroughput.cshtml"/></div>
-                    </div>
-                </div>
-                </div>
-        <div class="row">
-            <div class="col-lg-12 col-md-12">
-                <div class="card" style="margin-top: 10px;">
-                    <div class="card-header">
-                        <b>Storage Value in Euro </b>
-                    </div>
-                    <div style="text-align: center" class="card-body"> <partial name="~/Views/AgentLive/PartialStock.cshtml" /></div>
-                </div>
-            </div>
+        <div class="col-lg-12 col-xl-6">
+
+            <partial name="~/Views/AgentLive/PartialTotalWorkLoad.cshtml" />
+            <partial name="~/Views/AgentLive/PartialContract.cshtml" />
+            <partial name="~/Views/AgentLive/PartialStock.cshtml" />
+
         </div>
     </div>
-</div>
-<div class="col-lg-3 col-md-3">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="card" style="margin-top: 20px">
-                <div class="card-header">
-                    Control Panel
-                </div>
-                <div class="card-body">
-                    <div class=" ">
-                        <div class="form-group row" style="">
-                            <label class="col-md-8 col-form-label">Sim.Config</label>
-                            <select class="form-control col-lg-4 pull-right" id="simulationType"
-                                    style="max-width: 100px; margin-left: 15px;">
-                                <option selected>Choose...</option>
-                                <option value="1">None</option>
-                                <option value="2">DefaultSetup</option>
-                                <option value="3">DefaultSetupStack</option>
-                                <option value="4">BucketScope</option>
-                            </select>
-                        </div>
-                        <div class="form-group row" style="">
-                            <label class="col-md-8 col-form-label">Orders</label>
-                            <div class="col-md-4">
-                                <input id="orderAmount" class="form-control" value="550">
-                            </div>
-                        </div>
-                        <div class="row form-group" style="">
-                            <label class="col-md-8 col-form-label">Inter arrival rate</label>
-                            <div class="col-md-4">
-                                <input id="interArrivalRate" class="form-control" value="0.02">
-                            </div>
-                        </div>
-                        <div class="row form-group" style="">
-                            <label class="col-md-8 col-form-label">Estimated throughput time</label>
-                            <div class="col-md-4">
-                                <input id="estimatedThroughputTime" class="form-control" value="600">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <label class="col-md-8 col-form-label">Start simulation run</label>
-                            <div class="col-md-4">
-                                <button class="btn btn-outline-secondary ladda-button" id="simulationStart-btn"
-                                        type="button" onclick="startAgents()">
-                                    Run!
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-             <partial name="~/Views/AgentLive/Summary.cshtml" />
-        </div>
-    </div>
-</div>
-</div>
 </div>
 <script>
 
@@ -241,7 +90,8 @@
 
             $("#statusCallout").replaceWith("<div class='bs-callout bs-callout-warning' id='statusCallout'>"
                 + "<h4> Status</h4>"
-                + "Finished"
+                + "<p><b>Finished</b></p>"
+                + "<p><b>&nbsp;</b></p>"
                 + "</div>");
 
         } else if (msg == "SignalReady") {
@@ -254,12 +104,10 @@
         }
     });
 
-    processingProxy.on("clockListener", function (msg) {
-        $("#clock").replaceWith("<p id='clock'><b>" + msg + "</b></p>");
-    });
-
     processingProxy.on("orderListener", function (msg) {
-        $("#orders").replaceWith("<p id='orders'><b>" + msg + "</b></p>");
+        var serialized = JSON.parse(msg);
+        $("#orders").replaceWith("<p id='orders'><b>" + serialized[0] + "</b></p>");
+        updateTimeliness(serialized[1]);
     });
 
     processingProxy.on("oeeListener", function (msg) {
@@ -279,11 +127,19 @@
 
         $("#statusCallout").replaceWith("<div class='bs-callout bs-callout-success' id='statusCallout'>"
             + "<h4> Status</h4>"
-            + "Running"
+            + "<p><b>Running</b></p>"
+            + "<p><b>&nbsp;</b></p>"
             + "</div>");
-    
+
+
+
+        
+        
+
         $.get("AgentLive/RunAsync/" + simulationType + "/orderAmount/" + orderAmount + "/arivalRate/" + arivalRate + "/estimatedThroughputTime/" + estimatedThroughputTime);
     }
+
+    // Start Agents
 
     function breakDown(machine) {
         $.get("AgentLive/MachineBreakdown/" + machine);

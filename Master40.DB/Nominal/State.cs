@@ -13,6 +13,21 @@
         InProgress
     }
 
+    public enum JobState
+    {
+        Revoked,
+        RevokeStarted,
+        Created,
+        InQueue,
+        WillBeReady,
+        SetupReady,
+        SetupInProcess,
+        SetupFinished,
+        Ready,
+        InProcess,
+        Finish,
+    }
+
     public enum ProducingState
     {
         Created,

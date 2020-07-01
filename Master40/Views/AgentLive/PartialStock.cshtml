@@ -1,4 +1,4 @@
-﻿@{ 
+﻿@{
 
 }
 <style>
@@ -8,15 +8,15 @@
         margin-top: 20px;
     }
 
-    .chartWrapper > canvas {
-        position: absolute;
-        left: 0;
-        top: 0;
-        pointer-events: none;
-    }
+        .chartWrapper > canvas {
+            position: absolute;
+            left: 0;
+            top: 0;
+            pointer-events: none;
+        }
 
     .chartAreaWrapper {
-        overflow-x: hidden ;
+        overflow-x: hidden;
         position: relative;
         width: 100%;
     }
@@ -27,126 +27,136 @@
         width: 100%;
     }
 </style>
-    <div class="chartWrapper" style="float:left">
-        <div class="chartAreaWrapper">
-            <div class="chartAreaWrapperStock">
-                <!--div id="js-legend" class="chart-legend"><div-->
-                <canvas id="StockEvolution" height="200"></canvas>
+
+<div class="card" style="margin-top: 10px;">
+    <div class="card-header">
+        <b>Stock Evolution</b>
+    </div>
+    <div class="card-body">
+
+        <div class="chartWrapper" style="float:left">
+            <div class="chartAreaWrapper">
+                <div class="chartAreaWrapperStock">
+                    <!--div id="js-legend" class="chart-legend"><div-->
+                    <canvas id="StockEvolution" height="200"></canvas>
+                </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        var StockElement = document.getElementById("StockEvolution");
-        var StockChart =
-            new Chart(StockElement, {
-                type: "scatter"
-                , data: {
-                    datasets: [{
-                        data: [{ "x": 0.0, "y": 0.0 }]
-                        , type: "line"
-                        , lineTension: 0.0
-                        , borderWidth: 1
-                        , borderColor: "rgba(0, 0, 0, 0.8)"
-                        , backgroundColor: "rgba(0, 0, 0, 0.3)"
-                        , showLine: true
-                        , label: "Product"
-                        , yAxisID: "first-y-axis"
-                    },{
-                        data: [{ "x": 0.0, "y": 0.0 }]
-                        , type: "line"
-                        , lineTension: 0.0
-                        , borderWidth: 1
-                        , borderColor: "rgba(0, 0, 0, 0.8)"
-                        , backgroundColor: "rgba(0, 0, 0, 0.3)"
-                        , showLine: true
-                        , label: "Assembly"
-                        , yAxisID: "first-y-axis"
-                    } , {
-                        data: [{ "x": 0.0, "y": 0.0 }]
-                        , type: "line"
-                        , lineTension: 0.0
-                        , borderWidth: 1
-                        , borderColor: "rgba(0, 0, 0, 0.8)"
-                        , backgroundColor: "rgba(0, 0, 0, 0.3)"
-                        , showLine: true
-                        , hidden: true
-                        , label: "Material"
-                        , yAxisID: "first-y-axis"
-                    } , {
-                        data: [{ "x": 0.0, "y": 0.0 }]
-                        , type: "line"
-                        , lineTension: 0.0
-                        , borderWidth: 1
-                        , borderColor: "rgba(0, 0, 0, 0.8)"
-                        , backgroundColor: "rgba(0, 0, 0, 0.3)"
-                        , showLine: true
-                        , hidden: true
-                        , label: "Consumable"
-                        , yAxisID: "first-y-axis"
-                    }]
-                    , labels: ["Product", "Assembly", "Raw", "Consumable"]
+<script>
+    var StockElement = document.getElementById("StockEvolution");
+    var StockChart =
+        new Chart(StockElement, {
+            type: "scatter"
+            , data: {
+                datasets: [{
+                    data: [{ "x": 0.0, "y": 0.0 }]
+                    , type: "line"
+                    , lineTension: 0.0
+                    , borderWidth: 1
+                    , borderColor: "rgba(0, 0, 0, 0.8)"
+                    , backgroundColor: "rgba(0, 0, 0, 0.3)"
+                    , showLine: true
+                    , label: "Product"
+                    , yAxisID: "first-y-axis"
+                }, {
+                    data: [{ "x": 0.0, "y": 0.0 }]
+                    , type: "line"
+                    , lineTension: 0.0
+                    , borderWidth: 1
+                    , borderColor: "rgba(0, 0, 0, 0.8)"
+                    , backgroundColor: "rgba(0, 0, 0, 0.3)"
+                    , showLine: true
+                    , label: "Assembly"
+                    , yAxisID: "first-y-axis"
+                }, {
+                    data: [{ "x": 0.0, "y": 0.0 }]
+                    , type: "line"
+                    , lineTension: 0.0
+                    , borderWidth: 1
+                    , borderColor: "rgba(0, 0, 0, 0.8)"
+                    , backgroundColor: "rgba(0, 0, 0, 0.3)"
+                    , showLine: true
+                    , hidden: true
+                    , label: "Material"
+                    , yAxisID: "first-y-axis"
+                }, {
+                    data: [{ "x": 0.0, "y": 0.0 }]
+                    , type: "line"
+                    , lineTension: 0.0
+                    , borderWidth: 1
+                    , borderColor: "rgba(0, 0, 0, 0.8)"
+                    , backgroundColor: "rgba(0, 0, 0, 0.3)"
+                    , showLine: true
+                    , hidden: true
+                    , label: "Consumable"
+                    , yAxisID: "first-y-axis"
+                }]
+                , labels: ["Product", "Assembly", "Raw", "Consumable"]
+            },
+            options: {
+                responsive: true
+                , maintainAspectRatio: false
+                , title: {
+                    position: "top"
+                    , fontSize: 24
+                    , fontStyle: "bold"
+                    , text: "Stock Evolution"
+                }, legend: {
+                    display: true
+                    , position: "bottom"
+                    , fullWidth: true
+                    , labels: { fontSize: 8 }
                 },
-                options: {
-                    responsive: true
-                    , maintainAspectRatio: false
-                    , title: {
-                        position: "top"
-                      , fontSize: 24
-                      , fontStyle: "bold"
-                      , text: "Stock Evolution"
-                    }, legend: {
-                        display: true
-                            , position: "bottom"
-                                , fullWidth: true
-                    },
-                    scales: {
-                         xAxes: [{
-                             type: "linear"
-                             , id: "first-x-axis"
-                             , scaleLabel: { display: true, labelString: "Time in min", fontSize: 12 }
-                             , ticks: { min: 0.0, max: 20000.0, display: true }
-                             , display: true
-                         }]
-                        , yAxes: [{
-                            type: "linear"
-                            , id: "first-y-axis"
-                            , scaleLabel: {
-                                display: true
-                                , labelString: "Value in €"
-                                , fontSize: 12
-                            }
-                            , ticks: { min: 0.0, display: true }
-                            , display: true
-                        }]
-                    }
+                scales: {
+                    xAxes: [{
+                        type: "linear"
+                        , id: "first-x-axis"
+                        , scaleLabel: { display: true, labelString: "Time in min", fontSize: 8 }
+                        , ticks: { min: 0.0, max: 20000.0, display: true, fontSize: 8 }
+                        , display: true
+                    }]
+                    , yAxes: [{
+                        type: "linear"
+                        , id: "first-y-axis"
+                        , scaleLabel: {
+                            display: true
+                            , labelString: "Value in €"
+                            , fontSize: 8
+                        }
+                        , ticks: { min: 0.0, display: true, fontSize: 8 }
+                        , display: true
+                    }]
                 }
-            });
-
-        processingProxy.on("Storage", function (msg) {
-            // console.log("Storage : " + msg);
-            var serialized = JSON.parse(msg);
-
-            switch (serialized.GroupName) {
-                case "Product":
-                    StockChart.data.datasets[0].data.push({ x: serialized.Time, y: serialized.Value });
-                    break;
-                case "Assembly":
-                    StockChart.data.datasets[1].data.push({ x: serialized.Time, y: serialized.Value });
-                    break;
-                case "Material":
-                    StockChart.data.datasets[2].data.push({ x: serialized.Time, y: serialized.Value });
-                    break;
-                case "Consumable":
-                    StockChart.data.datasets[3].data.push({ x: serialized.Time, y: serialized.Value });
-                    break;
-                default:
-                    console.log("Sorry, we are out of " + expr + ".");
             }
-
-            StockChart.update();
         });
-    </script>
+
+    processingProxy.on("Storage", function (msg) {
+        // console.log("Storage : " + msg);
+        var serialized = JSON.parse(msg);
+
+        switch (serialized.GroupName) {
+            case "Product":
+                StockChart.data.datasets[0].data.push({ x: serialized.Time, y: serialized.Value });
+                break;
+            case "Assembly":
+                StockChart.data.datasets[1].data.push({ x: serialized.Time, y: serialized.Value });
+                break;
+            case "Material":
+                StockChart.data.datasets[2].data.push({ x: serialized.Time, y: serialized.Value });
+                break;
+            case "Consumable":
+                StockChart.data.datasets[3].data.push({ x: serialized.Time, y: serialized.Value });
+                break;
+            default:
+                console.log("Sorry, we are out of " + expr + ".");
+        }
+
+        StockChart.update();
+    });
+</script>
 
 
 

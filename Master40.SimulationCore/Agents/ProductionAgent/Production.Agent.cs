@@ -3,7 +3,7 @@ using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Helper;
 using System.Linq;
-using static FArticles;
+using NLog;
 
 namespace Master40.SimulationCore.Agents.ProductionAgent
 {
@@ -27,7 +27,9 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             var articleToRequest = ((Behaviour.Default)Behaviour).OperationManager.Set(provider: childRef);
             this.Send(instruction: Dispo.Instruction.RequestArticle.Create(message: articleToRequest, target: childRef));
             this.DebugMessage(
-                msg: $"Create Dispo Agent for {articleToRequest.Article.Name} (Key: {articleToRequest.Key}, OrderId: {articleToRequest.CustomerOrderId})");
+                msg: $"Dispo child Agent for {articleToRequest.Article.Name} added " +
+                     $"(Key: {articleToRequest.Key}, OrderId: {articleToRequest.CustomerOrderId})"
+                    , CustomLogger.DISPOPRODRELATION, LogLevel.Debug);
         }
 
     }

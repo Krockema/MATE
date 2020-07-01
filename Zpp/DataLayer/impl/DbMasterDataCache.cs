@@ -30,7 +30,6 @@ namespace Zpp.DataLayer.impl
         private readonly IMasterDataTable<M_Resource> _resources;
         private readonly IMasterDataTable<M_ResourceCapability> _resourceCapabilities;
         private readonly IMasterDataTable<M_ResourceSetup> _resourceSetups;
-        private readonly IMasterDataTable<M_ResourceTool> _resourceTools;
         private readonly IMasterDataTable<M_Operation> _operations;
         private readonly IMasterDataTable<M_Stock> _stocks;
         private readonly IMasterDataTable<M_Unit> _units;
@@ -53,8 +52,6 @@ namespace Zpp.DataLayer.impl
             _resources = new MasterDataTable<M_Resource>(_productionDomainContext.Resources);
             _resourceCapabilities =
                 new MasterDataTable<M_ResourceCapability>(_productionDomainContext.ResourceCapabilities);
-            _resourceTools =
-                new MasterDataTable<M_ResourceTool>(_productionDomainContext.ResourceTools);
             _resourceSetups =
                 new MasterDataTable<M_ResourceSetup>(_productionDomainContext.ResourceSetups);
             _operations = new MasterDataTable<M_Operation>(_productionDomainContext.Operations);
@@ -83,9 +80,6 @@ namespace Zpp.DataLayer.impl
 
             DbTransactionData.InsertRange(_resourceCapabilities.GetAll(),
                 productionDomainContext.ResourceCapabilities, productionDomainContext);
-
-            DbTransactionData.InsertRange(_resourceTools.GetAll(),
-                productionDomainContext.ResourceTools, productionDomainContext);
 
             DbTransactionData.InsertRange(_resourceSetups.GetAll(),
                 productionDomainContext.ResourceSetups, productionDomainContext);
@@ -135,8 +129,8 @@ namespace Zpp.DataLayer.impl
         public List<Resource> ResourcesGetAllByCapabilityId(Id id)
         {
             var skill = _resourceCapabilities.GetById(id);
-            var resourceIds = _resourceSetups.GetAll().Where(x => x.ResourceCapabilityId == skill.Id)
-                .Select(x => x.ResourceId).ToList();
+            var resourceIds = _resourceSetups.GetAll().Where(x => x.ResourceCapabilityProviderId == skill.Id)
+                .Select(x => x.Id).ToList();
             var resourceList = new List<Resource>();
             _resources.GetAll().Where(x => resourceIds.Contains(x.Id)).ToList()
                 .ForEach(e => resourceList.Add(new Resource(e)));
@@ -148,9 +142,9 @@ namespace Zpp.DataLayer.impl
             return _resourceCapabilities.GetById(id);
         }
 
-        public M_ResourceTool M_ResourceToolGetById(Id id)
+        public M_Resource M_ResourceToolGetById(Id id)
         {
-            return _resourceTools.GetById(id);
+            return _resources.GetById(id);
         }
 
         public M_Operation M_OperationGetById(Id id)

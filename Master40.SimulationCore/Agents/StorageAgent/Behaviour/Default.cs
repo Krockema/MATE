@@ -6,6 +6,7 @@ using Master40.SimulationCore.Agents.StorageAgent.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.SimulationCore.Helper;
 using static FArticleProviders;
 using static FArticles;
 using static FProductionResults;
@@ -87,9 +88,10 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 
                 Agent.Send(instruction: BasicInstruction.ProvideArticle
                                                         .Create(message: new FArticleProvider(articleKey: request.Key
-                                                                                             ,articleName: request.Article.Name
+                                                                                             , articleName: request.Article.Name
                                                                                              , articleFinishedAt: Agent.CurrentTime
-                                                                                             ,stockExchangeId: request.StockExchangeId
+                                                                                             , stockExchangeId: request.StockExchangeId
+                                                                                             , customerDue: request.CustomerDue
                                                                                              , provider: new List<FStockProvider>(new[] { new FStockProvider(stockExchange.TrackingGuid, "Purchase")}))
                                                                , target: request.DispoRequester
                                                               , logThis: false));
@@ -174,19 +176,14 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
                                                                                                            , articleName: article.Article.Name
                                                                                                            , stockExchangeId: article.StockExchangeId
                                                                                                            , articleFinishedAt: article.FinishedAt
+                                                                                                           , customerDue: article.CustomerDue
                                                                                                            , provider: article.ProviderList)
                                                                               , target: article.DispoRequester
-                                                                             , logThis: false));
+                                                                              , logThis: false));
 
                 // Update Work Item with Provider For
                 // TODO
-
-                var pub = new FUpdateSimulationWorkProvider(fArticleProviderKeys: article.ProviderList
-                                                        , requestAgentId: article.DispoRequester.Path.Uid.ToString()
-                                                        , requestAgentName: article.DispoRequester.Path.Name
-                                                        , isHeadDemand: article.IsHeadDemand
-                                                        , customerOrderId: article.CustomerOrderId);
-                Agent.Context.System.EventStream.Publish(@event: pub);
+                ResultStreamFactory.PublishUpdateArticleProvider(Agent, article);
             }
             else
             {

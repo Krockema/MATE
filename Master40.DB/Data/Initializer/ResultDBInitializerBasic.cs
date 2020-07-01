@@ -9,7 +9,8 @@ namespace Master40.DB.Data.Initializer
 {
     public static class ResultDBInitializerBasic
     {
-        [ThreadStatic] private static int _simulationId = 1;
+        //[ThreadStatic] 
+        private static int _simulationId = 1;
         public static void DbInitialize(ResultContext context)
         {
             context.Database.EnsureCreated();
@@ -24,7 +25,7 @@ namespace Master40.DB.Data.Initializer
                 new ConfigurationItem
                     {Property = "SimulationId", PropertyValue = _simulationId.ToString(), Description = "selfOrganizing with normal Queue"},
                 new ConfigurationItem {Property = "SimulationNumber", PropertyValue = "1", Description = "Default"},
-                new ConfigurationItem {Property = "SimulationKind", PropertyValue = "DefaultSetupStack", Description = "Default"},
+                new ConfigurationItem {Property = "SimulationKind", PropertyValue = "Default", Description = "Default"},
                 new ConfigurationItem {Property = "OrderArrivalRate", PropertyValue = "0,025", Description = "Default"},
                 new ConfigurationItem {Property = "OrderQuantity", PropertyValue = "1500", Description = "Default"},
                 new ConfigurationItem {Property = "EstimatedThroughPut", PropertyValue = "1920", Description = "Default"},
@@ -40,7 +41,8 @@ namespace Master40.DB.Data.Initializer
                 new ConfigurationItem {Property = "SettlingStart", PropertyValue = "2880", Description = "Default"},
                 new ConfigurationItem {Property = "SimulationEnd", PropertyValue = "40320", Description = "Default"},
                 new ConfigurationItem {Property = "WorkTimeDeviation", PropertyValue = "0.2", Description = "Default"},
-                new ConfigurationItem {Property = "SaveToDB", PropertyValue = "true", Description = "Default"}
+                new ConfigurationItem {Property = "SaveToDB", PropertyValue = "true", Description = "Default"},
+                new ConfigurationItem {Property = "TimeToAdvance", PropertyValue = "0", Description = "Default"},
             };
             context.ConfigurationItems.AddRange(entities: configurationItems);
             context.SaveChanges();

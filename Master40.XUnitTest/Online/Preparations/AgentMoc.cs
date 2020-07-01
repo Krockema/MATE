@@ -36,7 +36,7 @@ namespace Master40.XUnitTest.Online.Preparations
             return agentPaths;
         }
 
-        private AgentMoc(ActorPaths actorPaths, long time, bool debug, IActorRef principal, IBehaviour behaviour, GuardianType guardianType)
+        public AgentMoc(ActorPaths actorPaths, long time, bool debug, IActorRef principal, IBehaviour behaviour, GuardianType guardianType)
             : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
         {
             _actorPaths = actorPaths;

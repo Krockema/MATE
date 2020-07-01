@@ -1,77 +1,90 @@
-﻿@{ 
+﻿@{
 
 }
-    <div class="chartWrapper" style="float:left">
-        <div class="chartAreaWrapper">
-            <div class="chartAreaWrapper2">
-                <!--div id="js-legend" class="chart-legend"><div-->
-                <canvas id="ContractChart" height="200"></canvas>
-            </div>
-        </div>
+<style>
+    .chartContractWrapper {
+        position: relative;
+        height: 150px;
+        width: 100%;
+    }
+</style>
+<div class="card" style="margin-top: 10px;">
+    <div class="card-header">
+        <b>System Performance</b>
     </div>
+    <div class="card-body">
+        <div class="chartContractWrapper">
+            <!--div id="js-legend" class="chart-legend"><div-->
+            <canvas id="ContractChart"></canvas>
+        </div>
 
-    <script>
-        var plotMax = 20;
-        var ContractElement = document.getElementById("ContractChart");
-        var ContractChartCtx = new Chart(ContractElement,
-            {
-                "type": "scatter"
-                , "data": {
-                    "datasets": [{
-                        "data": [{ "x": 0.0, "y": 20.0 }, { "x": 2880.0, "y": 20.0 }]
-                        , "type": "line", "fill": true, "lineTension": 0.0, "backgroundColor": "rgba(0, 0, 0, 0.1)", "borderWidth": 1, "borderColor": "rgba(0, 0, 0, 0.3)", "pointRadius": [0, 0], "showLine": true, "label": "Settling time"
-                    }, { "data": [{ "x": 0.0, "y": 0.0 }], "type": "line", "fill": false,  "lineTension": 0.5, "backgroundColor": "rgba(205, 10, 10, 0.6)",  "borderWidth": 1, "borderColor": "rgba(205, 10, 10, 1)", "showLine": true, "label": "Input" }
+    </div>
+</div>
+
+<script>
+    var plotMax = 20;
+    var ContractElement = document.getElementById("ContractChart");
+    var ContractChartCtx = new Chart(ContractElement,
+        {
+            "type": "scatter"
+            , "data": {
+                "datasets": [{
+                    "data": [{ "x": 0.0, "y": 20.0 }, { "x": 2880.0, "y": 20.0 }]
+                    , "type": "line", "fill": true, "lineTension": 0.0, "backgroundColor": "rgba(0, 0, 0, 0.1)", "borderWidth": 1, "borderColor": "rgba(0, 0, 0, 0.3)", "pointRadius": [0, 0], "showLine": true, "label": "Settling time"
+                }, { "data": [{ "x": 0.0, "y": 0.0 }], "type": "line", "fill": false, "lineTension": 0.5, "backgroundColor": "rgba(205, 10, 10, 0.6)", "borderWidth": 1, "borderColor": "rgba(205, 10, 10, 1)", "showLine": true, "label": "Input" }
                     , { "data": [{ "x": 0.0, "y": 0.0 }], "type": "line", "fill": false, "lineTension": 0.5, "backgroundColor": "rgba(246, 167, 30, 0.6)", "borderWidth": 1, "borderColor": "rgba(255, 204, 0, 1)", "showLine": true, "label": "Processing" }
                     , { "data": [{ "x": 0.0, "y": 0.0 }], "type": "line", "fill": false, "lineTension": 0.5, "backgroundColor": "rgba(184, 224, 112, 0.6)", "borderWidth": 1, "borderColor": "rgba(12, 184, 0, 0.8)", "showLine": true, "label": "Output" }]
-                }, "options": {
-                    "responsive": true, "maintainAspectRatio": false, "title": { "position": "top", "fontSize": 24, "fontStyle": "bold", "text": "Order Evolution" }, "legend": { "display": true, "position": "bottom", "fullWidth": true }
-                    , "scales": {
-                        "xAxes": [{
-                            "type": "linear", "id": "first-x-axis", "scaleLabel": { "display": true, "labelString": "Time in min", "fontSize": 12 }
-                            , "ticks": { "min": 0.0, "max": 20000.0, "display": true }, "display": true
-                        }], "yAxes": [{
-                            "type": "linear", "id": "first-y-axis",
-                            "scaleLabel": { "display": true, "labelString": "Quantity", "fontSize": 12 }
-                            , "ticks": { "min": 0.0, "display": true }, "display": true
-                        }]
-                    }
+            }, "options": {
+                "responsive": true, "maintainAspectRatio": false
+                , "title": { "position": "top", "fontSize": 24, "fontStyle": "bold", "text": "Order Evolution" }
+                , "legend": { "display": false, "position": "bottom", "fullWidth": true }
+                , "scales": {
+                    "xAxes": [{
+                        "type": "linear", "id": "first-x-axis", "scaleLabel": { "display": false, "labelString": "Time in min", "fontSize": 8 }
+                        , "ticks": { "min": 0.0, "max": 20000.0, "display": true, "fontSize": 8 }, "display": true
+                    }], "yAxes": [{
+                        "type": "linear", "id": "first-y-axis",
+                        "scaleLabel": { "display": true, "labelString": "Quantity", "fontSize": 8 }
+                        , "ticks": { "min": 0.0, "display": true, "fontSize": 8 }, "display": true
+                    }]
                 }
             }
-        );;
-
-
-
-        processingProxy.on("Contracts", function (msg) {
-            //console.log("Contracts : " + msg);
-            var serialized = JSON.parse(msg);
-            
-            ContractChartCtx.data.datasets[1].data.push({ x: serialized.Time, y: serialized.Input }); 
-            ContractChartCtx.data.datasets[3].data.push({ x: serialized.Time, y: serialized.Output });
-
-            MaxPlotHight(serialized.Input);
-            MaxPlotHight(serialized.Output);
-
-            ContractChartCtx.update();
-        });
-        processingProxy.on("ContractsV2", function (msg) {
-            //console.log("Contracts : " + msg);
-            var serialized = JSON.parse(msg);
-
-            ContractChartCtx.data.datasets[2].data.push({ x: serialized.Time, y: serialized.Processing });
-            MaxPlotHight(serialized.Processing);
-            ContractChartCtx.update();
-        });
-
-        function MaxPlotHight(value) {
-            
-            if (plotMax <= value) {
-                var currentMax = Math.ceil((Number(value) + 1) / 10) * 10;
-                ContractChartCtx.data.datasets[0].data = [{ "x": 0.0, "y": currentMax }, { "x": 2880.0, "y": currentMax }];
-                plotMax = currentMax;
-            }
         }
+    );;
 
-    </script>
+
+
+    processingProxy.on("Contracts", function (msg) {
+        //console.log("Contracts : " + msg);
+        var serialized = JSON.parse(msg);
+
+        ContractChartCtx.data.datasets[1].data.push({ x: serialized.Time, y: serialized.Input });
+        ContractChartCtx.data.datasets[3].data.push({ x: serialized.Time, y: serialized.Output });
+
+        MaxPlotHight(serialized.Input);
+        MaxPlotHight(serialized.Output);
+
+        ContractChartCtx.update();
+    });
+    processingProxy.on("ContractsV2", function (msg) {
+        //console.log("Contracts : " + msg);
+        var serialized = JSON.parse(msg);
+
+        ContractChartCtx.data.datasets[2].data.push({ x: serialized.Time, y: serialized.Processing });
+        MaxPlotHight(serialized.Processing);
+        ContractChartCtx.update();
+    });
+
+    function MaxPlotHight(value) {
+
+        if (plotMax <= value) {
+            var currentMax = Math.ceil((Number(value) + 1) / 10) * 10;
+            ContractChartCtx.data.datasets[0].data = [{ "x": 0.0, "y": currentMax }, { "x": 2880.0, "y": currentMax }];
+            plotMax = currentMax;
+        }
+    }
+
+</script>
 
 
 
