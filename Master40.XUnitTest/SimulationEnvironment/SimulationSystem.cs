@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using NLog;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.DB.Nominal.Model;
 using Xunit;
 
 namespace Master40.XUnitTest.SimulationEnvironment

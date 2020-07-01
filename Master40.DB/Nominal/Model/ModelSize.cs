@@ -1,4 +1,4 @@
-﻿namespace Master40.DB.Data.Initializer
+﻿namespace Master40.DB.Nominal.Model
 {
     public enum ModelSize
     {

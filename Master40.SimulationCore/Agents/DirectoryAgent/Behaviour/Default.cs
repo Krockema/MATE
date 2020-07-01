@@ -105,7 +105,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
             var resourceCapabilityProvider = resourceCapabilityProviderDefinition.CapabilityProvider as List<M_ResourceCapabilityProvider>;
             var resource = resourceCapabilityProviderDefinition.Resource as M_Resource;
             // Create resource If Required
-            var resourceAgent = Agent.Context.ActorOf(props: Resource.Props(actorPaths: Agent.ActorPaths
+            var resourceAgent = Agent.Context.ActorOf(props: ResourceAgent.Resource.Props(actorPaths: Agent.ActorPaths
                                                                     , resource: resource
                                                                     , time: Agent.CurrentTime
                                                                     , debug: Agent.DebugThis

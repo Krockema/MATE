@@ -3,14 +3,14 @@ using Master40.DB.DataModel;
 
 namespace Master40.DB.Data.Initializer.Tables
 {
-    internal class MasterTableArticleType
+    public class MasterTableArticleType
     {
         internal M_ArticleType ASSEMBLY;
         internal M_ArticleType MATERIAL;
         internal M_ArticleType CONSUMABLE;
         internal M_ArticleType PRODUCT;
 
-        internal MasterTableArticleType()
+        public MasterTableArticleType()
         {
             ASSEMBLY = new M_ArticleType {Name = "Assembly"};
             MATERIAL = new M_ArticleType {Name = "Material"};
@@ -18,7 +18,7 @@ namespace Master40.DB.Data.Initializer.Tables
             PRODUCT = new M_ArticleType {Name = "Product"};
         }
 
-        internal M_ArticleType[] Init(MasterDBContext context)
+        public M_ArticleType[] Init(MasterDBContext context)
         {
             var articleTypes = new M_ArticleType[]
             {

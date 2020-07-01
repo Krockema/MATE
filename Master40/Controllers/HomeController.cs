@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
+using Master40.DB.Nominal.Model;
 
 namespace Master40.Controllers
 {

@@ -33,7 +33,7 @@ namespace Zpp.DataLayer.impl.ProviderDomain.Wrappers
             return new Id(_productionOrderOperation.ResourceCapabilityId);
         }
 
-        public void SetMachine(Resource resource)
+        public void SetMachine(WrapperForEntities.Resource resource)
         {
             if (_productionOrderOperation.IsReadOnly)
             {
@@ -57,7 +57,7 @@ namespace Zpp.DataLayer.impl.ProviderDomain.Wrappers
                 Id resourceId = new Id(_productionOrderOperation.ResourceId.GetValueOrDefault());
                 IDbMasterDataCache dbMasterDataCache =
                     ZppConfiguration.CacheManager.GetMasterDataCache();
-                Resource resource = dbMasterDataCache.M_ResourceGetById(resourceId);
+                WrapperForEntities.Resource resource = dbMasterDataCache.M_ResourceGetById(resourceId);
                 _productionOrderOperation.Resource = resource.GetValue();
             }
         }
@@ -79,7 +79,7 @@ namespace Zpp.DataLayer.impl.ProviderDomain.Wrappers
             return _productionOrderOperation.Resource;
         }
 
-        public List<Resource> GetPossibleMachines()
+        public List<WrapperForEntities.Resource> GetPossibleMachines()
         {
             return ZppConfiguration.CacheManager.GetAggregator()
                 .GetResourcesByResourceCapabilityId(this.GetResourceCapabilityId());
