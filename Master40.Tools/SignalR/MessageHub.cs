@@ -48,5 +48,10 @@ namespace Master40.Tools.SignalR
         {
             this._hubContext.Clients.All.SendAsync(method: listener, arg1: msg);
         }
+
+        public void GuardianState(object msg)
+        {
+            this._hubContext.Clients.All.SendAsync(method: "clientListener", arg1: JsonConvert.SerializeObject(msg));
+        }
     }
 }

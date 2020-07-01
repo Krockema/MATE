@@ -7,5 +7,6 @@
         Large,
         XLarge,
         TestModel,
+        None,
     }
 }

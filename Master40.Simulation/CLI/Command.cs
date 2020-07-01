@@ -31,6 +31,7 @@ namespace Master40.Simulation.CLI
             , new TransitionFactor()
             , new MaxDeliveryTime()
             , new MinDeliveryTime()
+            , new TimeConstraintQueueLength()
         };
 
 

@@ -85,7 +85,6 @@ namespace Master40.DB.Data.Context
             var olist = new List<T_CustomerOrderPart>();
             olist.Add(item: new T_CustomerOrderPart
             {
-                Article = Articles.First(predicate: x => x.Id == articleId),
                 ArticleId = articleId,
                 IsPlanned = false,
                 Quantity = amount,
@@ -95,7 +94,6 @@ namespace Master40.DB.Data.Context
             var order = new T_CustomerOrder()
             {
                 BusinessPartnerId = bp.Id,
-                BusinessPartner = bp,
                 DueTime = (int)dueTime,
                 CreationTime = (int)creationTime,
                 Name = Articles.Single(predicate: x => x.Id == articleId).Name,

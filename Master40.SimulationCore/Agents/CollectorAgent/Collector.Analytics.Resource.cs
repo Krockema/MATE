@@ -1,13 +1,14 @@
 ﻿using AkkaSim;
+using Master40.DB.Data.Context;
+using Master40.DB.Nominal;
 using Master40.DB.ReportingModel;
+using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Types;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Master40.DB.Data.Context;
-using Master40.DB.Nominal;
-using Master40.SimulationCore.Environment.Options;
 using Newtonsoft.Json;
 using static FCreateTaskItems;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
@@ -24,7 +25,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
         }
 
         private Dictionary<string, List<TaskItem>> _taskItems { get; } = new Dictionary<string, List<TaskItem>>();
-        private List<TaskItem> _taskArchive { get; } = new List<TaskItem>();
+        public List<TaskItem> _taskArchive { get; private set; } = new List<TaskItem>();
 
         private ResourceList _resources { get; set; } = new ResourceList();
         private long lastIntervalStart { get; set; } = 0;
@@ -134,6 +135,17 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             if (Collector.saveToDB.Value && writeResultsToDB)
             {
                 using var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value);
+
+                //var refTask = _taskArchive.First();
+                //CreateTaskItem(
+                //    new FCreateTaskItem(
+                //        JobType.OPERATION,
+                //        refTask.Resource,
+                //        refTask.Start, refTask.End, refTask.Capability, refTask.Operation, refTask.GroupId));
+                //
+                //ResourceUtilization();
+
+                ctx.TaskItems.AddRange(entities: _taskArchive);
                 ctx.SaveChanges();
                 ctx.Kpis.AddRange(entities: Kpis);
                 ctx.SaveChanges();

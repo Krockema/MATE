@@ -9,7 +9,7 @@ namespace Master40.DB.Data.Initializer
 {
     public static class MasterDBInitializerTruck
     {
-        public static void DbInitialize(MasterDBContext context, ModelSize resourceModelSize, ModelSize setupModelSize, bool distributeSetupsExponentially = false)
+        public static void DbInitialize(MasterDBContext context, ModelSize resourceModelSize, ModelSize setupModelSize, ModelSize operatorsModelSize, int numberOfWorkersForProcessing, bool secondResource, bool distributeSetupsExponentially = false)
         {
             context.Database.EnsureCreated();
 
@@ -59,7 +59,22 @@ namespace Master40.DB.Data.Initializer
                 default: throw new ArgumentException();
             }
 
-            resources.CreateResourceTools(setupTimeCutting: 10, setupTimeDrilling: 15, setupTimeAssembling: 20, numberOfWorkers: 3);
+            var operatorModel = new int[] {0,0,0 };
+            switch(operatorsModelSize)
+            {
+                case ModelSize.None:
+                    operatorModel = new int[] {0, 0 , 0 };
+                    break;
+                case ModelSize.Small:
+                    operatorModel = new int[] { 1, 0, 1 };
+                    break;
+                case ModelSize.Medium:
+                    operatorModel = new int[] { 1, 1, 1 };
+                    break;
+                default: throw new ArgumentException();
+            }
+
+            resources.CreateResourceTools(setupTimeCutting: 10, setupTimeDrilling: 15, setupTimeAssembling: 20, operatorModel, numberOfWorkers: numberOfWorkersForProcessing, secondResource);
             resources.SaveToDB(context);
 
             // Article Definitions
@@ -82,7 +97,9 @@ namespace Master40.DB.Data.Initializer
 
             var businessPartner = new MasterTableBusinessPartner();
                 businessPartner.Init(context);
-
+                
+            context.SaveChanges();
+            
             var articleToBusinessPartner = new MasterTableArticleToBusinessPartner();
                 articleToBusinessPartner.Init(context, businessPartner, articleTable);
 

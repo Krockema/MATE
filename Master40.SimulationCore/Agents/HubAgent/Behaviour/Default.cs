@@ -61,6 +61,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         internal void AddResourceToHub(FResourceInformation resourceInformation)
         {
+
             foreach (var capabilityProvider in resourceInformation.ResourceCapabilityProvider)
             {
                 var capabilityDefinition = _capabilityManager.GetCapabilityDefinition(capabilityProvider.ResourceCapability);
