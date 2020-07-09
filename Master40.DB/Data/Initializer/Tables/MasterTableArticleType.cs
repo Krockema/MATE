@@ -5,10 +5,10 @@ namespace Master40.DB.Data.Initializer.Tables
 {
     public class MasterTableArticleType
     {
-        internal M_ArticleType ASSEMBLY;
-        internal M_ArticleType MATERIAL;
-        internal M_ArticleType CONSUMABLE;
-        internal M_ArticleType PRODUCT;
+        public M_ArticleType ASSEMBLY;
+        public M_ArticleType MATERIAL;
+        public M_ArticleType CONSUMABLE;
+        public M_ArticleType PRODUCT;
 
         public MasterTableArticleType()
         {

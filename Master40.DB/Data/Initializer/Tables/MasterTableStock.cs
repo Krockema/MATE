@@ -3,7 +3,7 @@ using Master40.DB.DataModel;
 
 namespace Master40.DB.Data.Initializer.Tables
 {
-    internal static class MasterTableStock
+    public static class MasterTableStock
     {
         public static void Init(MasterDBContext context, M_Article[] articles)
         {
