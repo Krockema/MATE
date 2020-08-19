@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Master40.DataGenerator.DataModel.ProductStructure
+﻿namespace Master40.DataGenerator.DataModel.ProductStructure
 {
     public class Edge
     {

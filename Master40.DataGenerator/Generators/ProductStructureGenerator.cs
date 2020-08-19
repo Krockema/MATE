@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DataGenerator.DataModel.ProductStructure;
+using Master40.DataGenerator.Util;
 using MathNet.Numerics.Distributions;
 
 namespace Master40.DataGenerator.Generators
@@ -12,10 +13,10 @@ namespace Master40.DataGenerator.Generators
         public ProductStructure GenerateProductStructure(InputParameterSet inputParameters)
         {
             var productStructure = new ProductStructure();
-            var availableNodes = new List<HashSet<int>>();
+            var availableNodes = new List<HashSet<long>>();
             var nodesCounter = GeneratePartsForEachLevel(inputParameters, productStructure, availableNodes);
 
-            var rng = new Random();
+            var rng = new XRandom();
 
             GenerateEdges(inputParameters, productStructure, rng, availableNodes, nodesCounter);
 
@@ -64,23 +65,25 @@ namespace Master40.DataGenerator.Generators
             return pk;
         }
 
-        private int GeneratePartsForEachLevel(InputParameterSet inputParameters, ProductStructure productStructure, List<HashSet<int>> availableNodes)
+        private long GeneratePartsForEachLevel(InputParameterSet inputParameters, ProductStructure productStructure, List<HashSet<long>> availableNodes)
         {
-            var nodesCounter = 0;
+            long nodesCounter = 0;
             for (var i = 1; i <= inputParameters.DepthOfAssembly; i++)
             {
                 //Problem mit Algorithmus aus SYMTEP: bei ungünstigen Eingabeparametern gibt es auf manchen Fertigungsstufen keine Teile (0 Knoten)
                 //-> Es fehlt wohl Nebenbedingung, dass Anzahl an Teilen auf jeden Fertigungsstufe mindestens 1 sein darf
                 //-> Entsprechend wurde das hier angepasst
-                var nodeCount = Math.Max(1, Convert.ToInt32(Math.Round(
+                var nodeCount = Math.Max(1, Convert.ToInt64(Math.Round(
                     Math.Pow(inputParameters.ComplexityRatio / inputParameters.ReutilisationRatio, i - 1) *
                     inputParameters.EndProductCount)));
-                var nodesCurrentLevel = new List<Node>();
+                var nodesCurrentLevel = new Dictionary<long, Node>();
                 productStructure.NodesPerLevel.Add(nodesCurrentLevel);
-                availableNodes.Add(new HashSet<int>(Enumerable.Range(0, nodeCount)));
-                for (var j = 0; j < nodeCount; j++)
+                var availableNodesOnThisLevel = new HashSet<long>();
+                availableNodes.Add(availableNodesOnThisLevel);
+                for (long j = 0; j < nodeCount; j++)
                 {
-                    nodesCurrentLevel.Add(new Node { AssemblyLevel = i });
+                    availableNodesOnThisLevel.Add(j);
+                    nodesCurrentLevel[j] = new Node { AssemblyLevel = i };
                     nodesCounter++;
                 }
             }
@@ -88,12 +91,12 @@ namespace Master40.DataGenerator.Generators
             return nodesCounter;
         }
 
-        private void GenerateEdges(InputParameterSet inputParameters, ProductStructure productStructure, Random rng,
-            List<HashSet<int>> availableNodes, int nodesCounter)
+        private void GenerateEdges(InputParameterSet inputParameters, ProductStructure productStructure, XRandom rng,
+            List<HashSet<long>> availableNodes, long nodesCounter)
         {
             var nodesOfLastAssemblyLevelCounter =
-                productStructure.NodesPerLevel[inputParameters.DepthOfAssembly - 1].Count;
-            var edgeCount = Convert.ToInt32(Math.Round(Math.Max(
+                productStructure.NodesPerLevel[inputParameters.DepthOfAssembly - 1].LongCount();
+            var edgeCount = Convert.ToInt64(Math.Round(Math.Max(
                 inputParameters.ReutilisationRatio * (nodesCounter - inputParameters.EndProductCount),
                 inputParameters.ComplexityRatio * (nodesCounter - nodesOfLastAssemblyLevelCounter))));
             var pkPerI = GetSetOfCumulatedProbabilitiesPk1(inputParameters.DepthOfAssembly);
@@ -106,19 +109,20 @@ namespace Master40.DataGenerator.Generators
                 GenerateFirstSetOfEdgesForDivergingMaterialFlow(inputParameters, productStructure, rng, availableNodes);
             }
 
-            //scheinbar können hierbei Multikanten entstehen -> ist das in Erzeugnisstruktur erlaubt?
+            //scheinbar können hierbei Multikanten entstehen. ist das in Erzeugnisstruktur erlaubt? -> stellt kein Problem dar
             GenerateSecondSetOfEdges(inputParameters, productStructure, rng, nodesCounter, edgeCount, pkPerI);
         }
 
-        private void GenerateFirstSetOfEdgesForConvergingMaterialFlow(InputParameterSet inputParameters, Random rng,
-            Dictionary<int, List<KeyValuePair<int, double>>> pkPerI, List<HashSet<int>> availableNodes,
+        private void GenerateFirstSetOfEdgesForConvergingMaterialFlow(InputParameterSet inputParameters, XRandom rng,
+            Dictionary<int, List<KeyValuePair<int, double>>> pkPerI, List<HashSet<long>> availableNodes,
             ProductStructure productStructure)
         {
             for (var i = 1; i <= inputParameters.DepthOfAssembly - 1; i++)
             {
-                for (var j = 1; j <= productStructure.NodesPerLevel[i - 1].Count /*&& availableNodes[i].Count > 0*/; j++)
+                for (long j = 1; j <= productStructure.NodesPerLevel[i - 1].LongCount() /*&& availableNodes[i].LongCount() > 0*/; j++)
                 {
-                    var startNode = rng.Next(availableNodes[i].Count);
+                    var startNodePos = rng.NextLong(availableNodes[i].LongCount());
+                    var startNode = availableNodes[i].ToArray()[startNodePos];
                     productStructure.Edges.Add(new Edge
                     {
                         Start = productStructure.NodesPerLevel[i][startNode],
@@ -147,7 +151,7 @@ namespace Master40.DataGenerator.Generators
                     }
 
                     var assemblyLevelOfEndNode = pkPerI[i][k].Key;
-                    var posOfNode = rng.Next(productStructure.NodesPerLevel[assemblyLevelOfEndNode - 1].Count);
+                    var posOfNode = rng.NextLong(productStructure.NodesPerLevel[assemblyLevelOfEndNode - 1].LongCount());
                     productStructure.Edges.Add(new Edge
                     {
                         Start = productStructure.NodesPerLevel[i - 1][j],
@@ -158,13 +162,14 @@ namespace Master40.DataGenerator.Generators
         }
 
         private void GenerateFirstSetOfEdgesForDivergingMaterialFlow(InputParameterSet inputParameters,
-            ProductStructure productStructure, Random rng, List<HashSet<int>> availableNodes)
+            ProductStructure productStructure, XRandom rng, List<HashSet<long>> availableNodes)
         {
             for (var i = inputParameters.DepthOfAssembly; i >= 2; i--)
             {
-                for (var j = 1; j <= productStructure.NodesPerLevel[i - 1].Count /*&& availableNodes[i - 2].Count > 0*/; j++)
+                for (long j = 1; j <= productStructure.NodesPerLevel[i - 1].LongCount() /*&& availableNodes[i - 2].LongCount() > 0*/; j++)
                 {
-                    var endNode = rng.Next(availableNodes[i - 2].Count);
+                    var endNodePos = rng.NextLong(availableNodes[i - 2].LongCount());
+                    var endNode = availableNodes[i - 2].ToArray()[endNodePos];
                     productStructure.Edges.Add(new Edge
                     {
                         Start = productStructure.NodesPerLevel[i - 1][j - 1],
@@ -194,7 +199,7 @@ namespace Master40.DataGenerator.Generators
                     }
 
                     var assemblyLevelOfStartNode = pk[k].Key;
-                    var posOfNode = rng.Next(productStructure.NodesPerLevel[assemblyLevelOfStartNode - 1].Count);
+                    var posOfNode = rng.NextLong(productStructure.NodesPerLevel[assemblyLevelOfStartNode - 1].LongCount());
                     productStructure.Edges.Add(new Edge
                     {
                         Start = productStructure.NodesPerLevel[assemblyLevelOfStartNode - 1][posOfNode],
@@ -205,21 +210,21 @@ namespace Master40.DataGenerator.Generators
         }
 
         private static void GenerateSecondSetOfEdges(InputParameterSet inputParameters, ProductStructure productStructure,
-            Random rng, int nodesCounter, int edgeCount, Dictionary<int, List<KeyValuePair<int, double>>> pkPerI)
+            XRandom rng, long nodesCounter, long edgeCount, Dictionary<int, List<KeyValuePair<int, double>>> pkPerI)
         {
-            for (var j = productStructure.Edges.Count + 1; j <= edgeCount; j++)
+            var possibleStartNodes = nodesCounter - inputParameters.EndProductCount;
+            for (var j = productStructure.Edges.LongCount() + 1; j <= edgeCount; j++)
             {
-                var possibleStartNodes = nodesCounter - inputParameters.EndProductCount;
-                var startNodePos = rng.Next(possibleStartNodes) + 1;
+                var startNodePos = rng.NextLong(possibleStartNodes) + 1;
                 var assemblyLevelOfStartNode = 2;
                 while (assemblyLevelOfStartNode < inputParameters.DepthOfAssembly)
                 {
-                    if (startNodePos <= productStructure.NodesPerLevel[assemblyLevelOfStartNode - 1].Count)
+                    if (startNodePos <= productStructure.NodesPerLevel[assemblyLevelOfStartNode - 1].LongCount())
                     {
                         break;
                     }
 
-                    startNodePos -= productStructure.NodesPerLevel[assemblyLevelOfStartNode - 1].Count;
+                    startNodePos -= productStructure.NodesPerLevel[assemblyLevelOfStartNode - 1].LongCount();
                     assemblyLevelOfStartNode++;
                 }
 
@@ -238,7 +243,7 @@ namespace Master40.DataGenerator.Generators
                 }
 
                 var assemblyLevelOfEndNode = pkPerI[assemblyLevelOfStartNode][k].Key;
-                var endNodePos = rng.Next(productStructure.NodesPerLevel[assemblyLevelOfEndNode - 1].Count);
+                var endNodePos = rng.NextLong(productStructure.NodesPerLevel[assemblyLevelOfEndNode - 1].LongCount());
                 productStructure.Edges.Add(new Edge
                 {
                     Start = productStructure.NodesPerLevel[assemblyLevelOfStartNode - 1][startNodePos - 1],
