@@ -7,8 +7,6 @@ namespace Master40.DB.DataModel
     {
         public string Name { get; set; }
         public bool IsPhysical { get; set; }
-        public bool IsBiological { get; set; }
-        public string GroupName { get; set; }
         public virtual ICollection<M_ResourceSetup> ResourceSetups { get; set; }
         public int Capacity { get; set; }
         [NotMapped]
