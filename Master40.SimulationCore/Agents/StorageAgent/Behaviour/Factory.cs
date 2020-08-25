@@ -35,4 +35,3 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
         }
     }
 }
-}
