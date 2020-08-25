@@ -11,7 +11,7 @@ namespace Master40.Tools.Connectoren.Ganttplan
     /// 
     public class GanttPlanApics
     {
-        private const string PATH_TO_GANTT = "C:\\Program Files\\GANTTPLAN_V6\\gp-c-api.dll";
+        private const string PATH_TO_GANTT = @"C:\Program Files\GANTTPLAN_V6\gp-c-api.dll";
 
         [DllImport(PATH_TO_GANTT, EntryPoint = "GPGetVersion", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         private static extern IntPtr GPGetVersionAsPtr();
