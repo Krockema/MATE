@@ -9,5 +9,7 @@
 
         public double Lambda { get; set; }
 
+        public bool WithStartAndEnd { get; set; }
+
     }
 }

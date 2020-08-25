@@ -22,16 +22,21 @@ namespace Master40.DataGenerator.Generators
 
         public TransitionMatrix GenerateTransitionMatrix(InputParameterSet inputParameters, DataModel.ProductStructure.InputParameterSet inputProductStructure)
         {
-            _piA = new double[inputParameters.WorkingStationCount, inputParameters.WorkingStationCount];
-            _piB = new double[inputParameters.WorkingStationCount, inputParameters.WorkingStationCount];
+            var matrixSize = inputParameters.WorkingStationCount;
+            if (inputParameters.WithStartAndEnd)
+            {
+                matrixSize += 2;
+            }
+            _piA = new double[matrixSize, matrixSize];
+            _piB = new double[matrixSize, matrixSize];
 
             var rng = new XRandom();
 
-            InitializePiA(inputParameters, rng);
-            InitializePiB(inputParameters, inputProductStructure);
+            InitializePiA(inputParameters, rng, matrixSize);
+            InitializePiB(inputParameters, inputProductStructure, matrixSize);
             while (Math.Abs(_organizationDegreeA - inputParameters.DegreeOfOrganization) > 0.001)
             {
-                Bisection(inputParameters);
+                Bisection(inputParameters, matrixSize);
             }
             var transitionMatrix = new TransitionMatrix
             {
@@ -40,50 +45,60 @@ namespace Master40.DataGenerator.Generators
             return transitionMatrix;
         }
 
-        private void InitializePiA(InputParameterSet inputParameters, XRandom rng)
+        private void InitializePiA(InputParameterSet inputParameters, XRandom rng, int matrixSize)
         {
-            var organizationDegreeHelper = 0.0;
             var faculty = new Faculty();
-            for (int i = 0; i < inputParameters.WorkingStationCount; i++)
+            for (int i = 0; i < matrixSize; i++)
             {
                 var lineSum = 0.0;
-                for (int j = 0; j < inputParameters.WorkingStationCount; j++)
+                for (int j = 0; j < matrixSize; j++)
                 {
-                    var noiceFactor = 1 + 0.2 * (rng.NextDouble() - 0.5);
-                    if (i < j)
+                    if (i != j)
                     {
-                        _piA[i, j] = Math.Pow(inputParameters.Lambda, -i + j - 1) / faculty.Calc(-i + j - 1) *
-                                     noiceFactor;
-                        lineSum += _piA[i, j];
+                        var cellValue =
+                            InitializePiACalcCellValue(inputParameters, i, j, i < j, matrixSize, faculty, rng);
+                        _piA[i, j] = cellValue;
+                        lineSum += cellValue;
                     }
-                    else if (i > j)
+                    else if (inputParameters.WithStartAndEnd && i + 1 == matrixSize && i == j)
                     {
-                        _piA[i, j] = Math.Pow(inputParameters.Lambda, i - j - 1) / (2 * faculty.Calc(i - j - 1)) *
-                                     noiceFactor;
-                        lineSum += _piA[i, j];
+                        _piA[i, j] = 1.0;
+                        lineSum += 1;
                     }
                 }
 
-                for (int j = 0; j < inputParameters.WorkingStationCount; j++)
+                for (int j = 0; j < matrixSize; j++)
                 {
                     _piA[i, j] = _piA[i, j] / lineSum;
-                    organizationDegreeHelper += Math.Pow(_piA[i, j] - 1.0 / inputParameters.WorkingStationCount, 2);
                 }
             }
 
-            _organizationDegreeA =
-                1.0 / (inputParameters.WorkingStationCount - 1) * organizationDegreeHelper;
+            _organizationDegreeA = CalcOrganizationDegree(_piA, matrixSize);
         }
 
-        private void InitializePiB(InputParameterSet inputParameters, DataModel.ProductStructure.InputParameterSet inputProductStructure)
+        private double InitializePiACalcCellValue(InputParameterSet inputParameters, int i, int j, bool iLessThanJ, int matrixSize, Faculty faculty, XRandom rng)
+        {
+            var noiseFactor = 1 + 0.2 * (rng.NextDouble() - 0.5);
+            if (inputParameters.WithStartAndEnd && (j == 0 || i + 1 == matrixSize || (i == 0 && j + 1 == matrixSize)))
+            {
+                return 0.0;
+            }
+            if (iLessThanJ)
+            {
+                return Math.Pow(inputParameters.Lambda, -i + j - 1) / faculty.Calc(-i + j - 1) * noiseFactor;
+            }
+            return Math.Pow(inputParameters.Lambda, i - j - 1) / (2 * faculty.Calc(i - j - 1)) * noiseFactor;
+        }
+
+        private void InitializePiB(InputParameterSet inputParameters, DataModel.ProductStructure.InputParameterSet inputProductStructure, int matrixSize)
         {
             if (_organizationDegreeA > inputParameters.DegreeOfOrganization)
             {
-                for (int i = 0; i < inputParameters.WorkingStationCount; i++)
+                for (int i = 0; i < matrixSize; i++)
                 {
-                    for (int j = 0; j < inputParameters.WorkingStationCount; j++)
+                    for (int j = 0; j < matrixSize; j++)
                     {
-                        _piB[i, j] = 1.0 / inputParameters.WorkingStationCount;
+                        _piB[i, j] = 1.0 / matrixSize;
                     }
                 }
 
@@ -93,17 +108,17 @@ namespace Master40.DataGenerator.Generators
             else
             {
                 var jForSpecialCase = Convert.ToInt32(Math.Truncate(
-                    inputParameters.WorkingStationCount - inputParameters.WorkingStationCount /
+                    matrixSize - matrixSize /
                     Convert.ToDecimal(inputProductStructure.DepthOfAssembly) + 1));
-                for (int i = 0; i < inputParameters.WorkingStationCount; i++)
+                for (int i = 0; i < matrixSize; i++)
                 {
-                    for (int j = 0; j < inputParameters.WorkingStationCount; j++)
+                    for (int j = 0; j < matrixSize; j++)
                     {
-                        if (i < inputParameters.WorkingStationCount - 1 && j == i + 1)
+                        if (i < matrixSize - 1 && j == i + 1)
                         {
                             _piB[i, j] = 1.0;
                         }
-                        else if (i == inputParameters.WorkingStationCount - 1 && j == jForSpecialCase - 1)
+                        else if (i == matrixSize - 1 && j == jForSpecialCase - 1)
                         {
                             _piB[i, j] = 1.0;
                         }
@@ -114,20 +129,37 @@ namespace Master40.DataGenerator.Generators
             }
         }
 
-        private void Bisection(InputParameterSet inputParameters)
+        private void Bisection(InputParameterSet inputParameters, int matrixSize)
         {
-            var organizationDegreeHelper = 0.0;
-            _piC = new double[inputParameters.WorkingStationCount, inputParameters.WorkingStationCount];
-            for (int i = 0; i < inputParameters.WorkingStationCount; i++)
+            
+            _piC = new double[matrixSize, matrixSize];
+            for (int i = 0; i < matrixSize; i++)
             {
-                for (int j = 0; j < inputParameters.WorkingStationCount; j++)
+                var lineSum = 0.0;
+                for (int j = 0; j < matrixSize; j++)
                 {
-                    _piC[i, j] = 0.5 * (_piA[i, j] + _piB[i, j]);
-                    organizationDegreeHelper += Math.Pow(_piC[i, j] - 1.0 / inputParameters.WorkingStationCount, 2);
+                    var cellValue = 0.5 * (_piA[i, j] + _piB[i, j]);
+                    if (inputParameters.WithStartAndEnd)
+                    {
+                        if (i + 1 == matrixSize && i == j)
+                        {
+                            cellValue = 1.0;
+                        }
+                        else if ((j == 0 || i + 1 == matrixSize || (i == 0 && j + 1 == matrixSize)))
+                        {
+                            cellValue = 0.0;
+                        }
+                    }
+                    _piC[i, j] = cellValue;
+                    lineSum += cellValue;
+                }
+                for (int j = 0; j < matrixSize; j++)
+                {
+                    _piC[i, j] = _piC[i, j] / lineSum;
                 }
             }
 
-            _organizationDegreeC = 1.0 / (inputParameters.WorkingStationCount - 1) * organizationDegreeHelper;
+            _organizationDegreeC = CalcOrganizationDegree(_piC, matrixSize);
 
             var signA = (_organizationDegreeA - inputParameters.DegreeOfOrganization) < 0;
             var signC = (_organizationDegreeC - inputParameters.DegreeOfOrganization) < 0;
@@ -141,6 +173,17 @@ namespace Master40.DataGenerator.Generators
                 _piB = _piC;
                 _organizationDegreeB = _organizationDegreeC;
             }
+        }
+
+        private double CalcOrganizationDegree(double[,] pi, int matrixSize)
+        {
+            var sum = 0.0;
+            var reciprocalOfPiSize = 1.0 / matrixSize;
+            foreach (var cell in pi)
+            {
+                sum += Math.Pow(cell - reciprocalOfPiSize, 2);
+            }
+            return 1.0 / (matrixSize - 1) * sum;
         }
 
     }
