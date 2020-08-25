@@ -31,7 +31,6 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
         private static IBehaviour Central(SimulationType simType)
         {
             return new Central(simType);
-
         }
     }
 }

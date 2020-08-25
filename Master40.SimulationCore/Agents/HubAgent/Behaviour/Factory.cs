@@ -30,6 +30,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             return new Default(maxBucketSize: maxBucketSize, workTimeGenerator: workTimeGenerator);
         }
 
+
         private static IBehaviour Central()
         {
             return new Central();

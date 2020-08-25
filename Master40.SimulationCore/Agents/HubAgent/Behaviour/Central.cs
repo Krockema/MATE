@@ -22,11 +22,16 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 {
                     //Initialize
                     case Hub.Instruction.Default.AddResourceToHub msg: CreateOperations(resourceInformation: msg.GetObjectFromMessage); break;
-
+                    case Hub.Instruction.Default.EnqueueJob msg: EnqueueJob(); break;
                     default: return false;
                 }
                 return success;
             }
+
+        private void EnqueueJob()
+        {
+            throw new NotImplementedException();
+        }
 
         private void CreateOperations(FResourceInformation resourceInformation)
         {
