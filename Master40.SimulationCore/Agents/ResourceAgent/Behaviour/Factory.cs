@@ -1,6 +1,5 @@
 ﻿using Master40.DB.DataModel;
 using Master40.DB.Nominal;
-using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
 using System.Collections.Generic;
@@ -16,6 +15,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             {
                 case SimulationType.Default:
                     behaviour = Default(workTimeGenerator: workTimeGenerator, capabilityProvider, timeConstraintQueueLength, resourceId);
+                    break;
+                case SimulationType.Central:
+                    behaviour = Central();
                     break;
                 default:
                     behaviour = Default(workTimeGenerator: workTimeGenerator, capabilityProvider, timeConstraintQueueLength, resourceId);
@@ -35,6 +37,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         }
 
+        private static IBehaviour Central()
+        {
+            return new Central();
+        }
 
     }
 

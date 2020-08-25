@@ -11,18 +11,28 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             IBehaviour behaviour;
             switch (simType)
             {
-                default:
-                    behaviour = Default(stockElement: stockElement);
+                case SimulationType.Central:
+                    behaviour = Central(simType);
                     break;
+                default:
+                    behaviour = Default(stockElement: stockElement, simType);
+                    break;
+
             }
 
             return behaviour;
         }
 
-        private static IBehaviour Default(M_Stock stockElement)
+        private static IBehaviour Default(M_Stock stockElement, SimulationType simType)
         {
-            return new Default(stockElement: stockElement, simType: SimulationType.None);
+            return new Default(stockElement: stockElement, simType: simType);
+
+        }
+        private static IBehaviour Central(SimulationType simType)
+        {
+            return new Central(simType);
 
         }
     }
+}
 }

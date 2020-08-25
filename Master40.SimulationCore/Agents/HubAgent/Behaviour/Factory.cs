@@ -14,6 +14,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case SimulationType.Default:
                     behaviour = Default(maxBucketSize, workTimeGenerator);
                     break;
+                case SimulationType.Central:
+                    behaviour = Central();
+                    break;
                 default:
                     behaviour = Default(maxBucketSize, workTimeGenerator);
                     break;
@@ -27,5 +30,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             return new Default(maxBucketSize: maxBucketSize, workTimeGenerator: workTimeGenerator);
         }
 
+        private static IBehaviour Central()
+        {
+            return new Central();
+        }
     }
 }

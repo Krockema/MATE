@@ -9,9 +9,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
     class Central : SimulationCore.Types.Behaviour
     {
 
-        public Central(long maxBucketSize, WorkTimeGenerator workTimeGenerator, SimulationType simulationType = SimulationType.Default) : base(childMaker: null, simulationType: simulationType)
+        public Central(SimulationType simulationType = SimulationType.Default) : base(childMaker: null, simulationType: simulationType)
         {
         }
+
+            //Properties
 
             public override bool Action(object message)
             {

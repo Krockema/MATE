@@ -187,7 +187,6 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
             emtpyResultDBbySimulationNumber(simNr: simConfig.GetOption<SimulationNumber>());
 
-
             var simWasReady = false;
             if (simulation.IsReady())
             {
