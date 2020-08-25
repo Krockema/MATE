@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Master40.DB.Nominal.Model;
 using Xunit;
+using Master40.Tools.Connectoren.Ganttplan;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {
@@ -45,6 +46,15 @@ namespace Master40.XUnitTest.SimulationEnvironment
         // 
         public SimulationSystem()
         {
+
+        }
+
+        [Fact]
+        public void TestGanttPlanApi()
+        {
+            GanttPlanApics.GPInitInstance();
+            GanttPlanApics.GPLic();
+            GanttPlanApics.GPGetVersion();
 
         }
 
