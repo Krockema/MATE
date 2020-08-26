@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Configurations>Debug;Release;Azure</Configurations>
     <LangVersion>8.0</LangVersion>
+	  <Platforms>AnyCPU;x64</Platforms>
    </PropertyGroup>
 
   <ItemGroup>

@@ -52,12 +52,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Fact]
         public void TestGanttPlanApi()
         {
-            GanttPlanApics.GPGetVersion();
-
+            System.Diagnostics.Debug.WriteLine("Loading Gantt Version : " + GanttPlanApics.GPGetVersion());
+            
             Assert.True(GanttPlanApics.GPInitInstance());
-
+            
             Assert.True(GanttPlanApics.GPLic());
-
+            
             Assert.True(GanttPlanApics.GPExitInstance());
 
         }

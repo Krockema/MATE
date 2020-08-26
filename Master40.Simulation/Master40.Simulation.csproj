@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <Configurations>Debug;Release;Azure</Configurations>
+	<Platforms>AnyCPU;x64</Platforms>
     <LangVersion>8.0</LangVersion>
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
