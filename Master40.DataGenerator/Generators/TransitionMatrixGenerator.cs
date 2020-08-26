@@ -22,18 +22,20 @@ namespace Master40.DataGenerator.Generators
 
         public TransitionMatrix GenerateTransitionMatrix(InputParameterSet inputParameters, DataModel.ProductStructure.InputParameterSet inputProductStructure)
         {
+            var jCorrector = 0;
             var matrixSize = inputParameters.WorkingStationCount;
             if (inputParameters.WithStartAndEnd)
             {
-                matrixSize += 2;
+                matrixSize += 1;
+                jCorrector = 1;
             }
             _piA = new double[matrixSize, matrixSize];
             _piB = new double[matrixSize, matrixSize];
 
             var rng = new XRandom();
 
-            InitializePiA(inputParameters, rng, matrixSize);
-            InitializePiB(inputParameters, inputProductStructure, matrixSize);
+            InitializePiA(inputParameters, rng, matrixSize, jCorrector);
+            InitializePiB(inputParameters, inputProductStructure, matrixSize, jCorrector);
             while (Math.Abs(_organizationDegreeA - inputParameters.DegreeOfOrganization) > 0.001)
             {
                 Bisection(inputParameters, matrixSize);
@@ -45,29 +47,24 @@ namespace Master40.DataGenerator.Generators
             return transitionMatrix;
         }
 
-        private void InitializePiA(InputParameterSet inputParameters, XRandom rng, int matrixSize)
+        private void InitializePiA(InputParameterSet inputParameters, XRandom rng, int matrixSize, int jCorrector)
         {
             var faculty = new Faculty();
-            for (int i = 0; i < matrixSize; i++)
+            for (var i = 0; i < matrixSize; i++)
             {
                 var lineSum = 0.0;
-                for (int j = 0; j < matrixSize; j++)
+                for (var j = 0; j < matrixSize; j++)
                 {
-                    if (i != j)
+                    if (i != j + jCorrector)
                     {
                         var cellValue =
-                            InitializePiACalcCellValue(inputParameters, i, j, i < j, matrixSize, faculty, rng);
+                            InitializePiACalcCellValue(inputParameters, i, j, matrixSize, faculty, rng, jCorrector);
                         _piA[i, j] = cellValue;
                         lineSum += cellValue;
                     }
-                    else if (inputParameters.WithStartAndEnd && i + 1 == matrixSize && i == j)
-                    {
-                        _piA[i, j] = 1.0;
-                        lineSum += 1;
-                    }
                 }
 
-                for (int j = 0; j < matrixSize; j++)
+                for (var j = 0; j < matrixSize; j++)
                 {
                     _piA[i, j] = _piA[i, j] / lineSum;
                 }
@@ -76,27 +73,27 @@ namespace Master40.DataGenerator.Generators
             _organizationDegreeA = CalcOrganizationDegree(_piA, matrixSize);
         }
 
-        private double InitializePiACalcCellValue(InputParameterSet inputParameters, int i, int j, bool iLessThanJ, int matrixSize, Faculty faculty, XRandom rng)
+        private double InitializePiACalcCellValue(InputParameterSet inputParameters, int i, int j, int matrixSize, Faculty faculty, XRandom rng, int jCorrector)
         {
             var noiseFactor = 1 + 0.2 * (rng.NextDouble() - 0.5);
-            if (inputParameters.WithStartAndEnd && (j == 0 || i + 1 == matrixSize || (i == 0 && j + 1 == matrixSize)))
+            if (inputParameters.WithStartAndEnd && i == 0 && j + 1 == matrixSize)
             {
                 return 0.0;
             }
-            if (iLessThanJ)
+            if (i < j + jCorrector)
             {
-                return Math.Pow(inputParameters.Lambda, -i + j - 1) / faculty.Calc(-i + j - 1) * noiseFactor;
+                return Math.Pow(inputParameters.Lambda, -i + j + jCorrector - 1) / faculty.Calc(-i + j + jCorrector - 1) * noiseFactor;
             }
-            return Math.Pow(inputParameters.Lambda, i - j - 1) / (2 * faculty.Calc(i - j - 1)) * noiseFactor;
+            return Math.Pow(inputParameters.Lambda, i - (j + jCorrector) - 1) / (2 * faculty.Calc(i - (j + jCorrector) - 1)) * noiseFactor;
         }
 
-        private void InitializePiB(InputParameterSet inputParameters, DataModel.ProductStructure.InputParameterSet inputProductStructure, int matrixSize)
+        private void InitializePiB(InputParameterSet inputParameters, DataModel.ProductStructure.InputParameterSet inputProductStructure, int matrixSize, int jCorrector)
         {
             if (_organizationDegreeA > inputParameters.DegreeOfOrganization)
             {
-                for (int i = 0; i < matrixSize; i++)
+                for (var i = 0; i < matrixSize; i++)
                 {
-                    for (int j = 0; j < matrixSize; j++)
+                    for (var j = 0; j < matrixSize; j++)
                     {
                         _piB[i, j] = 1.0 / matrixSize;
                     }
@@ -110,15 +107,15 @@ namespace Master40.DataGenerator.Generators
                 var jForSpecialCase = Convert.ToInt32(Math.Truncate(
                     matrixSize - matrixSize /
                     Convert.ToDecimal(inputProductStructure.DepthOfAssembly) + 1));
-                for (int i = 0; i < matrixSize; i++)
+                for (var i = 0; i < matrixSize; i++)
                 {
-                    for (int j = 0; j < matrixSize; j++)
+                    for (var j = 0; j < matrixSize; j++)
                     {
-                        if (i < matrixSize - 1 && j == i + 1)
+                        if (i < matrixSize - 1 && j + jCorrector == i + 1)
                         {
                             _piB[i, j] = 1.0;
                         }
-                        else if (i == matrixSize - 1 && j == jForSpecialCase - 1)
+                        else if (i == matrixSize - 1 && j + jCorrector == jForSpecialCase - 1)
                         {
                             _piB[i, j] = 1.0;
                         }
@@ -133,29 +130,29 @@ namespace Master40.DataGenerator.Generators
         {
             
             _piC = new double[matrixSize, matrixSize];
-            for (int i = 0; i < matrixSize; i++)
+            for (var i = 0; i < matrixSize; i++)
             {
                 var lineSum = 0.0;
-                for (int j = 0; j < matrixSize; j++)
+                for (var j = 0; j < matrixSize; j++)
                 {
                     var cellValue = 0.5 * (_piA[i, j] + _piB[i, j]);
-                    if (inputParameters.WithStartAndEnd)
+                    if (inputParameters.WithStartAndEnd && i == 0 && j + 1 == matrixSize)
                     {
-                        if (i + 1 == matrixSize && i == j)
-                        {
-                            cellValue = 1.0;
-                        }
-                        else if ((j == 0 || i + 1 == matrixSize || (i == 0 && j + 1 == matrixSize)))
-                        {
-                            cellValue = 0.0;
-                        }
+                        cellValue = 0.0;
                     }
                     _piC[i, j] = cellValue;
-                    lineSum += cellValue;
+                    if (i == 0 && inputParameters.WithStartAndEnd)
+                    {
+                        lineSum += cellValue;
+                    }
                 }
-                for (int j = 0; j < matrixSize; j++)
+
+                if (i == 0 && inputParameters.WithStartAndEnd)
                 {
-                    _piC[i, j] = _piC[i, j] / lineSum;
+                    for (var j = 0; j < matrixSize; j++)
+                    {
+                        _piC[i, j] = _piC[i, j] / lineSum;
+                    }
                 }
             }
 

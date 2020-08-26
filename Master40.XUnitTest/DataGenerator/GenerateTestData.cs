@@ -52,7 +52,7 @@ namespace Master40.XUnitTest.DataGenerator
                 //Limit für Lambda und Anzahl Bearbeitungsstationen jeweils 100
                 var inputTransitionMatrix = new Master40.DataGenerator.DataModel.TransitionMatrix.InputParameterSet
                 {
-                    DegreeOfOrganization = 0.0, Lambda = 1.3, WorkingStationCount = 20, WithStartAndEnd = true
+                    DegreeOfOrganization = 1.0, Lambda = 1.3, WorkingStationCount = 7, WithStartAndEnd = true
                 };
                 var transitionMatrixGenerator = new TransitionMatrixGenerator();
                 var transitionMatrix = transitionMatrixGenerator.GenerateTransitionMatrix(inputTransitionMatrix, inputProductStructure);
