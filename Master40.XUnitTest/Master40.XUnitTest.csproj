@@ -20,7 +20,9 @@
     <None Remove="Test\**" />
     <None Remove="Zpp\**" />
   </ItemGroup>
-
+	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+		<Exec Command="XCOPY &quot;$(SolutionDir)Master40.Tools\Connectoren\Ganttplan\GanttPlanSources&quot; &quot;$(TargetDir)&quot; /E /Y /D" />
+	</Target>
   <ItemGroup>
     <Compile Remove="Online\Agents\Types\BucketManagers.cs" />
     <Compile Remove="Online\Agents\Types\TimeConstraintQueue.cs" />

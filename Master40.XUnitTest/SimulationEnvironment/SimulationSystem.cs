@@ -52,7 +52,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Fact]
         public void TestGanttPlanApi()
         {
-            //GanttPlanApics.GPGetVersion();
+            GanttPlanApics.GPGetVersion();
+
             Assert.True(GanttPlanApics.GPInitInstance());
 
             Assert.True(GanttPlanApics.GPLic());

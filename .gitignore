@@ -309,3 +309,4 @@ obj/
 /Master40/wwwroot/lib/
 /Master40.XUnitTest/Zpp/Ordergraphs/GanttChart/*.json
 /Master40.XUnitTest/Zpp/Ordergraphs/*.txt
+/Master40.Tools/Connectoren/Ganttplan/GanttPlanSources/*
