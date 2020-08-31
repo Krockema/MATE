@@ -36,6 +36,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         private const string hangfireCtxString = "Server=141.56.137.25;Database=Hangfire;Persist Security Info=False;User ID=SA;Password=123*Start#;MultipleActiveResultSets=true";
 
+        // only for local usage
+        private const string GanttPlanCtxString = "SERVER=(localdb)\\MSSQLLocalDB;DATABASE=GanttPlanImportTestDB;Trusted_connection=Yes;UID=;PWD=";
 
         private ProductionDomainContext _masterDBContext = ProductionDomainContext.GetContext(remoteMasterCtxString);
         private ResultContext _ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);
@@ -52,14 +54,63 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Fact]
         public void TestGanttPlanApi()
         {
+            GanttPlanDBContext ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
+
+            System.Diagnostics.Debug.WriteLine("First Material ID: " + ganttPlanContext.Material.First().MaterialId);
+
+            Assert.True(ganttPlanContext.Material.Any());
+
             System.Diagnostics.Debug.WriteLine("Loading Gantt Version : " + GanttPlanApics.GPGetVersion());
-            
+
             Assert.True(GanttPlanApics.GPInitInstance());
             
             Assert.True(GanttPlanApics.GPLic());
             
             Assert.True(GanttPlanApics.GPExitInstance());
 
+        }
+
+        [Fact]
+        public void TestImportGanttPlanApi()
+        {
+            //Initialsieren Model Master40
+
+            // Master40 zu Ganttplan
+            // --> Ganttplangimport config
+
+            Assert.True(GanttPlanApics.GPInitInstanceEx(cPathApp: "C:\\Program Files\\GANTTPLAN_V6\\Init", cPathUser: "C:\\Users\\Administrator"));
+
+            Assert.True(GanttPlanApics.GPLic());
+
+            Assert.True(GanttPlanApics.GPImport("15"));
+
+            Assert.True(GanttPlanApics.GPOptInit(""));
+
+            Assert.True(GanttPlanApics.GPOptRun());
+
+            Assert.True(GanttPlanApics.GPExport(1));
+
+            Assert.True(GanttPlanApics.GPSaveScenario(1, "C:\\Users\\Administrator\\Documents\\GANTTPLAN\\DBSaveScenario.gpsx"));
+            
+            Assert.True(GanttPlanApics.GPExitInstance());
+
+
+            /*
+
+            Assert.True(GanttPlanApics.GPInitInstanceEx(cPathApp: "C:\\Program Files\\GANTTPLAN_V6\\Continous", cPathUser: "C:\\Users\\Administrator"));
+
+            Assert.True(GanttPlanApics.GPLic());
+
+            Assert.True(GanttPlanApics.GPImport("15"));
+
+            Assert.True(GanttPlanApics.GPOptInit(""));
+
+            Assert.True(GanttPlanApics.GPOptRun());
+
+            Assert.True(GanttPlanApics.GPExport(1));
+
+            Assert.True(GanttPlanApics.GPExitInstance());
+            */
         }
 
         //[Fact(Skip = "manual test")]
