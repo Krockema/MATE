@@ -10,6 +10,9 @@ namespace Master40.DB.GanttPlanModel
         public string AlternativeId { get; set; }
         public int ActivityId { get; set; }
         public int SplitId { get; set; }
+
+        public GptblProductionorderOperationActivity ProductionorderOperationActivity { get; set; }
+
         public int MaterialrelationType { get; set; }
         public string ChildId { get; set; }
         public string ChildOperationId { get; set; }

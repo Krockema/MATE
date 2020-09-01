@@ -25,7 +25,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             {
                 foreach (var setup in provider.ResourceSetups)
                 {
-                    if (setup.Resource.Id == resourceId )
+                    if (setup.ResourceId == resourceId )
                     {
                         setup.Resource.IResourceRef = resourceRef;
                     }

@@ -56,18 +56,26 @@ namespace Master40.XUnitTest.SimulationEnvironment
         {
             GanttPlanDBContext ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
 
-            System.Diagnostics.Debug.WriteLine("First Material ID: " + ganttPlanContext.Material.First().MaterialId);
+            var prod = ganttPlanContext.GptblProductionorder
+                .Include(x => x.ProductionorderOperationActivities)
+                    .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)
+                .Include(x => x.ProductionorderOperationActivities)
+                    .ThenInclude(x => x.ProductionorderOperationActivityResources)
+                .Include(x => x.ProductionorderOperationActivities)
+                    .ThenInclude(x => x.ProductionorderOperationActivityResources)
+                        .ThenInclude(x => x.ProductionorderOperationActivityResourceInterval)
+                .Single(x => x.ProductionorderId == "000030");
 
-            Assert.True(ganttPlanContext.Material.Any());
+            System.Diagnostics.Debug.WriteLine("First ID: " + prod.ProductionorderId);
+            var activity = prod.ProductionorderOperationActivities.ToArray()[1];
+            System.Diagnostics.Debug.WriteLine("First Activity ID: " + activity.ActivityId);
+            var materialRelation = activity.ProductionorderOperationActivityMaterialrelation.ToArray()[0];
+            System.Diagnostics.Debug.WriteLine("First Activity Material Relation ID: " + materialRelation.ChildId);
+            var ress = activity.ProductionorderOperationActivityResources.ToArray()[0];
+            System.Diagnostics.Debug.WriteLine("First Resource: " + ress.ResourceId);
+            System.Diagnostics.Debug.WriteLine("First Resource Intervall: " + ress.ProductionorderOperationActivityResourceInterval.DateFrom);
 
-            System.Diagnostics.Debug.WriteLine("Loading Gantt Version : " + GanttPlanApics.GPGetVersion());
-
-            Assert.True(GanttPlanApics.GPInitInstance());
-            
-            Assert.True(GanttPlanApics.GPLic());
-            
-            Assert.True(GanttPlanApics.GPExitInstance());
-
+            Assert.True(ganttPlanContext.GptblMaterial.Any());
         }
 
         [Fact]

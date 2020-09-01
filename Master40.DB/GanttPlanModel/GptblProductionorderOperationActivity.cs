@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Master40.DB.GanttPlanModel
 {
@@ -6,6 +8,12 @@ namespace Master40.DB.GanttPlanModel
     {
         public string ClientId { get; set; }
         public string ProductionorderId { get; set; }
+        public GptblProductionorder Productionorder { get; set; }
+        public ICollection<GptblProductionorderOperationActivityMaterialrelation>
+            ProductionorderOperationActivityMaterialrelation { get; set; }
+
+        public ICollection<GptblProductionorderOperationActivityResource>
+            ProductionorderOperationActivityResources { get; set; }
         public string OperationId { get; set; }
         public int ActivityId { get; set; }
         public string AlternativeId { get; set; }
