@@ -1,11 +1,13 @@
 ﻿using Master40.DB.GanttPlanModel;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 
 namespace Master40.DB.Data.Context
 {
     public partial class GanttPlanDBContext : DbContext
     {
-        public GanttPlanDBContext()
+        public GanttPlanDBContext(ILoggerFactory logger)
         {
         }
 

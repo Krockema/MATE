@@ -1,4 +1,8 @@
-﻿namespace Master40.DB.GanttPlanModel
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Master40.DB.Interfaces;
+using Microsoft.EntityFrameworkCore.Query;
+
+namespace Master40.DB.GanttPlanModel
 {
     public partial class GptblProductionorderOperationActivityResource
     {
@@ -15,6 +19,8 @@
             get;
             set;
         }
+        [NotMapped]
+        public IGptblResource Resource { get; set; }
         public int ResourceType { get; set; }
         public string GroupId { get; set; }
         public int? Allocation { get; set; }
