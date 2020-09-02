@@ -68,6 +68,13 @@ namespace Master40.DataGenerator.Generators
         private long GeneratePartsForEachLevel(InputParameterSet inputParameters, ProductStructure productStructure, List<HashSet<long>> availableNodes)
         {
             long nodesCounter = 0;
+            bool sampleWorkPlanLength = inputParameters.MeanWorkPlanLength != null && inputParameters.VarianceWorkPlanLength != null;
+            Normal normalDistribution = null;
+            if (sampleWorkPlanLength)
+            {
+                normalDistribution = Normal.WithMeanVariance((double) inputParameters.MeanWorkPlanLength,
+                    (double) inputParameters.VarianceWorkPlanLength);
+            }
             for (var i = 1; i <= inputParameters.DepthOfAssembly; i++)
             {
                 //Problem mit Algorithmus aus SYMTEP: bei ungünstigen Eingabeparametern gibt es auf manchen Fertigungsstufen keine Teile (0 Knoten)
@@ -83,8 +90,19 @@ namespace Master40.DataGenerator.Generators
                 for (long j = 0; j < nodeCount; j++)
                 {
                     availableNodesOnThisLevel.Add(j);
-                    nodesCurrentLevel[j] = new Node { AssemblyLevel = i };
+                    var node = new Node { AssemblyLevel = i };
+                    nodesCurrentLevel[j] = node;
                     nodesCounter++;
+                    if (sampleWorkPlanLength && i != inputParameters.DepthOfAssembly)
+                    {
+                        int length;
+                        do
+                        {
+                            length = (int) Math.Round(normalDistribution.Sample());
+                        } while (length < 1);
+
+                        node.WorkPlanLength = length;
+                    }
                 }
             }
 
@@ -254,11 +272,11 @@ namespace Master40.DataGenerator.Generators
 
         private static void DeterminationOfEdgeWeights(InputParameterSet inputParameters, ProductStructure productStructure)
         {
+            var logNormalDistribution = LogNormal.WithMeanVariance(inputParameters.MeanIncomingMaterialAmount,
+                inputParameters.VarianceIncomingMaterialAmount);
             foreach (var edge in productStructure.Edges)
             {
-                //Änderung notwendig: µ ist nicht gleich Erwartungswert und sigma ist nicht gleich Standardabweichung²!
-                edge.Weight = LogNormal.Sample(inputParameters.MeanIncomingMaterialAmount,
-                    inputParameters.VarianceIncomingMaterialAmount);
+                edge.Weight = logNormalDistribution.Sample();
             }
         }
     }

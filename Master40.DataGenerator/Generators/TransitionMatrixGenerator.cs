@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Master40.DataGenerator.DataModel.TransitionMatrix;
 using Master40.DataGenerator.Util;
 
@@ -23,7 +22,15 @@ namespace Master40.DataGenerator.Generators
         public TransitionMatrix GenerateTransitionMatrix(InputParameterSet inputParameters, DataModel.ProductStructure.InputParameterSet inputProductStructure)
         {
             var jCorrector = 0;
-            var matrixSize = inputParameters.WorkingStationCount;
+            var matrixSize = 0;
+            if (inputParameters.DetailedWorkingStationParameterSet != null)
+            {
+                matrixSize = inputParameters.DetailedWorkingStationParameterSet.Length;
+            }
+            else if (inputParameters.WorkingStationCount != null)
+            {
+                matrixSize = (int) inputParameters.WorkingStationCount;
+            }
             if (inputParameters.WithStartAndEnd)
             {
                 matrixSize += 1;
@@ -111,11 +118,19 @@ namespace Master40.DataGenerator.Generators
                 {
                     for (var j = 0; j < matrixSize; j++)
                     {
+                        /*
                         if (i < matrixSize - 1 && j + jCorrector == i + 1)
                         {
                             _piB[i, j] = 1.0;
                         }
                         else if (i == matrixSize - 1 && j + jCorrector == jForSpecialCase - 1)
+                        {
+                            _piB[i, j] = 1.0;
+                        }
+                        */
+                        // Es wurde entschieden, dass in diesem Fall die Matrix piB wie eine ("verschobene") Einheitsmatrix initiiert werden soll, damit jede Maschine eine andere Folgemaschine besitzt.
+                        // Grund: Wegen dem speziellen Fall, der für i = M-1 gilt, wo eine 1 gesetzt wird bei j = trunc(M - M/FT + 1) und dem dadurch verursachden Problem, dass (fast) nie zur ersten Maschine zurückgekerht werden kann (bei hohen OGs) und zusätzlich eine Übergangsschleife zwischen einigen Maschinen verursacht wird.
+                        if ((j + jCorrector) % matrixSize == (i + 1) % matrixSize)
                         {
                             _piB[i, j] = 1.0;
                         }
