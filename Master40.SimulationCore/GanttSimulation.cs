@@ -156,30 +156,17 @@ namespace Master40.SimulationCore
 
         private void CreateHubAgents(IActorRef directory, Configuration configuration)
         {
-           /*
-            var capabilities = _dBContext.ResourceCapabilities.Where(x => x.ParentResourceCapabilityId == null).ToList();
-            for (var index = 0; index < capabilities.Count; index++)
-            {
-                WorkTimeGenerator randomWorkTime = WorkTimeGenerator.Create(configuration: configuration, index);
-                var capability = capabilities[index];
-                GetCapabilitiesRecursive(capability);
 
-                var hubInfo = new FResourceHubInformations.FResourceHubInformation(capability: capability
-                                                                           ,workTimeGenerator: randomWorkTime
-                                                                              , maxBucketSize: configuration.GetOption<MaxBucketSize>().Value);
-                _simulation.SimulationContext.Tell(
-                    message: Directory.Instruction.CreateResourceHubAgents.Create(hubInfo, directory),
-                    sender: ActorRefs.NoSender);
-            }
-            */
-        }
+            WorkTimeGenerator randomWorkTime = WorkTimeGenerator.Create(configuration: configuration, 0);
 
-        private void GetCapabilitiesRecursive(M_ResourceCapability capability)
-        {
-            /*
-            capability.ChildResourceCapabilities = _dBContext.ResourceCapabilities.Where(x => x.ParentResourceCapabilityId == capability.Id).ToList();
-            capability.ChildResourceCapabilities.ForEach(GetCapabilitiesRecursive);
-            */
+            var hubInfo = new FResourceHubInformations.FResourceHubInformation(capability: "Central work distributor"
+                                                                       ,workTimeGenerator: randomWorkTime
+                                                                          , maxBucketSize: configuration.GetOption<MaxBucketSize>().Value);
+            _simulation.SimulationContext.Tell(
+                message: Directory.Instruction.CreateResourceHubAgents.Create(hubInfo, directory),
+                sender: ActorRefs.NoSender);
+            
+
         }
 
         private void GenerateGuardians()
@@ -242,8 +229,6 @@ namespace Master40.SimulationCore
         private void CreateResourceAgents(Configuration configuration)
         {
             WorkTimeGenerator randomWorkTime = WorkTimeGenerator.Create(configuration: configuration);
-            var maxBucketSize = configuration.GetOption<MaxBucketSize>().Value;
-            var timeConstraintQueueLength = configuration.GetOption<TimeConstraintQueueLength>().Value;
 
             // Get All Resources that have an Agent (that are limited)
             //var resources = _dBContext.Resources.ToList(); // all Resources

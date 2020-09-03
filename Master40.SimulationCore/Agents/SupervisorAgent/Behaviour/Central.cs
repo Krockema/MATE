@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
 using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
@@ -24,9 +23,9 @@ using static Master40.SimulationCore.Agents.SupervisorAgent.Supervisor.Instructi
 
 namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 {
-    public class Default : IBehaviour
+    public class Central : IBehaviour
     {
-        private ProductionDomainContext _productionDomainContext { get; set; }
+        private GanttPlanDBContext _ganttContext { get; set; }
         private DbConnection _dataBaseConnection { get; set; }
         private IMessageHub _messageHub { get; set; }
         private int orderCount { get; set; } = 0;
@@ -41,17 +40,17 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private ThroughPutDictionary _estimatedThroughPuts { get; set; } = new ThroughPutDictionary();
         private Queue<T_CustomerOrderPart> _orderQueue { get; set; } = new Queue<T_CustomerOrderPart>();
         private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
-        public  Default(ProductionDomainContext productionDomainContext
+        public Central(GanttPlanDBContext ganttContext
             , IMessageHub messageHub
             , Configuration configuration
             , List<FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime> estimatedThroughputTimes)
         {
-            _productionDomainContext = productionDomainContext;
-            _dataBaseConnection = _productionDomainContext.Database.GetDbConnection();
+            _ganttContext = ganttContext;
+            _dataBaseConnection = _ganttContext.Database.GetDbConnection();
             _articleCache = new ArticleCache(connectionString: new DbConnectionString(_dataBaseConnection.ConnectionString));
             _messageHub = messageHub;
-            _orderGenerator = new OrderGenerator(simConfig: configuration, productionDomainContext: _productionDomainContext
-                , productIds: estimatedThroughputTimes.Select(x => x.ArticleId).ToList());
+            _orderGenerator = new OrderGenerator(simConfig: configuration, 
+                                                productIds: estimatedThroughputTimes.Select(x => x.ArticleId).ToList());
             _orderCounter = new OrderCounter(maxQuantity: configuration.GetOption<OrderQuantity>().Value);
             _configID = configuration.GetOption<SimulationId>().Value;
             _simulationEnds = configuration.GetOption<SimulationEnd>().Value;
@@ -107,7 +106,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             _orderQueue.Enqueue(item: orderPart);
             Agent.DebugMessage(msg: $"Creating Contract Agent for order {orderPart.CustomerOrderId} with {orderPart.Article.Name} DueTime {orderPart.CustomerOrder.DueTime}");
             var agentSetup = AgentSetup.Create(agent: Agent, behaviour: ContractAgent.Behaviour.Factory.Get(simType: _simulationType));
-            var instruction = Instruction.CreateChild.Create(setup: agentSetup
+            var instruction = Guardian.Instruction.CreateChild.Create(setup: agentSetup
                                                , target: Agent.ActorPaths.Guardians
                                                                   .Single(predicate: x => x.Key == GuardianType.Contract)
                                                                   .Value

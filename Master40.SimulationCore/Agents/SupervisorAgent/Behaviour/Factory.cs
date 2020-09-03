@@ -6,6 +6,7 @@ using Master40.DB.Nominal;
 using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Types;
 using Master40.Tools.SignalR;
+using static FSetEstimatedThroughputTimes;
 
 namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 {
@@ -14,14 +15,17 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         public static IBehaviour Default(ProductionDomainContext productionDomainContext
             , IMessageHub messageHub
             , Configuration configuration
-            , List<FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime> estimatedThroughputTimes)
+            , List<FSetEstimatedThroughputTime> estimatedThroughputTimes)
         {
             return new Default(productionDomainContext, messageHub, configuration, estimatedThroughputTimes);
 
         }
-        private static IBehaviour Central(GptblMaterial material, SimulationType simType)
+        private static IBehaviour Central(GanttPlanDBContext ganttContext
+            , IMessageHub messageHub
+            , Configuration configuration
+            , List<FSetEstimatedThroughputTime> estimatedThroughputTimes)
         {
-            return null;
+            return new Central(ganttContext, messageHub, configuration, estimatedThroughputTimes);
         }
     }
 }

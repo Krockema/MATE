@@ -1,4 +1,5 @@
 ﻿using Master40.DB.Nominal;
+using Master40.SimulationCore.Agents.ContractAgent.Behaviour;
 using Master40.SimulationCore.Types;
 
 namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
@@ -12,6 +13,8 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
             {
                 case SimulationType.Default: behaviour = Default(simType);
                     break;
+                case SimulationType.Central: behaviour = Central(simType);
+                    break;
                 default: behaviour = Default(simType);
                     break;
             }
@@ -21,6 +24,11 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
         private static IBehaviour Default(SimulationType simType)
         {
             return new Default(simulationType: simType);
+        }
+
+        private static IBehaviour Central(SimulationType simType)
+        {
+            return new Central(simulationType: simType);
         }
 
     }
