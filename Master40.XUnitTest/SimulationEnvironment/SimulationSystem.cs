@@ -1,4 +1,5 @@
 ﻿using Akka.TestKit.Xunit;
+using Akka.Util.Internal;
 using AkkaSim.Logging;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
@@ -17,9 +18,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using Master40.Tools.Connectoren.Ganttplan;
-using Akka.Util.Internal;
-using Hangfire.Server;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {
@@ -60,6 +58,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
         {
             ProductionDomainContext master40Context = ProductionDomainContext.GetContext(masterCtxString);
 
+
+            GanttPlanDBContext ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
             // var prod = ganttPlanContext.GptblProductionorder
             //     .Include(x => x.ProductionorderOperationActivities)
             //         .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)

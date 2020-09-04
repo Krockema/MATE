@@ -44,13 +44,6 @@
     </PackageReference>
   </ItemGroup>
 
-	<PropertyGroup Condition=" '$(BuildingInsideVisualStudio)' == 'true' ">
-		<PreBuildEvent Condition=" '$(BuildingInsideVisualStudio)' == 'true' ">
-			XCOPY "$(SolutionDir)Master40.Tools\Connectoren\Ganttplan\GanttPlanSources" ".\" /E /Y /D
-		</PreBuildEvent>
-
-	</PropertyGroup>
-
 	<ItemGroup>
     <ProjectReference Include="..\Master40.DataGenerator\Master40.DataGenerator.csproj" />
     <ProjectReference Include="..\Master40.SimulationMrp\Master40.SimulationMrp.csproj" />
