@@ -17,6 +17,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using Master40.Tools.Connectoren.Ganttplan;
+using Akka.Util.Internal;
+using Hangfire.Server;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {
@@ -57,20 +60,59 @@ namespace Master40.XUnitTest.SimulationEnvironment
         {
             ProductionDomainContext master40Context = ProductionDomainContext.GetContext(masterCtxString);
 
-            master40Context.CustomerOrders.RemoveRange(master40Context.CustomerOrders);
-            master40Context.CustomerOrderParts.RemoveRange(master40Context.CustomerOrderParts);
+            // var prod = ganttPlanContext.GptblProductionorder
+            //     .Include(x => x.ProductionorderOperationActivities)
+            //         .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)
+            //     .Include(x => x.ProductionorderOperationActivities)
+            //         .ThenInclude(x => x.ProductionorderOperationActivityResources)
+            //     .Include(x => x.ProductionorderOperationActivities)
+            //         .ThenInclude(x => x.ProductionorderOperationActivityResources)
+            //             .ThenInclude(x => x.ProductionorderOperationActivityResourceInterval)
+            //     .Include(x => x.ProductionorderOperationActivities)
+            //         .ThenInclude(x => x.ProductionorderOperationActivityResources)
+            //             .ThenInclude(x => x.Worker)
+            //     .Single(x => x.ProductionorderId == "000030");
 
-            master40Context.SaveChanges();
+            // System.Diagnostics.Debug.WriteLine("First ID: " + prod.ProductionorderId);
+            // var activity = prod.ProductionorderOperationActivities.ToArray()[1];
+            // System.Diagnostics.Debug.WriteLine("First Activity ID: " + activity.ActivityId);
+            // var materialRelation = activity.ProductionorderOperationActivityMaterialrelation.ToArray()[0];
+            // System.Diagnostics.Debug.WriteLine("First Activity Material Relation ID: " + materialRelation.ChildId);
+            // var ress = activity.ProductionorderOperationActivityResources.ToArray()[0];
+            // System.Diagnostics.Debug.WriteLine("First Resource: " + ress.Worker.Name);
+            // System.Diagnostics.Debug.WriteLine("First Resource Intervall: " + ress.ProductionorderOperationActivityResourceInterval.DateFrom);
+            var activities = ganttPlanContext.GptblProductionorderOperationActivity
+                            .Include(x => x.ProductionorderOperationActivityResources)
+                                .Where(x => x.ProductionorderId == "000029").ToList();
+            activities.ForEach(act =>
+                {
+                    System.Diagnostics.Debug.WriteLine("Activity:" + act.Name);
+                    act.ProductionorderOperationActivityResources.ForEach(res =>
+                    {
+                        System.Diagnostics.Debug.WriteLine("Activity Resource:" + res.ResourceId);
+                        switch (res.ResourceType)
+                        {
+                            case 1:
+                                res.Resource =
+                                    ganttPlanContext.GptblWorkcenter.Single(x => x.WorkcenterId == res.ResourceId);
+                                break;
+                            case 3:
+                                res.Resource =
+                                    ganttPlanContext.GptblWorker.Single(x => x.WorkerId == res.ResourceId);
+                                break;
+                            case 5:
+                                res.Resource =
+                                    ganttPlanContext.GptblPrt.Single(x => x.PrtId == res.ResourceId);
+                                
+                                break;
+                        }
+                        System.Diagnostics.Debug.WriteLine("Activity Resource Name:" + res.Resource.Name);
+                    });
+                }
+            );
 
-            master40Context.CreateNewOrder(1, 1000, 10189, 1, 0, 250);
-            master40Context.SaveChanges();
 
-            GanttPlanDBContext ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
-
-            GanttPlanOptRunner.RunOptAndExport();
-
-            Assert.True(ganttPlanContext.GptblProductionorder.Any());
-
+            Assert.True(ganttPlanContext.GptblMaterial.Any());
         }
        
 

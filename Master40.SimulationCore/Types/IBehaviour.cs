@@ -13,6 +13,6 @@ namespace Master40.SimulationCore.Types
         Func<IUntypedActorContext, AgentSetup, IActorRef> ChildMaker { get; }
         SimulationType SimulationType { get; }
         bool AfterInit();
-        bool PostAdvance(); 
+        bool PostAdvance();
     }
 }

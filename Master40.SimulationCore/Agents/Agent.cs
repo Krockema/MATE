@@ -90,7 +90,6 @@ namespace Master40.SimulationCore.Agents
                 DebugMessage(msg: " PARENT INFORMED ");
                 Send(instruction: BasicInstruction.ChildRef.Create(message: Self, target: VirtualParent));
             }
-            
             OnInit(o: behaviour);
         }
         

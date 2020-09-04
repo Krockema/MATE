@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using Master40.DB.Interfaces;
 
 namespace Master40.DB.GanttPlanModel
 {
-    public partial class GptblWorkcenter
+    public partial class GptblWorkcenter : IGptblResource
     {
         public string ClientId { get; set; }
         public string WorkcenterId { get; set; }
+        [NotMapped]
+        public string Id { get => WorkcenterId; }
         public string Info1 { get; set; }
         public string Info2 { get; set; }
         public string Info3 { get; set; }

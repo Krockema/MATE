@@ -17,15 +17,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             switch (message)
             {
-                case Storage.Instruction.RequestArticle msg: RequestArticle(requestItem: msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
         }
 
-        private void RequestArticle(FArticles.FArticle requestItem)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

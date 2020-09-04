@@ -22,7 +22,6 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
 
         private static IBehaviour Default()
         {
-
             return new Default();
         }
 
