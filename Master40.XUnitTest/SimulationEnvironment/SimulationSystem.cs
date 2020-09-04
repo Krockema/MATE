@@ -3,19 +3,20 @@ using AkkaSim.Logging;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Master40.DB.DataModel;
+using Master40.DB.GanttPlanModel;
 using Master40.DB.Nominal;
+using Master40.DB.Nominal.Model;
 using Master40.Simulation.CLI;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
+using Master40.Tools.Connectoren.Ganttplan;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using NLog;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Master40.DB.Nominal.Model;
 using Xunit;
-using Master40.Tools.Connectoren.Ganttplan;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {
@@ -37,7 +38,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         private const string hangfireCtxString = "Server=141.56.137.25;Database=Hangfire;Persist Security Info=False;User ID=SA;Password=123*Start#;MultipleActiveResultSets=true";
 
         // only for local usage
-        private const string GanttPlanCtxString = "SERVER=(localdb)\\MSSQLLocalDB;DATABASE=GanttPlanImportTestDB;Trusted_connection=Yes;UID=;PWD=";
+        private const string GanttPlanCtxString = "SERVER=(localdb)\\MSSQLLocalDB;DATABASE=GanttPlanImportTestDB;Trusted_connection=Yes;UID=;PWD=;MultipleActiveResultSets=true";
 
         private ProductionDomainContext _masterDBContext = ProductionDomainContext.GetContext(remoteMasterCtxString);
         private ResultContext _ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);
@@ -54,63 +55,106 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Fact]
         public void TestGanttPlanApi()
         {
+            ProductionDomainContext master40Context = ProductionDomainContext.GetContext(masterCtxString);
+
+            master40Context.CustomerOrders.RemoveRange(master40Context.CustomerOrders);
+            master40Context.CustomerOrderParts.RemoveRange(master40Context.CustomerOrderParts);
+
+            master40Context.SaveChanges();
+
+            master40Context.CreateNewOrder(1, 1000, 10189, 1, 0, 250);
+            master40Context.SaveChanges();
+
             GanttPlanDBContext ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
 
-            System.Diagnostics.Debug.WriteLine("First Material ID: " + ganttPlanContext.Material.First().MaterialId);
+            GanttPlanOptRunner.RunOptAndExport();
 
-            Assert.True(ganttPlanContext.Material.Any());
+            Assert.True(ganttPlanContext.GptblProductionorder.Any());
 
-            System.Diagnostics.Debug.WriteLine("Loading Gantt Version : " + GanttPlanApics.GPGetVersion());
+        }
+       
 
-            Assert.True(GanttPlanApics.GPInitInstance());
+        [Fact]
+        public void GanttPlanInsertConfirmationAndReplan()
+        {
+
+            ProductionDomainContext master40Context = ProductionDomainContext.GetContext(masterCtxString);
+            master40Context.CustomerOrders.RemoveRange(master40Context.CustomerOrders);
+            master40Context.CustomerOrderParts.RemoveRange(master40Context.CustomerOrderParts);
+            master40Context.SaveChanges();
+
+            master40Context.CreateNewOrder(10189, 1, 0, 250);
+            master40Context.SaveChanges();
+
+            GanttPlanDBContext ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
+
+            GanttPlanOptRunner.RunOptAndExport();
+
+            Assert.True(ganttPlanContext.GptblProductionorder.Any());
+           
+            ganttPlanContext.GptblConfirmation.RemoveRange(ganttPlanContext.GptblConfirmation);
+            var productionorder = ganttPlanContext.GptblProductionorder.Single(x => x.ProductionorderId.Equals("000004"));
+
+            ganttPlanContext.GptblConfirmation.RemoveRange(ganttPlanContext.GptblConfirmation);
+
+            var activities = ganttPlanContext.GptblProductionorderOperationActivity.Where(x =>
+                x.ProductionorderId.Equals(productionorder.ProductionorderId));
+
+            var activity = activities.Single(x => x.OperationId.Equals("10") && x. ActivityId.Equals(2));
+            var confirmation = CreateConfirmation(activity,productionorder,1);
             
-            Assert.True(GanttPlanApics.GPLic());
+            ganttPlanContext.GptblConfirmation.Add(confirmation);
             
-            Assert.True(GanttPlanApics.GPExitInstance());
+            ganttPlanContext.SaveChanges();
+
+            GanttPlanOptRunner.RunOptAndExport();
+
+            Assert.True(ganttPlanContext.GptblConfirmation.Any());
+            
+            confirmation = ganttPlanContext.GptblConfirmation.SingleOrDefault(x =>
+                x.ConfirmationId.Equals(confirmation.ConfirmationId));
+            ganttPlanContext.GptblConfirmation.Remove(confirmation);
+            ganttPlanContext.SaveChanges();
+            confirmation.ConfirmationType = 16;
+
+            ganttPlanContext.GptblConfirmation.Add(confirmation);
+
+            activity = activities.Single(x => x.OperationId.Equals("10") && x.ActivityId.Equals(3));
+
+            confirmation = CreateConfirmation(activity, productionorder, 16);
+
+            ganttPlanContext.GptblConfirmation.Add(confirmation);
+
+            activity = activities.Single(x => x.OperationId.Equals("20") && x.ActivityId.Equals(2));
+
+            confirmation = CreateConfirmation(activity, productionorder, 1);
+            ganttPlanContext.GptblConfirmation.Add(confirmation);
+
+            ganttPlanContext.SaveChanges();
+
+            GanttPlanOptRunner.RunOptAndExport();
+
+            Assert.True(ganttPlanContext.GptblProductionorder.Count().Equals(10));
 
         }
 
-        [Fact]
-        public void TestImportGanttPlanApi()
+        private GptblConfirmation CreateConfirmation(GptblProductionorderOperationActivity activity,
+            GptblProductionorder productionorder, int confirmationType)
         {
-            //Initialsieren Model Master40
-
-            // Master40 zu Ganttplan
-            // --> Ganttplangimport config
-
-            Assert.True(GanttPlanApics.GPInitInstanceEx(cPathApp: "C:\\Program Files\\GANTTPLAN_V6\\Init", cPathUser: "C:\\Users\\Administrator"));
-
-            Assert.True(GanttPlanApics.GPLic());
-
-            Assert.True(GanttPlanApics.GPImport("15"));
-
-            Assert.True(GanttPlanApics.GPOptInit(""));
-
-            Assert.True(GanttPlanApics.GPOptRun());
-
-            Assert.True(GanttPlanApics.GPExport(1));
-
-            Assert.True(GanttPlanApics.GPSaveScenario(1, "C:\\Users\\Administrator\\Documents\\GANTTPLAN\\DBSaveScenario.gpsx"));
-            
-            Assert.True(GanttPlanApics.GPExitInstance());
-
-
-            /*
-
-            Assert.True(GanttPlanApics.GPInitInstanceEx(cPathApp: "C:\\Program Files\\GANTTPLAN_V6\\Continous", cPathUser: "C:\\Users\\Administrator"));
-
-            Assert.True(GanttPlanApics.GPLic());
-
-            Assert.True(GanttPlanApics.GPImport("15"));
-
-            Assert.True(GanttPlanApics.GPOptInit(""));
-
-            Assert.True(GanttPlanApics.GPOptRun());
-
-            Assert.True(GanttPlanApics.GPExport(1));
-
-            Assert.True(GanttPlanApics.GPExitInstance());
-            */
+            var newConf = new GptblConfirmation();
+            newConf.ProductionorderId = activity.ProductionorderId;
+            newConf.ActivityEnd = activity.DateEnd;
+            newConf.ActivityStart = activity.DateStart;
+            newConf.ClientId = string.Empty;
+            newConf.ConfirmationDate = activity.DateEnd;
+            newConf.ConfirmationId = Guid.NewGuid().ToString();
+            newConf.ProductionorderActivityId = activity.ActivityId;
+            newConf.ProductionorderOperationId = activity.OperationId;
+            newConf.QuantityFinished = confirmationType==16 ? productionorder.QuantityNet: 0 ;
+            newConf.QuantityFinishedUnitId = productionorder.QuantityUnitId;
+            newConf.ProductionorderSplitId = 0;
+            newConf.ConfirmationType = confirmationType; // 16 = beendet
+            return newConf;
         }
 
         //[Fact(Skip = "manual test")]
