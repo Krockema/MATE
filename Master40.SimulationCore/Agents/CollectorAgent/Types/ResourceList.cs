@@ -2,7 +2,7 @@
 
 namespace Master40.SimulationCore.Agents.CollectorAgent.Types
 {
-    public class ResourceList : List<string>
+    public class ResourceDictionary : Dictionary<int, string>
     {
     }
 }

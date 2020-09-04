@@ -76,7 +76,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             _fArticle = requestArticle;
             Agent.DebugMessage($"{_fArticle.Article.Name} {_fArticle.Key} is Requested to Produce.", CustomLogger.STOCK, LogLevel.Warn);
             // get related Storage Agent
-            Agent.Send(instruction: Directory.Instruction.RequestAgent
+            Agent.Send(instruction: Directory.Instruction.Default.RequestAgent
                                     .Create(discriminator: requestArticle.Article.Name
                                         , target: Agent.ActorPaths.StorageDirectory.Ref));
         }

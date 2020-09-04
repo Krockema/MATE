@@ -24,7 +24,7 @@ using static Master40.SimulationCore.Agents.SupervisorAgent.Supervisor.Instructi
 
 namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 {
-    public class Default : IBehaviour
+    public class Default : SimulationCore.Types.Behaviour
     {
         private ProductionDomainContext _productionDomainContext { get; set; }
         private DbConnection _dataBaseConnection { get; set; }
@@ -82,7 +82,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         public Agent Agent { get; set; }
         public Func<IUntypedActorContext, AgentSetup, IActorRef> ChildMaker { get; }
         public SimulationType SimulationType { get; }
-        public bool AfterInit()
+        public override bool AfterInit()
         {
             Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "Pop", target: Agent.Context.Self), waitFor: 1);
             Agent.Send(instruction: EndSimulation.Create(message: true, target: Agent.Context.Self), waitFor: _simulationEnds);
@@ -90,12 +90,6 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             Agent.DebugMessage(msg: "Agent-System ready for Work");
             return true;
         }
-
-        public bool PostAdvance()
-        {
-            throw new NotImplementedException();
-        }
-
 
         private void SetEstimatedThroughputTime(FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime getObjectFromMessage)
         {
@@ -121,7 +115,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         /// it has been allready added to this.VirtualChilds at this Point
         /// </summary>
         /// <param name="childRef"></param>
-        internal void OnChildAdd(IActorRef childRef)
+        public override void OnChildAdd(IActorRef childRef)
         {
             Agent.VirtualChildren.Add(item: childRef);
             Agent.Send(instruction: Contract.Instruction.StartOrder.Create(message: _orderQueue.Dequeue()

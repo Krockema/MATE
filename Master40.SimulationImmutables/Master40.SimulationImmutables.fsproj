@@ -7,6 +7,9 @@
 
   <ItemGroup>
     <Compile Include="FunctionConverter.fs" />
+    <Compile Include="Message\Central\FCentralStockDefintions.fs" />
+    <Compile Include="Message\Central\FCentralResourceDefinitions.fs" />
+    <Compile Include="Message\Central\FCentralResourceHubInformations.fs" />
     <Compile Include="Message\FStockProvider.fs" />
     <Compile Include="Message\FUpdateBucketScopes.fs" />
     <Compile Include="Message\FBucketScopes.fs" />
@@ -14,7 +17,7 @@
     <Compile Include="Message\FThroughPutTimers.fs" />
     <Compile Include="Message\FUpdateStartCondition.fs" />
     <Compile Include="Message\FArticleProviders.fs" />
-    <Compile Include="Message\FProsponed.fs" />
+    <Compile Include="Message\FPosponed.fs" />
     <Compile Include="Message\FProposal.fs" />
     <Compile Include="Message\FResourceType.fs" />
     <Compile Include="Message\FStartConditions.fs" />

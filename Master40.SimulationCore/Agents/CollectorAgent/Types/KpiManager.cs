@@ -15,7 +15,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
 
         }
 
-        internal List<ResourceSimulationData> GetSimulationDataForResources (ResourceList resources, List<ISimulationResourceData> simulationResourceData, List<ISimulationResourceData> simulationResourceSetupData, long startInterval, long
+        internal List<ResourceSimulationData> GetSimulationDataForResources (ResourceDictionary resources, List<ISimulationResourceData> simulationResourceData, List<ISimulationResourceData> simulationResourceSetupData, long startInterval, long
             endInterval)
         {
             List<ResourceSimulationData> resourceSimulationDataList = new List<ResourceSimulationData>();
@@ -23,17 +23,17 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
 
             foreach (var resource in resources)
             {
-                ResourceSimulationData resourceSimulationData = new ResourceSimulationData(resource);
+                ResourceSimulationData resourceSimulationData = new ResourceSimulationData(resource.Value);
 
-                var resourceData = simulationResourceData.Where(x => x.CapabilityProvider == resource).ToList();
-                resourceSimulationData._totalWorkTime = GetResourceTimeForInterval(resource, resourceData, startInterval, endInterval);
+                var resourceData = simulationResourceData.Where(x => x.CapabilityProvider == resource.Value).ToList();
+                resourceSimulationData._totalWorkTime = GetResourceTimeForInterval(resource.Value, resourceData, startInterval, endInterval);
                 
                 var work = Math.Round(value: Convert.ToDouble(resourceSimulationData._totalWorkTime) / Convert.ToDouble(divisor), digits: 3).ToString(provider: _cultureInfo);
                 if (work == "NaN") work = "0";
                 resourceSimulationData._workTime = work;
 
-                var resourceSetupData = simulationResourceSetupData.Where(x => x.CapabilityProvider == resource).ToList();
-                resourceSimulationData._totalSetupTime = GetResourceTimeForInterval(resource, resourceSetupData, startInterval, endInterval);
+                var resourceSetupData = simulationResourceSetupData.Where(x => x.CapabilityProvider == resource.Value).ToList();
+                resourceSimulationData._totalSetupTime = GetResourceTimeForInterval(resource.Value, resourceSetupData, startInterval, endInterval);
                 var setup = Math.Round(value: Convert.ToDouble(resourceSimulationData._totalSetupTime) / Convert.ToDouble(divisor), digits: 3).ToString(provider: _cultureInfo);
                 if (setup == "NaN") setup = "0";
                 resourceSimulationData._setupTime = setup;
@@ -43,12 +43,12 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             return resourceSimulationDataList;
 
         }
-        internal long GetTotalTimeForInterval(ResourceList resources, List<ISimulationResourceData> simulationResourceData, long startInterval, long endInterval)
+        internal long GetTotalTimeForInterval(ResourceDictionary resources, List<ISimulationResourceData> simulationResourceData, long startInterval, long endInterval)
         {
             var totalTime = 0L;
             foreach (var resource in resources)
             {
-                var time = GetResourceTimeForInterval(resource, simulationResourceData, startInterval, endInterval);
+                var time = GetResourceTimeForInterval(resource.Value, simulationResourceData, startInterval, endInterval);
                 totalTime += time;
             }
 

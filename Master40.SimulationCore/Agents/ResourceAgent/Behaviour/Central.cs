@@ -1,16 +1,15 @@
 ﻿using Master40.DB.Nominal;
-using Master40.SimulationCore.Agents.StorageAgent;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using static FCentralResourceDefinitions;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     class Central : SimulationCore.Types.Behaviour
     {
-        public Central(SimulationType simulationType = SimulationType.None)
+        private FCentralResourceDefinition _resourceDefinition;
+        public Central(FCentralResourceDefinition resourceDefinition, SimulationType simulationType = SimulationType.None)
             : base(simulationType: simulationType)
         {
+            _resourceDefinition = resourceDefinition;
         }
 
         public override bool Action(object message)

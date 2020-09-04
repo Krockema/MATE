@@ -1,6 +1,7 @@
 ﻿using Master40.DB.DataModel;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Types;
+using static FCentralStockDefinitions;
 
 namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 {
@@ -11,9 +12,6 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             IBehaviour behaviour;
             switch (simType)
             {
-                case SimulationType.Central:
-                    behaviour = Central(simType);
-                    break;
                 default:
                     behaviour = Default(stockElement: stockElement, simType);
                     break;
@@ -28,9 +26,9 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             return new Default(stockElement: stockElement, simType: simType);
 
         }
-        private static IBehaviour Central(SimulationType simType)
+        public static IBehaviour Central(FCentralStockDefinition stockDefinition, SimulationType simType)
         {
-            return new Central(simType);
+            return new Central(stockDefinition, simType);
         }
     }
 }

@@ -20,12 +20,13 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             return new Default(productionDomainContext, messageHub, configuration, estimatedThroughputTimes);
 
         }
-        private static IBehaviour Central(GanttPlanDBContext ganttContext
+        public static IBehaviour Central(GanttPlanDBContext ganttContext
+            , ProductionDomainContext productionDomainContext
             , IMessageHub messageHub
             , Configuration configuration
             , List<FSetEstimatedThroughputTime> estimatedThroughputTimes)
         {
-            return new Central(ganttContext, messageHub, configuration, estimatedThroughputTimes);
+            return new Central(ganttContext, productionDomainContext, messageHub, configuration, estimatedThroughputTimes);
         }
     }
 }

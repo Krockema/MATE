@@ -22,6 +22,7 @@ using Master40.Tools.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data.HashFunction.xxHash;
 using System.Linq;
 using System.Threading.Tasks;
 using AkkaSim.SpecialActors;
@@ -149,7 +150,7 @@ namespace Master40.SimulationCore
                                                                            ,workTimeGenerator: randomWorkTime
                                                                               , maxBucketSize: configuration.GetOption<MaxBucketSize>().Value);
                 _simulation.SimulationContext.Tell(
-                    message: Directory.Instruction.CreateResourceHubAgents.Create(hubInfo, directory),
+                    message: Directory.Instruction.Default.CreateResourceHubAgents.Create(hubInfo, directory),
                     sender: ActorRefs.NoSender);
             }
         }
@@ -162,9 +163,10 @@ namespace Master40.SimulationCore
 
         private void CreateCollectorAgents(Configuration configuration)
         {
-            var resourcelist = new ResourceList();
-            resourcelist.AddRange(collection: _dBContext.Resources.Where(x => x.IsPhysical)
-                                                        .Select(selector: x => x.Name.Replace(" ", "")));
+            var resourcelist = new ResourceDictionary();
+            _dBContext.Resources.Where(x => x.IsPhysical)
+                                .Select(selector: x => new {x.Id, Name = x.Name.Replace(" ", "") })
+                                .ForEach(x => resourcelist.Add(x.Id, x.Name));
 
             StorageCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsStorage.Get()
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
@@ -224,7 +226,7 @@ namespace Master40.SimulationCore
                                             .Include(navigationPropertyPath: x => x.Article).ThenInclude(navigationPropertyPath: x => x.ArticleType)
                                             .AsNoTracking().ToList())
             {
-                _simulation.SimulationContext.Tell(message: Directory.Instruction
+                _simulation.SimulationContext.Tell(message: Directory.Instruction.Default
                                                             .CreateStorageAgents
                                                             .Create(message: stock, target: ActorPaths.StorageDirectory.Ref)
                                                         , sender: ActorPaths.StorageDirectory.Ref);
@@ -259,7 +261,7 @@ namespace Master40.SimulationCore
                     , timeConstraintQueueLength: timeConstraintQueueLength
                     , debug: _debugAgents);
                         _simulation.SimulationContext
-                    .Tell(message: Directory.Instruction
+                    .Tell(message: Directory.Instruction.Default
                                             .CreateMachineAgents
                                             .Create(message: capabilityProviderDefinition, target: ActorPaths.HubDirectory.Ref)
                         , sender: ActorPaths.HubDirectory.Ref);

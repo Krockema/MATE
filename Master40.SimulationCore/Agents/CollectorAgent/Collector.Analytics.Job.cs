@@ -26,7 +26,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 {
     public class CollectorAnalyticJob : Behaviour, ICollectorBehaviour
     {
-        private CollectorAnalyticJob(ResourceList resources) : base()
+        private CollectorAnalyticJob(ResourceDictionary resources) : base()
         {
             _resources = resources;
         }
@@ -42,7 +42,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private List<FUpdateSimulationJob> _updatedSimulationJob { get; } = new List<FUpdateSimulationJob>();
         private List<FThroughPutTime> _ThroughPutTimes { get; } = new List<FThroughPutTime>();
-        private ResourceList _resources { get; set; } = new ResourceList();
+        private ResourceDictionary _resources { get; set; } = new ResourceDictionary();
         public Collector Collector { get; set; }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             };
         }
 
-        public static CollectorAnalyticJob Get(ResourceList resources)
+        public static CollectorAnalyticJob Get(ResourceDictionary resources)
         {
             return new CollectorAnalyticJob(resources: resources);
         }
@@ -249,7 +249,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         /// <summary>
         /// OEE for dashboard
         /// </summary>
-        private string OverallEquipmentEffectiveness(ResourceList resources, long startInterval, long endInterval)
+        private string OverallEquipmentEffectiveness(ResourceDictionary resources, long startInterval, long endInterval)
         {
             /* ------------- Total Production Time --------------------*/
             var totalInterval = endInterval - startInterval;

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects>
+    <object type="modelparameter">
+        <field name="modelparameter_id" datatype="STRING" value="1" />
+    </object>
+</objects>

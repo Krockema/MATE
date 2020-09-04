@@ -244,7 +244,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             var resourceCapabilities = operations.Select(selector: x => x.ResourceCapability.Name).Distinct().ToList();
             foreach (var resourceCapabilityName in resourceCapabilities)
             {
-                agent.Send(instruction: Directory.Instruction
+                agent.Send(instruction: Directory.Instruction.Default
                     .RequestAgent
                     .Create(discriminator: resourceCapabilityName
                         , target: agent.ActorPaths.HubDirectory.Ref));

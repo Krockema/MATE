@@ -10,8 +10,11 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
 {
     public partial class Directory
     {
-        public class Instruction
+        public partial class Instruction
         {
+            public class Default
+            {
+
             public class RequestAgent : SimulationMessage
             {
                 public static RequestAgent Create(string discriminator, IActorRef target)
@@ -81,6 +84,8 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
                 {
                 }
                 public FResourceHubInformation GetObjectFromMessage { get => Message as FResourceHubInformation; }
+            }
+
             }
         }
     }

@@ -74,7 +74,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             var resourceAgent = Agent as Resource;
             var capabilityProviders = _capabilityProviderManager.GetAllCapabilityProvider();
-            Agent.Send(instruction: Directory.Instruction.ForwardRegistrationToHub.Create(
+            Agent.Send(instruction: Directory.Instruction.Default.ForwardRegistrationToHub.Create(
                 new FResourceInformation(resourceAgent._resource.Id, capabilityProviders, String.Empty, Agent.Context.Self)
                 , target: Agent.VirtualParent));
             return true;

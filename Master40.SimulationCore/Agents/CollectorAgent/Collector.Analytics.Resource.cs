@@ -16,7 +16,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
 {
     public class CollectorAnalyticResource : Behaviour, ICollectorBehaviour
     {
-        private CollectorAnalyticResource(ResourceList resources) : base()
+        private CollectorAnalyticResource(ResourceDictionary resources) : base()
         {
             _resources = resources;
             _taskItems.Add(JobType.OPERATION, new List<TaskItem>());
@@ -26,7 +26,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
         private Dictionary<string, List<TaskItem>> _taskItems { get; } = new Dictionary<string, List<TaskItem>>();
         public List<TaskItem> _taskArchive { get; private set; } = new List<TaskItem>();
 
-        private ResourceList _resources { get; set; } = new ResourceList();
+        private ResourceDictionary _resources { get; set; } = new ResourceDictionary();
         private long lastIntervalStart { get; set; } = 0;
         public Collector Collector { get; set; }
 
@@ -46,7 +46,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             };
         }
 
-        public static CollectorAnalyticResource Get(ResourceList resources)
+        public static CollectorAnalyticResource Get(ResourceDictionary resources)
         {
             return new CollectorAnalyticResource(resources: resources);
         }
@@ -192,7 +192,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
                             select new Tuple<string, long>(rs.Key,
                                 rs.Sum(selector: x => x.End - x.Start));
 
-            var reourceList = _resources.Select(selector: x => new Tuple<string, long>(x, 0));
+            var reourceList = _resources.Select(selector: x => new Tuple<string, long>(x.Value, 0));
             var merge = from_work.Union(second: lower_borders).Union(second: upper_borders).Union(second: reourceList).ToList();
 
             var final = from m in merge
@@ -240,7 +240,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
                               select new Tuple<string, long>(rs.Key,
                                                               rs.Sum(selector: x => x.End - x.Start));
 
-            var emptyResources = _resources.Select(selector: x => new Tuple<string, long>(x, 0));
+            var emptyResources = _resources.Select(selector: x => new Tuple<string, long>(x.Value, 0));
             var union = totalSetups.Union(setups_lower_borders).Union(setups_upper_borders).Union(emptyResources).ToList();
 
             var finalSetup = from m in union

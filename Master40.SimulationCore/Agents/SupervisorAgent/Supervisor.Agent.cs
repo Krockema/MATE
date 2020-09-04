@@ -1,4 +1,7 @@
-﻿using Akka.Actor;
+﻿using System.Configuration;
+using Akka;
+using Akka.Actor;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.SupervisorAgent.Behaviour;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Types;
@@ -27,7 +30,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
 
         protected override void OnInit(IBehaviour o)
         {
-            ((Default) Behaviour).AfterInit();
+            this.Behaviour.AfterInit();
         }
 
         /// <summary>
@@ -37,7 +40,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
         /// <param name="childRef"></param>
         protected override void OnChildAdd(IActorRef childRef)
         {
-            ((Behaviour.Default)Behaviour).OnChildAdd(childRef);
+            this.Behaviour.OnChildAdd(childRef);
         }
         protected override void Finish()
         {

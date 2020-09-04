@@ -1,27 +1,23 @@
 ﻿using Akka.TestKit.Xunit;
-using Akka.Util.Internal;
 using AkkaSim.Logging;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
 using Master40.DB.DataModel;
-using Master40.DB.GanttPlanModel;
 using Master40.DB.Nominal;
 using Master40.DB.Nominal.Model;
 using Master40.Simulation.CLI;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Helper;
-using Master40.Tools.Connectoren.Ganttplan;
 using Microsoft.EntityFrameworkCore;
 using NLog;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {
-    public class SimulationSystem : TestKit
+    public class AgentSystem : TestKit
     {
 
         // local Context
@@ -43,161 +39,6 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         private ProductionDomainContext _masterDBContext = ProductionDomainContext.GetContext(remoteMasterCtxString);
         private ResultContext _ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);
-
-        // new ResultContext(options: new DbContextOptionsBuilder<ResultContext>()
-        // .UseInMemoryDatabase(databaseName: "InMemoryResults")
-        // .Options);
-        // 
-        public SimulationSystem()
-        {
-
-        }
-
-        [Fact]
-        public void TestGanttPlanApi()
-        {
-            ProductionDomainContext master40Context = ProductionDomainContext.GetContext(masterCtxString);
-
-
-            GanttPlanDBContext ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
-            // var prod = ganttPlanContext.GptblProductionorder
-            //     .Include(x => x.ProductionorderOperationActivities)
-            //         .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)
-            //     .Include(x => x.ProductionorderOperationActivities)
-            //         .ThenInclude(x => x.ProductionorderOperationActivityResources)
-            //     .Include(x => x.ProductionorderOperationActivities)
-            //         .ThenInclude(x => x.ProductionorderOperationActivityResources)
-            //             .ThenInclude(x => x.ProductionorderOperationActivityResourceInterval)
-            //     .Include(x => x.ProductionorderOperationActivities)
-            //         .ThenInclude(x => x.ProductionorderOperationActivityResources)
-            //             .ThenInclude(x => x.Worker)
-            //     .Single(x => x.ProductionorderId == "000030");
-
-            // System.Diagnostics.Debug.WriteLine("First ID: " + prod.ProductionorderId);
-            // var activity = prod.ProductionorderOperationActivities.ToArray()[1];
-            // System.Diagnostics.Debug.WriteLine("First Activity ID: " + activity.ActivityId);
-            // var materialRelation = activity.ProductionorderOperationActivityMaterialrelation.ToArray()[0];
-            // System.Diagnostics.Debug.WriteLine("First Activity Material Relation ID: " + materialRelation.ChildId);
-            // var ress = activity.ProductionorderOperationActivityResources.ToArray()[0];
-            // System.Diagnostics.Debug.WriteLine("First Resource: " + ress.Worker.Name);
-            // System.Diagnostics.Debug.WriteLine("First Resource Intervall: " + ress.ProductionorderOperationActivityResourceInterval.DateFrom);
-            var activities = ganttPlanContext.GptblProductionorderOperationActivity
-                            .Include(x => x.ProductionorderOperationActivityResources)
-                                .Where(x => x.ProductionorderId == "000029").ToList();
-            activities.ForEach(act =>
-                {
-                    System.Diagnostics.Debug.WriteLine("Activity:" + act.Name);
-                    act.ProductionorderOperationActivityResources.ForEach(res =>
-                    {
-                        System.Diagnostics.Debug.WriteLine("Activity Resource:" + res.ResourceId);
-                        switch (res.ResourceType)
-                        {
-                            case 1:
-                                res.Resource =
-                                    ganttPlanContext.GptblWorkcenter.Single(x => x.WorkcenterId == res.ResourceId);
-                                break;
-                            case 3:
-                                res.Resource =
-                                    ganttPlanContext.GptblWorker.Single(x => x.WorkerId == res.ResourceId);
-                                break;
-                            case 5:
-                                res.Resource =
-                                    ganttPlanContext.GptblPrt.Single(x => x.PrtId == res.ResourceId);
-                                
-                                break;
-                        }
-                        System.Diagnostics.Debug.WriteLine("Activity Resource Name:" + res.Resource.Name);
-                    });
-                }
-            );
-
-
-            Assert.True(ganttPlanContext.GptblMaterial.Any());
-        }
-       
-
-        [Fact]
-        public void GanttPlanInsertConfirmationAndReplan()
-        {
-
-            ProductionDomainContext master40Context = ProductionDomainContext.GetContext(masterCtxString);
-            master40Context.CustomerOrders.RemoveRange(master40Context.CustomerOrders);
-            master40Context.CustomerOrderParts.RemoveRange(master40Context.CustomerOrderParts);
-            master40Context.SaveChanges();
-
-            master40Context.CreateNewOrder(10189, 1, 0, 250);
-            master40Context.SaveChanges();
-
-            GanttPlanDBContext ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
-
-            GanttPlanOptRunner.RunOptAndExport();
-
-            Assert.True(ganttPlanContext.GptblProductionorder.Any());
-           
-            ganttPlanContext.GptblConfirmation.RemoveRange(ganttPlanContext.GptblConfirmation);
-            var productionorder = ganttPlanContext.GptblProductionorder.Single(x => x.ProductionorderId.Equals("000004"));
-
-            ganttPlanContext.GptblConfirmation.RemoveRange(ganttPlanContext.GptblConfirmation);
-
-            var activities = ganttPlanContext.GptblProductionorderOperationActivity.Where(x =>
-                x.ProductionorderId.Equals(productionorder.ProductionorderId));
-
-            var activity = activities.Single(x => x.OperationId.Equals("10") && x. ActivityId.Equals(2));
-            var confirmation = CreateConfirmation(activity,productionorder,1);
-            
-            ganttPlanContext.GptblConfirmation.Add(confirmation);
-            
-            ganttPlanContext.SaveChanges();
-
-            GanttPlanOptRunner.RunOptAndExport();
-
-            Assert.True(ganttPlanContext.GptblConfirmation.Any());
-            
-            confirmation = ganttPlanContext.GptblConfirmation.SingleOrDefault(x =>
-                x.ConfirmationId.Equals(confirmation.ConfirmationId));
-            ganttPlanContext.GptblConfirmation.Remove(confirmation);
-            ganttPlanContext.SaveChanges();
-            confirmation.ConfirmationType = 16;
-
-            ganttPlanContext.GptblConfirmation.Add(confirmation);
-
-            activity = activities.Single(x => x.OperationId.Equals("10") && x.ActivityId.Equals(3));
-
-            confirmation = CreateConfirmation(activity, productionorder, 16);
-
-            ganttPlanContext.GptblConfirmation.Add(confirmation);
-
-            activity = activities.Single(x => x.OperationId.Equals("20") && x.ActivityId.Equals(2));
-
-            confirmation = CreateConfirmation(activity, productionorder, 1);
-            ganttPlanContext.GptblConfirmation.Add(confirmation);
-
-            ganttPlanContext.SaveChanges();
-
-            GanttPlanOptRunner.RunOptAndExport();
-
-            Assert.True(ganttPlanContext.GptblProductionorder.Count().Equals(10));
-
-        }
-
-        private GptblConfirmation CreateConfirmation(GptblProductionorderOperationActivity activity,
-            GptblProductionorder productionorder, int confirmationType)
-        {
-            var newConf = new GptblConfirmation();
-            newConf.ProductionorderId = activity.ProductionorderId;
-            newConf.ActivityEnd = activity.DateEnd;
-            newConf.ActivityStart = activity.DateStart;
-            newConf.ClientId = string.Empty;
-            newConf.ConfirmationDate = activity.DateEnd;
-            newConf.ConfirmationId = Guid.NewGuid().ToString();
-            newConf.ProductionorderActivityId = activity.ActivityId;
-            newConf.ProductionorderOperationId = activity.OperationId;
-            newConf.QuantityFinished = confirmationType==16 ? productionorder.QuantityNet: 0 ;
-            newConf.QuantityFinishedUnitId = productionorder.QuantityUnitId;
-            newConf.ProductionorderSplitId = 0;
-            newConf.ConfirmationType = confirmationType; // 16 = beendet
-            return newConf;
-        }
 
         //[Fact(Skip = "manual test")]
         [Theory]

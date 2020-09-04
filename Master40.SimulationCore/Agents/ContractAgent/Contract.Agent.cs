@@ -34,9 +34,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent
 
         protected override void OnChildAdd(IActorRef childRef)
         {
-            var fArticle = ((IDefaultProperties)Behaviour)._fArticle;
-            this.Send(instruction: Dispo.Instruction.RequestArticle.Create(message: fArticle, target: childRef));
-            this.DebugMessage(msg: "Dispo<" + fArticle.Article.Name + "(OrderId: " + fArticle.CustomerOrderId + ")>");
+            Behaviour.OnChildAdd(childRef);
         }
 
         protected override void Finish()

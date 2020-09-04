@@ -25,5 +25,10 @@ namespace Master40.SimulationCore.Types
         public Agent Agent { get; set; }
         public virtual bool AfterInit() { return true; }
         public virtual bool PostAdvance() { return true; }
+
+        public virtual void OnChildAdd(IActorRef actorRef)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

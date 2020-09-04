@@ -23,10 +23,11 @@ using static Master40.SimulationCore.Agents.SupervisorAgent.Supervisor.Instructi
 
 namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 {
-    public class Central : IBehaviour
+    public class Central : SimulationCore.Types.Behaviour
     {
         private GanttPlanDBContext _ganttContext { get; set; }
         private DbConnection _dataBaseConnection { get; set; }
+        private ProductionDomainContext _productionContext { get; set; }
         private IMessageHub _messageHub { get; set; }
         private int orderCount { get; set; } = 0;
         private long _simulationEnds { get; set; }
@@ -41,15 +42,17 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private Queue<T_CustomerOrderPart> _orderQueue { get; set; } = new Queue<T_CustomerOrderPart>();
         private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
         public Central(GanttPlanDBContext ganttContext
+            , ProductionDomainContext productionDomainContext
             , IMessageHub messageHub
             , Configuration configuration
             , List<FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime> estimatedThroughputTimes)
         {
             _ganttContext = ganttContext;
+            _productionContext = productionDomainContext;
             _dataBaseConnection = _ganttContext.Database.GetDbConnection();
-            _articleCache = new ArticleCache(connectionString: new DbConnectionString(_dataBaseConnection.ConnectionString));
             _messageHub = messageHub;
             _orderGenerator = new OrderGenerator(simConfig: configuration, 
+                                                productionDomainContext,
                                                 productIds: estimatedThroughputTimes.Select(x => x.ArticleId).ToList());
             _orderCounter = new OrderCounter(maxQuantity: configuration.GetOption<OrderQuantity>().Value);
             _configID = configuration.GetOption<SimulationId>().Value;
@@ -166,6 +169,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             if (!_orderCounter.TryAddOne()) return;
 
             var order = _orderGenerator.GetNewRandomOrder(time: Agent.CurrentTime);
+            
+            _productionContext.SaveChanges();
 
             Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: order.CreationTime - Agent.CurrentTime);
             var eta = _estimatedThroughPuts.Get(name: order.CustomerOrderParts.First().Article.Name);

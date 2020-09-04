@@ -25,8 +25,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.SimulationCore.Types;
 using static FCapabilityProviderDefinitions;
+using static FCentralResourceHubInformations;
 using static FSetEstimatedThroughputTimes;
+using static FCentralStockDefinitions;
 
 namespace Master40.SimulationCore
 {
@@ -34,7 +37,9 @@ namespace Master40.SimulationCore
     {
         // public ActorSystem ActorSystem { get; }
         // public IActorRef SimulationContext { get; }
-        private GanttPlanDBContext _dBContext { get; }
+        private GanttPlanDBContext _ganttContext { get; }
+        private ProductionDomainContext _productionContext { get; }
+        private ResourceDictionary _resourceDictionary { get; }
         private IMessageHub _messageHub { get; }
         private SimulationType _simulationType { get; set; }
         private bool _debugAgents { get; set; }
@@ -50,10 +55,12 @@ namespace Master40.SimulationCore
         /// Prepare Simulation Environment
         /// </summary>
         /// <param name="debug">Enables AKKA-Global message Debugging</param>
-        public GanttSimulation(GanttPlanDBContext DBContext, IMessageHub messageHub)
+        public GanttSimulation(GanttPlanDBContext DBContext, ProductionDomainContext productionContext, IMessageHub messageHub)
         {
-            _dBContext = DBContext;
+            _ganttContext = DBContext;
+            _productionContext = productionContext;
             _messageHub = messageHub;
+            _resourceDictionary = new ResourceDictionary();
         }
         public Task<Simulation> InitializeSimulation(Configuration configuration)
         {
@@ -67,6 +74,11 @@ namespace Master40.SimulationCore
                 _simulation = new Simulation(simConfig: SimulationConfig);
                 ActorPaths = new ActorPaths(simulationContext: _simulation.SimulationContext
                                               , systemMailBox: SimulationConfig.Inbox.Receiver);
+
+
+                _ganttContext.GptblWorker.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(int.Parse(x.Id), x.Name));
+                _ganttContext.GptblPrt.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(int.Parse(x.Id), x.Name));
+                _ganttContext.GptblWorkcenter.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(int.Parse(x.Id), x.Name));
 
                 // Create DataCollectors
                 CreateCollectorAgents(configuration: configuration);
@@ -102,44 +114,41 @@ namespace Master40.SimulationCore
         }
         private void CreateCollectorAgents(Configuration configuration)
         {
-            var resourcelist = new ResourceList();
-            resourcelist.AddRange(collection: _dBContext.GptblWorker.Select(x => x.Name));
-            resourcelist.AddRange(collection: _dBContext.GptblPrt.Select(x => x.Name));
-            resourcelist.AddRange(collection: _dBContext.GptblWorkcenter.Select(x => x.Name));
-
             StorageCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsStorage.Get()
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
                                                             , streamTypes: CollectorAnalyticsStorage.GetStreamTypes()), name: "StorageCollector");
             ContractCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsContracts.Get()
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
                                                             , streamTypes: CollectorAnalyticsContracts.GetStreamTypes()), name: "ContractCollector");
-            JobCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticJob.Get(resources: resourcelist)
+            JobCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticJob.Get(resources: _resourceDictionary)
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
                                                             , streamTypes: CollectorAnalyticJob.GetStreamTypes()), name: "JobCollector");
-            ResourceCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticResource.Get(resources: resourcelist)
+            ResourceCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticResource.Get(resources: _resourceDictionary)
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
                                                             , streamTypes: CollectorAnalyticResource.GetStreamTypes()), name: "ResourceCollector");
         }
         private void CreateSupervisor(Configuration configuration)
         {
-            var products = _dBContext.GptblMaterial.Where(x => x.Info1 == "Product").ToList();
+            var products = _ganttContext.GptblMaterial.Where(x => x.Info1 == "Product").ToList();
             var initialTime = configuration.GetOption<EstimatedThroughPut>().Value;
 
-            var estimatedThroughPuts = products.Select(a => new FSetEstimatedThroughputTime(Int32.Parse(a.MaterialId), initialTime, a.Name))
+            var estimatedThroughPuts = products.Select(a => new FSetEstimatedThroughputTime(int.Parse(a.MaterialId), initialTime, a.Name))
                 .ToList();
 
-            /*
+            var behave = Agents.SupervisorAgent.Behaviour.Factory.Central(
+                ganttContext: _ganttContext,
+                productionDomainContext: _productionContext,
+                messageHub: _messageHub,
+                configuration: configuration,
+                estimatedThroughputTimes: estimatedThroughPuts);
+
             ActorPaths.SetSupervisorAgent(systemAgent: _simulation.ActorSystem
                 .ActorOf(props: Supervisor.Props(actorPaths: ActorPaths,
                         time: 0,
                         debug: _debugAgents,
-                        productionDomainContext: _dBContext,
-                        messageHub: _messageHub,
-                        configuration: configuration,
-                        estimatedThroughputTimes: estimatedThroughPuts,
                         principal: ActorRefs.Nobody),
                     name: "Supervisor"));
-            */
+            _simulation.SimulationContext.Tell(message: BasicInstruction.Initialize.Create(target: ActorPaths.SystemAgent.Ref, message: behave));
         }
 
         private void CreateDirectoryAgents(Configuration configuration)
@@ -147,23 +156,21 @@ namespace Master40.SimulationCore
             // Resource Directory
             ActorPaths.SetHubDirectoryAgent(hubAgent: _simulation.ActorSystem.ActorOf(props: Directory.Props(actorPaths: ActorPaths, time: 0, debug: _debugAgents), name: "HubDirectory"));
             _simulation.SimulationContext.Tell(message: BasicInstruction.Initialize.Create(target: ActorPaths.HubDirectory.Ref, message: Agents.DirectoryAgent.Behaviour.Factory.Get(simType: _simulationType)));
-            CreateHubAgents(ActorPaths.HubDirectory.Ref, configuration);
+            CreateHubAgent(ActorPaths.HubDirectory.Ref, configuration);
 
             // Storage Directory
             ActorPaths.SetStorageDirectory(storageAgent: _simulation.ActorSystem.ActorOf(props: Directory.Props(actorPaths: ActorPaths, time: 0, debug: _debugAgents), name: "StorageDirectory"));
             _simulation.SimulationContext.Tell(message: BasicInstruction.Initialize.Create(target: ActorPaths.StorageDirectory.Ref, message: Agents.DirectoryAgent.Behaviour.Factory.Get(simType: _simulationType)));
         }
 
-        private void CreateHubAgents(IActorRef directory, Configuration configuration)
+        private void CreateHubAgent(IActorRef directory, Configuration configuration)
         {
-
             WorkTimeGenerator randomWorkTime = WorkTimeGenerator.Create(configuration: configuration, 0);
 
-            var hubInfo = new FResourceHubInformations.FResourceHubInformation(capability: "Central work distributor"
-                                                                       ,workTimeGenerator: randomWorkTime
-                                                                          , maxBucketSize: configuration.GetOption<MaxBucketSize>().Value);
+            var hubInfo = new FResourceHubInformation(resourceList: _resourceDictionary
+                                               , workTimeGenerator: randomWorkTime);
             _simulation.SimulationContext.Tell(
-                message: Directory.Instruction.CreateResourceHubAgents.Create(hubInfo, directory),
+                message: Directory.Instruction.Central.CreateHubAgent.Create(hubInfo, directory),
                 sender: ActorRefs.NoSender);
             
 
@@ -172,8 +179,6 @@ namespace Master40.SimulationCore
         private void GenerateGuardians()
         {
             CreateGuard(guardianType: GuardianType.Contract, guardianBehaviour: GuardianBehaviour.Get(childMaker: ChildMaker.ContractCreator, simulationType: _simulationType, _messageHub));
-            CreateGuard(guardianType: GuardianType.Dispo, guardianBehaviour: GuardianBehaviour.Get(childMaker: ChildMaker.DispoCreator, simulationType: _simulationType,_messageHub));
-            CreateGuard(guardianType: GuardianType.Production, guardianBehaviour: GuardianBehaviour.Get(childMaker: ChildMaker.ProductionCreator, simulationType: _simulationType, _messageHub));
         }
 
         private void CreateGuard(GuardianType guardianType, GuardianBehaviour guardianBehaviour)
@@ -206,20 +211,16 @@ namespace Master40.SimulationCore
         /// </summary>
         private void CreateStorageAgents()
         {
-            /*
-            foreach (var stock in _dBContext.Stocks
-                                            .Include(navigationPropertyPath: x => x.StockExchanges)
-                                            .Include(navigationPropertyPath: x => x.Article).ThenInclude(navigationPropertyPath: x => x.ArticleToBusinessPartners)
-                                                                    .ThenInclude(navigationPropertyPath: x => x.BusinessPartner)
-                                            .Include(navigationPropertyPath: x => x.Article).ThenInclude(navigationPropertyPath: x => x.ArticleType)
-                                            .AsNoTracking().ToList())
+            var stocks = _ganttContext.GptblMaterial;
+            
+            foreach (var stock in stocks)
             {
-                _simulation.SimulationContext.Tell(message: Directory.Instruction
+                var stockDefintion = new FCentralStockDefinition(stockId: Int32.Parse(stock.MaterialId), stockName: stock.Name);
+                _simulation.SimulationContext.Tell(message: Directory.Instruction.Central
                                                             .CreateStorageAgents
-                                                            .Create(message: stock, target: ActorPaths.StorageDirectory.Ref)
+                                                            .Create(message: stockDefintion, target: ActorPaths.StorageDirectory.Ref)
                                                         , sender: ActorPaths.StorageDirectory.Ref);
             }
-            */
         }
 
         /// <summary>
@@ -230,31 +231,19 @@ namespace Master40.SimulationCore
         {
             WorkTimeGenerator randomWorkTime = WorkTimeGenerator.Create(configuration: configuration);
 
-            // Get All Resources that have an Agent (that are limited)
-            //var resources = _dBContext.Resources.ToList(); // all Resources
-            /*
-            var limitedResources = _dBContext.GptblWorker.ToList(); // all Limited Resources
 
-
-            foreach (var resource in limitedResources)
+            foreach (var resource in _resourceDictionary)
             {
-                var capabilityProviders = GetCapabilityProviders(resource);
-                System.Diagnostics.Debug.WriteLine($"Creating Resource: {resource.Name} with {capabilityProviders.Count} capabilities");
-                //TODO: !IMPORTANT Max bucket size dynamic by Setup Count? 
+                System.Diagnostics.Debug.WriteLine($"Creating Resource: {resource.Value}");
 
-                var capabilityProviderDefinition = new FCapabilityProviderDefinition(workTimeGenerator: randomWorkTime
-                    , resource: resource
-                    , capabilityProvider: capabilityProviders
-                    , maxBucketSize: maxBucketSize
-                    , timeConstraintQueueLength: timeConstraintQueueLength
-                    , debug: _debugAgents);
-                        _simulation.SimulationContext
-                    .Tell(message: Directory.Instruction
+                var resourceDefinition = new FCentralResourceDefinitions.FCentralResourceDefinition(resourceId: resource.Key, resourceName: resource.Value);
+
+                _simulation.SimulationContext
+                    .Tell(message: Directory.Instruction.Central
                                             .CreateMachineAgents
-                                            .Create(message: capabilityProviderDefinition, target: ActorPaths.HubDirectory.Ref)
+                                            .Create(message: resourceDefinition, target: ActorPaths.HubDirectory.Ref)
                         , sender: ActorPaths.HubDirectory.Ref);
             }
-*/
         }
     }
 }

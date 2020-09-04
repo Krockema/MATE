@@ -30,12 +30,12 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
         {
             switch (message)
             {
-                case Directory.Instruction.CreateStorageAgents msg: CreateStorageAgents(stock: msg.GetObjectFromMessage); break;
-                case Directory.Instruction.CreateMachineAgents msg: CreateMachineAgents(msg.GetObjectFromMessage); break;
-                case Directory.Instruction.RequestAgent msg: RequestAgent(discriminator: msg.GetObjectFromMessage); break;
+                case Directory.Instruction.Default.CreateStorageAgents msg: CreateStorageAgents(stock: msg.GetObjectFromMessage); break;
+                case Directory.Instruction.Default.CreateMachineAgents msg: CreateMachineAgents(msg.GetObjectFromMessage); break;
+                case Directory.Instruction.Default.RequestAgent msg: RequestAgent(discriminator: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown msg: ResourceBrakeDown(breakDown: msg.GetObjectFromMessage); break;
-                case Directory.Instruction.ForwardRegistrationToHub msg: ForwardRegistrationToHub(msg.GetObjectFromMessage); break;
-                case Directory.Instruction.CreateResourceHubAgents msg: CreateResourceHubAgents(capabilityDefinition: msg.GetObjectFromMessage); break;
+                case Directory.Instruction.Default.ForwardRegistrationToHub msg: ForwardRegistrationToHub(msg.GetObjectFromMessage); break;
+                case Directory.Instruction.Default.CreateResourceHubAgents msg: CreateResourceHubAgents(capabilityDefinition: msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;

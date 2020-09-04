@@ -14,5 +14,6 @@ namespace Master40.SimulationCore.Types
         SimulationType SimulationType { get; }
         bool AfterInit();
         bool PostAdvance();
+        void OnChildAdd(IActorRef actorRef);
     }
 }

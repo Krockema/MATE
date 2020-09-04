@@ -1,13 +1,15 @@
 ﻿using Master40.DB.Nominal;
 using System;
+using static FCentralStockDefinitions;
 
 namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 {
     class Central : SimulationCore.Types.Behaviour
     {
-
-        public Central(SimulationType simType) : base(simulationType: simType)
+        private FCentralStockDefinition _stock { get; }
+        public Central(FCentralStockDefinition stockDefinition, SimulationType simType) : base(simulationType: simType)
         {
+            _stock = stockDefinition;
         }
 
         public override bool Action(object message)
