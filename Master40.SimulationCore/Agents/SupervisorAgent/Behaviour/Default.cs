@@ -60,7 +60,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             estimatedThroughputTimes.ForEach(SetEstimatedThroughputTime);
 
         }
-        public bool Action(object message)
+        public override bool Action(object message)
         {
             switch (message)
             {
@@ -79,9 +79,6 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             return true;
         }
 
-        public Agent Agent { get; set; }
-        public Func<IUntypedActorContext, AgentSetup, IActorRef> ChildMaker { get; }
-        public SimulationType SimulationType { get; }
         public override bool AfterInit()
         {
             Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "Pop", target: Agent.Context.Self), waitFor: 1);

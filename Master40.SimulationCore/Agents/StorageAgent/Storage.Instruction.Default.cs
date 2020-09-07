@@ -8,8 +8,12 @@ namespace Master40.SimulationCore.Agents.StorageAgent
 {
     public partial class Storage
     {
-        public class Instruction
+        public partial class Instruction
         {
+
+            public class Default
+            {
+
             public class RequestArticle : SimulationMessage
             {
                 public static RequestArticle Create(FArticle message, IActorRef target)
@@ -66,6 +70,8 @@ namespace Master40.SimulationCore.Agents.StorageAgent
                 {
                 }
                 public FProductionResult GetObjectFromMessage { get => Message as FProductionResult; }
+            }
+
             }
         }
     }

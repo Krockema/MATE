@@ -49,11 +49,15 @@ namespace Master40.XUnitTest.SimulationEnvironment
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
         public async Task CentralSystemTest()
         {
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Warn, LogLevel.Warn);
+
             var simtulationType = SimulationType.Central;
             var seed = 169;
             var throughput = 1920;
             var arrivalRate = 0.15;
-            var simNr = 1;
 
             //Create Master40Data
             var masterPlanContext = ProductionDomainContext.GetContext(masterCtxString);
@@ -61,11 +65,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
             masterPlanContext.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterPlanContext, ModelSize.Small, ModelSize.Small, ModelSize.Small, 3,false);
 
-            //Synchronisation GanttPlan
-            GanttPlanOptRunner.RunOptAndExport();
-
             //Reset GanttPLan DB?
             var ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
+            ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
+            
+            //Synchronisation GanttPlan
+            GanttPlanOptRunner.RunOptAndExport();
 
             var simContext = new GanttSimulation(ganttPlanContext, masterPlanContext, messageHub: new ConsoleHub());
             var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(_ctxResult, 1);
@@ -118,18 +123,15 @@ namespace Master40.XUnitTest.SimulationEnvironment
             ProductionDomainContext master40Context = ProductionDomainContext.GetContext(masterCtxString);
 
             GanttPlanDBContext ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
-            // var prod = ganttPlanContext.GptblProductionorder
-            //     .Include(x => x.ProductionorderOperationActivities)
-            //         .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)
-            //     .Include(x => x.ProductionorderOperationActivities)
-            //         .ThenInclude(x => x.ProductionorderOperationActivityResources)
-            //     .Include(x => x.ProductionorderOperationActivities)
-            //         .ThenInclude(x => x.ProductionorderOperationActivityResources)
-            //             .ThenInclude(x => x.ProductionorderOperationActivityResourceInterval)
-            //     .Include(x => x.ProductionorderOperationActivities)
-            //         .ThenInclude(x => x.ProductionorderOperationActivityResources)
-            //             .ThenInclude(x => x.Worker)
-            //     .Single(x => x.ProductionorderId == "000030");
+             var prod = ganttPlanContext.GptblProductionorder
+                 .Include(x => x.ProductionorderOperationActivities)
+                     .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)
+                 .Include(x => x.ProductionorderOperationActivities)
+                     .ThenInclude(x => x.ProductionorderOperationActivityResources)
+                 .Include(x => x.ProductionorderOperationActivities)
+                     .ThenInclude(x => x.ProductionorderOperationActivityResources)
+                         .ThenInclude(x => x.ProductionorderOperationActivityResourceInterval)
+                 .Single(x => x.ProductionorderId == "000030");
 
             // System.Diagnostics.Debug.WriteLine("First ID: " + prod.ProductionorderId);
             // var activity = prod.ProductionorderOperationActivities.ToArray()[1];

@@ -7,6 +7,8 @@
 
   <ItemGroup>
     <Compile Include="FunctionConverter.fs" />
+    <Compile Include="Message\Central\FCentralPurchases.fs" />
+    <Compile Include="Message\Central\FCentralStockPostings.fs" />
     <Compile Include="Message\Central\FCentralStockDefintions.fs" />
     <Compile Include="Message\Central\FCentralResourceDefinitions.fs" />
     <Compile Include="Message\Central\FCentralResourceHubInformations.fs" />
@@ -64,7 +66,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Akka" Version="1.4.4" />
+    <PackageReference Include="Akka" Version="1.4.10" />
   </ItemGroup>
 
   <ItemGroup>
@@ -72,7 +74,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="4.7.1" />
+    <PackageReference Update="FSharp.Core" Version="4.7.2" />
   </ItemGroup>
 
 </Project>

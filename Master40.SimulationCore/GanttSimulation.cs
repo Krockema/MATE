@@ -30,6 +30,7 @@ using static FCapabilityProviderDefinitions;
 using static FCentralResourceHubInformations;
 using static FSetEstimatedThroughputTimes;
 using static FCentralStockDefinitions;
+using Master40.Tools.Connectoren.Ganttplan;
 
 namespace Master40.SimulationCore
 {
@@ -75,7 +76,7 @@ namespace Master40.SimulationCore
                 ActorPaths = new ActorPaths(simulationContext: _simulation.SimulationContext
                                               , systemMailBox: SimulationConfig.Inbox.Receiver);
 
-
+               
                 _ganttContext.GptblWorker.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(int.Parse(x.Id), x.Name));
                 _ganttContext.GptblPrt.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(int.Parse(x.Id), x.Name));
                 _ganttContext.GptblWorkcenter.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(int.Parse(x.Id), x.Name));
@@ -135,19 +136,19 @@ namespace Master40.SimulationCore
             var estimatedThroughPuts = products.Select(a => new FSetEstimatedThroughputTime(int.Parse(a.MaterialId), initialTime, a.Name))
                 .ToList();
 
-            var behave = Agents.SupervisorAgent.Behaviour.Factory.Central(
-                ganttContext: _ganttContext,
-                productionDomainContext: _productionContext,
-                messageHub: _messageHub,
-                configuration: configuration,
-                estimatedThroughputTimes: estimatedThroughPuts);
-
             ActorPaths.SetSupervisorAgent(systemAgent: _simulation.ActorSystem
                 .ActorOf(props: Supervisor.Props(actorPaths: ActorPaths,
                         time: 0,
                         debug: _debugAgents,
                         principal: ActorRefs.Nobody),
                     name: "Supervisor"));
+
+            var behave = Agents.SupervisorAgent.Behaviour.Factory.Central(
+                ganttContext: _ganttContext,
+                productionDomainContext: _productionContext,
+                messageHub: _messageHub,
+                configuration: configuration,
+                estimatedThroughputTimes: estimatedThroughPuts);
             _simulation.SimulationContext.Tell(message: BasicInstruction.Initialize.Create(target: ActorPaths.SystemAgent.Ref, message: behave));
         }
 
@@ -168,6 +169,7 @@ namespace Master40.SimulationCore
             WorkTimeGenerator randomWorkTime = WorkTimeGenerator.Create(configuration: configuration, 0);
 
             var hubInfo = new FResourceHubInformation(resourceList: _resourceDictionary
+                                                , dbConnectionString: _ganttContext.Database.GetDbConnection().ConnectionString
                                                , workTimeGenerator: randomWorkTime);
             _simulation.SimulationContext.Tell(
                 message: Directory.Instruction.Central.CreateHubAgent.Create(hubInfo, directory),
@@ -179,6 +181,8 @@ namespace Master40.SimulationCore
         private void GenerateGuardians()
         {
             CreateGuard(guardianType: GuardianType.Contract, guardianBehaviour: GuardianBehaviour.Get(childMaker: ChildMaker.ContractCreator, simulationType: _simulationType, _messageHub));
+            CreateGuard(guardianType: GuardianType.Dispo, guardianBehaviour: GuardianBehaviour.Get(childMaker: ChildMaker.DispoCreator, simulationType: _simulationType, _messageHub));
+            CreateGuard(guardianType: GuardianType.Production, guardianBehaviour: GuardianBehaviour.Get(childMaker: ChildMaker.ProductionCreator, simulationType: _simulationType, _messageHub));
         }
 
         private void CreateGuard(GuardianType guardianType, GuardianBehaviour guardianBehaviour)
@@ -211,15 +215,29 @@ namespace Master40.SimulationCore
         /// </summary>
         private void CreateStorageAgents()
         {
-            var stocks = _ganttContext.GptblMaterial;
-            
-            foreach (var stock in stocks)
+            var materials = _ganttContext.GptblMaterial;
+
+            var stockpostings = _ganttContext.GptblStockquantityposting;
+
+            foreach (var material in materials)
             {
-                var stockDefintion = new FCentralStockDefinition(stockId: Int32.Parse(stock.MaterialId), stockName: stock.Name);
+                var initialStock = stockpostings.Single(x => x.MaterialId.Equals(material.MaterialId));
+
+                var stockDefintion = new FCentralStockDefinition(
+                    stockId: Int32.Parse(material.MaterialId), 
+                    stockName: material.Name, 
+                    initialQuantity: (double)initialStock.Quantity, 
+                    unit: material.QuantityUnitId, 
+                    materialType:material.Info1, 
+                    deliveryPeriod: Double.Parse(material.Info2)
+                    );
+
                 _simulation.SimulationContext.Tell(message: Directory.Instruction.Central
                                                             .CreateStorageAgents
                                                             .Create(message: stockDefintion, target: ActorPaths.StorageDirectory.Ref)
                                                         , sender: ActorPaths.StorageDirectory.Ref);
+
+                System.Diagnostics.Debug.WriteLine($"Creating Stock for: {material.Name}");
             }
         }
 

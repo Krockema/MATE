@@ -35,11 +35,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
 
         }
 
-        protected override void OnInit(IBehaviour o)
-        {
-            Behaviour.AfterInit();
-        }
-
         protected override void PostAdvance()
         {
             this.Behaviour.PostAdvance();

@@ -68,13 +68,9 @@ namespace Master40.SimulationCore.Agents
             DebugMessage(msg: "Try to add child: " + childRef.Path.Name);
             VirtualChildren.Add(item: childRef);
             
-            OnChildAdd(childRef: childRef);
+            this.Behaviour.OnChildAdd(childRef);
         }
-        protected virtual void OnChildAdd(IActorRef childRef)
-        {
-            DebugMessage(msg: this.Name + " Child created.");            
-        }
-
+        
         /// <summary>
         /// Adding Instruction Behaviour relation to the Agent.
         /// Could be simplified, but may required later.
@@ -90,7 +86,7 @@ namespace Master40.SimulationCore.Agents
                 DebugMessage(msg: " PARENT INFORMED ");
                 Send(instruction: BasicInstruction.ChildRef.Create(message: Self, target: VirtualParent));
             }
-            OnInit(o: behaviour);
+            this.Behaviour.AfterInit();
         }
         
         /// <summary>
@@ -143,15 +139,6 @@ namespace Master40.SimulationCore.Agents
                 Schedule(delay: waitFor, message: instruction);
             }
         }
-
-        /// <summary>
-        /// Method which is called after Agent Initialisation.
-        /// </summary>
-        /// <param name="o"></param>
-        protected virtual void OnInit(IBehaviour o) {
-
-        }
-
 
         /// <summary>
         /// 

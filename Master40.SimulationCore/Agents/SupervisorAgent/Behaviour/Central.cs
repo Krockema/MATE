@@ -5,7 +5,6 @@ using System.Linq;
 using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.DB.Data.Context;
-using Master40.DB.Data.Helper.Types;
 using Master40.DB.DataModel;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.ContractAgent;
@@ -62,7 +61,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             estimatedThroughputTimes.ForEach(SetEstimatedThroughputTime);
 
         }
-        public bool Action(object message)
+        public override bool Action(object message)
         {
             switch (message)
             {
@@ -80,11 +79,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
             return true;
         }
-
-        public Agent Agent { get; set; }
-        public Func<IUntypedActorContext, AgentSetup, IActorRef> ChildMaker { get; }
-        public SimulationType SimulationType { get; }
-        public bool AfterInit()
+        public override bool AfterInit()
         {
             Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "Pop", target: Agent.Context.Self), waitFor: 1);
             Agent.Send(instruction: EndSimulation.Create(message: true, target: Agent.Context.Self), waitFor: _simulationEnds);
@@ -92,12 +87,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             Agent.DebugMessage(msg: "Agent-System ready for Work");
             return true;
         }
-
-        public bool PostAdvance()
-        {
-            throw new NotImplementedException();
-        }
-
+        
 
         private void SetEstimatedThroughputTime(FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime getObjectFromMessage)
         {
@@ -109,7 +99,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             _orderQueue.Enqueue(item: orderPart);
             Agent.DebugMessage(msg: $"Creating Contract Agent for order {orderPart.CustomerOrderId} with {orderPart.Article.Name} DueTime {orderPart.CustomerOrder.DueTime}");
             var agentSetup = AgentSetup.Create(agent: Agent, behaviour: ContractAgent.Behaviour.Factory.Get(simType: _simulationType));
-            var instruction = Guardian.Instruction.CreateChild.Create(setup: agentSetup
+            var instruction = Instruction.CreateChild.Create(setup: agentSetup
                                                , target: Agent.ActorPaths.Guardians
                                                                   .Single(predicate: x => x.Key == GuardianType.Contract)
                                                                   .Value
@@ -123,12 +113,12 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         /// it has been allready added to this.VirtualChilds at this Point
         /// </summary>
         /// <param name="childRef"></param>
-        internal void OnChildAdd(IActorRef childRef)
+        public override void OnChildAdd(IActorRef childRef)
         {
             Agent.VirtualChildren.Add(item: childRef);
             Agent.Send(instruction: Contract.Instruction.StartOrder.Create(message: _orderQueue.Dequeue()
                                                         , target: childRef
-                                                      , logThis: true));
+                                                       , logThis: true));
         }
 
         private void RequestArticleBom(int articleId)

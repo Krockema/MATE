@@ -41,13 +41,8 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
                                             , currentTime: Agent.CurrentTime);
 
 
-
-            Agent.DebugMessage(msg: $"Start Order ");
-            // Tell Guardian to create Dispo Agent
-            var agentSetup = AgentSetup.Create(agent: Agent, behaviour: DispoAgent.Behaviour.Factory.Get(simType: Agent.Behaviour.SimulationType));
-            var instruction = Guardian.Instruction.CreateChild.Create(setup: agentSetup, target: ((IAgent)Agent).Guardian, source: Agent.Context.Self);
-            Agent.Send(instruction: instruction);
-            // init end
+            Agent.DebugMessage(msg: $"Start Order");
+            
         }
 
         /// <summary>

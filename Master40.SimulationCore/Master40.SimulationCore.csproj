@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="AkkaSim" Version="0.5.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="3.7.0" />
   </ItemGroup>
 
   <ItemGroup>

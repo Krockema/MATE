@@ -33,11 +33,11 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
         {
             switch (message)
             {
-                case Storage.Instruction.RequestArticle msg: RequestArticle(requestItem: msg.GetObjectFromMessage); break;
-                case Storage.Instruction.StockRefill msg: RefillFromPurchase(exchangeId: msg.GetObjectFromMessage); break;
-                case Storage.Instruction.ResponseFromProduction msg: ResponseFromProduction(productionResult: msg.GetObjectFromMessage); break;
-                case Storage.Instruction.ProvideArticleAtDue msg: ProvideArticleAtDue(articleKey: msg.GetObjectFromMessage); break;
-                case Storage.Instruction.WithdrawArticle msg: WithdrawArticle(exchangeId: msg.GetObjectFromMessage); break;
+                case Storage.Instruction.Default.RequestArticle msg: RequestArticle(requestItem: msg.GetObjectFromMessage); break;
+                case Storage.Instruction.Default.StockRefill msg: RefillFromPurchase(exchangeId: msg.GetObjectFromMessage); break;
+                case Storage.Instruction.Default.ResponseFromProduction msg: ResponseFromProduction(productionResult: msg.GetObjectFromMessage); break;
+                case Storage.Instruction.Default.ProvideArticleAtDue msg: ProvideArticleAtDue(articleKey: msg.GetObjectFromMessage); break;
+                case Storage.Instruction.Default.WithdrawArticle msg: WithdrawArticle(exchangeId: msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
@@ -261,7 +261,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             _stockManager.StockExchanges.Add(item: stockExchange);
             // TODO Needs logic if more Kreditors are Added.
             // TODO start CreatePurchase later if materials are needed later
-            Agent.Send(instruction: Storage.Instruction.StockRefill.Create(message: stockExchange.TrackingGuid, target: Agent.Context.Self), waitFor: time);
+            Agent.Send(instruction: Storage.Instruction.Default.StockRefill.Create(message: stockExchange.TrackingGuid, target: Agent.Context.Self), waitFor: time);
 
             return time;
         }

@@ -24,7 +24,10 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
     public class Central : SimulationCore.Types.Behaviour
     {
         internal Central(SimulationType simulationType = SimulationType.None)
-                       : base(childMaker: null, simulationType: simulationType) { }
+            : base(childMaker: null, simulationType: simulationType)
+        {
+
+        }
 
 
         internal HubManager storageManager { get; set; } = new HubManager();
@@ -51,6 +54,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                         , time: Agent.CurrentTime
                         , simtype: SimulationType
                         , maxBucketSize: 0 // not used currently
+                        , dbConnectionStringGanttPlan: resourceHubInformation.DbConnectionString
                         , workTimeGenerator: resourceHubInformation.WorkTimeGenerator as WorkTimeGenerator
                         , debug: Agent.DebugThis
                         , principal: Agent.Context.Self)

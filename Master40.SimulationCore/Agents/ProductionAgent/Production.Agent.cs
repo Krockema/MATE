@@ -22,15 +22,5 @@ namespace Master40.SimulationCore.Agents.ProductionAgent
             DebugMessage(msg: "I'm Alive:" + Context.Self.Path);
             //this.Send(BasicInstruction.Initialize.Create(this.Context.Self, ProductionBehaviour.Get()));
         }
-        protected override void OnChildAdd(IActorRef childRef)
-        {
-            var articleToRequest = ((Behaviour.Default)Behaviour).OperationManager.Set(provider: childRef);
-            this.Send(instruction: Dispo.Instruction.RequestArticle.Create(message: articleToRequest, target: childRef));
-            this.DebugMessage(
-                msg: $"Dispo child Agent for {articleToRequest.Article.Name} added " +
-                     $"(Key: {articleToRequest.Key}, OrderId: {articleToRequest.CustomerOrderId})"
-                    , CustomLogger.DISPOPRODRELATION, LogLevel.Debug);
-        }
-
     }
 }

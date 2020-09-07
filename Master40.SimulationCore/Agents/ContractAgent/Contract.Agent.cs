@@ -32,11 +32,6 @@ namespace Master40.SimulationCore.Agents.ContractAgent
             DebugMessage(msg: "I'm Alive:" + Context.Self.Path);
         }
 
-        protected override void OnChildAdd(IActorRef childRef)
-        {
-            Behaviour.OnChildAdd(childRef);
-        }
-
         protected override void Finish()
         {
             var fArticle = ((IDefaultProperties)Behaviour)._fArticle;

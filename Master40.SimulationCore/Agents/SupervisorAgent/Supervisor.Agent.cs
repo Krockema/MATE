@@ -1,8 +1,4 @@
-﻿using System.Configuration;
-using Akka;
-using Akka.Actor;
-using Master40.DB.Nominal;
-using Master40.SimulationCore.Agents.SupervisorAgent.Behaviour;
+﻿using Akka.Actor;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Types;
 
@@ -28,20 +24,6 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
         {
         }
 
-        protected override void OnInit(IBehaviour o)
-        {
-            this.Behaviour.AfterInit();
-        }
-
-        /// <summary>
-        /// After a child has been ordered from Guardian a ChildRef will be returned by the responsible child
-        /// it has been allready added to this.VirtualChilds at this Point
-        /// </summary>
-        /// <param name="childRef"></param>
-        protected override void OnChildAdd(IActorRef childRef)
-        {
-            this.Behaviour.OnChildAdd(childRef);
-        }
         protected override void Finish()
         {
             if (Sender == ActorPaths.SimulationContext.Ref)
