@@ -10,8 +10,10 @@ using Master40.SimulationCore.Types;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Core.Metadata.Edm;
 using System.Globalization;
 using System.Linq;
+using Akka.Util.Internal;
 using static FAgentInformations;
 using static FBreakDowns;
 using static FCreateSimulationJobs;
@@ -32,10 +34,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         }
 
         private List<Job> simulationJobs { get; } = new List<Job>();
-        private List<Job> simulationJobsForDb { get; } = new List<Job>();
-        private List<DB.ReportingModel.Setup> simulationResourceSetups { get; } = new List<DB.ReportingModel.Setup>();
-        private List<DB.ReportingModel.Setup> simulationResourceSetupsForDb { get; } = new List<DB.ReportingModel.Setup>();
-        
+        private List<Setup> simulationResourceSetups { get; } = new List<Setup>();
         private KpiManager kpiManager { get; } = new KpiManager();
 
         private long lastIntervalStart { get; set; } = 0;
@@ -130,12 +129,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 #endregion
         private void UpdateFeed(bool finalCall)
         {
-            //Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from WorkSchedule");
-            // var mbz = agent.Context.AsInstanceOf<Akka.Actor.ActorCell>().Mailbox.MessageQueue.Count;
-            // Debug.WriteLine("Time " + agent.Time + ": " + agent.Context.Self.Path.Name + " Mailbox left " + mbz);
             // check if Update has been processed this time step.
-            
-
+ 
             if (lastIntervalStart != Collector.Time)
             {
                 var OEE = OverallEquipmentEffectiveness(resources: _resources, Collector.Time - 1440L, Collector.Time);
@@ -143,6 +138,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             }
             ThroughPut(finalCall);
             CallTotal(finalCall);
+
             LogToDB(writeResultsToDB: finalCall);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from WorkSchedule");
@@ -152,13 +148,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             if (finalCall)
             {
-                List<ISimulationResourceData> allSimulationData = new List<ISimulationResourceData>();
-                allSimulationData.AddRange(simulationJobs);
-                allSimulationData.AddRange(simulationJobsForDb);
-
-                List<ISimulationResourceData> allSimulationSetupData = new List<ISimulationResourceData>();
-                allSimulationSetupData.AddRange(simulationResourceSetups);
-                allSimulationSetupData.AddRange(simulationResourceSetupsForDb);
+                List<ISimulationResourceData> allSimulationData = new List<ISimulationResourceData>(simulationJobs);
+                List<ISimulationResourceData> allSimulationSetupData = new List<ISimulationResourceData>(simulationResourceSetups);
 
                 var settlingStart = Collector.Config.GetOption<SettlingStart>().Value;
                 var resourcesDatas = kpiManager.GetSimulationDataForResources(resources: _resources, simulationResourceData: allSimulationData, simulationResourceSetupData: allSimulationSetupData, startInterval: settlingStart, endInterval: Collector.Time);
@@ -166,9 +157,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 foreach (var resource in resourcesDatas) { 
                     var tuple = resource._workTime + " " + resource._setupTime;
                     var machine = resource._resource;
-                    //Collector.messageHub.SendToClient(listener: machine, msg: tuple);
-                    //Collector.CreateKpi(Collector, resource._workTime.Replace(".",","), machine, KpiType.ResourceUtilizationTotal, true);
-                    //Collector.CreateKpi(Collector, resource._setupTime.Replace(".", ","), machine, KpiType.ResourceSetupTotal, true);
                 }
 
                 var toSend = new
@@ -193,9 +181,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value))
                 {
-                    ctx.SimulationJobs.AddRange(entities: simulationJobsForDb);
+                    ctx.SimulationJobs.AddRange(entities: simulationJobs);
                     ctx.SaveChanges();
-                    ctx.SimulationResourceSetups.AddRange(entities: simulationResourceSetupsForDb);
+                    ctx.SimulationResourceSetups.AddRange(entities: simulationResourceSetups);
                     ctx.SaveChanges();
                     ctx.Kpis.AddRange(entities: Collector.Kpis);
                     ctx.SaveChanges();
@@ -265,7 +253,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             
             List<ISimulationResourceData> allSimulationResourceSetups = new List<ISimulationResourceData>();
             allSimulationResourceSetups.AddRange(simulationResourceSetups.Where(x => x.Start >= startInterval + 50).ToList());
-            allSimulationResourceSetups.AddRange(simulationResourceSetupsForDb.Where(x => x.Start >= startInterval + 50).ToList());
 
             var setupTime = kpiManager.GetTotalTimeForInterval(resources, allSimulationResourceSetups, startInterval, endInterval);
 
@@ -276,7 +263,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             /* ------------- PerformanceTime --------------------*/
             List<ISimulationResourceData> allSimulationResourceJobs = new List<ISimulationResourceData>();
             allSimulationResourceJobs.AddRange(simulationJobs.Where(x => x.Start >= startInterval + 50).ToList());
-            allSimulationResourceJobs.AddRange(simulationJobsForDb.Where(x => x.Start >= startInterval + 50).ToList());
             var jobTime = kpiManager.GetTotalTimeForInterval(resources, allSimulationResourceJobs, startInterval, endInterval);
 
             var idleTime = workTime - jobTime;
