@@ -54,6 +54,7 @@ namespace Master40.SimulationCore
             sim.SimulationContext.Tell(instruction);
 
             Task.WaitAll(tasks.ToArray());
+            //TODO might need to extend timespan
             var test = _inbox.ReceiveWhere(x => x.ToString() == "GanttPlan finished!", TimeSpan.FromSeconds(60));
         }
 
