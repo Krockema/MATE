@@ -11,7 +11,7 @@ namespace Master40.DataGenerator.DataModel.ProductStructure
         public double ReutilisationRatio { get; set; }
         public double ComplexityRatio { get; set; }
         public double MeanIncomingMaterialAmount { get; set; }
-        public double VarianceIncomingMaterialAmount { get; set; }
+        public double StdDevIncomingMaterialAmount { get; set; }
         public double? MeanWorkPlanLength { get; set; }
         public double? VarianceWorkPlanLength { get; set; }
 

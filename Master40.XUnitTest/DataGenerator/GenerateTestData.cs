@@ -1,7 +1,15 @@
 ﻿using System;
+using System.Linq;
+using Master40.DataGenerator.Configuration;
 using Master40.DataGenerator.Generators;
 using Master40.DataGenerator.DataModel.TransitionMatrix;
 using Master40.DataGenerator.Util;
+using Master40.DB;
+using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
+using Master40.DB.Data.Initializer;
+using Master40.DB.Data.Initializer.Tables;
+using Master40.DB.Nominal.Model;
 using Xunit;
 using Xunit.Abstractions;
 using InputParameterSet = Master40.DataGenerator.DataModel.ProductStructure.InputParameterSet;
@@ -22,6 +30,16 @@ namespace Master40.XUnitTest.DataGenerator
         public void GenerateData()
         {
             var rng = new Random();
+
+            var parameterSet = ParameterSet.Create(new object[] {Dbms.GetNewMasterDataBase(false, "Master40")});
+            var dataBase = parameterSet.GetOption<DataBase<ProductionDomainContext>>();
+            dataBase.DbContext.Database.EnsureDeleted();
+            dataBase.DbContext.Database.EnsureCreated();
+            var units = new MasterTableUnit();
+            var unitCol = units.Init(dataBase.DbContext);
+            var articleTypes = new MasterTableArticleType();
+            articleTypes.Init(dataBase.DbContext);
+
             for (var i = 0; i < 1; i++)
             {
                 //Nebenbedingung lautet, dass Fertigungstiefe mindestens 1 sein muss, es macht aber wenig Sinn, wenn sie gleich 1 ist, da es dann keine Fertigungen gibt
@@ -34,7 +52,7 @@ namespace Master40.XUnitTest.DataGenerator
                     {
                         EndProductCount = rng.Next(9) + 2, DepthOfAssembly = rng.Next(10) + 1,
                         ComplexityRatio = rng.NextDouble() + 1, ReutilisationRatio = rng.NextDouble() + 1,
-                        MeanIncomingMaterialAmount = 2.3, VarianceIncomingMaterialAmount = 0.7, MeanWorkPlanLength = 3,
+                        MeanIncomingMaterialAmount = 2.3, StdDevIncomingMaterialAmount = 0.7, MeanWorkPlanLength = 3,
                         VarianceWorkPlanLength = 1
                     };
                 }
@@ -43,76 +61,118 @@ namespace Master40.XUnitTest.DataGenerator
                     inputProductStructure = new InputParameterSet
                     {
                         EndProductCount = 7, DepthOfAssembly = 5, ComplexityRatio = 1.5, ReutilisationRatio = 1.8,
-                        MeanIncomingMaterialAmount = 2.3, VarianceIncomingMaterialAmount = 0.7, MeanWorkPlanLength = 3,
+                        MeanIncomingMaterialAmount = 2.3, StdDevIncomingMaterialAmount = 0.7, MeanWorkPlanLength = 3,
                         VarianceWorkPlanLength = 1
                     };
                 }
 
                 _testOutputHelper.WriteLine(inputProductStructure.ToString());
                 var productStructureGenerator = new ProductStructureGenerator();
-                var productStructure = productStructureGenerator.GenerateProductStructure(inputProductStructure);
+                var productStructure = productStructureGenerator.GenerateProductStructure(inputProductStructure, articleTypes, units, unitCol);
 
                 //Limit für Lambda und Anzahl Bearbeitungsstationen jeweils 100
                 //Wenn MeanWorkPlanLength oder VarianceWorkPlanLength "null" sind, dann muss WithStartAndEnd "true" sein
-                var degreeOfOrganization = 0.7;
-                var lambda = 1.3;
-                var withStartAndEnd = false;
                 Master40.DataGenerator.DataModel.TransitionMatrix.InputParameterSet inputTransitionMatrix = null;
-                if (false) //wenn die Bearbeitungsdauer generell festgelegt wird; Anzahl Bearbeitungsstationen muss angegeben werden
+                var individualMachiningTime = true;
+
+                inputTransitionMatrix = new Master40.DataGenerator.DataModel.TransitionMatrix.InputParameterSet
                 {
-                    inputTransitionMatrix = new Master40.DataGenerator.DataModel.TransitionMatrix.InputParameterSet
+                    DegreeOfOrganization = 0.7,
+                    Lambda = 1.3,
+                    InfiniteTools = true,
+                    WithStartAndEnd = false,
+                    GeneralMachiningTimeParameterSet = individualMachiningTime ? null : new MachiningTimeParameterSet
                     {
-                        DegreeOfOrganization = degreeOfOrganization, Lambda = lambda, WorkingStationCount = 7,
-                        WithStartAndEnd = withStartAndEnd,
-                        GeneralWorkingStationParameterSet = new WorkingStationParameterSet
-                        {
-                            MeanMachiningTime = 15, VarianceMachiningTime = 5
-                        }
-                    };
-                }
-                else //wenn die Bearbeitungsdauer individuell festgelegt wird; Anzahl der Bearbeitungsstationen ergibt sich aus größe des Arrays
-                {
-                    inputTransitionMatrix = new Master40.DataGenerator.DataModel.TransitionMatrix.InputParameterSet
+                        MeanMachiningTime = 15,
+                        VarianceMachiningTime = 5
+                    },
+                    WorkingStations = new WorkingStationParameterSet[]
                     {
-                        DegreeOfOrganization = degreeOfOrganization,
-                        Lambda = lambda,
-                        WithStartAndEnd = withStartAndEnd,
-                        DetailedWorkingStationParameterSet = new WorkingStationParameterSet[]
+                        new WorkingStationParameterSet()
                         {
-                            new WorkingStationParameterSet
+                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
                                 MeanMachiningTime = 15, VarianceMachiningTime = 5
                             },
-                            new WorkingStationParameterSet
+                            CapabilitiesCount = 3,
+                            WorkingStationCount = 5
+                        },
+                        new WorkingStationParameterSet()
+                        {
+                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
                                 MeanMachiningTime = 10, VarianceMachiningTime = 4
                             },
-                            new WorkingStationParameterSet
+                            CapabilitiesCount = 5,
+                            WorkingStationCount = 2
+                        },
+                        new WorkingStationParameterSet()
+                        {
+                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
                                 MeanMachiningTime = 13, VarianceMachiningTime = 7
                             },
-                            new WorkingStationParameterSet
+                            CapabilitiesCount = 6,
+                            WorkingStationCount = 5
+                        },
+                        new WorkingStationParameterSet()
+                        {
+                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
                                 MeanMachiningTime = 20, VarianceMachiningTime = 3
                             },
-                            new WorkingStationParameterSet
+                            CapabilitiesCount = 4,
+                            WorkingStationCount = 4
+                        },
+                        new WorkingStationParameterSet()
+                        {
+                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
                                 MeanMachiningTime = 3, VarianceMachiningTime = 1
                             },
-                            new WorkingStationParameterSet
+                            CapabilitiesCount = 5,
+                            WorkingStationCount = 4
+                        },
+                        new WorkingStationParameterSet()
+                        {
+                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
                                 MeanMachiningTime = 12, VarianceMachiningTime = 2
                             },
-                            new WorkingStationParameterSet
+                            CapabilitiesCount = 4,
+                            WorkingStationCount = 3
+                        },
+                        new WorkingStationParameterSet()
+                        {
+                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
                                 MeanMachiningTime = 10, VarianceMachiningTime = 7
-                            }
+                            },
+                            CapabilitiesCount = 1,
+                            WorkingStationCount = 1
                         }
-                    };
-                }
+                        
+                    }
+                };
 
                 var transitionMatrixGenerator = new TransitionMatrixGenerator();
                 var transitionMatrix = transitionMatrixGenerator.GenerateTransitionMatrix(inputTransitionMatrix, inputProductStructure);
+
+                var resourceCapabilities = ResourceInitializer.MasterTableResourceCapability(dataBase.DbContext,
+                    parameterSet.GetOption<Resource>().Value,
+                    parameterSet.GetOption<Setup>().Value,
+                    parameterSet.GetOption<Operator>().Value);
+
+                var operationGenerator = new OperationGenerator();
+                operationGenerator.GenerateOperations();
+
+                var inputBillOfMaterial = new Master40.DataGenerator.DataModel.BillOfMaterial.InputParameterSet
+                {
+                    RoundEdgeWeight = false
+                };
+
+                var billOfMaterialGenerator = new BillOfMaterialGenerator();
+                billOfMaterialGenerator.GenerateBillOfMaterial(inputBillOfMaterial, productStructure, transitionMatrix);
 
                 Assert.True(productStructure.NodesPerLevel.Count == inputProductStructure.DepthOfAssembly &&
                             productStructure.NodesPerLevel[0].Count == inputProductStructure.EndProductCount);
@@ -151,6 +211,7 @@ namespace Master40.XUnitTest.DataGenerator
             var x3 = Convert.ToInt64(Math.Round(sum2));
 
             var x4 = Math.Round(5.4343454359);
+
             Assert.True(true);
         }
     }

@@ -44,7 +44,7 @@ namespace Master40.DataGenerator
 
             // Generating Bom's (Stücklisten)
 
-            // Generate Operations
+            // GenerateBillOfMaterial Operations
 
         }
     }

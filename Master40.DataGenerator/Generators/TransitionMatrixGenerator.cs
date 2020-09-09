@@ -22,15 +22,7 @@ namespace Master40.DataGenerator.Generators
         public TransitionMatrix GenerateTransitionMatrix(InputParameterSet inputParameters, DataModel.ProductStructure.InputParameterSet inputProductStructure)
         {
             var jCorrector = 0;
-            var matrixSize = 0;
-            if (inputParameters.DetailedWorkingStationParameterSet != null)
-            {
-                matrixSize = inputParameters.DetailedWorkingStationParameterSet.Length;
-            }
-            else if (inputParameters.WorkingStationCount != null)
-            {
-                matrixSize = (int) inputParameters.WorkingStationCount;
-            }
+            var matrixSize = inputParameters.WorkingStations.Length;
             if (inputParameters.WithStartAndEnd)
             {
                 matrixSize += 1;

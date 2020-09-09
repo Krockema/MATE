@@ -2,7 +2,9 @@
 {
     public class WorkingStationParameterSet
     {
-        public double MeanMachiningTime { get; set; }
-        public double VarianceMachiningTime { get; set; }
+        public MachiningTimeParameterSet MachiningTimeParameterSet { get; set; }
+        public int WorkingStationCount { get; set; }
+        public int CapabilitiesCount { get; set; }
+
     }
 }
