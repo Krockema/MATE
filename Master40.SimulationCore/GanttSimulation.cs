@@ -5,7 +5,6 @@ using AkkaSim;
 using AkkaSim.Definitions;
 using AkkaSim.SpecialActors;
 using Master40.DB.Data.Context;
-using Master40.DB.DataModel;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Agents.CollectorAgent;
@@ -25,12 +24,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Master40.SimulationCore.Types;
-using static FCapabilityProviderDefinitions;
+using Master40.SimulationCore.Agents.HubAgent;
 using static FCentralResourceHubInformations;
-using static FSetEstimatedThroughputTimes;
 using static FCentralStockDefinitions;
-using Master40.Tools.Connectoren.Ganttplan;
+using static FSetEstimatedThroughputTimes;
 
 namespace Master40.SimulationCore
 {
@@ -51,7 +48,8 @@ namespace Master40.SimulationCore
         public IActorRef StorageCollector { get; private set; }
         public IActorRef ContractCollector { get; private set; }
         public IActorRef ResourceCollector { get; private set; }
-        public AgentStateManager StateManager { get; private set; }
+        public IActorRef HubAgent { get; private set; }
+        public GanttStateManager StateManager { get; private set; }
         /// <summary>
         /// Prepare Simulation Environment
         /// </summary>
@@ -103,12 +101,12 @@ namespace Master40.SimulationCore
                 CreateStorageAgents();
 
                 // Finally Initialize StateManger
-                StateManager = new AgentStateManager(new List<IActorRef> { this.StorageCollector
+                StateManager = new GanttStateManager(new List<IActorRef> { this.StorageCollector
                                                                          , this.JobCollector
                                                                          , this.ContractCollector
                                                                          , this.ResourceCollector
                                                                      }
-                                                    , SimulationConfig.Inbox);
+                                                        , SimulationConfig.Inbox);
 
                 return _simulation;
             });
@@ -175,7 +173,6 @@ namespace Master40.SimulationCore
                 message: Directory.Instruction.Central.CreateHubAgent.Create(hubInfo, directory),
                 sender: ActorRefs.NoSender);
             
-
         }
 
         private void GenerateGuardians()

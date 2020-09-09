@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Resources;
+using Akka.Actor;
 using Master40.SimulationCore.Agents.CollectorAgent.Types;
 using static FAgentInformations;
 using static FBreakDowns;
@@ -31,7 +32,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
 
 
         internal HubManager storageManager { get; set; } = new HubManager();
- 
+
         public override bool Action(object message)
         {
             switch (message)

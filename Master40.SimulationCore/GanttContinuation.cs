@@ -2,21 +2,26 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Akka.Actor;
+using Akka.Actor.Dsl;
 using AkkaSim;
 using AkkaSim.Logging;
+using Master40.SimulationCore.Agents;
+using Master40.SimulationCore.Agents.HubAgent;
+using Master40.SimulationCore.Agents.HubAgent.Behaviour;
+using Master40.SimulationCore.Agents.JobAgent;
 using Master40.Tools.Connectoren.Ganttplan;
 using NLog;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
 namespace Master40.SimulationCore
 {
-    public class AgentStateManager : StateManager
+    public class GanttStateManager : StateManager
     {
         private readonly List<IActorRef> _collectorRefs;
         private readonly Inbox _inbox;
         private readonly Logger _logger;
 
-        public AgentStateManager(List<IActorRef> collectorRefs, Inbox inbox)
+        public GanttStateManager(List<IActorRef> collectorRefs, Inbox inbox)
         {
             _collectorRefs = collectorRefs;
             _inbox = inbox;
@@ -43,8 +48,13 @@ namespace Master40.SimulationCore
                 tasks.Add(item.Ask(message: msg, timeout: TimeSpan.FromSeconds(value: 60 * 60)));
                         
             }
+
+            var hubActorRef = sim.ActorSystem.ActorSelection("/user/HubDirectory/CentralHub").ResolveOne(TimeSpan.FromSeconds(1)).Result;
+            var instruction = Hub.Instruction.Central.LoadProductionOrders.Create(_inbox.Receiver, hubActorRef);
+            sim.SimulationContext.Tell(instruction);
+
             Task.WaitAll(tasks.ToArray());
-            
+            var test = _inbox.ReceiveWhere(x => x.ToString() == "GanttPlan finished!", TimeSpan.FromSeconds(60));
         }
 
         public override void SimulationIsTerminating(Simulation sim)

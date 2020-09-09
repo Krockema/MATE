@@ -1,8 +1,5 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
-using static FProposals;
-using static FResourceInformations;
-using static IJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent
 {
@@ -16,20 +13,22 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
             public class Central
             {
-                public class LoadProducationOrderNet : SimulationMessage
+                public class LoadProductionOrders : SimulationMessage
                 {
-                    public static LoadProducationOrderNet Create(IActorRef target, bool logThis = false)
+                    public static LoadProductionOrders Create(IActorRef inbox, IActorRef target, bool logThis = false)
                     {
-                        return new LoadProducationOrderNet(message: null, target: target, logThis: logThis);
+                        return new LoadProductionOrders(message: inbox, target: target, logThis: logThis);
                     }
-                    private LoadProducationOrderNet(object message, IActorRef target, bool logThis) : base(message: message, target: target, logThis: logThis)
+
+                    private LoadProductionOrders(object message, IActorRef target, bool logThis) : base(
+                        message: message, target: target, logThis: logThis)
                     {
 
                     }
-                    public object GetObjectFromMessage { get => Message as object; }
+
+                    public IActorRef GetInboxActorRef => (IActorRef)Message;
                 }
-                
-            }
+            }   
         }
     }
 }
