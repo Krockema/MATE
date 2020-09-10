@@ -166,7 +166,7 @@ namespace Master40.SimulationCore
             var resourcelist = new ResourceDictionary();
             _dBContext.Resources.Where(x => x.IsPhysical)
                                 .Select(selector: x => new {x.Id, Name = x.Name.Replace(" ", "") })
-                                .ForEach(x => resourcelist.Add(x.Id, x.Name));
+                                .ForEach(x => resourcelist.Add(x.Id.ToString(), x.Name));
 
             StorageCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsStorage.Get()
                                                             , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents

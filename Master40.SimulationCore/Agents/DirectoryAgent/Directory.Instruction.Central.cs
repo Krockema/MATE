@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using static FCapabilityProviderDefinitions;
 using static FCentralResourceDefinitions;
 using static FCentralResourceHubInformations;
+using static FCentralResourceRegistrations;
 using static FCentralStockDefinitions;
 using static FResourceInformations;
 
@@ -66,14 +67,14 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
 
             public class ForwardRegistrationToHub : SimulationMessage
             {
-                public static ForwardRegistrationToHub Create(FResourceInformation message, IActorRef target)
+                public static ForwardRegistrationToHub Create(FCentralResourceRegistration message, IActorRef target)
                 {
                     return new ForwardRegistrationToHub(message: message, target: target);
                 }
                 private ForwardRegistrationToHub(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FResourceInformation GetObjectFromMessage { get => Message as FResourceInformation; }
+                public FCentralResourceRegistration GetResourceRegistration { get => Message as FCentralResourceRegistration; }
             }
 
             public class CreateHubAgent : SimulationMessage

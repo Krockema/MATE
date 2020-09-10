@@ -10,18 +10,16 @@ namespace Master40.DB.Data.Helper
 {
     public static class LinqExtensions
     {
-        public static long GetEpochMilliseconds(this DateTime date)
+        public static long ToSimulationTime(this DateTime date)
         {
-            double ticks = 47 * 60 * 60 * 1000;
-            var startdate = DateTime.Now.AddMilliseconds(value: -ticks);
-            TimeSpan t = startdate - new DateTime(year: 1970, month: 1, day: 1);
-            return (long)t.TotalMilliseconds;
+            TimeSpan t = date - new DateTime(year: 2000, month: 1, day: 1);
+            return (long)t.TotalMilliseconds * 60000;
         }
 
-        public static DateTime GetDateFromMilliseconds(this long x)
+        public static DateTime ToDateTime(this long x)
         {
             // return new DateTime(1970, 1, 1).Add(TimeSpan.FromMilliseconds(x));
-            return (new DateTime(year: 1970, month: 1, day: 1)).AddMilliseconds(value: x);
+            return (new DateTime(year: 2000, month: 1, day: 1)).AddMinutes(value: x);
         }
 
         public static void WriteCSV<T>(this IEnumerable<T> items, string path)

@@ -1,5 +1,7 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
+using static FCentralActivities;
+using static FCentralResourceRegistrations;
 
 namespace Master40.SimulationCore.Agents.HubAgent
 {
@@ -28,6 +30,38 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
                     public IActorRef GetInboxActorRef => (IActorRef)Message;
                 }
+
+                public class AddResourceToHub : SimulationMessage
+                {
+                    public static AddResourceToHub Create(FCentralResourceRegistration message, IActorRef target, bool logThis = false)
+                    {
+                        return new AddResourceToHub(message: message, target: target, logThis: logThis);
+                    }
+
+                    private AddResourceToHub(object message, IActorRef target, bool logThis) : base(
+                        message: message, target: target, logThis: logThis)
+                    {
+
+                    }
+
+                    public FCentralResourceRegistration GetResourceRegistration => Message as FCentralResourceRegistration;
+                }
+                public class TryStartActivity : SimulationMessage
+                {
+                    public static TryStartActivity Create(FCentralActivity message, IActorRef target, bool logThis = false)
+                    {
+                        return new TryStartActivity(message: message, target: target, logThis: logThis);
+                    }
+
+                    private TryStartActivity(object message, IActorRef target, bool logThis) : base(
+                        message: message, target: target, logThis: logThis)
+                    {
+
+                    }
+
+                    public FCentralActivity GetActivity => Message as FCentralActivity;
+                }
+
             }   
         }
     }

@@ -9,22 +9,23 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
 {
     public class ResourceManager
     {
-        private List<ResourceState> resourceWorkList { get; } = new List<ResourceState>();
+        //Each Resource (workcenter, prt and worker) has their unique Id 
+        public List<ResourceState> resourceWorkList { get; } = new List<ResourceState>();
 
         public ResourceManager()
         {
 
         }
 
-        public void Add(string resourceName)
+        public void Add(string resourceName, string id, IActorRef agentRef)
         {
-            var resourceState = new ResourceState(resourceName);
+            var resourceState = new ResourceState(resourceName, id, agentRef);
             resourceWorkList.Add(resourceState);
         }
 
-        public bool ResourceIsWorking(string resourceName)
+        public bool ResourceIsWorking(string resourceId)
         {
-            return resourceWorkList.Single(x => x.Name.Equals(resourceName)).IsWorking;
+            return resourceWorkList.Single(x => x.Id.Equals(resourceId)).IsWorking;
         }
 
         public bool StartActivityAtResource(string resourceName,

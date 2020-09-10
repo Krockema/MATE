@@ -75,9 +75,9 @@ namespace Master40.SimulationCore
                                               , systemMailBox: SimulationConfig.Inbox.Receiver);
 
                
-                _ganttContext.GptblWorker.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(int.Parse(x.Id), x.Name));
-                _ganttContext.GptblPrt.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(int.Parse(x.Id), x.Name));
-                _ganttContext.GptblWorkcenter.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(int.Parse(x.Id), x.Name));
+                _ganttContext.GptblWorker.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(x.Id, x.Name));
+                _ganttContext.GptblPrt.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(x.Id, x.Name));
+                _ganttContext.GptblWorkcenter.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(x.Id, x.Name));
 
                 // Create DataCollectors
                 CreateCollectorAgents(configuration: configuration);

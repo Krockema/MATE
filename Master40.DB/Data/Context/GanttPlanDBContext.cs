@@ -1258,9 +1258,7 @@ namespace Master40.DB.Data.Context
             {
                 entity.HasKey(e => new { e.ClientId, e.ProductionorderId, e.OperationId, e.AlternativeId, e.ActivityId, e.SplitId, e.DateFrom, e.ResourceId, e.ResourceType })
                     .HasName("PK_productionorder_operation_activity_resource_interval");
-
-
-
+                
                 entity.ToTable("gptbl_productionorder_operation_activity_resource_interval");
 
                 entity.Property(e => e.ClientId)

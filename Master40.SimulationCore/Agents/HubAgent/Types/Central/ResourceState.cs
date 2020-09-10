@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Akka.Actor;
 using Master40.DB.GanttPlanModel;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
@@ -9,15 +10,21 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
     {
         public string Name { get; private set;  }
 
+        public string Id { get; private set; }
+
+        public IActorRef AgentRef { get; private set; }
+
         public GptblProductionorderOperationActivity CurrentProductionOrderActivity { get; private set; }
         
         public bool IsWorking => CurrentProductionOrderActivity != null;
 
         public bool FinishedWork { get; private set; }
 
-        public ResourceState(string name)
+        public ResourceState(string name, string id, IActorRef agentRef)
         {
             Name = name;
+            Id = id;
+            AgentRef = agentRef;
             CurrentProductionOrderActivity = null;
         }
 

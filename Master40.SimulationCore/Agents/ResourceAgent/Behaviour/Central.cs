@@ -21,5 +21,15 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             return true;
         }
 
+        public override bool AfterInit()
+        {
+            Agent.Send(DirectoryAgent.Directory.Instruction.Central.ForwardRegistrationToHub.Create(
+                new FCentralResourceRegistrations.FCentralResourceRegistration(_resourceDefinition.ResourceId
+                                                                                        ,_resourceDefinition.ResourceName
+                                                                                        , Agent.Context.Self)
+                , Agent.VirtualParent));
+           return true;
+        }
+
     }
 }

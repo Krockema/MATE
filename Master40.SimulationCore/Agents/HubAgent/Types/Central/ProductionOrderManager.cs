@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.HashFunction.xxHash;
 using System.Linq;
 using System.Text;
 using Master40.DB.GanttPlanModel;
@@ -8,27 +9,19 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
 {
     public class ProductionOrderManager
     {
-        private List<GptblProductionorder> _productionorders { get; } = new List<GptblProductionorder>();
+        public List<GptblProductionorderOperationActivityResourceInterval> _resourceActivityInterval { get; private set; } = new List<GptblProductionorderOperationActivityResourceInterval>();
 
-        private int _ganttCycle { get; }
+        public int _ganttPlanningId { get; private set; }
 
         public ProductionOrderManager()
         {
-            _ganttCycle = 0; // start at first cycle, ++ after each GanttPlan synchronization
+            _ganttPlanningId = 0; // start at first cycle, ++ after each GanttPlan synchronization
         }
 
-        public void UpdateOrCreate(GptblProductionorder productionorder)
+        public void Update(List<GptblProductionorderOperationActivityResourceInterval> resourceActivityInterval)
         {
-            var productionorderToUpdate = _productionorders.SingleOrDefault(x => x.ProductionorderId.Equals(productionorder.ProductionorderId));
-
-            if (productionorderToUpdate != null)
-            {
-                _productionorders.Remove(productionorderToUpdate);
-                _productionorders.Add(productionorder);
-                return;
-            }
-
-            _productionorders.Add(productionorder);
+            _resourceActivityInterval = resourceActivityInterval;
+            IncrementGanttPlanPlanningId();
         }
 
         /// <summary>
@@ -36,11 +29,33 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
         /// </summary>
         /// <param name="resourceName"></param>
         /// <returns></returns>
-        public GptblProductionorder GetNextProductionorder(string resourceName)
+        public GptblProductionorderOperationActivityResourceInterval GetNextInterval(string resourceId)
         {
+            var resourceInterval = _resourceActivityInterval.
+                    OrderBy(x => x.DateFrom)
+                    .FirstOrDefault(x => x.ResourceId.Equals(resourceId));
 
-            return null;
+           
+            return resourceInterval;
+
         }
 
+        
+        public int IncrementGanttPlanPlanningId()
+        {
+            return _ganttPlanningId++;
+        }
+
+        internal List<GptblProductionorderOperationActivityResourceInterval> GetIntervalsActivity(GptblProductionorderOperationActivity nextActivityForResource)
+        {
+            List<GptblProductionorderOperationActivityResourceInterval> resourceIntervals = new List<GptblProductionorderOperationActivityResourceInterval>();
+
+            resourceIntervals = _resourceActivityInterval.Where(x =>
+                x.ProductionorderId.Equals(nextActivityForResource.ProductionorderId)
+                && x.OperationId.Equals(nextActivityForResource.OperationId)
+                && x.ActivityId.Equals(nextActivityForResource.ActivityId)).ToList();
+
+            return resourceIntervals;
+        }
     }
 }

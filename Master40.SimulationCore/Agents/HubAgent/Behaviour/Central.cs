@@ -8,7 +8,11 @@ using Master40.Tools.Connectoren.Ganttplan;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using Master40.DB.Data.Helper;
+using Master40.DB.GanttPlanModel;
 using static FResourceInformations;
+using static FCentralResourceRegistrations;
+using static FCentralActivities;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -29,17 +33,18 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 switch (message)
                 {
-                    //Initialize
-                    case Hub.Instruction.Default.AddResourceToHub msg: CreateOperations(resourceInformation: msg.GetObjectFromMessage); break;
-                    //After OptRun
+                    case Hub.Instruction.Central.AddResourceToHub msg: AddResourceToHub(msg.GetResourceRegistration); break;
                     case Hub.Instruction.Central.LoadProductionOrders msg: LoadProductionOrders(msg.GetInboxActorRef); break;
-                //FinishWork
-                    //case Hub.Instruction.Central.ResponseFromResource msg: ResponseFromResource() break;
-                    case Hub.Instruction.Default.EnqueueJob msg: EnqueueJob(); break;
+                    case Hub.Instruction.Central.TryStartActivity msg: TryStartActivity(msg.GetActivity); break; 
                     default: return false;
                 }
                 return true;
             }
+
+        private void AddResourceToHub(FCentralResourceRegistration resourceRegistration)
+        {
+            _resourceManager.Add(resourceRegistration.ResourceName, resourceRegistration.ResourceId, resourceRegistration.ResourceActorRef);
+        }
 
         private void LoadProductionOrders(IActorRef inboxActorRef)
         {
@@ -47,28 +52,83 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             GanttPlanOptRunner.RunOptAndExport();
             System.Diagnostics.Debug.WriteLine("Finish GanttPlan");
 
-            var productionorders = _ganttPlanDbContext.GptblProductionorder;
+            var resourceIntervals = _ganttPlanDbContext.GptblProductionorderOperationActivityResourceInterval
+                .Include(x => x.ProductionorderOperationActivityResource)
+                .ThenInclude(x => x.ProductionorderOperationActivity)
+                .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)
+                .Include(x => x.ProductionorderOperationActivityResource)
+                .ThenInclude(x => x.ProductionorderOperationActivity)
+                .ThenInclude(x => x.Productionorder)
+                .Include(x => x.ProductionorderOperationActivityResource)
+                .ThenInclude(x => x.ProductionorderOperationActivity)
+                .ThenInclude(x => x.ProductionorderOperationActivityResources).ToList();
             
-            foreach (var productionorder in productionorders)
+            _productionOrderManager.Update(resourceIntervals);
+
+            inboxActorRef.Tell("GanttPlan finished!", this.Agent.Context.Self);
+
+        }
+
+        private void AllocateActivities()
+        {
+            
+            foreach (var resource in _resourceManager.resourceWorkList)
             {
-                var prod = _ganttPlanDbContext.GptblProductionorder
-                    .Include(x => x.ProductionorderOperationActivities)
-                    .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)
-                    .Include(x => x.ProductionorderOperationActivities)
-                    .ThenInclude(x => x.ProductionorderOperationActivityResources)
-                    .Include(x => x.ProductionorderOperationActivities)
-                    .ThenInclude(x => x.ProductionorderOperationActivityResources)
-                    .ThenInclude(x => x.ProductionorderOperationActivityResourceInterval)
-                    .Single(x => x.ProductionorderId == productionorder.ProductionorderId);
 
-                System.Diagnostics.Debug.WriteLine($"ProductionOrder for {prod.MaterialId} at Hub");
+                //Skip if resource is working
+                if(resource.IsWorking)
+                    continue;
 
+                var nextIntervalForResource = _productionOrderManager.GetNextInterval(resource.Id);
+                var nextActivityForResource = nextIntervalForResource.ProductionorderOperationActivityResource
+                    .ProductionorderOperationActivity;
 
-                _productionOrderManager.UpdateOrCreate(prod);
+                //TODO DateTimeConverter to be implemented
+                if (!nextIntervalForResource.DateFrom.Equals(Agent.CurrentTime))
+                {
+                    var featureActivity = new FCentralActivity(resource.Id, nextIntervalForResource.ProductionorderId, nextIntervalForResource.OperationId, nextIntervalForResource.ActivityId, _productionOrderManager._ganttPlanningId);
+                    //TODO Change DateTime
+                    Agent.Send(instruction: Hub.Instruction.Central.TryStartActivity.Create(featureActivity, Agent.Context.Self), nextIntervalForResource.DateFrom.Minute);
+                }
+
+               
+                var resourcesForActivity = nextActivityForResource.ProductionorderOperationActivityResources;
+                
+                //activity can be ignored as long any resource is working -> after finish work of the resource it will trigger anyways
+                foreach (var resourceForActivity in resourcesForActivity)
+                {
+                    if (_resourceManager.ResourceIsWorking(resourceForActivity.ResourceId));
+                        return;
+                }
+
+                StartActivityAtResources(nextActivityForResource);
 
             }
 
-            inboxActorRef.Tell("GanttPlan finished!", this.Agent.Context.Self);
+        }
+
+        private void TryStartActivity(FCentralActivity activity)
+        {
+            //Check if planning_id is equal
+            if (!activity.GanttPlanningInterval.Equals(_productionOrderManager._ganttPlanningId))
+                return;
+
+
+
+        }
+
+        
+        private void StartActivityAtResources(GptblProductionorderOperationActivity activity)
+        {
+            var resourcesForActivity = activity.ProductionorderOperationActivityResources;
+
+            foreach (var resourceForActivity in resourcesForActivity)
+            {
+                var resource =
+                    _resourceManager.resourceWorkList.Single(x => x.Id.Equals(resourceForActivity.ResourceId));
+
+            }
+
 
         }
 
@@ -79,14 +139,5 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         }
 
 
-        private void EnqueueJob()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void CreateOperations(FResourceInformation resourceInformation)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

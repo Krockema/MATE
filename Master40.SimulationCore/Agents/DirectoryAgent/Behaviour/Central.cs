@@ -1,23 +1,14 @@
-﻿using Master40.DB.DataModel;
+﻿using Akka.Actor;
 using Master40.DB.Nominal;
+using Master40.SimulationCore.Agents.CollectorAgent.Types;
 using Master40.SimulationCore.Agents.DirectoryAgent.Types;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Helper.DistributionProvider;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Resources;
-using Akka.Actor;
-using Master40.SimulationCore.Agents.CollectorAgent.Types;
-using static FAgentInformations;
-using static FBreakDowns;
-using static FCapabilityProviderDefinitions;
-using static FCentralResourceHubInformations;
-using static FResourceInformations;
-using static FResourceTypes;
 using static FCentralResourceDefinitions;
+using static FCentralResourceHubInformations;
+using static FCentralResourceRegistrations;
 using static FCentralStockDefinitions;
 
 namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
@@ -31,8 +22,8 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
         }
 
 
-        internal HubManager storageManager { get; set; } = new HubManager();
-
+        internal HubManager StorageManager { get; set; } = new HubManager();
+        internal IActorRef HubAgentActorRef { get; set; }
         public override bool Action(object message)
         {
             switch (message)
@@ -40,18 +31,15 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                 case Directory.Instruction.Central.CreateStorageAgents msg: CreateStorageAgents(stock: msg.GetObjectFromMessage); break;
                 case Directory.Instruction.Central.CreateMachineAgents msg: CreateMachineAgents(msg.GetObjectFromMessage); break;
                 case Directory.Instruction.Central.CreateHubAgent msg: CreateHubAgent(msg.GetObjectFromMessage); break;
+                case Directory.Instruction.Central.ForwardRegistrationToHub msg: ForwardRegistrationToHub(msg.GetResourceRegistration); break;
                 default: return false;
             }
             return true;
         }
 
         private void CreateHubAgent(FResourceHubInformation resourceHubInformation)
-        { 
-           var resourceList = resourceHubInformation.ResourceList as ResourceDictionary;
-           
-           //Create single HubAgent for Central planning
-
-           var hubAgent = Agent.Context.ActorOf(props: Hub.Props(actorPaths: Agent.ActorPaths
+        {
+            var hubAgent = Agent.Context.ActorOf(props: Hub.Props(actorPaths: Agent.ActorPaths
                         , time: Agent.CurrentTime
                         , simtype: SimulationType
                         , maxBucketSize: 0 // not used currently
@@ -60,6 +48,8 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                         , debug: Agent.DebugThis
                         , principal: Agent.Context.Self)
                     , name: "CentralHub");
+
+           HubAgentActorRef = hubAgent;
 
            System.Diagnostics.Debug.WriteLine($"Created Central Hub !");
         }
@@ -72,7 +62,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                             , principal: Agent.Context.Self)
                                             , name: ("Storage(" + stock.StockName + ")").ToActorName());
 
-            storageManager.AddOrCreateRelation(storage, stock.StockName);
+            StorageManager.AddOrCreateRelation(storage, stock.StockName);
             Agent.Send(instruction: BasicInstruction.Initialize.Create(target: storage, message: StorageAgent.Behaviour.Factory.Central(stockDefinition: stock, simType: SimulationType)));
         }
 
@@ -90,6 +80,11 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                     .Create(target: resourceAgent
                                                          , message: ResourceAgent.Behaviour
                                                                                 .Factory.Central(resourceDefinition)));
+        }
+
+        private void ForwardRegistrationToHub(FCentralResourceRegistration resourceRegistration)
+        {
+            Agent.Send(Hub.Instruction.Central.AddResourceToHub.Create(resourceRegistration, HubAgentActorRef));
         }
 
     }
