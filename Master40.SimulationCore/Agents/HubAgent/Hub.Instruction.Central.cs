@@ -31,6 +31,22 @@ namespace Master40.SimulationCore.Agents.HubAgent
                     public IActorRef GetInboxActorRef => (IActorRef)Message;
                 }
 
+                public class AllocateActivities : SimulationMessage
+                {
+                    public static AllocateActivities Create(IActorRef target, bool logThis = false)
+                    {
+                        return new AllocateActivities(message: null ,target: target, logThis: logThis);
+                    }
+
+                    private AllocateActivities(object message, IActorRef target, bool logThis) : base(
+                        message: message, target: target, logThis: logThis)
+                    {
+
+                    }
+
+                }
+                
+
                 public class AddResourceToHub : SimulationMessage
                 {
                     public static AddResourceToHub Create(FCentralResourceRegistration message, IActorRef target, bool logThis = false)

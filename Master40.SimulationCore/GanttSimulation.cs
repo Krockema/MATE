@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.HubAgent;
 using static FCentralResourceHubInformations;
 using static FCentralStockDefinitions;
@@ -74,7 +75,6 @@ namespace Master40.SimulationCore
                 ActorPaths = new ActorPaths(simulationContext: _simulation.SimulationContext
                                               , systemMailBox: SimulationConfig.Inbox.Receiver);
 
-               
                 _ganttContext.GptblWorker.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(x.Id, x.Name));
                 _ganttContext.GptblPrt.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(x.Id, x.Name));
                 _ganttContext.GptblWorkcenter.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(x.Id, x.Name));

@@ -12,14 +12,14 @@ namespace Master40.DB.Data.Helper
     {
         public static long ToSimulationTime(this DateTime date)
         {
-            TimeSpan t = date - new DateTime(year: 2000, month: 1, day: 1);
-            return (long)t.TotalMilliseconds * 60000;
+            TimeSpan t = date - new DateTime(year: 2020, month: 1, day: 1);
+            return (long)t.TotalMilliseconds / 60000;
         }
 
         public static DateTime ToDateTime(this long x)
         {
             // return new DateTime(1970, 1, 1).Add(TimeSpan.FromMilliseconds(x));
-            return (new DateTime(year: 2000, month: 1, day: 1)).AddMinutes(value: x);
+            return (new DateTime(year: 2020, month: 1, day: 1)).AddMinutes(value: x);
         }
 
         public static void WriteCSV<T>(this IEnumerable<T> items, string path)

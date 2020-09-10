@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 namespace Master40.Tools.Connectoren.Ganttplan
 {
@@ -16,14 +17,17 @@ namespace Master40.Tools.Connectoren.Ganttplan
         //GanttPlanApics.GPExport(1);
         //GanttPlanApics.GPExitInstance();
         /// </summary>
-        public static void RunOptAndExport()
+        // mode: "Continuous" or "Init"
+
+        public static void RunOptAndExport(string mode)
         {
-            Process process = Process.Start(PATH_TO_GANTTOPTRUNNTER);
+            ProcessStartInfo processStartInfo = new ProcessStartInfo(PATH_TO_GANTTOPTRUNNTER, mode);
+            Process process = Process.Start(processStartInfo);
+            
             int id = process.Id;
             Process tempProc = Process.GetProcessById(id);
 
             tempProc.WaitForExit();
-
         }
     }
 }

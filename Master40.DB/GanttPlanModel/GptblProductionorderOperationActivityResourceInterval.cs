@@ -21,8 +21,8 @@ namespace Master40.DB.GanttPlanModel
         [NotMapped] public long ConvertedDateFrom => DateFrom.ToSimulationTime();
         public string ResourceId { get; set; }
         public int ResourceType { get; set; }
-        public DateTime? DateTo { get; set; }
-        [NotMapped] public long ConvertedDateTo => DateFrom.ToSimulationTime();
+        public DateTime DateTo { get; set; }
+        [NotMapped] public long ConvertedDateTo => DateTo.ToSimulationTime();
         public int? IntervalAllocationType { get; set; }
     }
 }

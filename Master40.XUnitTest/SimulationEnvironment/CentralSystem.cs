@@ -46,6 +46,46 @@ namespace Master40.XUnitTest.SimulationEnvironment
         private ResultContext _ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);
 
         [Fact]
+        public void TestDateUpdate()
+        {
+
+            GanttPlanOptRunner.RunOptAndExport("Init");
+
+            var ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
+
+            var modelparameter = ganttPlanContext.GptblModelparameter.FirstOrDefault();
+            if (modelparameter != null)
+            {
+                modelparameter.ActualTime = new DateTime(year: 2020, day: 2, month: 1);
+                ganttPlanContext.Entry(modelparameter).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                ganttPlanContext.SaveChanges();
+            }
+
+
+            GanttPlanOptRunner.RunOptAndExport("Continuous");
+
+            var modelparameter1 = ganttPlanContext.GptblModelparameter.FirstOrDefault();
+            if (modelparameter != null)
+            {
+                modelparameter1.ActualTime = new DateTime(year: 2020, day: 3, month: 1);
+                ganttPlanContext.Entry(modelparameter1).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                ganttPlanContext.SaveChanges();
+            }
+
+            GanttPlanOptRunner.RunOptAndExport("Continuous");
+
+            var modelparameter2 = ganttPlanContext.GptblModelparameter.FirstOrDefault();
+            if (modelparameter != null)
+            {
+                modelparameter2.ActualTime = new DateTime(year: 2020, day: 3, month: 1);
+                ganttPlanContext.Entry(modelparameter2).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                ganttPlanContext.SaveChanges();
+            }
+
+
+        }
+
+        [Fact]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
         public async Task CentralSystemTest()
         {
@@ -70,7 +110,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
             
             //Synchronisation GanttPlan
-            GanttPlanOptRunner.RunOptAndExport();
+            GanttPlanOptRunner.RunOptAndExport("Init");
 
             var simContext = new GanttSimulation(ganttPlanContext, masterPlanContext, messageHub: new ConsoleHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(_ctxResult, 1);
@@ -190,7 +230,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
             GanttPlanDBContext ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
 
-            GanttPlanOptRunner.RunOptAndExport();
+            GanttPlanOptRunner.RunOptAndExport("Init");
 
             Assert.True(ganttPlanContext.GptblProductionorder.Any());
 
@@ -209,7 +249,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
             ganttPlanContext.SaveChanges();
 
-            GanttPlanOptRunner.RunOptAndExport();
+            GanttPlanOptRunner.RunOptAndExport("Continuous");
 
             Assert.True(ganttPlanContext.GptblConfirmation.Any());
 
@@ -234,7 +274,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
             ganttPlanContext.SaveChanges();
 
-            GanttPlanOptRunner.RunOptAndExport();
+            GanttPlanOptRunner.RunOptAndExport("Continuous");
 
             Assert.True(ganttPlanContext.GptblProductionorder.Count().Equals(10));
 
