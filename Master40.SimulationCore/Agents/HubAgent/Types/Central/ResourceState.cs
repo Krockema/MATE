@@ -20,6 +20,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
 
         public bool FinishedWork { get; private set; }
 
+        public string GetCurrentProductionOperationActivity => CurrentProductionOrderActivity != null ? $"ProductionOrderId: {CurrentProductionOrderActivity.ProductionorderId} " +
+                                                                                                        $"| Operation: {CurrentProductionOrderActivity.OperationId} " +
+                                                                                                        $"| Activity {CurrentProductionOrderActivity.ActivityId}"  
+                                                                                                        : null;
+
         public ResourceState(string name, string id, IActorRef agentRef)
         {
             Name = name;

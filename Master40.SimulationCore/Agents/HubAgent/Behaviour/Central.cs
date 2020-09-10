@@ -91,7 +91,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     Agent.Send(instruction: Hub.Instruction.Central.TryStartActivity.Create(featureActivity, Agent.Context.Self), nextIntervalForResource.DateFrom.Minute);
                 }
 
-               
                 var resourcesForActivity = nextActivityForResource.ProductionorderOperationActivityResources;
                 
                 //activity can be ignored as long any resource is working -> after finish work of the resource it will trigger anyways
@@ -127,7 +126,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 var resource =
                     _resourceManager.resourceWorkList.Single(x => x.Id.Equals(resourceForActivity.ResourceId));
 
+                if (resource.IsWorking)
+                {
+                    Agent.DebugMessage($"{resource.Name} is working at {resource.GetCurrentProductionOperationActivity}");
+                    return;
+                }
+
             }
+
+
 
 
         }
