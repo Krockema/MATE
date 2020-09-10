@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Master40.DB.GanttPlanModel;
+using System.Collections.Generic;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
 {
@@ -19,6 +17,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
         public bool IsWorking => CurrentProductionOrderActivity != null;
 
         public bool FinishedWork { get; private set; }
+
+        public Queue<GptblProductionorderOperationActivityResourceInterval> ActivityQueue { get; set; }
 
         public string GetCurrentProductionOperationActivity => CurrentProductionOrderActivity != null ? $"ProductionOrderId: {CurrentProductionOrderActivity.ProductionorderId} " +
                                                                                                         $"| Operation: {CurrentProductionOrderActivity.OperationId} " +

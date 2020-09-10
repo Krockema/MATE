@@ -73,7 +73,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             GanttPlanOptRunner.RunOptAndExport();
 
             var simContext = new GanttSimulation(ganttPlanContext, masterPlanContext, messageHub: new ConsoleHub());
-            var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(_ctxResult, 1);
+            var simConfig = ArgumentConverter.ConfigurationConverter(_ctxResult, 1);
             // update customized Items
             simConfig.AddOption(new DBConnectionString(testResultCtxString));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
