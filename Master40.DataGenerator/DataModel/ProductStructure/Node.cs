@@ -8,6 +8,6 @@ namespace Master40.DataGenerator.DataModel.ProductStructure
         public int AssemblyLevel { get; set; }
         public int? WorkPlanLength { get; set; }
         public M_Article Article { get; set; }
-        public List<Edge> IncomingEdges { get; set; }
+        public List<Edge> IncomingEdges { get; set; } = new List<Edge>();
     }
 }

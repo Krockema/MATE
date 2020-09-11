@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Master40.DataGenerator.Configuration;
 using Master40.DataGenerator.Generators;
@@ -6,13 +7,14 @@ using Master40.DataGenerator.DataModel.TransitionMatrix;
 using Master40.DataGenerator.Util;
 using Master40.DB;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.DynamicInitializer;
 using Master40.DB.Data.Helper;
-using Master40.DB.Data.Initializer;
 using Master40.DB.Data.Initializer.Tables;
-using Master40.DB.Nominal.Model;
+using Master40.DB.Util;
 using Xunit;
 using Xunit.Abstractions;
 using InputParameterSet = Master40.DataGenerator.DataModel.ProductStructure.InputParameterSet;
+using ResourceInitializer = Master40.DB.Data.DynamicInitializer.ResourceInitializer;
 
 namespace Master40.XUnitTest.DataGenerator
 {
@@ -40,32 +42,22 @@ namespace Master40.XUnitTest.DataGenerator
             var articleTypes = new MasterTableArticleType();
             articleTypes.Init(dataBase.DbContext);
 
-            for (var i = 0; i < 1; i++)
+            var iterations = 1;
+            for (var i = 0; i < iterations; i++)
             {
                 //Nebenbedingung lautet, dass Fertigungstiefe mindestens 1 sein muss, es macht aber wenig Sinn, wenn sie gleich 1 ist, da es dann keine Fertigungen gibt
                 //-> Anpassung der Nebenbedingung: Fertigungstiefe muss mindestens 2 sein
                 //KG und MV nicht größer 5; FT nicht größer 20; Anzahl Endprodukte nicht größer 50
-                InputParameterSet inputProductStructure;
-                if (false) //wenn zufällige Eingabewerte generiert werden sollen
+                var randomGeneratedInputValues = false;
+                var inputProductStructure = new InputParameterSet
                 {
-                    inputProductStructure = new InputParameterSet
-                    {
-                        EndProductCount = rng.Next(9) + 2, DepthOfAssembly = rng.Next(10) + 1,
-                        ComplexityRatio = rng.NextDouble() + 1, ReutilisationRatio = rng.NextDouble() + 1,
-                        MeanIncomingMaterialAmount = 2.3, StdDevIncomingMaterialAmount = 0.7, MeanWorkPlanLength = 3,
-                        VarianceWorkPlanLength = 1
-                    };
-                }
-                else //wenn mit bestimmten Eingabewerten gearbeitet werden soll
-                {
-                    inputProductStructure = new InputParameterSet
-                    {
-                        EndProductCount = 7, DepthOfAssembly = 5, ComplexityRatio = 1.5, ReutilisationRatio = 1.8,
-                        MeanIncomingMaterialAmount = 2.3, StdDevIncomingMaterialAmount = 0.7, MeanWorkPlanLength = 3,
-                        VarianceWorkPlanLength = 1
-                    };
-                }
-
+                    EndProductCount = !randomGeneratedInputValues ? 7 : rng.Next(9) + 2,
+                    DepthOfAssembly = !randomGeneratedInputValues ? 5 : rng.Next(10) + 1,
+                    ComplexityRatio = !randomGeneratedInputValues ? 1.5 : rng.NextDouble() + 1,
+                    ReutilisationRatio = !randomGeneratedInputValues ? 1.8 : rng.NextDouble() + 1,
+                    MeanIncomingMaterialAmount = 2.3, StdDevIncomingMaterialAmount = 0.7, MeanWorkPlanLength = 3,
+                    VarianceWorkPlanLength = 1
+                };
                 _testOutputHelper.WriteLine(inputProductStructure.ToString());
                 var productStructureGenerator = new ProductStructureGenerator();
                 var productStructure = productStructureGenerator.GenerateProductStructure(inputProductStructure, articleTypes, units, unitCol);
@@ -95,7 +87,9 @@ namespace Master40.XUnitTest.DataGenerator
                                 MeanMachiningTime = 15, VarianceMachiningTime = 5
                             },
                             CapabilitiesCount = 3,
-                            WorkingStationCount = 5
+                            ToolCount = 5,
+                            SetupTime = 10,
+                            OperatorCount = 0
                         },
                         new WorkingStationParameterSet()
                         {
@@ -104,7 +98,9 @@ namespace Master40.XUnitTest.DataGenerator
                                 MeanMachiningTime = 10, VarianceMachiningTime = 4
                             },
                             CapabilitiesCount = 5,
-                            WorkingStationCount = 2
+                            ToolCount = 2,
+                            SetupTime = 3,
+                            OperatorCount = 0
                         },
                         new WorkingStationParameterSet()
                         {
@@ -113,7 +109,9 @@ namespace Master40.XUnitTest.DataGenerator
                                 MeanMachiningTime = 13, VarianceMachiningTime = 7
                             },
                             CapabilitiesCount = 6,
-                            WorkingStationCount = 5
+                            ToolCount = 5,
+                            SetupTime = 0,
+                            OperatorCount = 1
                         },
                         new WorkingStationParameterSet()
                         {
@@ -122,7 +120,9 @@ namespace Master40.XUnitTest.DataGenerator
                                 MeanMachiningTime = 20, VarianceMachiningTime = 3
                             },
                             CapabilitiesCount = 4,
-                            WorkingStationCount = 4
+                            ToolCount = 4,
+                            SetupTime = 12,
+                            OperatorCount = 1
                         },
                         new WorkingStationParameterSet()
                         {
@@ -131,7 +131,9 @@ namespace Master40.XUnitTest.DataGenerator
                                 MeanMachiningTime = 3, VarianceMachiningTime = 1
                             },
                             CapabilitiesCount = 5,
-                            WorkingStationCount = 4
+                            ToolCount = 4,
+                            SetupTime = 10,
+                            OperatorCount = 1
                         },
                         new WorkingStationParameterSet()
                         {
@@ -140,7 +142,9 @@ namespace Master40.XUnitTest.DataGenerator
                                 MeanMachiningTime = 12, VarianceMachiningTime = 2
                             },
                             CapabilitiesCount = 4,
-                            WorkingStationCount = 3
+                            ToolCount = 3,
+                            SetupTime = 1,
+                            OperatorCount = 0
                         },
                         new WorkingStationParameterSet()
                         {
@@ -149,7 +153,9 @@ namespace Master40.XUnitTest.DataGenerator
                                 MeanMachiningTime = 10, VarianceMachiningTime = 7
                             },
                             CapabilitiesCount = 1,
-                            WorkingStationCount = 1
+                            ToolCount = 1,
+                            SetupTime = 5,
+                            OperatorCount = 0
                         }
                         
                     }
@@ -158,10 +164,10 @@ namespace Master40.XUnitTest.DataGenerator
                 var transitionMatrixGenerator = new TransitionMatrixGenerator();
                 var transitionMatrix = transitionMatrixGenerator.GenerateTransitionMatrix(inputTransitionMatrix, inputProductStructure);
 
-                var resourceCapabilities = ResourceInitializer.MasterTableResourceCapability(dataBase.DbContext,
-                    parameterSet.GetOption<Resource>().Value,
-                    parameterSet.GetOption<Setup>().Value,
-                    parameterSet.GetOption<Operator>().Value);
+                List<ResourceProperty> resourceProperties =
+                    inputTransitionMatrix.WorkingStations.Select(x => (ResourceProperty) x).ToList();
+
+                var resourceCapabilities = ResourceInitializer.Initialize(dataBase.DbContext, resourceProperties);
 
                 var operationGenerator = new OperationGenerator();
                 operationGenerator.GenerateOperations();
@@ -211,6 +217,15 @@ namespace Master40.XUnitTest.DataGenerator
             var x3 = Convert.ToInt64(Math.Round(sum2));
 
             var x4 = Math.Round(5.4343454359);
+
+            var n1 = AlphabeticNumbering.GetAlphabeticNumbering(0);
+            var n2 = AlphabeticNumbering.GetAlphabeticNumbering(25);
+            var n3 = AlphabeticNumbering.GetAlphabeticNumbering(26);
+            var n4 = AlphabeticNumbering.GetAlphabeticNumbering(52);
+            var n5 = AlphabeticNumbering.GetAlphabeticNumbering(454);
+            var n6 = AlphabeticNumbering.GetAlphabeticNumbering(1);
+            var n7 = AlphabeticNumbering.GetAlphabeticNumbering(2);
+            var n8 = AlphabeticNumbering.GetAlphabeticNumbering(3);
 
             Assert.True(true);
         }

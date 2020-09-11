@@ -1,10 +1,10 @@
-﻿namespace Master40.DataGenerator.DataModel.TransitionMatrix
+﻿using Master40.DB.Data.DynamicInitializer;
+
+namespace Master40.DataGenerator.DataModel.TransitionMatrix
 {
-    public class WorkingStationParameterSet
+    public class WorkingStationParameterSet : ResourceProperty
     {
         public MachiningTimeParameterSet MachiningTimeParameterSet { get; set; }
-        public int WorkingStationCount { get; set; }
-        public int CapabilitiesCount { get; set; }
 
     }
 }
