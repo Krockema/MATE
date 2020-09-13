@@ -7,11 +7,11 @@ using Master40.DB.GanttPlanModel;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
 {
-    public class ProductionOrderManager
+    public class PlanManager
     {
         public int PlanVersion { get; private set; }
 
-        public ProductionOrderManager()
+        public PlanManager()
         {
             PlanVersion = 0; // start at first cycle, ++ after each GanttPlan synchronization
         }
@@ -20,6 +20,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
         {
             PlanVersion++;
         }
+
 
     }
 }

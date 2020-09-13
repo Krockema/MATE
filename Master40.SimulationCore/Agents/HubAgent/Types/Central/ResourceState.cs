@@ -6,12 +6,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
 {
     public class ResourceState
     {
-        public string Name { get; private set;  }
-
-        public string Id { get; private set; }
-
-        public IActorRef AgentRef { get; private set; }
-
+        public ResourceDefinition ResourceDefinition { get; private set; }
         public GptblProductionorderOperationActivity CurrentProductionOrderActivity { get; private set; }
         
         public bool IsWorking => CurrentProductionOrderActivity != null;
@@ -25,21 +20,20 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
                                                                                                         $"| Activity {CurrentProductionOrderActivity.ActivityId}"  
                                                                                                         : null;
 
-        public ResourceState(string name, string id, IActorRef agentRef)
+        public ResourceState(ResourceDefinition resourceDefinition)
         {
-            Name = name;
-            Id = id;
-            AgentRef = agentRef;
+            ResourceDefinition = resourceDefinition;
             CurrentProductionOrderActivity = null;
         }
 
         internal void StartActivityAtResource(GptblProductionorderOperationActivity productionorderOperationActivity)
-        {
+        { 
             CurrentProductionOrderActivity = productionorderOperationActivity;
         }
 
         internal void FinishActivityAtResource()
         {
+            ResetActivityAtResource();
             FinishedWork = true;
         }
 

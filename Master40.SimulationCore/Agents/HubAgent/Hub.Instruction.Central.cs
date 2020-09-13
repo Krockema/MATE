@@ -31,14 +31,14 @@ namespace Master40.SimulationCore.Agents.HubAgent
                     public IActorRef GetInboxActorRef => (IActorRef)Message;
                 }
 
-                public class AllocateActivities : SimulationMessage
+                public class StartActivities : SimulationMessage
                 {
-                    public static AllocateActivities Create(IActorRef target, bool logThis = false)
+                    public static StartActivities Create(IActorRef target, bool logThis = false)
                     {
-                        return new AllocateActivities(message: null ,target: target, logThis: logThis);
+                        return new StartActivities(message: null ,target: target, logThis: logThis);
                     }
 
-                    private AllocateActivities(object message, IActorRef target, bool logThis) : base(
+                    private StartActivities(object message, IActorRef target, bool logThis) : base(
                         message: message, target: target, logThis: logThis)
                     {
 
@@ -62,14 +62,14 @@ namespace Master40.SimulationCore.Agents.HubAgent
 
                     public FCentralResourceRegistration GetResourceRegistration => Message as FCentralResourceRegistration;
                 }
-                public class TryStartActivity : SimulationMessage
+                public class ScheduleActivity : SimulationMessage
                 {
-                    public static TryStartActivity Create(FCentralActivity message, IActorRef target, bool logThis = false)
+                    public static ScheduleActivity Create(FCentralActivity message, IActorRef target, bool logThis = false)
                     {
-                        return new TryStartActivity(message: message, target: target, logThis: logThis);
+                        return new ScheduleActivity(message: message, target: target, logThis: logThis);
                     }
 
-                    private TryStartActivity(object message, IActorRef target, bool logThis) : base(
+                    private ScheduleActivity(object message, IActorRef target, bool logThis) : base(
                         message: message, target: target, logThis: logThis)
                     {
 

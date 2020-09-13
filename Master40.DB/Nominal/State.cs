@@ -35,4 +35,10 @@
         Producing,
         Finished
     }
+
+    public enum GanttState
+    {
+        Started = 1,
+        Finished = 16
+    }
 }

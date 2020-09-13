@@ -1,6 +1,5 @@
 ﻿module FCentralStockPostings
     type public FCentralStockPosting = {
-        MaterialId : int
-        MaterialName: string
+        MaterialId : string
         Quantity : double
     }

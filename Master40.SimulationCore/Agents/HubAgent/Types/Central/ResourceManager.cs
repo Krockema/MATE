@@ -1,37 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Akka.Actor;
 using Master40.DB.GanttPlanModel;
+using Master40.DB.Nominal.Model;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
 {
     public class ResourceManager
     {
         //Each Resource (workcenter, prt and worker) has their unique Id 
-        public List<ResourceState> resourceWorkList { get; } = new List<ResourceState>();
+        public List<ResourceState> resourceStateList { get; } = new List<ResourceState>();
 
         public ResourceManager()
         {
 
         }
 
-        public void Add(string resourceName, string id, IActorRef agentRef)
+        public void Add(ResourceDefinition resourceDefinition)
         {
-            var resourceState = new ResourceState(resourceName, id, agentRef);
-            resourceWorkList.Add(resourceState);
+            var resourceState = new ResourceState(resourceDefinition);
+            resourceStateList.Add(resourceState);
         }
 
         public bool ResourceIsWorking(string resourceId)
         {
-            return resourceWorkList.Single(x => x.Id.Equals(resourceId)).IsWorking;
+            return resourceStateList.Single(x => x.ResourceDefinition.Id.Equals(resourceId)).IsWorking;
         }
 
-        public bool StartActivityAtResource(string resourceName,
+        public bool StartActivityAtResource(string resourceId,
             GptblProductionorderOperationActivity productionorderOperationActivity)
         {
-            var resource = resourceWorkList.Single(x => x.Name.Equals(resourceName));
+            var resource = resourceStateList.Single(x => x.ResourceDefinition.Id.Equals(resourceId));
             if (resource.IsWorking)
             {
                 return false;
@@ -42,9 +44,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             return resource.IsWorking;
         }
 
-        public void FinishActivityAtResource(string resourceName)
+        public void FinishActivityAtResource(string resourceId)
         {
-            resourceWorkList.Single(x => x.Name.Equals(resourceName)).FinishActivityAtResource();
+            resourceStateList.Single(x => x.ResourceDefinition.Id.Equals(resourceId)).FinishActivityAtResource();
+        }
+
+        public GptblProductionorderOperationActivity GetCurrentActivity(string resourceId)
+        {
+            return resourceStateList.Single(x => x.ResourceDefinition.Id.Equals(resourceId))
+                .CurrentProductionOrderActivity;
         }
 
     }

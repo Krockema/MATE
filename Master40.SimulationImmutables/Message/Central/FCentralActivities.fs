@@ -6,9 +6,9 @@ open Akka.Actor
         ResourceId : string
         ProductionOrderId: string
         OperationId: string
+        ActivityId: int
         Duration: int64
         Name: string
-        ActivityId: int
         GanttPlanningInterval: int
         Hub: IActorRef
     }
