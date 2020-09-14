@@ -10,9 +10,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
         public GptblProductionorderOperationActivity CurrentProductionOrderActivity { get; private set; }
         
         public bool IsWorking => CurrentProductionOrderActivity != null;
-
-        public bool FinishedWork { get; private set; }
-
+        
         public Queue<GptblProductionorderOperationActivityResourceInterval> ActivityQueue { get; set; }
 
         public string GetCurrentProductionOperationActivity => CurrentProductionOrderActivity != null ? $"ProductionOrderId: {CurrentProductionOrderActivity.ProductionorderId} " +
@@ -34,7 +32,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
         internal void FinishActivityAtResource()
         {
             ResetActivityAtResource();
-            FinishedWork = true;
         }
 
         internal void ResetActivityAtResource()

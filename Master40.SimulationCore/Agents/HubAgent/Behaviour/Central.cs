@@ -15,6 +15,8 @@ using static FCentralActivities;
 using static FCentralResourceRegistrations;
 using System;
 using Master40.SimulationCore.Agents.StorageAgent;
+using static FCentralProvideMaterials;
+using static FCentralStockPostings;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -22,15 +24,19 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
     {
         private Dictionary<int, FCentralActivity> _scheduledActivities { get; } = new Dictionary<int, FCentralActivity>();
         private string _dbConnectionStringGanttPlan { get; }
+        private string _dbConnectionStringMaster { get; }
         private WorkTimeGenerator _workTimeGenerator { get; }
         private PlanManager _planManager { get; } = new PlanManager();
         private ResourceManager _resourceManager { get; } = new ResourceManager();
         private ActivityManager _activityManager { get; } = new ActivityManager();
+        private ConfirmationManager _confirmationManager { get; }
 
-        public Central(string dbConnectionStringGanttPlan, WorkTimeGenerator workTimeGenerator, SimulationType simulationType = SimulationType.Default) : base(childMaker: null, simulationType: simulationType)
+        public Central(string dbConnectionStringGanttPlan, string dbConnectionStringMaster, WorkTimeGenerator workTimeGenerator, SimulationType simulationType = SimulationType.Default) : base(childMaker: null, simulationType: simulationType)
         {
             _workTimeGenerator = workTimeGenerator;
             _dbConnectionStringGanttPlan = dbConnectionStringGanttPlan;
+            _dbConnectionStringMaster = dbConnectionStringMaster;
+            _confirmationManager = new ConfirmationManager(dbConnectionStringGanttPlan);
         }
 
             public override bool Action(object message)
@@ -41,7 +47,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     case Hub.Instruction.Central.LoadProductionOrders msg: LoadProductionOrders(msg.GetInboxActorRef); break;
                     case Hub.Instruction.Central.StartActivities msg: StartActivities(); break;
                     case Hub.Instruction.Central.ScheduleActivity msg: ScheduleActivity(msg.GetActivity); break;
-                    case Resource.Instruction.Central.ActivityFinish msg: FinishActivity(msg.GetObjectFromMessage); break;
+                    case Hub.Instruction.Central.ActivityFinish msg: FinishActivity(msg.GetObjectFromMessage); break;
                     default: return false;
                 }
                 return true;
@@ -49,7 +55,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         private void AddResourceToHub(FCentralResourceRegistration resourceRegistration)
         {
-            var resourceDefintion = new ResourceDefinition(resourceRegistration.ResourceName, resourceRegistration.ResourceId, resourceRegistration.ResourceActorRef);
+            var resourceDefintion = new ResourceDefinition(resourceRegistration.ResourceName, resourceRegistration.ResourceId, resourceRegistration.ResourceActorRef, resourceRegistration.ResourceGroupId, resourceRegistration.ResourceType);
             _resourceManager.Add(resourceDefintion);
         }
 
@@ -86,11 +92,23 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                             .Include(x => x.ProductionorderOperationActivityResource)
                                 .ThenInclude(x => x.ProductionorderOperationActivity)
                                     .ThenInclude(x => x.ProductionorderOperationActivityResources)
-                            .Where(x => x.ResourceId.Equals(resourceState.ResourceDefinition.Id))
+                            .Where(x => x.ResourceId.Equals(resourceState.ResourceDefinition.Id) 
+                                    && x.IntervalAllocationType.Equals(1))
                             .OrderBy(x => x.DateFrom)
                             .ToList());
-                } // filter Done and in Progress ? 
+                } // filter Done and in Progress?
             }
+
+            //delete orders to avoid sync
+            using (var masterDBContext = MasterDBContext.GetContext(_dbConnectionStringMaster))
+            {
+                masterDBContext.CustomerOrders.RemoveRange(masterDBContext.CustomerOrders);
+                masterDBContext.CustomerOrderParts.RemoveRange(masterDBContext.CustomerOrderParts);
+                masterDBContext.SaveChanges();
+            }
+
+            _confirmationManager.TransferConfirmations();
+
             _planManager.IncrementPlaningNumber();
             _scheduledActivities.Clear();
 
@@ -112,40 +130,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 var interval = resourceState.ActivityQueue.Peek();
 
                 //CheckMaterial
-                var activity = interval.ProductionorderOperationActivityResource.ProductionorderOperationActivity;
-
-                foreach(var requiredPrecondition in activity.ProductionorderOperationActivityMaterialrelation)
-                {
-
-                    switch (requiredPrecondition.MaterialrelationType)
-                    {
-                        //ProductionOrder
-                        case 2:
-                            if (!_activityManager.Activities.Exists(x => x.Activity.Equals(activity)) 
-                                || !_activityManager.ActivityIsFinished(activity))
-                            {
-                                continue;
-                            }
-
-                            break;
-                        //Material ask storage if material available
-                        case 8: 
-
-                            break;
-                        default:
-                            Agent.DebugMessage(
-                                $"Materialrelationtype unknown {requiredPrecondition.MaterialrelationType}");
-                            break;
-                    }
-                    
-                }
-
+                
                 var featureActivity = new FCentralActivity(resourceState.ResourceDefinition.Id
                     , interval.ProductionorderId
                     , interval.OperationId
                     , interval.ActivityId
                     , interval.ConvertedDateTo - interval.ConvertedDateFrom
-                    , interval.ProductionorderOperationActivityResource.ProductionorderOperationActivity.Name
+                    , interval.ActivityId.ToString()
                     , _planManager.PlanVersion
                     , Agent.Context.Self); // may not required.
                 
@@ -184,7 +175,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
         }
 
-        private void TryStartActivity(GptblProductionorderOperationActivityResourceInterval interval,FCentralActivity activity)
+        private void TryStartActivity(GptblProductionorderOperationActivityResourceInterval interval,FCentralActivity fActivity)
         {
             // not sure if this works or if we just loop through resources and check even activities
             var resourcesForActivity = interval.ProductionorderOperationActivityResource
@@ -204,11 +195,17 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 }
                 requiredResources.Add(resourceState);
             }
-            
+
+            //Check if all preconditions are fullfilled
+            var activity = interval.ProductionorderOperationActivityResource.ProductionorderOperationActivity;
+            if (!_activityManager.HasPreconditionsFullfilled(activity))
+                return;
+
             StartActivity(requiredResources: requiredResources
-                                   ,interval:  interval
-                                   ,featureActivity: activity);
+                , interval: interval
+                , featureActivity: fActivity);
         }
+
         private bool NextActivityIsEqual(ResourceState resourceState, string productionOrderId, string operationId, int activityId)
         {
             var nextActivity = resourceState.ActivityQueue.Peek();
@@ -225,16 +222,28 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             var activity = interval.ProductionorderOperationActivityResource.ProductionorderOperationActivity;
 
-            foreach (var resourceForActivity in requiredResources)
+            WithdrawalMaterial(activity);
+
+            foreach (var resourceState in requiredResources)
             {
+
+                var fCentralActivity = new FCentralActivity(resourceId: resourceState.ResourceDefinition.Id
+                                                    ,productionOrderId: featureActivity.ProductionOrderId
+                                                          ,operationId:featureActivity.OperationId
+                                                    ,activityId:featureActivity.ActivityId
+                                                    ,duration:featureActivity.Duration,name:featureActivity.Name
+                                                    ,ganttPlanningInterval:featureActivity.GanttPlanningInterval
+                                                    ,hub:featureActivity.Hub);
+
                 var startActivityInstruction = Resource.Instruction.Central
-                                                .ActivityStart.Create(activity: featureActivity
-                                                                       ,target: resourceForActivity.ResourceDefinition.AgentRef);
-                resourceForActivity.ActivityQueue.Dequeue();
-                _activityManager.AddOrUpdateActivity(activity, resourceForActivity.ResourceDefinition);
-                resourceForActivity.StartActivityAtResource(activity);
+                                                .ActivityStart.Create(activity: fCentralActivity
+                                                                       , target: resourceState.ResourceDefinition.AgentRef);
+                resourceState.ActivityQueue.Dequeue();
+                _activityManager.AddOrUpdateActivity(activity, resourceState.ResourceDefinition);
+                resourceState.StartActivityAtResource(activity);
                 Agent.Send(startActivityInstruction);
             }
+
         }
         
         public void FinishActivity(FCentralActivity fActivity)
@@ -250,7 +259,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (_activityManager.ActivityIsFinished(activity))
             {
                 //Check if productionorder finished
-                CheckIfProductionOrderFinished(activity);
+
+                _confirmationManager.AddConfirmations(activity, GanttState.Finished);
+
+                ProductionOrderFinishCheck(activity);
             }
 
             // Finish ResourceState
@@ -260,7 +272,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             StartActivities();
         }
 
-        private void CheckIfProductionOrderFinished(GptblProductionorderOperationActivity activity )
+        private void ProductionOrderFinishCheck(GptblProductionorderOperationActivity activity )
         {
             var productionOrder = activity.Productionorder;
 
@@ -274,9 +286,45 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 }
             }
 
-            var storagePosting = new FCentralStockPostings.FCentralStockPosting(productionOrder.MaterialId,(double)productionOrder.QuantityNet);
-            Agent.Send(Storage.Instruction.Central.InsertMaterial.Create(storagePosting, Agent.ActorPaths.StorageDirectory.Ref));
+            Agent.DebugMessage($"All resources for {activity.GetActivityName()} returned!");
 
+            // Insert Material
+
+            var storagePosting = new FCentralStockPosting(productionOrder.MaterialId,(double)productionOrder.QuantityNet);
+            Agent.Send(DirectoryAgent.Directory.Instruction.Central.InsertMaterial.Create(storagePosting, Agent.ActorPaths.StorageDirectory.Ref));
+
+        }
+
+
+        /// <summary>
+        /// Provide Material
+        /// </summary>
+        private void WithdrawalMaterial(GptblProductionorderOperationActivity activity)
+        {
+
+            var materialId = string.Empty;
+
+            foreach (var material in activity.ProductionorderOperationActivityMaterialrelation)
+            {
+
+                switch (material.MaterialrelationType)
+                {
+                    case 2:
+                        //search for the materialId of the productionorder
+                        var materialActivity = _activityManager.GetActivity(material.ChildId,
+                            material.ChildOperationId,
+                            material.ChildActivityId);
+                        break;
+                    case 8:
+                        materialId = material.ChildId;
+                        break;
+                    default:
+                        break;
+                }
+                var stockPosting = new FCentralStockPostings.FCentralStockPosting(materialId: materialId, (double)material.Quantity);
+                Agent.Send(DirectoryAgent.Directory.Instruction.Central.WithdrawMaterial.Create(stockPosting,Agent.ActorPaths.StorageDirectory.Ref));
+
+            }
         }
 
         public override bool AfterInit()
@@ -284,7 +332,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             Agent.Send(Hub.Instruction.Central.StartActivities.Create(Agent.Context.Self), 1);
             return true;
         }
-
 
     }
 }

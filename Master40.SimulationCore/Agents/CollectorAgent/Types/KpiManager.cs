@@ -23,17 +23,17 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
 
             foreach (var resource in resources)
             {
-                ResourceSimulationData resourceSimulationData = new ResourceSimulationData(resource.Value);
+                ResourceSimulationData resourceSimulationData = new ResourceSimulationData(resource.Value.Name);
 
-                var resourceData = simulationResourceData.Where(x => x.CapabilityProvider == resource.Value).ToList();
-                resourceSimulationData._totalWorkTime = GetResourceTimeForInterval(resource.Value, resourceData, startInterval, endInterval);
+                var resourceData = simulationResourceData.Where(x => x.CapabilityProvider == resource.Value.Name).ToList();
+                resourceSimulationData._totalWorkTime = GetResourceTimeForInterval(resource.Value.Name, resourceData, startInterval, endInterval);
                 
                 var work = Math.Round(value: Convert.ToDouble(resourceSimulationData._totalWorkTime) / Convert.ToDouble(divisor), digits: 3).ToString(provider: _cultureInfo);
                 if (work == "NaN") work = "0";
                 resourceSimulationData._workTime = work;
 
-                var resourceSetupData = simulationResourceSetupData.Where(x => x.CapabilityProvider == resource.Value).ToList();
-                resourceSimulationData._totalSetupTime = GetResourceTimeForInterval(resource.Value, resourceSetupData, startInterval, endInterval);
+                var resourceSetupData = simulationResourceSetupData.Where(x => x.CapabilityProvider == resource.Value.Name).ToList();
+                resourceSimulationData._totalSetupTime = GetResourceTimeForInterval(resource.Value.Name, resourceSetupData, startInterval, endInterval);
                 var setup = Math.Round(value: Convert.ToDouble(resourceSimulationData._totalSetupTime) / Convert.ToDouble(divisor), digits: 3).ToString(provider: _cultureInfo);
                 if (setup == "NaN") setup = "0";
                 resourceSimulationData._setupTime = setup;
@@ -48,7 +48,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             var totalTime = 0L;
             foreach (var resource in resources)
             {
-                var time = GetResourceTimeForInterval(resource.Value, simulationResourceData, startInterval, endInterval);
+                var time = GetResourceTimeForInterval(resource.Value.Name, simulationResourceData, startInterval, endInterval);
                 totalTime += time;
             }
 

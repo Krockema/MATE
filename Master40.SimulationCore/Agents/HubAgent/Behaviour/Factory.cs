@@ -29,9 +29,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         }
 
 
-        public static IBehaviour Central(string dbConnectionStringGanttPlan, WorkTimeGenerator workTimeGenerator)
+        public static IBehaviour Central(string dbConnectionStringGanttPlan, string dbConnectionStringMaster, WorkTimeGenerator workTimeGenerator)
         {
-            return new Central(dbConnectionStringGanttPlan, workTimeGenerator);
+            return new Central(dbConnectionStringGanttPlan, dbConnectionStringMaster, workTimeGenerator);
         }
     }
 }

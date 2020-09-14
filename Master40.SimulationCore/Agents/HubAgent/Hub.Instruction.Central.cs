@@ -1,7 +1,9 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using static FCentralActivities;
+using static FCentralProvideMaterials;
 using static FCentralResourceRegistrations;
+using static FCentralStockPostings;
 
 namespace Master40.SimulationCore.Agents.HubAgent
 {
@@ -31,6 +33,18 @@ namespace Master40.SimulationCore.Agents.HubAgent
                     public IActorRef GetInboxActorRef => (IActorRef)Message;
                 }
 
+                public class ProvideStorageAgent : SimulationMessage
+                {
+                    public static ProvideStorageAgent Create(FCentralStockPosting stockPosting, IActorRef target)
+                    {
+                        return new ProvideStorageAgent(message: stockPosting, target: target);
+                    }
+                    private ProvideStorageAgent(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public FCentralStockPosting GetObjectFromMessage { get => Message as FCentralStockPosting; }
+                }
+                
                 public class StartActivities : SimulationMessage
                 {
                     public static StartActivities Create(IActorRef target, bool logThis = false)
@@ -45,7 +59,19 @@ namespace Master40.SimulationCore.Agents.HubAgent
                     }
 
                 }
-                
+
+                public class ActivityFinish : SimulationMessage
+                {
+                    public static ActivityFinish Create(FCentralActivity activity, IActorRef target)
+                    {
+                        return new ActivityFinish(message: activity, target: target);
+                    }
+                    private ActivityFinish(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public FCentralActivity GetObjectFromMessage => Message as FCentralActivity;
+                }
+
 
                 public class AddResourceToHub : SimulationMessage
                 {

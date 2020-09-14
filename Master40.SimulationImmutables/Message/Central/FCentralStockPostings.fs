@@ -1,5 +1,9 @@
 ﻿module FCentralStockPostings
-    type public FCentralStockPosting = {
+
+open Akka.Actor
+
+type public FCentralStockPosting = 
+    {
         MaterialId : string
         Quantity : double
     }

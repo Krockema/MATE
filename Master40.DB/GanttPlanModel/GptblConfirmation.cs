@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Security;
+using Master40.DB.Data.Helper;
+using Master40.DB.Nominal;
+using NLog.Common;
 
 namespace Master40.DB.GanttPlanModel
 {

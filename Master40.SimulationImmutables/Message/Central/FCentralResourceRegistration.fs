@@ -6,4 +6,6 @@ open Akka.Actor
         ResourceId : string
         ResourceName: string
         ResourceActorRef: IActorRef
+        ResourceGroupId : string
+        ResourceType : int
     }

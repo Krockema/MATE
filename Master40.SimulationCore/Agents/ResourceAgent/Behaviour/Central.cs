@@ -1,4 +1,5 @@
 ﻿using Master40.DB.Nominal;
+using Master40.SimulationCore.Types;
 using static FCentralActivities;
 using static FCentralResourceDefinitions;
 using static Master40.SimulationCore.Agents.ResourceAgent.Resource.Instruction.Central;
@@ -19,9 +20,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             switch (message)
             {
-                case ActivityStart msg: StartWork(msg.GetObjectFromMessage);
+                case Resource.Instruction.Central.ActivityStart msg: StartWork(msg.GetObjectFromMessage);
                     break;
-                case ActivityFinish msg: FinishWork();
+                case Resource.Instruction.Central.ActivityFinish msg: FinishWork();
                     break;
 
                 default: return false;
@@ -35,23 +36,25 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.Send(DirectoryAgent.Directory.Instruction.Central.ForwardRegistrationToHub.Create(
                 new FCentralResourceRegistrations.FCentralResourceRegistration(_resourceDefinition.ResourceId
                                                                                         ,_resourceDefinition.ResourceName
-                                                                                        , Agent.Context.Self)
+                                                                                        , Agent.Context.Self
+                                                                                        , _resourceDefinition.ResourceGroupId
+                                                                                        , _resourceDefinition.ResourceType)
                 , Agent.VirtualParent));
            return true;
         }
 
         public void StartWork(FCentralActivity activity)
         {
-            System.Diagnostics.Debug.WriteLine("Start Activity {0} with Duration: {1}", activity.Name ,activity.Duration);
+            Agent.DebugMessage($"Start Activity {activity.Name} with Duration: {activity.Duration}");
             _currentActivity = activity;
-            Agent.Send(ActivityFinish.Create(null, Agent.Context.Self), activity.Duration);
+            Agent.Send(Resource.Instruction.Central.ActivityFinish.Create(Agent.Context.Self), activity.Duration);
         }
 
         
         public void FinishWork()
         {
-            System.Diagnostics.Debug.WriteLine("Finish Activity {0} with Duration: {1}", _currentActivity.Name ,_currentActivity.Duration);
-            Agent.Send(ActivityFinish.Create(_currentActivity, _currentActivity.Hub));
+            Agent.DebugMessage($"Start Activity {_currentActivity.Name} with Duration: {_currentActivity.Duration}");
+            Agent.Send(HubAgent.Hub.Instruction.Central.ActivityFinish.Create(_currentActivity, _currentActivity.Hub));
             _currentActivity = null;
         }
 

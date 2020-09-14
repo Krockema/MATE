@@ -41,5 +41,51 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             return Activities.Single(x => x.Activity.Equals(activity)).ActivityIsFinished;
         }
 
+        public ActivityState GetActivityState(string productionOrderId, string operationId,
+            int activityId)
+        {
+            return Activities.SingleOrDefault(x => x.Activity.ProductionorderId.Equals(productionOrderId)
+                                                                        && x.Activity.OperationId.Equals(operationId)
+                                                                        && x.Activity.ActivityId.Equals(activityId));
+            
+        }
+        public GptblProductionorderOperationActivity GetActivity(string productionOrderId, string operationId,
+            int activityId)
+        {
+            return Activities.SingleOrDefault(x => x.Activity.ProductionorderId.Equals(productionOrderId)
+                                                   && x.Activity.OperationId.Equals(operationId)
+                                                   && x.Activity.ActivityId.Equals(activityId)).Activity;
+
+        }
+
+        internal bool HasPreconditionsFullfilled(GptblProductionorderOperationActivity activity)
+        {
+            foreach (var requiredPrecondition in activity.ProductionorderOperationActivityMaterialrelation)
+            {
+
+                switch (requiredPrecondition.MaterialrelationType)
+                {
+                    //ProductionOrder
+                    case 2:
+                        if (!Activities.Exists(x => x.Activity.Equals(activity))
+                            || !ActivityIsFinished(activity))
+                        {
+                            //at least one ProductionOrder is not ready
+                            return false;
+                        }
+
+                        break;
+                    case 8:
+                        // ingore buy meterials for now
+                        break;
+                    default:
+                        System.Diagnostics.Debug.WriteLine("Materialtype does not exits!");
+                        break;
+                }
+
+            }
+
+            return true;
+        }
     }
 }

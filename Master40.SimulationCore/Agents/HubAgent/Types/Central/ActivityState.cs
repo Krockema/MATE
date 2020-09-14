@@ -8,9 +8,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
     public class ActivityState
     {
         public GptblProductionorderOperationActivity Activity { get; private set; }
-
+        
         public List<Confirmation> Confirmations { get; private set; } = new List<Confirmation>();
-
         public bool ActivityIsFinished => Confirmations.TrueForAll(x => x.IsFinished);
 
         public ActivityState(GptblProductionorderOperationActivity activity, ResourceDefinition resourceDefinition)

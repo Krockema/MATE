@@ -64,5 +64,7 @@ namespace Master40.DB.GanttPlanModel
         public double? ValueProductionAccumulated { get; set; }
         public int? DurationFix { get; set; }
         public int? ConfirmationType { get; set; }
+
+        public string GetActivityName() => $"{ProductionorderId}|{OperationId}|{ActivityId}";
     }
 }

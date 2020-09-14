@@ -23,14 +23,14 @@ namespace Master40.SimulationCore.Agents.HubAgent
             this.Do(o: BasicInstruction.Initialize.Create(target: Self, message: HubAgent.Behaviour.Factory.Get(simType:simtype, maxBucketSize: maxBucketSize, workTimeGenerator: workTimeGenerator)));
         }
 
-        public static Props Props(ActorPaths actorPaths, long time, SimulationType simtype, long maxBucketSize, string dbConnectionStringGanttPlan, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal)
+        public static Props Props(ActorPaths actorPaths, long time, SimulationType simtype, long maxBucketSize, string dbConnectionStringGanttPlan, string dbConnectionStringMaster, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal)
         {
-            return Akka.Actor.Props.Create(factory: () => new Hub(actorPaths, time, simtype, maxBucketSize, dbConnectionStringGanttPlan, workTimeGenerator, debug, principal));
+            return Akka.Actor.Props.Create(factory: () => new Hub(actorPaths, time, simtype, maxBucketSize, dbConnectionStringGanttPlan, dbConnectionStringMaster, workTimeGenerator, debug, principal));
         }
 
-        public Hub(ActorPaths actorPaths, long time, SimulationType simtype, long maxBucketSize, string dbConnectionStringGanttPlan, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal) : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
+        public Hub(ActorPaths actorPaths, long time, SimulationType simtype, long maxBucketSize, string dbConnectionStringGanttPlan, string dbConnectionStringMaster, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal) : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
         {
-            this.Do(o: BasicInstruction.Initialize.Create(target: Self, message: HubAgent.Behaviour.Factory.Central(dbConnectionStringGanttPlan, workTimeGenerator: workTimeGenerator)));
+            this.Do(o: BasicInstruction.Initialize.Create(target: Self, message: HubAgent.Behaviour.Factory.Central(dbConnectionStringGanttPlan, dbConnectionStringMaster, workTimeGenerator: workTimeGenerator)));
         }
 
         protected override void Finish()

@@ -255,7 +255,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
             confirmation = ganttPlanContext.GptblConfirmation.SingleOrDefault(x =>
                 x.ConfirmationId.Equals(confirmation.ConfirmationId));
-            ganttPlanContext.GptblConfirmation.Remove(confirmation);
+            //ganttPlanContext.GptblConfirmation.Remove(confirmation);
             ganttPlanContext.SaveChanges();
             confirmation.ConfirmationType = 16;
 

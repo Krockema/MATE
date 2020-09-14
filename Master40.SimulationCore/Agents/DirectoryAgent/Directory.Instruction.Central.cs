@@ -7,6 +7,7 @@ using static FCentralResourceDefinitions;
 using static FCentralResourceHubInformations;
 using static FCentralResourceRegistrations;
 using static FCentralStockDefinitions;
+using static FCentralStockPostings;
 using static FResourceInformations;
 
 namespace Master40.SimulationCore.Agents.DirectoryAgent
@@ -18,19 +19,30 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
             public class Central
             {
 
-            public class RequestAgent : SimulationMessage
+            public class InsertMaterial : SimulationMessage
             {
-                public static RequestAgent Create(string discriminator, IActorRef target)
+                public static InsertMaterial Create(FCentralStockPosting stockPosting, IActorRef target)
                 {
-                    return new RequestAgent(message: discriminator, target: target);
+                    return new InsertMaterial(message: stockPosting, target: target);
                 }
-                private RequestAgent(object message, IActorRef target) : base(message: message, target: target)
+                private InsertMaterial(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public string GetObjectFromMessage { get => Message as string; }
+                public FCentralStockPosting GetObjectFromMessage { get => Message as FCentralStockPosting; }
+            }
+            public class WithdrawMaterial : SimulationMessage
+            {
+                public static WithdrawMaterial Create(FCentralStockPosting stockPosting, IActorRef target)
+                {
+                    return new WithdrawMaterial(message: stockPosting, target: target);
+                }
+                private WithdrawMaterial(object message, IActorRef target) : base(message: message, target: target)
+                {
+                }
+                public FCentralStockPosting GetObjectFromMessage { get => Message as FCentralStockPosting; }
             }
 
-            public class RegisterResources : SimulationMessage
+                public class RegisterResources : SimulationMessage
             {
                 public static RegisterResources Create(string descriminator, IActorRef target)
                 {

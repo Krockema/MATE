@@ -26,6 +26,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Agents.HubAgent;
+using Master40.SimulationCore.Agents.HubAgent.Types.Central;
 using static FCentralResourceHubInformations;
 using static FCentralStockDefinitions;
 using static FSetEstimatedThroughputTimes;
@@ -75,12 +76,17 @@ namespace Master40.SimulationCore
                 ActorPaths = new ActorPaths(simulationContext: _simulation.SimulationContext
                                               , systemMailBox: SimulationConfig.Inbox.Receiver);
 
-                _ganttContext.GptblWorker.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(x.Id, x.Name));
-                _ganttContext.GptblPrt.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(x.Id, x.Name));
-                _ganttContext.GptblWorkcenter.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(x.Id, x.Name));
+                foreach (var worker in _ganttContext.GptblWorker)
+                {
+                    var workergroup = _ganttContext.GptblWorkergroupWorker.Single(x => x.WorkerId.Equals(worker.Id));
 
-                // Create DataCollectors
-                CreateCollectorAgents(configuration: configuration);
+                    _resourceDictionary.Add(worker.Id, new ResourceDefinition(worker.Name, worker.Id, ActorRefs.Nobody, workergroup.WorkergroupId, resourceType: 3));
+                }
+                _ganttContext.GptblPrt.Select(x => new { x.Id, x.Name}).ForEach(x => _resourceDictionary.Add(x.Id,new ResourceDefinition(x.Name, x.Id, ActorRefs.Nobody,"1", resourceType: 5)));
+                _ganttContext.GptblWorkcenter.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(x.Id, new ResourceDefinition(x.Name, x.Id, ActorRefs.Nobody, string.Empty, resourceType: 1)));
+
+            // Create DataCollectors
+            CreateCollectorAgents(configuration: configuration);
                 //if (_debugAgents) 
                 AddDeadLetterMonitor();
                 AddTimeMonitor();
@@ -167,7 +173,8 @@ namespace Master40.SimulationCore
             WorkTimeGenerator randomWorkTime = WorkTimeGenerator.Create(configuration: configuration, 0);
 
             var hubInfo = new FResourceHubInformation(resourceList: _resourceDictionary
-                                                , dbConnectionString: _ganttContext.Database.GetDbConnection().ConnectionString
+                                              , dbConnectionString: _ganttContext.Database.GetDbConnection().ConnectionString
+                                         ,masterDbConnectionString: _productionContext.Database.GetDbConnection().ConnectionString
                                                , workTimeGenerator: randomWorkTime);
             _simulation.SimulationContext.Tell(
                 message: Directory.Instruction.Central.CreateHubAgent.Create(hubInfo, directory),
@@ -251,7 +258,7 @@ namespace Master40.SimulationCore
             {
                 System.Diagnostics.Debug.WriteLine($"Creating Resource: {resource.Value}");
 
-                var resourceDefinition = new FCentralResourceDefinitions.FCentralResourceDefinition(resourceId: resource.Key, resourceName: resource.Value);
+                var resourceDefinition = new FCentralResourceDefinitions.FCentralResourceDefinition(resourceId: resource.Key, resourceName: resource.Value.Name, resource.Value.GroupId, resource.Value.ResourceType);
 
                 _simulation.SimulationContext
                     .Tell(message: Directory.Instruction.Central

@@ -192,7 +192,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
                             select new Tuple<string, long>(rs.Key,
                                 rs.Sum(selector: x => x.End - x.Start));
 
-            var reourceList = _resources.Select(selector: x => new Tuple<string, long>(x.Value, 0));
+            var reourceList = _resources.Select(selector: x => new Tuple<string, long>(x.Value.Name, 0));
             var merge = from_work.Union(second: lower_borders).Union(second: upper_borders).Union(second: reourceList).ToList();
 
             var final = from m in merge
@@ -240,7 +240,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
                               select new Tuple<string, long>(rs.Key,
                                                               rs.Sum(selector: x => x.End - x.Start));
 
-            var emptyResources = _resources.Select(selector: x => new Tuple<string, long>(x.Value, 0));
+            var emptyResources = _resources.Select(selector: x => new Tuple<string, long>(x.Value.Name, 0));
             var union = totalSetups.Union(setups_lower_borders).Union(setups_upper_borders).Union(emptyResources).ToList();
 
             var finalSetup = from m in union

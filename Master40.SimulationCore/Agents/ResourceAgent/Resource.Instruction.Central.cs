@@ -21,18 +21,17 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     }
                     public FCentralActivity GetObjectFromMessage => Message as FCentralActivity; 
                 }
-
                 public class ActivityFinish : SimulationMessage
                 {
-                    public static ActivityFinish Create(FCentralActivity activity, IActorRef target)
+                    public static ActivityFinish Create(IActorRef target)
                     {
-                        return new ActivityFinish(message: activity, target: target);
+                        return new ActivityFinish(message: null, target: target);
                     }
                     private ActivityFinish(object message, IActorRef target) : base(message: message, target: target)
                     {
                     }
-                    public FCentralActivity GetObjectFromMessage => Message as FCentralActivity; 
                 }
+
             }
         }
     }

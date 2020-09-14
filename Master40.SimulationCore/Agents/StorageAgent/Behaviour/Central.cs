@@ -25,7 +25,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
         {
             switch (message)
             {
-                case Storage.Instruction.Central.WithdrawMaterial msg:WithdrawMaterial(msg.GetObjectFromMessage); break;
+                case Storage.Instruction.Central.WithdrawMaterial msg: WithdrawMaterial(msg.GetObjectFromMessage); break;
                 case Storage.Instruction.Central.InsertMaterial msg: InsertMaterial(msg.GetObjectFromMessage); break;
                 case Storage.Instruction.Central.PopPurchase msg: PopPurchase(msg.GetObjectFromMessage); break;
                 case Storage.Instruction.Central.AddPurchase msg: AddPurchase(msg.GetObjectFromMessage); break;
@@ -53,16 +53,19 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
         /// <param name="getObjectFromMessage"></param>
         private void PopPurchase(FCentralPurchase purchase)
         {
+            Agent.DebugMessage($"{purchase.Quantity} {purchase.MaterialId} add to stock ");
             _stockManager.Add(purchase.Quantity);
         }
 
         private void WithdrawMaterial(FCentralStockPosting stockPosting)
         {
+            Agent.DebugMessage($"{stockPosting.Quantity} {stockPosting.MaterialId} arrived");
             _stockManager.Remove(stockPosting.Quantity);
         }
 
         private void InsertMaterial(FCentralStockPosting stockPosting)
         {
+            Agent.DebugMessage($"{stockPosting.Quantity} {stockPosting.MaterialId} arrived");
             _stockManager.Add(stockPosting.Quantity);
         }
     }
