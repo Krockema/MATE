@@ -74,26 +74,28 @@ namespace Master40.DataGenerator.Generators
             M_Unit[] unitCol, XRandom rng)
         {
             long nodesCounter = 0;
-            bool sampleWorkPlanLength = inputParameters.MeanWorkPlanLength != null &&
-                                        inputParameters.VarianceWorkPlanLength != null;
-            Normal normalDistribution = null;
+            bool sampleWorkPlanLength = !double.IsNaN(inputParameters.MeanWorkPlanLength) &&
+                                        !double.IsNaN(inputParameters.VarianceWorkPlanLength);
+            TruncatedDiscreteNormal truncatedDiscreteNormalDistribution = null;
             if (sampleWorkPlanLength)
             {
-                normalDistribution = Normal.WithMeanVariance((double) inputParameters.MeanWorkPlanLength,
-                    (double) inputParameters.VarianceWorkPlanLength);
+                truncatedDiscreteNormalDistribution = new TruncatedDiscreteNormal(1, null,
+                    Normal.WithMeanVariance(inputParameters.MeanWorkPlanLength,
+                        inputParameters.VarianceWorkPlanLength));
             }
             for (var i = 1; i <= inputParameters.DepthOfAssembly; i++)
             {
-                nodesCounter += GeneratePartsForEachLevel(inputParameters, productStructure, availableNodes, articleTypes, units,
-                    unitCol, rng, i, sampleWorkPlanLength, normalDistribution);
+                nodesCounter += GeneratePartsForEachLevel(inputParameters, productStructure, availableNodes,
+                    articleTypes, units, unitCol, rng, i, sampleWorkPlanLength, truncatedDiscreteNormalDistribution);
             }
 
             return nodesCounter;
         }
 
-        private static long GeneratePartsForEachLevel(InputParameterSet inputParameters, ProductStructure productStructure, List<HashSet<long>> availableNodes,
-            MasterTableArticleType articleTypes, MasterTableUnit units, M_Unit[] unitCol, XRandom rng, int i,
-            bool sampleWorkPlanLength, Normal normalDistribution)
+        private static long GeneratePartsForEachLevel(InputParameterSet inputParameters,
+            ProductStructure productStructure, List<HashSet<long>> availableNodes, MasterTableArticleType articleTypes,
+            MasterTableUnit units, M_Unit[] unitCol, XRandom rng, int i, bool sampleWorkPlanLength,
+            TruncatedDiscreteNormal truncatedDiscreteNormalDistribution)
         {
             //Problem mit Algorithmus aus SYMTEP: bei ungünstigen Eingabeparametern gibt es auf manchen Fertigungsstufen keine Teile (0 Knoten)
             //-> Es fehlt wohl Nebenbedingung, dass Anzahl an Teilen auf jeden Fertigungsstufe mindestens 1 sein darf
@@ -133,16 +135,17 @@ namespace Master40.DataGenerator.Generators
             for (long j = 0; j < nodeCount; j++)
             {
                 unit = GeneratePartsForCurrentLevel(inputParameters, unitCol, rng, i, sampleWorkPlanLength,
-                    normalDistribution, availableNodesOnThisLevel, j, unit, articleType, toPurchase, toBuild,
-                    nodesCurrentLevel);
+                    truncatedDiscreteNormalDistribution, availableNodesOnThisLevel, j, unit, articleType, toPurchase,
+                    toBuild, nodesCurrentLevel);
             }
 
             return nodeCount;
         }
 
-        private static M_Unit GeneratePartsForCurrentLevel(InputParameterSet inputParameters, M_Unit[] unitCol, XRandom rng, int i,
-            bool sampleWorkPlanLength, Normal normalDistribution, HashSet<long> availableNodesOnThisLevel, long j, M_Unit unit,
-            M_ArticleType articleType, bool toPurchase, bool toBuild, Dictionary<long, Node> nodesCurrentLevel)
+        private static M_Unit GeneratePartsForCurrentLevel(InputParameterSet inputParameters, M_Unit[] unitCol,
+            XRandom rng, int i, bool sampleWorkPlanLength, TruncatedDiscreteNormal truncatedDiscreteNormalDistribution,
+            HashSet<long> availableNodesOnThisLevel, long j, M_Unit unit, M_ArticleType articleType, bool toPurchase,
+            bool toBuild, Dictionary<long, Node> nodesCurrentLevel)
         {
             availableNodesOnThisLevel.Add(j);
 
@@ -157,7 +160,7 @@ namespace Master40.DataGenerator.Generators
                 AssemblyLevel = i,
                 Article = new M_Article
                 {
-                    Name = "Material " + i + "." + j,
+                    Name = "Material " + i + "." + (j + 1),
                     ArticleTypeId = articleType.Id,
                     CreationDate = DateTime.Now,
                     DeliveryPeriod = 5,
@@ -170,13 +173,7 @@ namespace Master40.DataGenerator.Generators
             nodesCurrentLevel[j] = node;
             if (sampleWorkPlanLength && i != inputParameters.DepthOfAssembly)
             {
-                int length;
-                do
-                {
-                    length = (int) Math.Round(normalDistribution.Sample());
-                } while (length < 1);
-
-                node.WorkPlanLength = length;
+                node.WorkPlanLength = truncatedDiscreteNormalDistribution.Sample();
             }
 
             return unit;

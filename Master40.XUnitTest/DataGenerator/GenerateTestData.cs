@@ -4,6 +4,7 @@ using System.Linq;
 using Master40.DataGenerator.Configuration;
 using Master40.DataGenerator.Generators;
 using Master40.DataGenerator.DataModel.TransitionMatrix;
+using Master40.DataGenerator.MasterTableInitializers;
 using Master40.DataGenerator.Util;
 using Master40.DB;
 using Master40.DB.Data.Context;
@@ -11,6 +12,7 @@ using Master40.DB.Data.DynamicInitializer;
 using Master40.DB.Data.Helper;
 using Master40.DB.Data.Initializer.Tables;
 using Master40.DB.Util;
+using MathNet.Numerics.Distributions;
 using Xunit;
 using Xunit.Abstractions;
 using InputParameterSet = Master40.DataGenerator.DataModel.ProductStructure.InputParameterSet;
@@ -49,30 +51,31 @@ namespace Master40.XUnitTest.DataGenerator
                 //-> Anpassung der Nebenbedingung: Fertigungstiefe muss mindestens 2 sein
                 //KG und MV nicht größer 5; FT nicht größer 20; Anzahl Endprodukte nicht größer 50
                 var randomGeneratedInputValues = false;
+                var getWorkPlanLengthFromTransitionMatrix = true;
                 var inputProductStructure = new InputParameterSet
                 {
                     EndProductCount = !randomGeneratedInputValues ? 7 : rng.Next(9) + 2,
                     DepthOfAssembly = !randomGeneratedInputValues ? 5 : rng.Next(10) + 1,
                     ComplexityRatio = !randomGeneratedInputValues ? 1.5 : rng.NextDouble() + 1,
                     ReutilisationRatio = !randomGeneratedInputValues ? 1.8 : rng.NextDouble() + 1,
-                    MeanIncomingMaterialAmount = 2.3, StdDevIncomingMaterialAmount = 0.7, MeanWorkPlanLength = 3,
-                    VarianceWorkPlanLength = 1
+                    MeanIncomingMaterialAmount = 2.3, StdDevIncomingMaterialAmount = 0.7,
+                    MeanWorkPlanLength = getWorkPlanLengthFromTransitionMatrix ? double.NaN : 3,
+                    VarianceWorkPlanLength = getWorkPlanLengthFromTransitionMatrix ? double.NaN : 1
                 };
                 _testOutputHelper.WriteLine(inputProductStructure.ToString());
                 var productStructureGenerator = new ProductStructureGenerator();
                 var productStructure = productStructureGenerator.GenerateProductStructure(inputProductStructure, articleTypes, units, unitCol);
+                ArticleInitializer.init(productStructure.NodesPerLevel, dataBase.DbContext);
 
                 //Limit für Lambda und Anzahl Bearbeitungsstationen jeweils 100
                 //Wenn MeanWorkPlanLength oder VarianceWorkPlanLength "null" sind, dann muss WithStartAndEnd "true" sein
-                Master40.DataGenerator.DataModel.TransitionMatrix.InputParameterSet inputTransitionMatrix = null;
                 var individualMachiningTime = true;
-
-                inputTransitionMatrix = new Master40.DataGenerator.DataModel.TransitionMatrix.InputParameterSet
+                var inputTransitionMatrix = new Master40.DataGenerator.DataModel.TransitionMatrix.InputParameterSet
                 {
                     DegreeOfOrganization = 0.7,
                     Lambda = 1.3,
                     InfiniteTools = true,
-                    WithStartAndEnd = false,
+                    WithStartAndEnd = getWorkPlanLengthFromTransitionMatrix,
                     GeneralMachiningTimeParameterSet = individualMachiningTime ? null : new MachiningTimeParameterSet
                     {
                         MeanMachiningTime = 15,
@@ -170,7 +173,9 @@ namespace Master40.XUnitTest.DataGenerator
                 var resourceCapabilities = ResourceInitializer.Initialize(dataBase.DbContext, resourceProperties);
 
                 var operationGenerator = new OperationGenerator();
-                operationGenerator.GenerateOperations();
+                operationGenerator.GenerateOperations(productStructure.NodesPerLevel, transitionMatrix,
+                    inputTransitionMatrix, resourceCapabilities);
+                OperationInitializer.init(productStructure.NodesPerLevel, dataBase.DbContext);
 
                 var inputBillOfMaterial = new Master40.DataGenerator.DataModel.BillOfMaterial.InputParameterSet
                 {
@@ -226,6 +231,15 @@ namespace Master40.XUnitTest.DataGenerator
             var n6 = AlphabeticNumbering.GetAlphabeticNumbering(1);
             var n7 = AlphabeticNumbering.GetAlphabeticNumbering(2);
             var n8 = AlphabeticNumbering.GetAlphabeticNumbering(3);
+
+            var list1 = new List<TruncatedDiscreteNormal>();
+            var truncatedDiscreteNormalDistribution =
+                new TruncatedDiscreteNormal(9, 11, Normal.WithMeanVariance(5.0, 2.0));
+            list1.Add(truncatedDiscreteNormalDistribution);
+            list1.Add(truncatedDiscreteNormalDistribution);
+            list1.Add(truncatedDiscreteNormalDistribution);
+            list1.Add(truncatedDiscreteNormalDistribution);
+            var x5 = list1[1].Sample();
 
             Assert.True(true);
         }
