@@ -299,5 +299,33 @@ namespace Master40.XUnitTest.SimulationEnvironment
             return newConf;
         }
 
+        [Fact]
+        public void TestMaterialRelations()
+        {
+            using (var localGanttPlanDbContext = GanttPlanDBContext.GetContext(GanttPlanCtxString))
+            {
+
+                var materialId = "10115";
+
+                var activities = new Queue<GptblProductionorderOperationActivityResourceInterval>(
+                    localGanttPlanDbContext.GptblProductionorderOperationActivityResourceInterval
+                        .Include(x => x.ProductionorderOperationActivityResource)
+                        .ThenInclude(x => x.ProductionorderOperationActivity)
+                        .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)
+                        .Include(x => x.ProductionorderOperationActivityResource)
+                        .ThenInclude(x => x.ProductionorderOperationActivity)
+                        .ThenInclude(x => x.Productionorder)
+                        .Include(x => x.ProductionorderOperationActivityResource)
+                        .ThenInclude(x => x.ProductionorderOperationActivity)
+                        .ThenInclude(x => x.ProductionorderOperationActivityResources)
+                        .Where(x => x.ProductionorderOperationActivityResource.ProductionorderOperationActivity
+                                        .Productionorder.MaterialId.Equals(materialId)
+                                    && x.IntervalAllocationType.Equals(1))
+                        .OrderBy(x => x.DateFrom)
+                        .ToList());
+
+
+            } // filter Done and in Progress?
+        }
     }
 }

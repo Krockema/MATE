@@ -61,16 +61,16 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         private void LoadProductionOrders(IActorRef inboxActorRef)
         {
-            //update model planning time
-            using (var localGanttPlanDbContext = GanttPlanDBContext.GetContext(_dbConnectionStringGanttPlan))
-            {
-                var modelparameter = localGanttPlanDbContext.GptblModelparameter.FirstOrDefault();
-                if (modelparameter != null)
+                //update model planning time
+                using (var localGanttPlanDbContext = GanttPlanDBContext.GetContext(_dbConnectionStringGanttPlan))
                 {
-                    modelparameter.ActualTime = Agent.CurrentTime.ToDateTime();
-                    localGanttPlanDbContext.SaveChanges();
+                    var modelparameter = localGanttPlanDbContext.GptblModelparameter.FirstOrDefault();
+                    if (modelparameter != null)
+                    {
+                        modelparameter.ActualTime = Agent.CurrentTime.ToDateTime();
+                        localGanttPlanDbContext.SaveChanges();
+                    }
                 }
-            }
 
             System.Diagnostics.Debug.WriteLine("Start GanttPlan");
             GanttPlanOptRunner.RunOptAndExport("Continuous");
@@ -84,16 +84,16 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     resourceState.ActivityQueue = new Queue<GptblProductionorderOperationActivityResourceInterval>(
                         localGanttPlanDbContext.GptblProductionorderOperationActivityResourceInterval
                             .Include(x => x.ProductionorderOperationActivityResource)
-                                .ThenInclude(x => x.ProductionorderOperationActivity)
-                                    .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)
+                            .ThenInclude(x => x.ProductionorderOperationActivity)
+                            .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)
                             .Include(x => x.ProductionorderOperationActivityResource)
-                                .ThenInclude(x => x.ProductionorderOperationActivity)
-                                    .ThenInclude(x => x.Productionorder)
+                            .ThenInclude(x => x.ProductionorderOperationActivity)
+                            .ThenInclude(x => x.Productionorder)
                             .Include(x => x.ProductionorderOperationActivityResource)
-                                .ThenInclude(x => x.ProductionorderOperationActivity)
-                                    .ThenInclude(x => x.ProductionorderOperationActivityResources)
-                            .Where(x => x.ResourceId.Equals(resourceState.ResourceDefinition.Id) 
-                                    && x.IntervalAllocationType.Equals(1))
+                            .ThenInclude(x => x.ProductionorderOperationActivity)
+                            .ThenInclude(x => x.ProductionorderOperationActivityResources)
+                            .Where(x => x.ResourceId.Equals(resourceState.ResourceDefinition.Id)
+                                        && x.IntervalAllocationType.Equals(1))
                             .OrderBy(x => x.DateFrom)
                             .ToList());
                 } // filter Done and in Progress?
@@ -113,7 +113,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             _scheduledActivities.Clear();
 
             StartActivities();
-
+        
             inboxActorRef.Tell("GanttPlan finished!", this.Agent.Context.Self);
            
         }
@@ -182,17 +182,29 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                                                 .ProductionorderOperationActivity
                                                 .ProductionorderOperationActivityResources;
 
+
+            Agent.DebugMessage($"{fActivity.ResourceId} try start activity {fActivity.ProductionOrderId}|{fActivity.OperationId}|{fActivity.ActivityId}!");
+
             var requiredResources = new List<ResourceState>();
             //activity can be ignored as long any resource is working -> after finish work of the resource it will trigger anyways
             foreach (var resourceForActivity in resourcesForActivity)
             {
                 var resourceState = _resourceManager.resourceStateList.Single(x => x.ResourceDefinition.Id == resourceForActivity.ResourceId);
-                if (_resourceManager.ResourceIsWorking(resourceForActivity.ResourceId)
-                    || !NextActivityIsEqual(resourceState, interval.ProductionorderId, interval.OperationId, interval.ActivityId))
+                if (_resourceManager.ResourceIsWorking(resourceForActivity.ResourceId))
                 {
-                    Agent.DebugMessage($"{resourceState.ResourceDefinition.Name} has work or different activity. Stop TryStartActivity!");
+                    Agent.DebugMessage($"{resourceState.ResourceDefinition.Name} has current work{resourceState.GetCurrentProductionOperationActivity}. Stop TryStartActivity!");
                     return;
                 }
+
+                if (!NextActivityIsEqual(resourceState, interval.ProductionorderId, interval.OperationId,
+                    interval.ActivityId))
+                {
+                    var nextActivity = resourceState.ActivityQueue.Peek();
+                    Agent.DebugMessage($"{resourceState.ResourceDefinition.Name} has different work next {nextActivity.ProductionorderId}|{nextActivity.OperationId}|{nextActivity.ActivityId}. Stop TryStartActivity!");
+                    return;
+
+                }
+
                 requiredResources.Add(resourceState);
             }
 
@@ -224,6 +236,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             WithdrawalMaterial(activity);
 
+            _confirmationManager.AddConfirmations(activity, GanttState.Started);
+
             foreach (var resourceState in requiredResources)
             {
 
@@ -249,7 +263,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         public void FinishActivity(FCentralActivity fActivity)
         {
             // Get Resource
-            System.Diagnostics.Debug.WriteLine("Finish Activity {0} with Duration: {1} from {2}", fActivity.Name , fActivity.Duration, Agent.Sender.ToString());
+            System.Diagnostics.Debug.WriteLine($"Finish {fActivity.ProductionOrderId}|{fActivity.OperationId}|{fActivity.ActivityId} with Duration: {1} from {2}", fActivity.Name , fActivity.Duration, Agent.Sender.ToString());
 
             var activity = _resourceManager.GetCurrentActivity(fActivity.ResourceId);
            

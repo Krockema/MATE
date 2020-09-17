@@ -40,23 +40,24 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
 
         public void AddConfirmations(GptblProductionorderOperationActivity activity, GanttState confirmationType)
         {
-            AddConfirmation(activity, confirmationType);
+            var confirmationId = Guid.NewGuid().ToString();
+            AddConfirmation(activity, confirmationType, confirmationId);
             // only finish !?
-            if (confirmationType.NotEqual(GanttState.Finished))
+            /*if (confirmationType.NotEqual(GanttState.Finished))
                 return;
-            
+            */
             foreach (var resource in activity.ProductionorderOperationActivityResources)
             {
-                AddResourceConfirmation(resource);
+                AddResourceConfirmation(resource, confirmationId);
             }
         }
 
-        public void AddConfirmation(GptblProductionorderOperationActivity activity, GanttState confirmationType)
+        public void AddConfirmation(GptblProductionorderOperationActivity activity, GanttState confirmationType, string confirmationId)
         {
             var confirmation = new GptblConfirmation();
 
             confirmation.ClientId = string.Empty;
-            confirmation.ConfirmationId = Guid.NewGuid().ToString();
+            confirmation.ConfirmationId = confirmationId;
             confirmation.Info1 = string.Empty;
             confirmation.Info2 = string.Empty;
             confirmation.Info3 = string.Empty;
@@ -77,11 +78,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             _confirmations.Add(confirmation);
         }
 
-        public void AddResourceConfirmation(GptblProductionorderOperationActivityResource resource)
+        public void AddResourceConfirmation(GptblProductionorderOperationActivityResource resource, string confirmationId)
         {
             var confirmationResource = new GptblConfirmationResource();
             confirmationResource.ClientId = string.Empty;
-            confirmationResource.ConfirmationId = new Guid().ToString();
+            confirmationResource.ConfirmationId = confirmationId;
             confirmationResource.ResourceId = resource.ResourceId;
             confirmationResource.ResourceType = resource.ResourceType;
             confirmationResource.GroupId = resource.GroupId;

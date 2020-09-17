@@ -45,7 +45,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 
         public void StartWork(FCentralActivity activity)
         {
-            Agent.DebugMessage($"Start Activity {activity.Name} with Duration: {activity.Duration}");
+            Agent.DebugMessage($"Start {activity.ProductionOrderId}|{activity.OperationId}|{activity.ActivityId} with Duration: {activity.Duration}");
             _currentActivity = activity;
             Agent.Send(Resource.Instruction.Central.ActivityFinish.Create(Agent.Context.Self), activity.Duration);
         }
@@ -53,7 +53,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         
         public void FinishWork()
         {
-            Agent.DebugMessage($"Start Activity {_currentActivity.Name} with Duration: {_currentActivity.Duration}");
+            Agent.DebugMessage($"Finish {_currentActivity.ProductionOrderId}|{_currentActivity.OperationId}|{_currentActivity.ActivityId} with Duration: {_currentActivity.Duration}");
             Agent.Send(HubAgent.Hub.Instruction.Central.ActivityFinish.Create(_currentActivity, _currentActivity.Hub));
             _currentActivity = null;
         }

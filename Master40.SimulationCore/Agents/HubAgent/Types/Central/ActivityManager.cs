@@ -63,14 +63,22 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             foreach (var requiredPrecondition in activity.ProductionorderOperationActivityMaterialrelation)
             {
 
+              
                 switch (requiredPrecondition.MaterialrelationType)
                 {
                     //ProductionOrder
                     case 2:
+
+                        System.Diagnostics.Debug.WriteLine(
+                            $"{activity.ProductionorderId}|{activity.OperationId}|{activity.ActivityId} require {requiredPrecondition.ChildId}|{requiredPrecondition.ChildOperationId}|{requiredPrecondition.ChildActivityId} ");
+
+
                         if (!Activities.Exists(x => x.Activity.Equals(activity))
                             || !ActivityIsFinished(activity))
                         {
-                            //at least one ProductionOrder is not ready
+                            System.Diagnostics.Debug.WriteLine(
+                                $"At least one preconditions for {activity.ProductionorderId}|{activity.OperationId}|{activity.ActivityId} is not fulfilled");
+
                             return false;
                         }
 
@@ -84,6 +92,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
                 }
 
             }
+
+            System.Diagnostics.Debug.WriteLine(
+                $"All preconditions for {activity.ProductionorderId}|{activity.OperationId}|{activity.ActivityId} fulfilled");
 
             return true;
         }
