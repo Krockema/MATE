@@ -51,7 +51,7 @@ namespace Master40.DB.Data.DynamicInitializer.Tables
             }
         }
 
-        //was sind operators?
+        //was sind operators? -> Personen, die Maschinen umrüsten
         private void CreateTools(M_ResourceCapability capability, long setupTime, int numberOfOperators)
         {
             List<M_Resource> tools = new List<M_Resource>();
@@ -108,7 +108,6 @@ namespace Master40.DB.Data.DynamicInitializer.Tables
                         capabilityProviders.Add(capabilityProvider);
                     }
                 }
-                // es wird hinter unterschiedlichen Keys das selbe Value zugewiesen?
                 CapabilityProviderDict.Add($"{resource.Name} Tooling", capabilityProviders);
                 CapabilityToSetupDict.Add($"{resource.Name} Tooling", setups);
                 CapabilityToResourceDict.Add($"{resource.Name} Tooling", tools);

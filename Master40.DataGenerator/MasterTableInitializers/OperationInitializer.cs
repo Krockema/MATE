@@ -9,7 +9,7 @@ namespace Master40.DataGenerator.MasterTableInitializers
 {
     public class OperationInitializer
     {
-        public static void init(List<Dictionary<long, Node>> nodesPerLevel, MasterDBContext context)
+        public static void Init(List<Dictionary<long, Node>> nodesPerLevel, MasterDBContext context)
         {
             List<List<List<M_Operation>>> operations = new List<List<List<M_Operation>>>();
             var currentList1 = new List<List<M_Operation>>();
@@ -23,7 +23,7 @@ namespace Master40.DataGenerator.MasterTableInitializers
                 foreach (var operation in article.Operations)
                 {
 
-                    currentList2.Add(operation);
+                    currentList2.Add(operation.MOperation);
                     counter2++;
                     if (counter2 == Int32.MaxValue)
                     {

@@ -9,7 +9,7 @@ namespace Master40.DataGenerator.MasterTableInitializers
 {
     public class ArticleInitializer
     {
-        public static void init(List<Dictionary<long, Node>> nodesPerLevel, MasterDBContext context)
+        public static void Init(List<Dictionary<long, Node>> nodesPerLevel, MasterDBContext context)
         {
             List<List<M_Article>> articles = new List<List<M_Article>>();
             var currentList = new List<M_Article>();
@@ -27,7 +27,7 @@ namespace Master40.DataGenerator.MasterTableInitializers
                 }
             }
 
-            foreach (var articleSet in currentList)
+            foreach (var articleSet in articles)
             {
                 context.Articles.AddRange(entities: articleSet);
                 context.SaveChanges();

@@ -65,7 +65,7 @@ namespace Master40.XUnitTest.DataGenerator
                 _testOutputHelper.WriteLine(inputProductStructure.ToString());
                 var productStructureGenerator = new ProductStructureGenerator();
                 var productStructure = productStructureGenerator.GenerateProductStructure(inputProductStructure, articleTypes, units, unitCol);
-                ArticleInitializer.init(productStructure.NodesPerLevel, dataBase.DbContext);
+                ArticleInitializer.Init(productStructure.NodesPerLevel, dataBase.DbContext);
 
                 //Limit für Lambda und Anzahl Bearbeitungsstationen jeweils 100
                 //Wenn MeanWorkPlanLength oder VarianceWorkPlanLength "null" sind, dann muss WithStartAndEnd "true" sein
@@ -175,15 +175,17 @@ namespace Master40.XUnitTest.DataGenerator
                 var operationGenerator = new OperationGenerator();
                 operationGenerator.GenerateOperations(productStructure.NodesPerLevel, transitionMatrix,
                     inputTransitionMatrix, resourceCapabilities);
-                OperationInitializer.init(productStructure.NodesPerLevel, dataBase.DbContext);
+                OperationInitializer.Init(productStructure.NodesPerLevel, dataBase.DbContext);
 
                 var inputBillOfMaterial = new Master40.DataGenerator.DataModel.BillOfMaterial.InputParameterSet
                 {
-                    RoundEdgeWeight = false
+                    RoundEdgeWeight = false,
+                    WeightEpsilon = 0.001m
                 };
 
                 var billOfMaterialGenerator = new BillOfMaterialGenerator();
-                billOfMaterialGenerator.GenerateBillOfMaterial(inputBillOfMaterial, productStructure, transitionMatrix);
+                billOfMaterialGenerator.GenerateBillOfMaterial(inputBillOfMaterial, productStructure.NodesPerLevel, transitionMatrix, units);
+                BillOfMaterialInitializer.Init(productStructure.NodesPerLevel, dataBase.DbContext);
 
                 Assert.True(productStructure.NodesPerLevel.Count == inputProductStructure.DepthOfAssembly &&
                             productStructure.NodesPerLevel[0].Count == inputProductStructure.EndProductCount);

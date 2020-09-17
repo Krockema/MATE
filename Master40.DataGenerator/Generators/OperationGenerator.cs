@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Master40.DataGenerator.DataModel;
 using Master40.DataGenerator.DataModel.ProductStructure;
 using Master40.DataGenerator.DataModel.TransitionMatrix;
 using Master40.DataGenerator.Util;
@@ -45,12 +46,12 @@ namespace Master40.DataGenerator.Generators
                         var operation = new M_Operation
                         {
                             ArticleId = article.Article.Id,
-                            Name = "operation " + (operationCount + 1) +  " for [" + article.Article.Name + "]",
+                            Name = "Operation " + (operationCount + 1) +  " for [" + article.Article.Name + "]",
                             Duration = _machiningTimeDistributions[currentWorkingMachine].Sample(),
                             ResourceCapabilityId = tools[currentWorkingMachine].GetNext().Id,
                             HierarchyNumber = hierarchyNumber
                         };
-                        article.Operations.Add(operation);
+                        article.Operations.Add(new Operation {MOperation = operation});
 
                         currentWorkingMachine = DetermineNextWorkingMachine(currentWorkingMachine + correction, rng);
                         operationCount++;
@@ -89,7 +90,7 @@ namespace Master40.DataGenerator.Generators
         {
             _matrixSize = inputTransitionMatrix.WorkingStations.Length;
             TruncatedDiscreteNormal unifyingDistribution = null;
-            //darf lowerBound (also Mindestdauer einer Operation) 0 sein?
+            //darf lowerBound (also Mindestdauer einer Operation) 0 sein? -> wenn 0 selten vorkommt (also z.B. Zeiteinheit nicht Minuten, sondern Sekunden sind), dann ok
             if (inputTransitionMatrix.GeneralMachiningTimeParameterSet != null)
             {
                 var normalDistribution = Normal.WithMeanVariance(

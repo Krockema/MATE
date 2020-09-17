@@ -3,6 +3,6 @@
     public class InputParameterSet
     {
         public bool RoundEdgeWeight { get; set; }
-
+        public decimal WeightEpsilon { get; set; }
     }
 }
