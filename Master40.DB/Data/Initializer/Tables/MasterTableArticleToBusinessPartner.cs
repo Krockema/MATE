@@ -3,9 +3,9 @@ using Master40.DB.DataModel;
 
 namespace Master40.DB.Data.Initializer.Tables
 {
-    internal class MasterTableArticleToBusinessPartner
+    public class MasterTableArticleToBusinessPartner
     {
-        internal void Init(MasterDBContext context, MasterTableBusinessPartner businessPartner, MasterTableArticle article)
+        public void Init(MasterDBContext context, MasterTableBusinessPartner businessPartner, MasterTableArticle article)
         {
             var artToBusinessPartner = new M_ArticleToBusinessPartner[]
             {

@@ -11,6 +11,7 @@ using Master40.DB.Data.Context;
 using Master40.DB.Data.DynamicInitializer;
 using Master40.DB.Data.Helper;
 using Master40.DB.Data.Initializer.Tables;
+using Master40.DB.DataModel;
 using Master40.DB.Util;
 using MathNet.Numerics.Distributions;
 using Xunit;
@@ -66,6 +67,9 @@ namespace Master40.XUnitTest.DataGenerator
                 var productStructureGenerator = new ProductStructureGenerator();
                 var productStructure = productStructureGenerator.GenerateProductStructure(inputProductStructure, articleTypes, units, unitCol);
                 ArticleInitializer.Init(productStructure.NodesPerLevel, dataBase.DbContext);
+
+                var articleTable = dataBase.DbContext.Articles.ToArray();
+                MasterTableStock.Init(dataBase.DbContext, articleTable);
 
                 //Limit für Lambda und Anzahl Bearbeitungsstationen jeweils 100
                 //Wenn MeanWorkPlanLength oder VarianceWorkPlanLength "null" sind, dann muss WithStartAndEnd "true" sein
@@ -186,6 +190,27 @@ namespace Master40.XUnitTest.DataGenerator
                 var billOfMaterialGenerator = new BillOfMaterialGenerator();
                 billOfMaterialGenerator.GenerateBillOfMaterial(inputBillOfMaterial, productStructure.NodesPerLevel, transitionMatrix, units);
                 BillOfMaterialInitializer.Init(productStructure.NodesPerLevel, dataBase.DbContext);
+
+                var businessPartner = new MasterTableBusinessPartner();
+                businessPartner.Init(dataBase.DbContext);
+
+                dataBase.DbContext.SaveChanges();
+
+                List<M_ArticleToBusinessPartner> articleToBusinessPartners = new List<M_ArticleToBusinessPartner>();
+                foreach (var article in articleTable)
+                {
+                    articleToBusinessPartners.Add(new M_ArticleToBusinessPartner()
+                    {
+                        BusinessPartnerId = businessPartner.KREDITOR_MATERIAL_WHOLSALE.Id,
+                        ArticleId = article.Id,
+                        PackSize = 10,
+                        Price = 20.00,
+                        TimeToDelivery = 480
+                    });
+                }
+
+                dataBase.DbContext.ArticleToBusinessPartners.AddRange(articleToBusinessPartners);
+                dataBase.DbContext.SaveChanges();
 
                 Assert.True(productStructure.NodesPerLevel.Count == inputProductStructure.DepthOfAssembly &&
                             productStructure.NodesPerLevel[0].Count == inputProductStructure.EndProductCount);
