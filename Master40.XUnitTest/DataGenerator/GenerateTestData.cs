@@ -93,8 +93,8 @@ namespace Master40.XUnitTest.DataGenerator
                             {
                                 MeanMachiningTime = 15, VarianceMachiningTime = 5
                             },
-                            CapabilitiesCount = 3,
-                            ToolCount = 5,
+                            CapabilitiesCount = 2,
+                            ToolCount = 2,
                             SetupTime = 10,
                             OperatorCount = 0
                         },
@@ -117,7 +117,7 @@ namespace Master40.XUnitTest.DataGenerator
                             },
                             CapabilitiesCount = 6,
                             ToolCount = 5,
-                            SetupTime = 0,
+                            SetupTime = 6,
                             OperatorCount = 1
                         },
                         new WorkingStationParameterSet()

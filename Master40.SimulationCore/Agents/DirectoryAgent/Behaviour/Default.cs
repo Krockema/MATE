@@ -56,7 +56,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                         , workTimeGenerator: capabilityDefinition.WorkTimeGenerator as WorkTimeGenerator
                         , debug: Agent.DebugThis
                         , principal: Agent.Context.Self)
-                    , name: "Hub(" + capability.Name + ")");
+                    , name: ("Hub(" + capability.Name + ")").ToActorName());
 
                 System.Diagnostics.Debug.WriteLine($"Created Hub {capability.Name} with {capabilityDefinition.MaxBucketSize} !");
                 hubManager.AddOrCreateRelation(hubAgent, capability);
