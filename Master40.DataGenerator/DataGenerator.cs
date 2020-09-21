@@ -1,4 +1,5 @@
 ﻿using Master40.DataGenerator.Configuration;
+using Master40.DataGenerator.SampleData1;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
 using Master40.DB.Data.Initializer;
@@ -16,7 +17,7 @@ namespace Master40.DataGenerator
             dataBase.DbContext.Database.EnsureDeleted();
             dataBase.DbContext.Database.EnsureCreated();
 
-            ResourceInitializer.MasterTableResourceCapability(dataBase.DbContext,
+            var resourceCapabilities = ResourceInitializer.MasterTableResourceCapability(dataBase.DbContext,
                                                             parameterSet.GetOption<Resource>().Value,
                                                             parameterSet.GetOption<Setup>().Value,
                                                             parameterSet.GetOption<Operator>().Value);
@@ -27,12 +28,23 @@ namespace Master40.DataGenerator
             var articleTypes = new MasterTableArticleType();
             articleTypes.Init(dataBase.DbContext);
 
+            var articlesData = new ArticleData(articleTypes, units);
+            var articles = articlesData.Init(dataBase.DbContext);
+
+            MasterTableStock.Init(dataBase.DbContext, articles);
+
+            var operations = new OperationData(articlesData, resourceCapabilities);
+            operations.Init(dataBase.DbContext);
+
+            var boms = new BomData();
+            boms.Init(dataBase.DbContext, articlesData, operations);
+
 
             // Add your Methods here to extract transition Matrix (Übergangsmatrix)
 
             // Generating Bom's (Stücklisten)
 
-            // Generate Operations
+            // GenerateBillOfMaterial Operations
 
         }
     }
