@@ -16,9 +16,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             PlanVersion = 0; // start at first cycle, ++ after each GanttPlan synchronization
         }
 
-        public void IncrementPlaningNumber()
+        public int IncrementPlaningNumber()
         {
             PlanVersion++;
+            return PlanVersion;
         }
 
 

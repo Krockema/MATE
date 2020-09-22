@@ -48,7 +48,6 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Fact]
         public void TestDateUpdate()
         {
-
             GanttPlanOptRunner.RunOptAndExport("Init");
 
             var ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
@@ -225,11 +224,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
             master40Context.CustomerOrderParts.RemoveRange(master40Context.CustomerOrderParts);
             master40Context.SaveChanges();
 
-            master40Context.CreateNewOrder(10189, 1, 0, 250);
+            master40Context.CreateNewOrder(10115, 1, 0, 250);
             master40Context.SaveChanges();
 
             GanttPlanDBContext ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
 
+            ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
             GanttPlanOptRunner.RunOptAndExport("Init");
 
             Assert.True(ganttPlanContext.GptblProductionorder.Any());
@@ -256,10 +256,10 @@ namespace Master40.XUnitTest.SimulationEnvironment
             confirmation = ganttPlanContext.GptblConfirmation.SingleOrDefault(x =>
                 x.ConfirmationId.Equals(confirmation.ConfirmationId));
             //ganttPlanContext.GptblConfirmation.Remove(confirmation);
+            var finishConfirmation = CreateConfirmation(activity, productionorder, 16);
             ganttPlanContext.SaveChanges();
-            confirmation.ConfirmationType = 16;
 
-            ganttPlanContext.GptblConfirmation.Add(confirmation);
+            ganttPlanContext.GptblConfirmation.Add(finishConfirmation);
 
             activity = activities.Single(x => x.OperationId.Equals("10") && x.ActivityId.Equals(3));
 
@@ -269,7 +269,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
             activity = activities.Single(x => x.OperationId.Equals("20") && x.ActivityId.Equals(2));
 
-            confirmation = CreateConfirmation(activity, productionorder, 1);
+            confirmation = CreateConfirmation(activity, productionorder, 16);
             ganttPlanContext.GptblConfirmation.Add(confirmation);
 
             ganttPlanContext.SaveChanges();

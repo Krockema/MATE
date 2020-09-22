@@ -55,5 +55,43 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
                 .CurrentProductionOrderActivity;
         }
 
+        public static void ShowCurrentWork(List<ResourceState> temresourceStateList)
+        {
+            var t = temresourceStateList.Where(x => x.GetCurrentProductionOperationActivity != null).ToList();
+            foreach (var x in t)
+            {
+                System.Diagnostics.Debug.WriteLine("" + x.ResourceDefinition.Name +
+                                                   x.GetCurrentProductionOperationActivity);
+            }
+        }
+
+        public static void ShowNextWork(List<ResourceState> temresourceStateList)
+        {
+            foreach (var x in temresourceStateList)
+            {
+                if (x.GetCurrentProductionOperationActivity != null)
+                {
+
+                    System.Diagnostics.Debug.WriteLine("Has activity in currentWork" + x.ResourceDefinition.Name +
+                                                       x.GetCurrentProductionOperationActivity);
+                }
+                else
+                {
+                    var nextQueueItem = x.ActivityQueue.Peek();
+                    if (nextQueueItem == null)
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            $"NextQueueItem {x.ResourceDefinition.Name} has no activity in queue");
+
+                        continue;
+                        
+                    }
+                    System.Diagnostics.Debug.WriteLine(
+                        $"NextQueueItem {x.ResourceDefinition.Name}|{nextQueueItem.ProductionorderId}|{nextQueueItem.OperationId}|{nextQueueItem.ActivityId}");
+                   
+                }
+            }
+        }
+
     }
 }

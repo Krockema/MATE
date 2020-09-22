@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections;
+﻿using Master40.DB.Data.WrappersForPrimitives;
+using System;
 using System.Collections.Generic;
 
 namespace Master40.DB.GanttPlanModel
 {
-    public partial class GptblProductionorderOperationActivity
+    public class GptblProductionorderOperationActivity : GanttKey
     {
         public string ClientId { get; set; }
-        public string ProductionorderId { get; set; }
         public GptblProductionorder Productionorder { get; set; }
         public virtual ICollection<GptblProductionorderOperationActivityMaterialrelation>
             ProductionorderOperationActivityMaterialrelation { get; set; }
 
         public virtual ICollection<GptblProductionorderOperationActivityResource>
             ProductionorderOperationActivityResources { get; set; }
-        public string OperationId { get; set; }
-        public int ActivityId { get; set; }
         public string AlternativeId { get; set; }
         public int SplitId { get; set; }
         public string Info1 { get; set; }
@@ -65,6 +62,6 @@ namespace Master40.DB.GanttPlanModel
         public int? DurationFix { get; set; }
         public int? ConfirmationType { get; set; }
 
-        public string GetActivityName() => $"{ProductionorderId}|{OperationId}|{ActivityId}";
+        
     }
 }

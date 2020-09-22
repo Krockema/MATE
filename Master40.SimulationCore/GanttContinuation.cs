@@ -55,7 +55,7 @@ namespace Master40.SimulationCore
 
             Task.WaitAll(tasks.ToArray());
             //TODO might need to extend timespan
-            var test = _inbox.ReceiveWhere(x => x.ToString() == "GanttPlan finished!", TimeSpan.FromSeconds(60));
+            var test = _inbox.ReceiveWhere(x => x.ToString() == "GanttPlan finished!", TimeSpan.FromSeconds(60 * 60));
         }
 
         public override void SimulationIsTerminating(Simulation sim)

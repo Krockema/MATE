@@ -1,15 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using Master40.DB.Data.Helper;
+using Master40.DB.Data.WrappersForPrimitives;
 
 namespace Master40.DB.GanttPlanModel
 {
-    public partial class GptblProductionorderOperationActivityResourceInterval
+    public partial class GptblProductionorderOperationActivityResourceInterval : GanttKey
     {
         public string ClientId { get; set; }
-        public string ProductionorderId { get; set; }
-        public string OperationId { get; set; }
-        public int ActivityId { get; set; }
         public string AlternativeId { get; set; }
         public int SplitId { get; set; }
         public GptblProductionorderOperationActivityResource ProductionorderOperationActivityResource

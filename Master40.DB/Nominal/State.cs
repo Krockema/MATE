@@ -36,9 +36,19 @@
         Finished
     }
 
-    public enum GanttState
+    public enum GanttConfirmationState
     {
         Started = 1,
         Finished = 16
+    }
+
+    public enum GanttActivityState
+    {
+        Unplanned = 1,
+        PartialPlanned = 2,
+        Planned = 4,
+        Started = 8,
+        PartialConfirmed = 16,
+        Finished = 32
     }
 }

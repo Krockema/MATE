@@ -1,18 +1,14 @@
 ﻿using System;
+using Master40.DB.Data.WrappersForPrimitives;
 
 namespace Master40.DB.GanttPlanModel
 {
-    public partial class GptblProductionorderOperationActivityMaterialrelation
+    public class GptblProductionorderOperationActivityMaterialrelation : GanttKey
     {
         public string ClientId { get; set; }
-        public string ProductionorderId { get; set; }
-        public string OperationId { get; set; }
         public string AlternativeId { get; set; }
-        public int ActivityId { get; set; }
         public int SplitId { get; set; }
-
         public GptblProductionorderOperationActivity ProductionorderOperationActivity { get; set; }
-
         public int MaterialrelationType { get; set; }
         public string ChildId { get; set; }
         public string ChildOperationId { get; set; }
@@ -25,5 +21,6 @@ namespace Master40.DB.GanttPlanModel
         public double? OverlapValue { get; set; }
         public double? Quantity { get; set; }
         public string QuantityUnitId { get; set; }
+        public string GetChildKey { get => $"{ChildId}|{ChildOperationId}|{ChildActivityId}"; }
     }
 }

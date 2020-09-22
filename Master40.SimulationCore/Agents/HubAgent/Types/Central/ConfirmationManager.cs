@@ -38,7 +38,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             _confirmationsResources.Clear();
         }
 
-        public void AddConfirmations(GptblProductionorderOperationActivity activity, GanttState confirmationType)
+        public void AddConfirmations(GptblProductionorderOperationActivity activity, GanttConfirmationState confirmationType)
         {
             var confirmationId = Guid.NewGuid().ToString();
             AddConfirmation(activity, confirmationType, confirmationId);
@@ -52,7 +52,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             }
         }
 
-        public void AddConfirmation(GptblProductionorderOperationActivity activity, GanttState confirmationType, string confirmationId)
+        public void AddConfirmation(GptblProductionorderOperationActivity activity, GanttConfirmationState confirmationType, string confirmationId)
         {
             var confirmation = new GptblConfirmation();
 
@@ -62,7 +62,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             confirmation.Info2 = string.Empty;
             confirmation.Info3 = string.Empty;
             confirmation.Name = activity.Name;
-            confirmation.ActivityEnd = confirmationType == GanttState.Finished ? activity.DateEnd : null; 
+            confirmation.ActivityEnd = activity.DateEnd; //confirmationType == GanttConfirmationState.Finished ? activity.DateEnd : null; 
             confirmation.ActivityStart = activity.DateStart;
             confirmation.ConfirmationType = (int)confirmationType;
             confirmation.ConfirmationDate = activity.DateStart;
@@ -71,7 +71,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             confirmation.ProductionorderOperationId = activity.OperationId;
             confirmation.ProductionorderSplitId = 0;
             confirmation.ProductionorderAlternativeId = string.Empty;
-            confirmation.QuantityFinished = confirmationType == GanttState.Finished ? 100 : 0;
+            confirmation.QuantityFinished = confirmationType == GanttConfirmationState.Finished ? 100 : 0;
             confirmation.QuantityFinishedUnitId = "%";
             confirmation.LastModified = activity.DateStart;
 

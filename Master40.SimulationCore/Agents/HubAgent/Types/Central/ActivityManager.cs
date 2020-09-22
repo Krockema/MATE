@@ -18,8 +18,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
 
         public void AddOrUpdateActivity(GptblProductionorderOperationActivity activity, ResourceDefinition resourceDefinition)
         {
-            var currentActivityState = Activities.SingleOrDefault(x => x.Activity.Equals(activity));
+            var currentActivityState = Activities.SingleOrDefault(x => x.Activity.GetKey.Equals(activity.GetKey));
 
+            //if this is the forst activity
             if (currentActivityState == null)
             {
                 currentActivityState = new ActivityState(activity, resourceDefinition);
@@ -33,28 +34,17 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
 
         public void FinishActivityForResource(GptblProductionorderOperationActivity activity, string resourceId)
         {
-            Activities.Single(x => x.Activity.Equals(activity)).FinishForResource(resourceId);
+            Activities.SingleOrDefault(x => x.Activity.GetKey.Equals(activity.GetKey))?.FinishForResource(resourceId);
         }
 
-        public bool ActivityIsFinished(GptblProductionorderOperationActivity activity)
+        public bool ActivityIsFinished(string activityKey)
         {
-            return Activities.Single(x => x.Activity.Equals(activity)).ActivityIsFinished;
+            return Activities.Single(x => x.Activity.GetKey.Equals(activityKey)).ActivityIsFinishedDebug();
         }
 
-        public ActivityState GetActivityState(string productionOrderId, string operationId,
-            int activityId)
+        public GptblProductionorderOperationActivity GetActivity(string activityKey)
         {
-            return Activities.SingleOrDefault(x => x.Activity.ProductionorderId.Equals(productionOrderId)
-                                                                        && x.Activity.OperationId.Equals(operationId)
-                                                                        && x.Activity.ActivityId.Equals(activityId));
-            
-        }
-        public GptblProductionorderOperationActivity GetActivity(string productionOrderId, string operationId,
-            int activityId)
-        {
-            return Activities.SingleOrDefault(x => x.Activity.ProductionorderId.Equals(productionOrderId)
-                                                   && x.Activity.OperationId.Equals(operationId)
-                                                   && x.Activity.ActivityId.Equals(activityId)).Activity;
+            return Activities.SingleOrDefault(x => x.Activity.GetKey.Equals(activityKey))?.Activity;
 
         }
 
@@ -63,7 +53,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             foreach (var requiredPrecondition in activity.ProductionorderOperationActivityMaterialrelation)
             {
 
-              
                 switch (requiredPrecondition.MaterialrelationType)
                 {
                     //ProductionOrder
@@ -71,13 +60,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
 
                         System.Diagnostics.Debug.WriteLine(
                             $"{activity.ProductionorderId}|{activity.OperationId}|{activity.ActivityId} require {requiredPrecondition.ChildId}|{requiredPrecondition.ChildOperationId}|{requiredPrecondition.ChildActivityId} ");
+                      
 
-
-                        if (!Activities.Exists(x => x.Activity.Equals(activity))
-                            || !ActivityIsFinished(activity))
+                        if (!Activities.Exists(x => x.Activity.GetKey == requiredPrecondition.GetChildKey)
+                            || !ActivityIsFinished(requiredPrecondition.GetChildKey))
                         {
                             System.Diagnostics.Debug.WriteLine(
-                                $"At least one preconditions for {activity.ProductionorderId}|{activity.OperationId}|{activity.ActivityId} is not fulfilled");
+                                $"Precondition {requiredPrecondition.ChildId}|{requiredPrecondition.ChildOperationId}|{requiredPrecondition.ChildActivityId} for {activity.ProductionorderId}|{activity.OperationId}|{activity.ActivityId} is not fulfilled");
 
                             return false;
                         }
