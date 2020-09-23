@@ -32,9 +32,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         }
 
         private List<Job> simulationJobs { get; } = new List<Job>();
-        private List<Job> simulationJobsForDb { get; } = new List<Job>();
-        private List<DB.ReportingModel.Setup> simulationResourceSetups { get; } = new List<DB.ReportingModel.Setup>();
-        private List<DB.ReportingModel.Setup> simulationResourceSetupsForDb { get; } = new List<DB.ReportingModel.Setup>();
+        private List<Setup> simulationResourceSetups { get; } = new List<Setup>();
         
         private KpiManager kpiManager { get; } = new KpiManager();
 
@@ -154,11 +152,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 List<ISimulationResourceData> allSimulationData = new List<ISimulationResourceData>();
                 allSimulationData.AddRange(simulationJobs);
-                allSimulationData.AddRange(simulationJobsForDb);
 
                 List<ISimulationResourceData> allSimulationSetupData = new List<ISimulationResourceData>();
                 allSimulationSetupData.AddRange(simulationResourceSetups);
-                allSimulationSetupData.AddRange(simulationResourceSetupsForDb);
 
                 var settlingStart = Collector.Config.GetOption<SettlingStart>().Value;
                 var resourcesDatas = kpiManager.GetSimulationDataForResources(resources: _resources, simulationResourceData: allSimulationData, simulationResourceSetupData: allSimulationSetupData, startInterval: settlingStart, endInterval: Collector.Time);
@@ -193,9 +189,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value))
                 {
-                    ctx.SimulationJobs.AddRange(entities: simulationJobsForDb);
+                    ctx.SimulationJobs.AddRange(entities: simulationJobs);
                     ctx.SaveChanges();
-                    ctx.SimulationResourceSetups.AddRange(entities: simulationResourceSetupsForDb);
+                    ctx.SimulationResourceSetups.AddRange(entities: simulationResourceSetups);
                     ctx.SaveChanges();
                     ctx.Kpis.AddRange(entities: Collector.Kpis);
                     ctx.SaveChanges();
@@ -265,7 +261,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             
             List<ISimulationResourceData> allSimulationResourceSetups = new List<ISimulationResourceData>();
             allSimulationResourceSetups.AddRange(simulationResourceSetups.Where(x => x.Start >= startInterval + 50).ToList());
-            allSimulationResourceSetups.AddRange(simulationResourceSetupsForDb.Where(x => x.Start >= startInterval + 50).ToList());
 
             var setupTime = kpiManager.GetTotalTimeForInterval(resources, allSimulationResourceSetups, startInterval, endInterval);
 
@@ -276,7 +271,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             /* ------------- PerformanceTime --------------------*/
             List<ISimulationResourceData> allSimulationResourceJobs = new List<ISimulationResourceData>();
             allSimulationResourceJobs.AddRange(simulationJobs.Where(x => x.Start >= startInterval + 50).ToList());
-            allSimulationResourceJobs.AddRange(simulationJobsForDb.Where(x => x.Start >= startInterval + 50).ToList());
             var jobTime = kpiManager.GetTotalTimeForInterval(resources, allSimulationResourceJobs, startInterval, endInterval);
 
             var idleTime = workTime - jobTime;
