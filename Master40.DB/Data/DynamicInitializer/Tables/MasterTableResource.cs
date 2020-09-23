@@ -31,7 +31,7 @@ namespace Master40.DB.Data.DynamicInitializer.Tables
             List<M_Resource> resourceGroup = new List<M_Resource>();
             for (int i = 1; i <= numberOfResources; i++)
             {
-                var resource = CreateNewResource(capability.Name, true, i);
+                var resource = CreateNewResource("Resource " + capability.Name, true, i);
                 resourceGroup.Add(resource);
             }
             CapabilityToResourceDict.Add(capability.Name, resourceGroup);
@@ -79,7 +79,7 @@ namespace Master40.DB.Data.DynamicInitializer.Tables
                                 Name = $"Provides {subCapability.Name} {resource.Name}",
                                 ResourceCapabilityId = subCapability.Id,
                             };
-                            var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false);
+                            var tool = CreateNewResource($"Tool {resource.Name} {subCapability.Name}", false);
                             tools.Add(tool);
 
                             setups.Add(CreateNewSetup(op, capabilityProvider, false, true, 0));
@@ -100,7 +100,7 @@ namespace Master40.DB.Data.DynamicInitializer.Tables
                             Name = $"Provides {subCapability.Name} {resource.Name}",
                             ResourceCapabilityId = subCapability.Id,
                         };
-                        var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false);
+                        var tool = CreateNewResource($"Tool {resource.Name} {subCapability.Name}", false);
                         tools.Add(tool);
 
                         setups.Add(CreateNewSetup(tool, capabilityProvider, true, true, setupTime));

@@ -24,8 +24,7 @@ namespace Master40.DataGenerator.Generators
         {
             Prepare(transitionMatrix, inputTransitionMatrix);
 
-            List<TEnumerator<M_ResourceCapability>> tools = resourceCapabilities.Capabilities
-                .FindAll(x => x.ChildResourceCapabilities != null).Select(x =>
+            List<TEnumerator<M_ResourceCapability>> tools = resourceCapabilities.ParentCapabilities.Select(x =>
                     new TEnumerator<M_ResourceCapability>(x.ChildResourceCapabilities.ToArray())).ToList();
             var rng = new XRandom();
 

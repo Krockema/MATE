@@ -6,6 +6,7 @@ using Master40.DataGenerator.Generators;
 using Master40.DataGenerator.DataModel.TransitionMatrix;
 using Master40.DataGenerator.MasterTableInitializers;
 using Master40.DataGenerator.Util;
+using Master40.DataGenerator.Verification;
 using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.DynamicInitializer;
@@ -93,8 +94,8 @@ namespace Master40.XUnitTest.DataGenerator
                             {
                                 MeanMachiningTime = 15, VarianceMachiningTime = 5
                             },
-                            CapabilitiesCount = 3,
-                            ToolCount = 5,
+                            CapabilitiesCount = 2,
+                            ToolCount = 2,
                             SetupTime = 10,
                             OperatorCount = 0
                         },
@@ -117,7 +118,7 @@ namespace Master40.XUnitTest.DataGenerator
                             },
                             CapabilitiesCount = 6,
                             ToolCount = 5,
-                            SetupTime = 0,
+                            SetupTime = 6,
                             OperatorCount = 1
                         },
                         new WorkingStationParameterSet()
@@ -211,6 +212,9 @@ namespace Master40.XUnitTest.DataGenerator
 
                 dataBase.DbContext.ArticleToBusinessPartners.AddRange(articleToBusinessPartners);
                 dataBase.DbContext.SaveChanges();
+
+                var transitionMatrixGeneratorVerifier = new TransitionMatrixGeneratorVerifier();
+                transitionMatrixGeneratorVerifier.Verify(transitionMatrix, productStructure.NodesPerLevel, resourceCapabilities);
 
                 Assert.True(productStructure.NodesPerLevel.Count == inputProductStructure.DepthOfAssembly &&
                             productStructure.NodesPerLevel[0].Count == inputProductStructure.EndProductCount);

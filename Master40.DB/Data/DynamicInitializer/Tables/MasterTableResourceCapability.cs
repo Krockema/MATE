@@ -8,6 +8,7 @@ namespace Master40.DB.Data.DynamicInitializer.Tables
     public class MasterTableResourceCapability
     {
         public List<M_ResourceCapability> Capabilities;
+        public List<M_ResourceCapability> ParentCapabilities;
         internal MasterTableResourceCapability()
         {
             Capabilities = new List<M_ResourceCapability>();
@@ -17,15 +18,16 @@ namespace Master40.DB.Data.DynamicInitializer.Tables
         {
             for (var i = 0; i < resourceProperties.Count; i++)
             {
-                Capabilities.Add(new M_ResourceCapability{Name = "Capability_" + AlphabeticNumbering.GetAlphabeticNumbering(i)});
+                Capabilities.Add(new M_ResourceCapability{Name = "" + AlphabeticNumbering.GetAlphabeticNumbering(i) + " Capability"});
             }
 
             context.ResourceCapabilities.AddRange(Capabilities);
             context.SaveChanges();
+            ParentCapabilities = new List<M_ResourceCapability>(Capabilities);
 
-            for (var i = 1; i <= resourceProperties.Count; i++)
+            for (var i = 0; i < resourceProperties.Count; i++)
             {
-                CreateToolingCapabilities(context, Capabilities[i - 1], resourceProperties[i - 1]);
+                CreateToolingCapabilities(context, Capabilities[i], resourceProperties[i]);
             }
 
             return Capabilities.ToArray();
