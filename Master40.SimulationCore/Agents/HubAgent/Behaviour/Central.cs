@@ -1,22 +1,22 @@
 ﻿using Akka.Actor;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
 using Master40.DB.GanttPlanModel;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent.Types.Central;
 using Master40.SimulationCore.Agents.ResourceAgent;
+using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.Tools.Connectoren.Ganttplan;
+using Master40.Tools.ExtensionMethods;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Master40.DB.Data.Helper;
-using Master40.Tools.ExtensionMethods;
 using static FCentralActivities;
 using static FCentralResourceRegistrations;
-using System;
-using Master40.SimulationCore.Agents.StorageAgent;
-using static FCentralProvideMaterials;
 using static FCentralStockPostings;
+using static FCreateSimulationJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -64,14 +64,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             _confirmationManager.TransferConfirmations();
             //update model planning time
             using (var localGanttPlanDbContext = GanttPlanDBContext.GetContext(_dbConnectionStringGanttPlan))
+            {
+                var modelparameter = localGanttPlanDbContext.GptblModelparameter.FirstOrDefault();
+                if (modelparameter != null)
                 {
-                    var modelparameter = localGanttPlanDbContext.GptblModelparameter.FirstOrDefault();
-                    if (modelparameter != null)
-                    {
-                        modelparameter.ActualTime = Agent.CurrentTime.ToDateTime();
-                        localGanttPlanDbContext.SaveChanges();
-                    }
+                    modelparameter.ActualTime = Agent.CurrentTime.ToDateTime();
+                    localGanttPlanDbContext.SaveChanges();
                 }
+            }
 
             System.Diagnostics.Debug.WriteLine("Start GanttPlan");
             GanttPlanOptRunner.RunOptAndExport("Continuous");
@@ -85,14 +85,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     resourceState.ActivityQueue = new Queue<GptblProductionorderOperationActivityResourceInterval>(
                         localGanttPlanDbContext.GptblProductionorderOperationActivityResourceInterval
                             .Include(x => x.ProductionorderOperationActivityResource)
-                            .ThenInclude(x => x.ProductionorderOperationActivity)
-                            .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)
+                                .ThenInclude(x => x.ProductionorderOperationActivity)
+                                    .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)
                             .Include(x => x.ProductionorderOperationActivityResource)
-                            .ThenInclude(x => x.ProductionorderOperationActivity)
-                            .ThenInclude(x => x.Productionorder)
+                                .ThenInclude(x => x.ProductionorderOperationActivity)
+                                    .ThenInclude(x => x.Productionorder)
                             .Include(x => x.ProductionorderOperationActivityResource)
-                            .ThenInclude(x => x.ProductionorderOperationActivity)
-                            .ThenInclude(x => x.ProductionorderOperationActivityResources)
+                                .ThenInclude(x => x.ProductionorderOperationActivity)
+                                    .ThenInclude(x => x.ProductionorderOperationActivityResources)
                             .Where(x => x.ResourceId.Equals(resourceState.ResourceDefinition.Id)
                                         && x.IntervalAllocationType.Equals(1) 
                                         && (x.ProductionorderOperationActivityResource.ProductionorderOperationActivity.Status != (int)GanttActivityState.Finished 
@@ -143,9 +143,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     , interval.OperationId
                     , interval.ActivityId
                     , interval.ConvertedDateTo - interval.ConvertedDateFrom
-                    , interval.ActivityId.ToString()
+                    , interval.ProductionorderOperationActivityResource.ProductionorderOperationActivity.Name
                     , _planManager.PlanVersion
-                    , Agent.Context.Self); // may not required.
+                    , Agent.Context.Self
+                    , string.Empty
+                    , interval.ActivityId.Equals(2) ? JobType.SETUP : JobType.OPERATION); // may not required.
                 
                 // Feature Activity
                 if (interval.ConvertedDateFrom > Agent.CurrentTime)
@@ -191,14 +193,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 return;
             }
 
-            Agent.DebugMessage($"TryStart scheduled activity {featureActivity.Key}");
+            //Agent.DebugMessage($"TryStart scheduled activity {featureActivity.Key}");
             if (_scheduledActivities.ContainsKey(featureActivity.Key))
             {
 
                 var resource = _resourceManager.resourceStateList.Single(x => x.ResourceDefinition.Id == featureActivity.ResourceId);
                 if (NextActivityIsEqual(resource, featureActivity.Key))
                 {
-                    Agent.DebugMessage($"Activity {featureActivity.Key} is equal start now after been scheduled by {featureActivity.ResourceId}");
+                    //Agent.DebugMessage($"Activity {featureActivity.Key} is equal start now after been scheduled by {featureActivity.ResourceId}");
                     _scheduledActivities.Remove(featureActivity.Key);
                     TryStartActivity(resource.ActivityQueue.Peek(), featureActivity);
                 }
@@ -214,7 +216,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             var resource = _resourceManager.resourceStateList.Single(x => x.ResourceDefinition.Id.Equals(fActivity.ResourceId));
 
-            Agent.DebugMessage($"{resource.ResourceDefinition.Name} try start activity {fActivity.Key}!");
+            //Agent.DebugMessage($"{resource.ResourceDefinition.Name} try start activity {fActivity.Key}!");
 
             var requiredResources = new List<ResourceState>();
             var resourceCount = 0;
@@ -223,17 +225,17 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 var resourceState = _resourceManager.resourceStateList.Single(x => x.ResourceDefinition.Id == resourceForActivity.ResourceId);
 
-                Agent.DebugMessage($"Try to start activity {fActivity.Key} at {resourceState.ResourceDefinition.Name}");
+                //Agent.DebugMessage($"Try to start activity {fActivity.Key} at {resourceState.ResourceDefinition.Name}");
                 if (_resourceManager.ResourceIsWorking(resourceForActivity.ResourceId))
                 {
-                    Agent.DebugMessage($"{resourceState.ResourceDefinition.Name} has current work{resourceState.GetCurrentProductionOperationActivity}. Stop TryStartActivity!");
+                    //Agent.DebugMessage($"{resourceState.ResourceDefinition.Name} has current work{resourceState.GetCurrentProductionOperationActivity}. Stop TryStartActivity!");
                     return;
                 }
 
                 if (!NextActivityIsEqual(resourceState, fActivity.Key))
                 {
                     var nextActivity = resourceState.ActivityQueue.Peek();
-                    Agent.DebugMessage($"{resourceState.ResourceDefinition.Name} has different work next {nextActivity.ProductionorderId}|{nextActivity.OperationId}|{nextActivity.ActivityId}. Stop TryStartActivity!");
+                    //Agent.DebugMessage($"{resourceState.ResourceDefinition.Name} has different work next {nextActivity.ProductionorderId}|{nextActivity.OperationId}|{nextActivity.ActivityId}. Stop TryStartActivity!");
                     return;
 
                 }
@@ -245,7 +247,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             //Check if all preconditions are fullfilled
             var activity = interval.ProductionorderOperationActivityResource.ProductionorderOperationActivity;
-            if (!_activityManager.HasPreconditionsFullfilled(activity))
+            
+            if (!_activityManager.HasPreconditionsFullfilled(activity, requiredResources))
             {
                 Agent.DebugMessage($"Preconditions for {fActivity.Key} are not fulfilled!");
                 return;
@@ -253,8 +256,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }
 
             StartActivity(requiredResources: requiredResources
-                , interval: interval
-                , featureActivity: fActivity);
+                                , interval: interval
+                                , featureActivity: fActivity);
         }
 
         private bool NextActivityIsEqual(ResourceState resourceState, string activityKey)
@@ -289,6 +292,18 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             _confirmationManager.AddConfirmations(activity, GanttConfirmationState.Started);
 
+
+            //Capability
+            var capability = requiredResources.SingleOrDefault(x => x.ResourceDefinition.ResourceType.Equals(5))?.ResourceDefinition.Name;
+            if (capability == null)
+            {
+                throw new Exception($"No tool (capability) exits. There should be exactly one tool.");
+            }
+
+            var randomizedDuration = _workTimeGenerator.GetRandomWorkTime(featureActivity.Duration);
+
+            CreateSimulationJob(activity, Agent.CurrentTime, randomizedDuration, capability);
+
             foreach (var resourceState in requiredResources)
             {
 
@@ -296,9 +311,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                                                     ,productionOrderId: featureActivity.ProductionOrderId
                                                           ,operationId:featureActivity.OperationId
                                                     ,activityId:featureActivity.ActivityId
-                                                    ,duration:featureActivity.Duration,name:featureActivity.Name
-                                                    ,ganttPlanningInterval:featureActivity.GanttPlanningInterval
-                                                    ,hub:featureActivity.Hub);
+                                                    , activityType: featureActivity.ActivityType
+                                                    , duration: randomizedDuration
+                                                    , name:featureActivity.Name
+                                                    , ganttPlanningInterval:featureActivity.GanttPlanningInterval
+                                                    , hub:featureActivity.Hub
+                                                    , capability:capability );
 
                 var startActivityInstruction = Resource.Instruction.Central
                                                 .ActivityStart.Create(activity: fCentralActivity
@@ -362,7 +380,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             Agent.DebugMessage($"All resources for {activity.GetKey} returned!");
 
             // Insert Material
-
             var storagePosting = new FCentralStockPosting(productionOrder.MaterialId,(double)productionOrder.QuantityNet);
             Agent.Send(DirectoryAgent.Directory.Instruction.Central.InsertMaterial.Create(storagePosting, Agent.ActorPaths.StorageDirectory.Ref));
 
@@ -391,10 +408,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                         materialId = material.ChildId;
                         break;
                     default:
-                        throw new Exception("materialrelationtype does not exits");
-                        break;
+                            throw new Exception("materialrelationtype does not exits");
                 }
-                var stockPosting = new FCentralStockPostings.FCentralStockPosting(materialId: materialId, (double)material.Quantity);
+                var stockPosting = new FCentralStockPosting(materialId: materialId, (double)material.Quantity);
                 Agent.Send(DirectoryAgent.Directory.Instruction.Central.WithdrawMaterial.Create(stockPosting,Agent.ActorPaths.StorageDirectory.Ref));
 
             }
@@ -405,6 +421,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             Agent.Send(Hub.Instruction.Central.StartActivities.Create(Agent.Context.Self), 1);
             return true;
         }
+
+        #region Reporting
+
+        public void CreateSimulationJob(GptblProductionorderOperationActivity activity, long start, long duration, string requiredCapabilityName)
+        {
+            var pub = MessageFactory.ToSimulationJob(activity, start, duration, requiredCapabilityName);
+            Agent.Context.System.EventStream.Publish(@event: pub);
+        }
+        #endregion
 
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.DB.Data.Helper;
 
 namespace Master40.DB.Data.Context
 {
@@ -123,6 +124,7 @@ namespace Master40.DB.Data.Context
                 BusinessPartnerId = bp.Id,
                 DueTime = (int)dueTime,
                 CreationTime = (int)creationTime,
+                DueDateTime = dueTime.ToDateTime(),
                 Name = Articles.Single(predicate: x => x.Id == articleId).Name,
                 CustomerOrderParts = olist
             };

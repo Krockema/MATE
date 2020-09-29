@@ -34,9 +34,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
         /// Required to get Number output with . instead of ,
         /// </summary>
         private CultureInfo _cultureInfo { get; } = CultureInfo.GetCultureInfo(name: "en-GB");
-
-        private List<Kpi> Kpis { get; } = new List<Kpi>();
-
+        
         internal static List<Type> GetStreamTypes()
         {
             return new List<Type>
@@ -146,7 +144,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
 
                 ctx.TaskItems.AddRange(entities: _taskArchive);
                 ctx.SaveChanges();
-                ctx.Kpis.AddRange(entities: Kpis);
+                ctx.Kpis.AddRange(entities: Collector.Kpis);
                 ctx.SaveChanges();
                 ctx.Dispose();
             }
@@ -163,6 +161,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             var operationTasks = _taskItems.GetValueOrDefault(JobType.OPERATION);
             var setupTasks = _taskItems.GetValueOrDefault(JobType.SETUP);
 
+            //resource to ensure entries, even the resource it not used in interval
+            var resourceList = _resources.Select(selector: x => new Tuple<string, long>(x.Value.Name.Replace(" ", ""), 0));
+            
             var lower_borders = from sw in operationTasks
                                 where sw.Start < lastIntervalStart
                                       && sw.End > lastIntervalStart
@@ -192,8 +193,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
                             select new Tuple<string, long>(rs.Key,
                                 rs.Sum(selector: x => x.End - x.Start));
 
-            var reourceList = _resources.Select(selector: x => new Tuple<string, long>(x.Value.Name, 0));
-            var merge = from_work.Union(second: lower_borders).Union(second: upper_borders).Union(second: reourceList).ToList();
+            var merge = from_work.Union(second: lower_borders).Union(second: upper_borders).Union(second: resourceList).ToList();
 
             var final = from m in merge
                         group m by m.Item1
@@ -240,8 +240,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
                               select new Tuple<string, long>(rs.Key,
                                                               rs.Sum(selector: x => x.End - x.Start));
 
-            var emptyResources = _resources.Select(selector: x => new Tuple<string, long>(x.Value.Name, 0));
-            var union = totalSetups.Union(setups_lower_borders).Union(setups_upper_borders).Union(emptyResources).ToList();
+            var union = totalSetups.Union(setups_lower_borders).Union(setups_upper_borders).Union(resourceList).ToList();
 
             var finalSetup = from m in union
                              group m by m.Item1

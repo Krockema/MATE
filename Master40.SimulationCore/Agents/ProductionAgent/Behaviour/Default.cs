@@ -279,16 +279,11 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 OperationManager.AddOperation(fJob);
 
                 // send update to collector
-                var pub = new FCreateSimulationJob(job: fJob
-                    , jobType: JobType.OPERATION
-                    , customerOrderId: fArticle.CustomerOrderId.ToString()
-                    , isHeadDemand: fArticle.IsHeadDemand
-                    , fArticleKey : fArticle.Key
-                    , fArticleName: fArticle.Article.Name
-                    , productionAgent: this.Agent.Name
-                    , articleType: fArticle.Article.ArticleType.Name
-                    , start: fJob.Start
-                    , end: fJob.End);
+                var pub = MessageFactory.ToSimulationJob(fJob
+                        , jobType: JobType.OPERATION
+                        , fArticle: fArticle
+                        , productionAgent: this.Agent.Name
+                    );
                 Agent.Context.System.EventStream.Publish(@event: pub);
             }
 

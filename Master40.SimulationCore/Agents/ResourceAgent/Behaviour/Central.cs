@@ -2,6 +2,7 @@
 using Master40.SimulationCore.Types;
 using static FCentralActivities;
 using static FCentralResourceDefinitions;
+using static FCreateTaskItems;
 using static Master40.SimulationCore.Agents.ResourceAgent.Resource.Instruction.Central;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
@@ -47,6 +48,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             Agent.DebugMessage($"Start {activity.ProductionOrderId}|{activity.OperationId}|{activity.ActivityId} with Duration: {activity.Duration}");
             _currentActivity = activity;
+
+            CreateTask(activity);
+
             Agent.Send(Resource.Instruction.Central.ActivityFinish.Create(Agent.Context.Self), activity.Duration);
         }
 
@@ -57,6 +61,25 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             Agent.Send(HubAgent.Hub.Instruction.Central.ActivityFinish.Create(_currentActivity, _currentActivity.Hub));
             _currentActivity = null;
         }
+
+        #region Reporting
+
+        void CreateTask(FCentralActivity activity)
+        {
+            var pub = new FCreateTaskItem(
+                type: activity.ActivityType
+                , resource: Agent.Name.Replace("Resource(", "").Replace(")", "")
+                , start: Agent.CurrentTime
+                , end: Agent.CurrentTime + activity.Duration
+                , capability: activity.Capability
+                , operation: activity.ActivityType == JobType.SETUP ? "Setup for "+ activity.Name : activity.Name
+                , groupId: activity.ProductionOrderId + activity.OperationId + activity.ActivityId + activity.GanttPlanningInterval);
+
+            //TODO NO tracking
+            Agent.Context.System.EventStream.Publish(@event: pub);
+        }
+        
+        #endregion
 
     }
 }

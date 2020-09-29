@@ -48,8 +48,29 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
 
         }
 
-        internal bool HasPreconditionsFullfilled(GptblProductionorderOperationActivity activity)
+        internal bool HasPreconditionsFullfilled(GptblProductionorderOperationActivity activity, List<ResourceState> resourceStates)
         {
+            if (Int32.Parse(activity.OperationId) > 10)
+            {
+                var predecessor = Activities.SingleOrDefault(x =>
+                    x.Activity.GetKey.Equals(activity.ProductionorderId + "|" + (Int32.Parse(activity.OperationId) - 10) + "|" + "3"));
+
+                if (predecessor == null || !predecessor.ActivityIsFinished())
+                {
+                    return false;
+                }
+
+            }
+
+            // check if Production Precondition is fulfilled to start setup.
+            if (activity.ActivityType.Equals(2))
+            {
+                var activityQueue = resourceStates.Single(x => x.ResourceDefinition.ResourceType == 1).ActivityQueue;
+                activity = activityQueue.Single(x => x.GetKey.Equals(activity.ProductionorderId + "|" + activity.OperationId + "|" + "3"))
+                                            .ProductionorderOperationActivityResource
+                                                .ProductionorderOperationActivity;
+            }
+
             foreach (var requiredPrecondition in activity.ProductionorderOperationActivityMaterialrelation)
             {
 

@@ -305,31 +305,33 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void CreateJob(FCreateSimulationJob simJob)
         {
-            var fOperation = ((FOperation)simJob.Job);
+            //var fOperation = ((FOperation)simJob.Job);
             var simulationJob = new Job
             {
-                JobId = simJob.Job.Key.ToString(),
-                JobName = fOperation.Operation.Name,
+                JobId = simJob.Key,
+                JobName = simJob.OperationName,
                 JobType = simJob.JobType,
-                DueTime = (int)simJob.Job.DueTime,
+                DueTime = (int)simJob.DueTime,
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,
                 SimulationType = Collector.simulationKind.Value,
                 CreatedForOrderId = string.Empty,
-                Article = fOperation.Operation.Article.Name,
+                Article = simJob.ArticleName,
                 OrderId = "[" + simJob.CustomerOrderId + "]",
-                HierarchyNumber = fOperation.Operation.HierarchyNumber,
+                HierarchyNumber = simJob.OperationHierarchyNumber,
                 //Remember this is now a fArticleKey (Guid)
                 ProductionOrderId =  simJob.ProductionAgent,
                 Parent = simJob.IsHeadDemand.ToString(),
                 FArticleKey = simJob.fArticleKey.ToString(),
                 Time = (int)(Collector.Time),
-                ExpectedDuration = fOperation.Operation.Duration,
+                ExpectedDuration = simJob.OperationDuration,
                 ArticleType = simJob.ArticleType,
-                CapabilityName = fOperation.RequiredCapability.Name
+                CapabilityName = simJob.RequiredCapabilityName,
+                Start = simJob.Start,
+                End =  simJob.End
             };
 
-            var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.Equals(fOperation.Key));
+            var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.Equals(simJob.Key));
             if (edit != null)
             {
                 simulationJob.Start = (int)edit.Start;

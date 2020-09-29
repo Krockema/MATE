@@ -104,6 +104,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
             masterPlanContext.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterPlanContext, ModelSize.Small, ModelSize.Small, ModelSize.Small, 3,false);
 
+            //CreateMaster40Result
+            var masterPlanResultContext = ResultContext.GetContext(masterResultCtxString);
+            masterPlanResultContext.Database.EnsureDeleted();
+            masterPlanResultContext.Database.EnsureCreated();
+            ResultDBInitializerBasic.DbInitialize(masterPlanResultContext);
+            
             //Reset GanttPLan DB?
             var ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
             ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
@@ -112,9 +118,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
             GanttPlanOptRunner.RunOptAndExport("Init");
 
             var simContext = new GanttSimulation(ganttPlanContext, masterPlanContext, messageHub: new ConsoleHub());
-            var simConfig = ArgumentConverter.ConfigurationConverter(_ctxResult, 1);
+            var simConfig = ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
             // update customized Items
-            simConfig.AddOption(new DBConnectionString(testResultCtxString));
+            simConfig.AddOption(new DBConnectionString(masterResultCtxString));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new SimulationKind(value: simtulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
@@ -126,7 +132,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new SimulationEnd(value: 2880));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: true));
-            simConfig.ReplaceOption(new WorkTimeDeviation(0.0));
+            simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 

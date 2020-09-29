@@ -49,7 +49,7 @@ namespace Master40.SimulationCore
                         
             }
 
-            var hubActorRef = sim.ActorSystem.ActorSelection("/user/HubDirectory/CentralHub").ResolveOne(TimeSpan.FromSeconds(1)).Result;
+            var hubActorRef = sim.ActorSystem.ActorSelection("/user/HubDirectory/CentralHub").ResolveOne(TimeSpan.FromSeconds(60)).Result;
             var instruction = Hub.Instruction.Central.LoadProductionOrders.Create(_inbox.Receiver, hubActorRef);
             sim.SimulationContext.Tell(instruction);
 

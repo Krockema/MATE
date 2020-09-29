@@ -51,4 +51,11 @@
         PartialConfirmed = 16,
         Finished = 32
     }
+
+    public enum GanttStockPostingType
+    {
+        Relatively = 0, // change value by withdraw or insert material to stock
+        Absolutely = 1  // set new value, i.e. reset stock
+    }
+
 }
