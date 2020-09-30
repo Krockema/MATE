@@ -179,7 +179,7 @@ namespace Master40.DataGenerator.Generators
             }
         }
 
-        private double CalcOrganizationDegree(double[,] pi, int matrixSize)
+        public double CalcOrganizationDegree(double[,] pi, int matrixSize)
         {
             var sum = 0.0;
             var reciprocalOfPiSize = 1.0 / matrixSize;

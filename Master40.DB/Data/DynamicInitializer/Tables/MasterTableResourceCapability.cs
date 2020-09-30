@@ -8,6 +8,7 @@ namespace Master40.DB.Data.DynamicInitializer.Tables
     public class MasterTableResourceCapability
     {
         public List<M_ResourceCapability> Capabilities;
+        public List<M_ResourceCapability> ParentCapabilities;
         internal MasterTableResourceCapability()
         {
             Capabilities = new List<M_ResourceCapability>();
@@ -22,6 +23,7 @@ namespace Master40.DB.Data.DynamicInitializer.Tables
 
             context.ResourceCapabilities.AddRange(Capabilities);
             context.SaveChanges();
+            ParentCapabilities = new List<M_ResourceCapability>(Capabilities);
 
             for (var i = 0; i < resourceProperties.Count; i++)
             {
