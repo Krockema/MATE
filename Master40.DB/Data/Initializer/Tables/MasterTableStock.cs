@@ -20,8 +20,8 @@ namespace Master40.DB.Data.Initializer.Tables
                     StartValue = (article.ToPurchase) ? 1000 : 0,
                 };
                 context.Stocks.Add(entity: stock);
-                context.SaveChanges();
             }
+            context.SaveChanges();
         }
     }
 }

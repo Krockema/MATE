@@ -4,6 +4,8 @@ using Master40.Simulation.CLI;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
 using System.Threading.Tasks;
+using AkkaSim.Logging;
+using NLog;
 using Xunit;
 
 namespace Master40.XUnitTest.DataGenerator
@@ -11,9 +13,9 @@ namespace Master40.XUnitTest.DataGenerator
     public class SimulationTemplate
     {
         // local TEST Context
-        private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true";
+        private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true";
         private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        private static int _simNr = 1;
+        private static int _simNr = 13;
 
         // Definition for Simulation runs each Call returns
         // TODO: return complete config objects to avoid errors, and separate Data Generator / Simulation configurations
@@ -69,7 +71,21 @@ namespace Master40.XUnitTest.DataGenerator
 
             var simContext = new AgentSimulation(DBContext: masterCtx, messageHub: new ConsoleHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(ctxResult, 1);
-            
+
+            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PRIORITY, LogLevel.Warn, LogLevel.Warn);
+            //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.SCHEDULING, LogLevel.Warn, LogLevel.Warn);
+            //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.DISPOPRODRELATION, LogLevel.Debug, LogLevel.Debug);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PROPOSAL, LogLevel.Warn, LogLevel.Warn);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.INITIALIZE, LogLevel.Warn, LogLevel.Warn);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOB, LogLevel.Warn, LogLevel.Warn);
+            //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.ENQUEUE, LogLevel.Warn, LogLevel.Warn);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOBSTATE, LogLevel.Warn, LogLevel.Warn);
+            //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace, LogLevel.Trace);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
+
             // update customized Configuration
             simConfig.AddOption(new DBConnectionString(testResultCtxString));  
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
@@ -83,6 +99,7 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
+            simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.0));
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
