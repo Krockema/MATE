@@ -145,10 +145,10 @@ namespace Master40.XUnitTest.SimulationEnvironment
             , ModelSize resourceModelSize, ModelSize setupModelSize
             , double arrivalRate, bool distributeSetupsExponentially)
         {
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
-            LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PRIORITY, LogLevel.Warn, LogLevel.Warn);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PRIORITY, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.SCHEDULING, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.DISPOPRODRELATION, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PROPOSAL, LogLevel.Warn, LogLevel.Warn);
@@ -162,7 +162,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             var masterCtx = ProductionDomainContext.GetContext(masterCtxString);
             //masterCtx.Database.EnsureDeleted();
             //masterCtx.Database.EnsureCreated();
-            //MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, ModelSize.Small, 3, distributeSetupsExponentially);
+            //MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, ModelSize.Small, 3, distributeSetups  1Exponentially);
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(DBContext: masterCtx, messageHub: new ConsoleHub());
             var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(_ctxResult, 1);
