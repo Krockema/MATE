@@ -66,7 +66,8 @@ namespace Master40.SimulationCore.Helper
 
         public static FBucket ToBucketScopeItem(this FOperation operation, IActorRef hubAgent, long time, long maxBucketSize)
         {
-            //scope
+            //Todo Abs of BackwardStart and ForwardStart, avoid negative values
+            //var scope = Math.Abs(operation.BackwardStart - operation.ForwardStart);
             var scope = (operation.BackwardStart - operation.ForwardStart);
             // TO BE TESTET
             var prioRule = Extension.CreateFunc(
