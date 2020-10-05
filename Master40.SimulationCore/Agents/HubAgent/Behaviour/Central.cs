@@ -12,8 +12,10 @@ using Master40.Tools.ExtensionMethods;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data.HashFunction.xxHash;
 using System.Linq;
 using static FCentralActivities;
+using static FCentralProvideOrders;
 using static FCentralResourceRegistrations;
 using static FCentralStockPostings;
 using static FCreateSimulationJobs;
@@ -30,6 +32,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         private ResourceManager _resourceManager { get; } = new ResourceManager();
         private ActivityManager _activityManager { get; } = new ActivityManager();
         private ConfirmationManager _confirmationManager { get; }
+        private StockPostingManager _stockPostingManager { get; } 
+        private List<GptblMaterial> _products { get; } = new List<GptblMaterial>();
+        private List<GptblSalesorderMaterialrelation> _salesorder { get; set;  } = new List<GptblSalesorderMaterialrelation>();
 
         public Central(string dbConnectionStringGanttPlan, string dbConnectionStringMaster, WorkTimeGenerator workTimeGenerator, SimulationType simulationType = SimulationType.Default) : base(childMaker: null, simulationType: simulationType)
         {
@@ -37,6 +42,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             _dbConnectionStringGanttPlan = dbConnectionStringGanttPlan;
             _dbConnectionStringMaster = dbConnectionStringMaster;
             _confirmationManager = new ConfirmationManager(dbConnectionStringGanttPlan);
+            _stockPostingManager = new StockPostingManager(dbConnectionStringGanttPlan);
+
+            using (var localganttplanDB = GanttPlanDBContext.GetContext(_dbConnectionStringGanttPlan))
+            {
+                _products = localganttplanDB.GptblMaterial.Where(x => x.Info1.Equals("Product")).ToList();
+            }
+
         }
 
             public override bool Action(object message)
@@ -61,6 +73,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         private void LoadProductionOrders(IActorRef inboxActorRef)
         {
+            _stockPostingManager.TransferStockPostings();
             _confirmationManager.TransferConfirmations();
             //update model planning time
             using (var localGanttPlanDbContext = GanttPlanDBContext.GetContext(_dbConnectionStringGanttPlan))
@@ -100,6 +113,17 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                             .OrderBy(x => x.DateFrom)
                             .ToList());
                 } // filter Done and in Progress?
+
+                var tempsalesorder = _salesorder;
+                _salesorder = localGanttPlanDbContext.GptblSalesorderMaterialrelation.ToList();
+                foreach (var salesorder in tempsalesorder)
+                {
+                    if (_salesorder.Single(x => x.SalesorderId.Equals(salesorder.SalesorderId)).ChildId != salesorder.ChildId)
+                    {
+                        throw new Exception($"Something changed");
+                    }
+                }
+
             }
 
             /*using (var localGanttPlanDbContext = GanttPlanDBContext.GetContext(_dbConnectionStringGanttPlan))
@@ -340,7 +364,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         public void FinishActivity(FCentralActivity fActivity)
         {
             // Get Resource
-            System.Diagnostics.Debug.WriteLine($"Finish {fActivity.ProductionOrderId}|{fActivity.OperationId}|{fActivity.ActivityId} with Duration: {1} from {2}", fActivity.Name , fActivity.Duration, Agent.Sender.ToString());
+            System.Diagnostics.Debug.WriteLine($"Finish {fActivity.ProductionOrderId}|{fActivity.OperationId}|{fActivity.ActivityId} with Duration: {fActivity.Duration} from {Agent.Sender.ToString()}");
 
             var activity = _resourceManager.GetCurrentActivity(fActivity.ResourceId);
            
@@ -377,11 +401,29 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 }
             }
 
-            Agent.DebugMessage($"All resources for {activity.GetKey} returned!");
+            Agent.DebugMessage($"Productionorder {productionOrder.ProductionorderId} with MaterialId {productionOrder.MaterialId} finished!");
+
 
             // Insert Material
-            var storagePosting = new FCentralStockPosting(productionOrder.MaterialId,(double)productionOrder.QuantityNet);
-            Agent.Send(DirectoryAgent.Directory.Instruction.Central.InsertMaterial.Create(storagePosting, Agent.ActorPaths.StorageDirectory.Ref));
+            var storagePosting = new FCentralStockPosting(productionOrder.MaterialId, (double)productionOrder.QuantityNet);
+            Agent.Send(DirectoryAgent.Directory.Instruction.Central.ForwardInsertMaterial.Create(storagePosting, Agent.ActorPaths.StorageDirectory.Ref));
+
+            var product = _products.SingleOrDefault(x => x.MaterialId.Equals(productionOrder.MaterialId));
+            if (product != null)
+            {
+                //_stockPostingManager.AddInsertStockPosting(product.MaterialId,productionOrder.QuantityNet.Value,productionOrder.QuantityUnitId,GanttStockPostingType.Relatively,Agent.CurrentTime);
+
+                CreateLeadTime(product, productionOrder.EarliestStartDate.Value.ToSimulationTime());
+                
+                var provideOrder = new FCentralProvideOrder(productionOrderId: productionOrder.ProductionorderId
+                                                                 ,materialId : product.MaterialId
+                                                                ,materialName: product.Name
+                                                               , salesOrderId: _salesorder.Single(x => x.ChildId.Equals(productionOrder.ProductionorderId)).SalesorderId
+                                                         , materialFinishedAt: Agent.CurrentTime           
+                                                                 );
+
+                Agent.Send(DirectoryAgent.Directory.Instruction.Central.ForwardProvideOrder.Create(provideOrder, Agent.ActorPaths.StorageDirectory.Ref));
+            }
 
         }
 
@@ -411,7 +453,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                             throw new Exception("materialrelationtype does not exits");
                 }
                 var stockPosting = new FCentralStockPosting(materialId: materialId, (double)material.Quantity);
-                Agent.Send(DirectoryAgent.Directory.Instruction.Central.WithdrawMaterial.Create(stockPosting,Agent.ActorPaths.StorageDirectory.Ref));
+                Agent.Send(DirectoryAgent.Directory.Instruction.Central.ForwardWithdrawMaterial.Create(stockPosting,Agent.ActorPaths.StorageDirectory.Ref));
 
             }
         }
@@ -428,6 +470,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             var pub = MessageFactory.ToSimulationJob(activity, start, duration, requiredCapabilityName);
             Agent.Context.System.EventStream.Publish(@event: pub);
+        }
+
+        private void CreateLeadTime(GptblMaterial material, long creationTime)
+        {
+                var pub = new FThroughPutTimes.FThroughPutTime(articleKey: Guid.Empty
+                    , articleName: material.Name
+                    , start: creationTime  // TODO  ADD CreationTime
+                    , end: Agent.CurrentTime);
+                Agent.Context.System.EventStream.Publish(@event: pub);
         }
         #endregion
 

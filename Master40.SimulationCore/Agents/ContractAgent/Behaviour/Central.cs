@@ -5,6 +5,7 @@ using Master40.SimulationCore.Agents.SupervisorAgent;
 using Master40.SimulationCore.Helper;
 using static FArticleProviders;
 using static FArticles;
+using static FCentralProvideOrders;
 
 namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
 {
@@ -20,7 +21,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
             switch (message)
             {
                 case Contract.Instruction.StartOrder msg: StartOrder(orderItem: msg.GetObjectFromMessage); break;
-                case BasicInstruction.ProvideArticle msg: TryFinishOrder(fArticleProvider: msg.GetObjectFromMessage); break;
+                case Contract.Instruction.TryFinishOrder msg: TryFinishOrder(msg.GetObjectFromMessage); break;
                 case BasicInstruction.JobForwardEnd msg: EstimateForwardEnd(estimatedEnd: msg.GetObjectFromMessage); break;
                 default: return false;
             }
@@ -42,7 +43,9 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
 
 
             Agent.DebugMessage(msg: $"Start Order");
-            
+            Agent.Send(DirectoryAgent.Directory.Instruction.Central.ForwardAddOrder.Create(_fArticle,
+                Agent.ActorPaths.StorageDirectory.Ref));
+
         }
 
         /// <summary>
@@ -50,7 +53,7 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
         /// </summary>
         /// <param name="agent"></param>
         /// <param name="fArticle"></param>
-        public void TryFinishOrder(FArticleProvider fArticleProvider)
+        public void TryFinishOrder(FCentralProvideOrder order)
         {
             Agent.DebugMessage(msg: "Ready to Deliver");
             //var localItem = Agent.Get<FRequestItem>(REQUEST_ITEM);
@@ -60,10 +63,9 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
             {
                 _fArticle = _fArticle.SetProvided
                                     .UpdateFinishedAt(Agent.CurrentTime)
-                                    .UpdateProvidedAt(fArticleProvider.ArticleFinishedAt)
-                                    .UpdateStockExchangeId(fArticleProvider.StockExchangeId);
-                Agent.DebugMessage(msg: $"Article delivered in time {_fArticle.DueTime == Agent.CurrentTime} {fArticleProvider.ArticleName} {fArticleProvider.ArticleKey} due: {_fArticle.DueTime} current: {Agent.CurrentTime}!");
-                Agent.Send(instruction: Dispo.Instruction.WithdrawArticleFromStock.Create(message: fArticleProvider.ArticleKey, target: Agent.Sender));
+                                    .UpdateProvidedAt(order.MaterialFinishedAt);
+                Agent.DebugMessage(msg: $"Article delivered in time {_fArticle.DueTime == Agent.CurrentTime} {order.MaterialName} {order.MaterialId} due: {_fArticle.DueTime} current: {Agent.CurrentTime}!");
+                Agent.Send(instruction: DirectoryAgent.Directory.Instruction.Central.ForwardWithdrawMaterial.Create(new FCentralStockPostings.FCentralStockPosting(order.MaterialId,1), target: Agent.ActorPaths.StorageDirectory.Ref));
                 Agent.Send(instruction: Supervisor.Instruction.OrderProvided.Create(message: _fArticle, target: Agent.ActorPaths.SystemAgent.Ref));
                 Agent.VirtualChildren.Remove(item: Agent.Sender);
                 Agent.TryToFinish();

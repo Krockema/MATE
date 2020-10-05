@@ -7,6 +7,8 @@ using Master40.SimulationCore.Agents.StorageAgent;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using System;
+using static FArticles;
+using static FCentralProvideOrders;
 using static FCentralResourceDefinitions;
 using static FCentralResourceHubInformations;
 using static FCentralResourceRegistrations;
@@ -30,8 +32,10 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
             switch (message)
             {
                 case Directory.Instruction.Central.CreateStorageAgents msg: CreateStorageAgents(stock: msg.GetObjectFromMessage); break;
-                case Directory.Instruction.Central.InsertMaterial msg: InsertMaterial(msg.GetObjectFromMessage); break;
-                case Directory.Instruction.Central.WithdrawMaterial msg: WithdrawMaterial(msg.GetObjectFromMessage); break;
+                case Directory.Instruction.Central.ForwardAddOrder msg: ForwardAddOrder(msg.GetObjectFromMessage); break;
+                case Directory.Instruction.Central.ForwardProvideOrder msg: ForwardProvideOrder(msg.GetObjectFromMessage); break;
+                case Directory.Instruction.Central.ForwardInsertMaterial msg: ForwardInsertMaterial(msg.GetObjectFromMessage); break;
+                case Directory.Instruction.Central.ForwardWithdrawMaterial msg: ForwardWithdrawMaterial(msg.GetObjectFromMessage); break;
                 case Directory.Instruction.Central.CreateMachineAgents msg: CreateMachineAgents(msg.GetObjectFromMessage); break;
                 case Directory.Instruction.Central.CreateHubAgent msg: CreateHubAgent(msg.GetObjectFromMessage); break;
                 case Directory.Instruction.Central.ForwardRegistrationToHub msg: ForwardRegistrationToHub(msg.GetResourceRegistration); break;
@@ -40,13 +44,25 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
             return true;
         }
 
-        private void InsertMaterial(FCentralStockPosting stockPosting)
+        private void ForwardAddOrder(FArticle fArticle)
+        {
+            var actorRef = StorageManager.GetHubActorRefBy(fArticle.Article.Id.ToString());
+            Agent.Send(Storage.Instruction.Central.AddOrder.Create(fArticle, actorRef));
+        }
+
+        private void ForwardProvideOrder(FCentralProvideOrder order)
+        {
+            var actorRef = StorageManager.GetHubActorRefBy(order.MaterialId);
+            Agent.Send(Storage.Instruction.Central.ProvideOrderAtDue.Create(order, actorRef));
+        }
+
+        private void ForwardInsertMaterial(FCentralStockPosting stockPosting)
         {
             var actorRef = StorageManager.GetHubActorRefBy(stockPosting.MaterialId);
             Agent.Send(Storage.Instruction.Central.InsertMaterial.Create(stockPosting, actorRef));
         }
 
-        private void WithdrawMaterial(FCentralStockPosting stockPosting)
+        private void ForwardWithdrawMaterial(FCentralStockPosting stockPosting)
         {
             var actorRef = StorageManager.GetHubActorRefBy(stockPosting.MaterialId);
             Agent.Send(Storage.Instruction.Central.WithdrawMaterial.Create(stockPosting, actorRef));

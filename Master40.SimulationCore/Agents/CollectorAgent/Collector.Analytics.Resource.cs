@@ -21,10 +21,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             _resources = resources;
             _taskItems.Add(JobType.OPERATION, new List<TaskItem>());
             _taskItems.Add(JobType.SETUP, new List<TaskItem>());
+
+            _taskArchive.Add(JobType.OPERATION, new List<TaskItem>());
+            _taskArchive.Add(JobType.SETUP, new List<TaskItem>());
         }
 
         private Dictionary<string, List<TaskItem>> _taskItems { get; } = new Dictionary<string, List<TaskItem>>();
-        public List<TaskItem> _taskArchive { get; private set; } = new List<TaskItem>();
+        public Dictionary<string, List<TaskItem>> _taskArchive { get; private set; } = new Dictionary<string, List<TaskItem>>();
 
         private ResourceDictionary _resources { get; set; } = new ResourceDictionary();
         private long lastIntervalStart { get; set; } = 0;
@@ -91,7 +94,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
 
         private void UpdateFeed(bool finalCall)
         {
-            ResourceUtilization();
+
+            ResourceUtilization(finalCall);
             lastIntervalStart = Collector.Time;
           
             LogToDB(writeResultsToDB: finalCall);
@@ -131,35 +135,48 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
         {
             if (Collector.saveToDB.Value && writeResultsToDB)
             {
-                using var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value);
-
-                //var refTask = _taskArchive.First();
-                //CreateTaskItem(
-                //    new FCreateTaskItem(
-                //        JobType.OPERATION,
-                //        refTask.Resource,
-                //        refTask.Start, refTask.End, refTask.Capability, refTask.Operation, refTask.GroupId));
-                //
-                //ResourceUtilization();
-
-                ctx.TaskItems.AddRange(entities: _taskArchive);
-                ctx.SaveChanges();
-                ctx.Kpis.AddRange(entities: Collector.Kpis);
-                ctx.SaveChanges();
-                ctx.Dispose();
+                using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value))
+                {
+                    ctx.TaskItems.AddRange(entities: _taskArchive.Select(x => x.Value).ToArray()[0]);
+                    ctx.TaskItems.AddRange(entities: _taskArchive.Select(x => x.Value).ToArray()[1]);
+                    ctx.SaveChanges();
+                    ctx.Kpis.AddRange(entities: Collector.Kpis);
+                    ctx.SaveChanges();
+                    ctx.Dispose();
+                }
             }
         }
 
-        private void ResourceUtilization()
+        private void ResourceUtilization(bool finalCall)
         {
-            double divisor = Collector.Time - lastIntervalStart;
-            var tupleList = new List<Tuple<string, string>>();
+            
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from DataCollection");
-            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Time since last Update: " + divisor + "min");
 
             //JobWorkingTimes for interval
             var operationTasks = _taskItems.GetValueOrDefault(JobType.OPERATION);
             var setupTasks = _taskItems.GetValueOrDefault(JobType.SETUP);
+            var archiveOperationTask = _taskArchive.GetValueOrDefault(JobType.OPERATION);
+            var archiveSetupTask = _taskArchive.GetValueOrDefault(JobType.SETUP);
+            
+            var setupKpiType = KpiType.ResourceSetup;
+            var utilKpiType = KpiType.ResourceUtilization;
+
+            if (finalCall)
+            {
+                archiveOperationTask.AddRange(operationTasks.Where(x => x.End < lastIntervalStart));
+                operationTasks = archiveOperationTask;
+                
+                archiveSetupTask.AddRange(setupTasks.Where(x => x.End < lastIntervalStart));
+                setupTasks = archiveSetupTask;
+
+                // reset LastIntervallStart
+                lastIntervalStart = Collector.Config.GetOption<SettlingStart>().Value;
+                setupKpiType = KpiType.ResourceSetupTotal;
+                utilKpiType = KpiType.ResourceUtilizationTotal;
+            }
+
+            double divisor = Collector.Time - lastIntervalStart;
+            var tupleList = new List<Tuple<string, string>>();
 
             //resource to ensure entries, even the resource it not used in interval
             var resourceList = _resources.Select(selector: x => new Tuple<string, long>(x.Value.Name.Replace(" ", ""), 0));
@@ -203,15 +220,15 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             foreach (var item in final.OrderBy(keySelector: x => x.Item1))
             {
                 var value = Math.Round(value: item.Item2 / divisor, digits: 3).ToString(provider: _cultureInfo);
-                if (value == "NaN") value = "0";
+                if (value == "NaN" || value == "Infinity") value = "0";
                 tupleList.Add(new Tuple<string, string>(item.Item1, value));
-                Collector.CreateKpi(agent: Collector, value: value.Replace(".", ","), name: item.Item1, kpiType: KpiType.ResourceUtilization);
+                Collector.CreateKpi(agent: Collector, value: value.Replace(".", ","), name: item.Item1, kpiType: utilKpiType, finalCall);
             }
 
 
             var totalLoad = Math.Round(value: final.Sum(selector: x => x.Item2) / divisor / final.Count() * 100, digits: 3).ToString(provider: _cultureInfo);
-            if (totalLoad == "NaN") totalLoad = "0";
-            Collector.CreateKpi(agent: Collector, value: totalLoad.Replace(".", ","), name: "TotalWork", kpiType: KpiType.ResourceUtilization);
+            if (totalLoad == "NaN" || totalLoad == "Infinity") totalLoad = "0";
+            Collector.CreateKpi(agent: Collector, value: totalLoad.Replace(".", ","), name: "TotalWork", kpiType: utilKpiType, finalCall);
 
             //ResourceSetupTimes for interval
             var setups_lower_borders = from sw in setupTasks
@@ -250,17 +267,17 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             foreach (var resource in finalSetup.OrderBy(keySelector: x => x.Item1))
             {
                 var value = Math.Round(value: resource.Item2 / divisor, digits: 3).ToString(provider: _cultureInfo);
-                if (value == "NaN") value = "0";
+                if (value == "NaN" || value == "Infinity") value = "0";
                 var machine = resource.Item1.Replace(oldValue: ")", newValue: "").Replace(oldValue: "Resource(", newValue: "");
                 var workValue = tupleList.Single(x => x.Item1 == resource.Item1).Item2;
                 var all = workValue + " " + value;
                 Collector.messageHub.SendToClient(listener: machine, msg: all);
-                Collector.CreateKpi(agent: Collector, value: value.Replace(".", ","), name: resource.Item1, kpiType: KpiType.ResourceSetup);
+                Collector.CreateKpi(agent: Collector, value: value.Replace(".", ","), name: resource.Item1, kpiType: setupKpiType, finalCall);
             }
 
             var totalSetup = Math.Round(value: finalSetup.Where(x => !x.Item1.Contains("Operator")).Sum(selector: x => x.Item2) / divisor / finalSetup.Count() * 100, digits: 3).ToString(provider: _cultureInfo);
-            if (totalSetup == "NaN") totalSetup = "0";
-            Collector.CreateKpi(agent: Collector, value: totalSetup.Replace(".", ","), name: "TotalSetup", kpiType: KpiType.ResourceSetup);
+            if (totalSetup == "NaN" || totalSetup == "Infinity") totalSetup = "0";
+            Collector.CreateKpi(agent: Collector, value: totalSetup.Replace(".", ","), name: "TotalSetup", kpiType: setupKpiType, finalCall);
 
             Collector.messageHub.SendToClient(listener: "TotalTimes", msg: JsonConvert.SerializeObject(value:
                 new {
@@ -271,13 +288,15 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             //Persist Jobs
             //TODO Find another way to archive list
 
-            var tasksToArchive = operationTasks.Where(x => x.End < lastIntervalStart).ToList();
-            tasksToArchive.AddRange(setupTasks.Where(op => op.End < lastIntervalStart));
-            
+            if (finalCall)
+                return;
+
+            archiveOperationTask.AddRange(operationTasks.Where(x => x.End < lastIntervalStart).ToList());
+            archiveSetupTask.AddRange(setupTasks.Where(x => x.End < lastIntervalStart).ToList());
+
             operationTasks.RemoveAll(op => op.End < lastIntervalStart);
             setupTasks.RemoveAll(op => op.End < lastIntervalStart);
             
-            _taskArchive.AddRange(tasksToArchive);
         }
 
     }

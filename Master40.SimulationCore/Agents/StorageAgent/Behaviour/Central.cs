@@ -1,16 +1,22 @@
 ﻿using Master40.DB.Nominal;
 using System;
+using System.Linq;
+using Akka.Util.Extensions;
 using Master40.SimulationCore.Agents.StorageAgent.Types;
 using static FCentralStockDefinitions;
 using static FCentralStockPostings;
 using static FCentralPurchases;
+using static FArticles;
+using static FCentralProvideOrders;
 
 namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 {
     class Central : SimulationCore.Types.Behaviour
     {
         private CentralStockManager _stockManager { get; }
-        
+
+        internal ArticleList _requestedArticles { get; set; } = new ArticleList();
+
         ///RequestStockQuantityAndPurchase
 
         // PurchaseOrders --> Pop PurchaseEntry --> stock posting at time xxx
@@ -25,6 +31,8 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
         {
             switch (message)
             {
+                case Storage.Instruction.Central.AddOrder msg: AddOrder(msg.GetObjectFromMessage); break;
+                case Storage.Instruction.Central.ProvideOrderAtDue msg: ProvideOrderAtDue(msg.GetObjectFromMessage); break;
                 case Storage.Instruction.Central.WithdrawMaterial msg: WithdrawMaterial(msg.GetObjectFromMessage); break;
                 case Storage.Instruction.Central.InsertMaterial msg: InsertMaterial(msg.GetObjectFromMessage); break;
                 case Storage.Instruction.Central.PopPurchase msg: PopPurchase(msg.GetObjectFromMessage); break;
@@ -34,6 +42,26 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             }
             return true;
         }
+
+        private void AddOrder(FArticle fArticle)
+        {
+            _requestedArticles.Add(fArticle);
+        }
+        private void ProvideOrderAtDue(FCentralProvideOrder provideOrder)
+        {
+            var requestArticle = _requestedArticles.Single(x => x.CustomerOrderId.ToString().Equals(provideOrder.SalesOrderId));
+
+            if (Agent.CurrentTime >= requestArticle.DueTime)
+            {   
+                Agent.Send(ContractAgent.Contract.Instruction.TryFinishOrder.Create(provideOrder, requestArticle.OriginRequester));
+                _requestedArticles.Remove(requestArticle);
+                return;
+            }
+
+            Agent.Send(Storage.Instruction.Central.ProvideOrderAtDue.Create(provideOrder, Agent.Context.Self),requestArticle.DueTime - Agent.CurrentTime);
+
+        }
+
 
         /// <summary>
         /// Purchase order material initiated by Ganttplan

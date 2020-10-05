@@ -88,21 +88,21 @@ namespace Master40.XUnitTest.SimulationEnvironment
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
         public async Task CentralSystemTest()
         {
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Warn, LogLevel.Warn);
 
             var simtulationType = SimulationType.Central;
             var seed = 169;
             var throughput = 1920;
-            var arrivalRate = 0.15;
+            var arrivalRate = 0.015;
 
             //Create Master40Data
             var masterPlanContext = ProductionDomainContext.GetContext(masterCtxString);
             masterPlanContext.Database.EnsureDeleted();
             masterPlanContext.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterPlanContext, ModelSize.Small, ModelSize.Small, ModelSize.Small, 3,false);
+            MasterDBInitializerTruck.DbInitialize(masterPlanContext, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3,false);
 
             //CreateMaster40Result
             var masterPlanResultContext = ResultContext.GetContext(masterResultCtxString);
@@ -124,14 +124,14 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new SimulationKind(value: simtulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 5));
+            simConfig.ReplaceOption(new OrderQuantity(value: 1500));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
-            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
+            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 0));
-            simConfig.ReplaceOption(new SimulationEnd(value: 2880));
+            simConfig.ReplaceOption(new SettlingStart(value: 2880));
+            simConfig.ReplaceOption(new SimulationEnd(value: 10080));
             simConfig.ReplaceOption(new SaveToDB(value: true));
-            simConfig.ReplaceOption(new DebugSystem(value: true));
+            simConfig.ReplaceOption(new DebugSystem(value: false));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);

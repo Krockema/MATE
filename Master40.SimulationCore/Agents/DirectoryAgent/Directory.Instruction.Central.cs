@@ -2,7 +2,9 @@
 using AkkaSim.Definitions;
 using Master40.DB.DataModel;
 using System.Collections.Generic;
+using static FArticles;
 using static FCapabilityProviderDefinitions;
+using static FCentralProvideOrders;
 using static FCentralResourceDefinitions;
 using static FCentralResourceHubInformations;
 using static FCentralResourceRegistrations;
@@ -19,24 +21,24 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
             public class Central
             {
 
-            public class InsertMaterial : SimulationMessage
+            public class ForwardInsertMaterial : SimulationMessage
             {
-                public static InsertMaterial Create(FCentralStockPosting stockPosting, IActorRef target)
+                public static ForwardInsertMaterial Create(FCentralStockPosting stockPosting, IActorRef target)
                 {
-                    return new InsertMaterial(message: stockPosting, target: target);
+                    return new ForwardInsertMaterial(message: stockPosting, target: target);
                 }
-                private InsertMaterial(object message, IActorRef target) : base(message: message, target: target)
+                private ForwardInsertMaterial(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public FCentralStockPosting GetObjectFromMessage { get => Message as FCentralStockPosting; }
             }
-            public class WithdrawMaterial : SimulationMessage
+            public class ForwardWithdrawMaterial : SimulationMessage
             {
-                public static WithdrawMaterial Create(FCentralStockPosting stockPosting, IActorRef target)
+                public static ForwardWithdrawMaterial Create(FCentralStockPosting stockPosting, IActorRef target)
                 {
-                    return new WithdrawMaterial(message: stockPosting, target: target);
+                    return new ForwardWithdrawMaterial(message: stockPosting, target: target);
                 }
-                private WithdrawMaterial(object message, IActorRef target) : base(message: message, target: target)
+                private ForwardWithdrawMaterial(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
                 public FCentralStockPosting GetObjectFromMessage { get => Message as FCentralStockPosting; }
@@ -99,6 +101,30 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
                 {
                 }
                 public FResourceHubInformation GetObjectFromMessage { get => Message as FResourceHubInformation; }
+            }
+
+            public class ForwardAddOrder : SimulationMessage
+            {
+                public static ForwardAddOrder Create(FArticle order, IActorRef target)
+                {
+                    return new ForwardAddOrder(message: order, target: target);
+                }
+                private ForwardAddOrder(object message, IActorRef target) : base(message: message, target: target)
+                {
+                }
+                public FArticle GetObjectFromMessage { get => Message as FArticle; }
+            }
+
+            public class ForwardProvideOrder : SimulationMessage
+            {
+                public static ForwardProvideOrder Create(FCentralProvideOrder order, IActorRef target)
+                {
+                    return new ForwardProvideOrder(message: order, target: target);
+                }
+                private ForwardProvideOrder(object message, IActorRef target) : base(message: message, target: target)
+                {
+                }
+                public FCentralProvideOrder GetObjectFromMessage { get => Message as FCentralProvideOrder; }
             }
 
             }

@@ -278,6 +278,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 lastDue = fJob.BackwardStart - operation.AverageTransitionDuration;
                 OperationManager.AddOperation(fJob);
 
+                System.Diagnostics.Debug.WriteLine($"CREATE OPERATION WITH DURATION {operation.Duration}");
                 // send update to collector
                 var pub = MessageFactory.ToSimulationJob(fJob
                         , jobType: JobType.OPERATION

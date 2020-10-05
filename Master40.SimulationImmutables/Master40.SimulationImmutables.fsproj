@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <Compile Include="FunctionConverter.fs" />
+    <Compile Include="Message\Central\FCentralProvideOrders.fs" />
     <Compile Include="Message\Central\FCentralProvideMaterials.fs" />
     <Compile Include="Message\Central\FCentralActivities.fs" />
     <Compile Include="Message\Central\FCentralResourceRegistration.fs" />

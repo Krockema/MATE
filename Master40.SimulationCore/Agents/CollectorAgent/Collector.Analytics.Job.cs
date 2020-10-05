@@ -207,11 +207,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             var thoughput = JsonConvert.SerializeObject(value: new { leadTime });
             Collector.messageHub.SendToClient(listener: "Throughput", msg: thoughput);
 
+            //TODO Add Leadtime for central planning
+            /*
             if (finalCall)
             {
-                //Collector.CreateKpi(Collector, (leadTime.Average(x => x.Dlz.Average()) / leadTime.Count()).ToString() , "AverageLeadTime", KpiType.LeadTime, true);    
+                Collector.CreateKpi(Collector, (leadTime.Average(x => x.Dlz.Average()) / leadTime.Count()).ToString() , "AverageLeadTime", KpiType.LeadTime, true);    
             }
-            
+            */
             //foreach (var item in leadTime)
             //{
             //    var boxPlot = item.Dlz.FiveNumberSummary();

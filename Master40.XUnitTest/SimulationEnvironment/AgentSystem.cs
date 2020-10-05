@@ -43,8 +43,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
         //[Fact(Skip = "manual test")]
         [Theory]
         //[InlineData(remoteMasterCtxString, remoteResultCtxString)] 
-        [InlineData(masterCtxString, masterResultCtxString)]
-        //[InlineData(testCtxString, testResultCtxString)]
+        //[InlineData(masterCtxString, masterResultCtxString)]
+        [InlineData(testCtxString, testResultCtxString)]
         public void ResetResultsDB(string connectionString, string resultConnectionString)
         
         {
@@ -131,7 +131,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         [Theory]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
-        [InlineData(SimulationType.Default, 1100, 240, 1920, 1337, ModelSize.Small, ModelSize.Small, 0.015, false)]
+        [InlineData(SimulationType.Default, 1100, 240, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.015, false)]
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput,
             int seed
             , ModelSize resourceModelSize, ModelSize setupModelSize
@@ -151,6 +151,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
             //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace, LogLevel.Trace);
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
 
+            //CreateMaster40Result
+            var masterPlanResultContext = ResultContext.GetContext(testResultCtxString);
+            masterPlanResultContext.Database.EnsureDeleted();
+            masterPlanResultContext.Database.EnsureCreated();
+            ResultDBInitializerBasic.DbInitialize(masterPlanResultContext);
+
             var masterCtx = ProductionDomainContext.GetContext(testCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
@@ -163,12 +169,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 5)); 
+            simConfig.ReplaceOption(new OrderQuantity(value: 1)); 
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
-            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
+            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 0));
-            simConfig.ReplaceOption(new SimulationEnd(value: 2880));
+            simConfig.ReplaceOption(new SettlingStart(value: 2880));
+            simConfig.ReplaceOption(new SimulationEnd(value: 40320));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));

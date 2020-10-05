@@ -1,6 +1,8 @@
 ﻿using System;
 using Akka.Actor;
 using AkkaSim.Definitions;
+using static FArticles;
+using static FCentralProvideOrders;
 using static FCentralPurchases;
 using static FCentralStockPostings;
 using static FProductionResults;
@@ -15,6 +17,29 @@ namespace Master40.SimulationCore.Agents.StorageAgent
             public class Central
             {
 
+                public class AddOrder : SimulationMessage
+                {
+                    public static AddOrder Create(FArticle message, IActorRef target)
+                    {
+                        return new AddOrder(message: message, target: target);
+                    }
+                    private AddOrder(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public FArticle GetObjectFromMessage { get => Message as FArticle; }
+                }
+
+                public class ProvideOrderAtDue : SimulationMessage
+                {
+                    public static ProvideOrderAtDue Create(FCentralProvideOrder message, IActorRef target)
+                    {
+                        return new ProvideOrderAtDue(message: message, target: target);
+                    }
+                    private ProvideOrderAtDue(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public FCentralProvideOrder GetObjectFromMessage { get => Message as FCentralProvideOrder; }
+                }
                 public class WithdrawMaterial : SimulationMessage
                 {
                     public static WithdrawMaterial Create(FCentralStockPosting message, IActorRef target)
@@ -61,6 +86,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent
                     }
                     public FCentralPurchase GetObjectFromMessage { get => Message as FCentralPurchase; }
                 }
+
             }
         }
     }
