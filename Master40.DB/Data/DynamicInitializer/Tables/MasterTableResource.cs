@@ -22,7 +22,7 @@ namespace Master40.DB.Data.DynamicInitializer.Tables
         {
             for (var i = 0; i < resourceProperties.Count; i++)
             {
-                CreateResourceGroup(resourceProperties[i].CapabilitiesCount, _capability.Capabilities[i]);
+                CreateResourceGroup(resourceProperties[i].ResourceCount, _capability.Capabilities[i]);
             }
         }
 

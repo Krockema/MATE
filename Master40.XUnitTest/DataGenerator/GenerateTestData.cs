@@ -26,6 +26,8 @@ namespace Master40.XUnitTest.DataGenerator
     {
         private readonly ITestOutputHelper _testOutputHelper;
 
+        private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true";
+
         public GenerateTestData(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
@@ -45,14 +47,17 @@ namespace Master40.XUnitTest.DataGenerator
             {
                 var rng = new Random();
 
-                var parameterSet = ParameterSet.Create(new object[] { Dbms.GetNewMasterDataBase(false, "Master40") });
-                var dataBase = parameterSet.GetOption<DataBase<ProductionDomainContext>>();
-                dataBase.DbContext.Database.EnsureDeleted();
-                dataBase.DbContext.Database.EnsureCreated();
+                /*var parameterSet = ParameterSet.Create(new object[] { Dbms.GetNewMasterDataBase(false, "Master40") });
+                var dataBase = parameterSet.GetOption<DataBase<ProductionDomainContext>>();*/
+
+                var dbContext = MasterDBContext.GetContext(testCtxString);
+
+                dbContext.Database.EnsureDeleted();
+                dbContext.Database.EnsureCreated();
                 var units = new MasterTableUnit();
-                var unitCol = units.Init(dataBase.DbContext);
+                var unitCol = units.Init(dbContext);
                 var articleTypes = new MasterTableArticleType();
-                articleTypes.Init(dataBase.DbContext);
+                articleTypes.Init(dbContext);
 
                 //Nebenbedingung lautet, dass Fertigungstiefe mindestens 1 sein muss, es macht aber wenig Sinn, wenn sie gleich 1 ist, da es dann keine Fertigungen gibt
                 //-> Anpassung der Nebenbedingung: Fertigungstiefe muss mindestens 2 sein
@@ -61,10 +66,10 @@ namespace Master40.XUnitTest.DataGenerator
                 var getWorkPlanLengthFromTransitionMatrix = true;
                 var inputProductStructure = new InputParameterSet
                 {
-                    EndProductCount = !randomGeneratedInputValues ? 4 : rng.Next(9) + 2,
-                    DepthOfAssembly = !randomGeneratedInputValues ? 6 : rng.Next(10) + 1,
-                    ComplexityRatio = !randomGeneratedInputValues ? 1.3 : rng.NextDouble() + 1,
-                    ReutilisationRatio = !randomGeneratedInputValues ? 1.4 : rng.NextDouble() + 1,
+                    EndProductCount = !randomGeneratedInputValues ? 7 : rng.Next(9) + 2,
+                    DepthOfAssembly = !randomGeneratedInputValues ? 10 : rng.Next(10) + 1,
+                    ComplexityRatio = !randomGeneratedInputValues ? 2.2 : rng.NextDouble() + 1,
+                    ReutilisationRatio = !randomGeneratedInputValues ? 2.0 : rng.NextDouble() + 1,
                     MeanIncomingMaterialAmount = 2.3, StdDevIncomingMaterialAmount = 0.7,
                     MeanWorkPlanLength = getWorkPlanLengthFromTransitionMatrix ? double.NaN : 3,
                     VarianceWorkPlanLength = getWorkPlanLengthFromTransitionMatrix ? double.NaN : 1
@@ -72,24 +77,23 @@ namespace Master40.XUnitTest.DataGenerator
                 _testOutputHelper.WriteLine(inputProductStructure.ToString());
                 var productStructureGenerator = new ProductStructureGenerator();
                 var productStructure = productStructureGenerator.GenerateProductStructure(inputProductStructure, articleTypes, units, unitCol);
-                ArticleInitializer.Init(productStructure.NodesPerLevel, dataBase.DbContext);
+                ArticleInitializer.Init(productStructure.NodesPerLevel, dbContext);
 
-                var articleTable = dataBase.DbContext.Articles.ToArray();
-                MasterTableStock.Init(dataBase.DbContext, articleTable);
+                var articleTable = dbContext.Articles.ToArray();
+                MasterTableStock.Init(dbContext, articleTable);
 
                 //Limit für Lambda und Anzahl Bearbeitungsstationen jeweils 100
                 //Wenn MeanWorkPlanLength oder VarianceWorkPlanLength "null" sind, dann muss WithStartAndEnd "true" sein
                 var individualMachiningTime = true;
                 var inputTransitionMatrix = new Master40.DataGenerator.DataModel.TransitionMatrix.InputParameterSet
                 {
-                    DegreeOfOrganization = 0.15,
+                    DegreeOfOrganization = 0.8,
                     Lambda = 1.3,
                     InfiniteTools = true,
                     WithStartAndEnd = getWorkPlanLengthFromTransitionMatrix,
                     GeneralMachiningTimeParameterSet = individualMachiningTime ? null : new MachiningTimeParameterSet
                     {
-                        MeanMachiningTime = 15,
-                        VarianceMachiningTime = 5
+                        MeanMachiningTime = 15, VarianceMachiningTime = 5
                     },
                     WorkingStations = new WorkingStationParameterSet[]
                     {
@@ -99,9 +103,42 @@ namespace Master40.XUnitTest.DataGenerator
                             {
                                 MeanMachiningTime = 15, VarianceMachiningTime = 5
                             },
-                            CapabilitiesCount = 1,
-                            ToolCount = 2,
+                            ResourceCount = 1,
+                            ToolCount = 1,
                             SetupTime = 10,
+                            OperatorCount = 0
+                        },
+                        new WorkingStationParameterSet()
+                        {
+                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
+                            {
+                                MeanMachiningTime = 19, VarianceMachiningTime = 1.2
+                            },
+                            ResourceCount = 2,
+                            ToolCount = 1,
+                            SetupTime = 4,
+                            OperatorCount = 0
+                        },
+                        new WorkingStationParameterSet()
+                        {
+                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
+                            {
+                                MeanMachiningTime = 6, VarianceMachiningTime = 5
+                            },
+                            ResourceCount = 1,
+                            ToolCount = 1,
+                            SetupTime = 4,
+                            OperatorCount = 0
+                        },
+                        new WorkingStationParameterSet()
+                        {
+                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
+                            {
+                                MeanMachiningTime = 11, VarianceMachiningTime = 3.3
+                            },
+                            ResourceCount = 3,
+                            ToolCount = 1,
+                            SetupTime = 2,
                             OperatorCount = 0
                         },
                         new WorkingStationParameterSet()
@@ -110,8 +147,8 @@ namespace Master40.XUnitTest.DataGenerator
                             {
                                 MeanMachiningTime = 10, VarianceMachiningTime = 4
                             },
-                            CapabilitiesCount = 1,
-                            ToolCount = 2,
+                            ResourceCount = 3,
+                            ToolCount = 1,
                             SetupTime = 3,
                             OperatorCount = 0
                         },
@@ -121,8 +158,8 @@ namespace Master40.XUnitTest.DataGenerator
                             {
                                 MeanMachiningTime = 13, VarianceMachiningTime = 7
                             },
-                            CapabilitiesCount = 1,
-                            ToolCount = 5,
+                            ResourceCount = 1,
+                            ToolCount = 1,
                             SetupTime = 6,
                             OperatorCount = 1
                         },
@@ -132,8 +169,8 @@ namespace Master40.XUnitTest.DataGenerator
                             {
                                 MeanMachiningTime = 20, VarianceMachiningTime = 3
                             },
-                            CapabilitiesCount = 1,
-                            ToolCount = 4,
+                            ResourceCount = 2,
+                            ToolCount = 1,
                             SetupTime = 12,
                             OperatorCount = 1
                         },
@@ -143,8 +180,8 @@ namespace Master40.XUnitTest.DataGenerator
                             {
                                 MeanMachiningTime = 3, VarianceMachiningTime = 1
                             },
-                            CapabilitiesCount = 1,
-                            ToolCount = 4,
+                            ResourceCount = 1,
+                            ToolCount = 1,
                             SetupTime = 10,
                             OperatorCount = 1
                         },
@@ -154,8 +191,8 @@ namespace Master40.XUnitTest.DataGenerator
                             {
                                 MeanMachiningTime = 12, VarianceMachiningTime = 2
                             },
-                            CapabilitiesCount = 1,
-                            ToolCount = 3,
+                            ResourceCount = 4,
+                            ToolCount = 1,
                             SetupTime = 1,
                             OperatorCount = 0
                         },
@@ -165,7 +202,7 @@ namespace Master40.XUnitTest.DataGenerator
                             {
                                 MeanMachiningTime = 10, VarianceMachiningTime = 7
                             },
-                            CapabilitiesCount = 1,
+                            ResourceCount = 1,
                             ToolCount = 1,
                             SetupTime = 5,
                             OperatorCount = 0
@@ -180,27 +217,27 @@ namespace Master40.XUnitTest.DataGenerator
                 List<ResourceProperty> resourceProperties =
                     inputTransitionMatrix.WorkingStations.Select(x => (ResourceProperty) x).ToList();
 
-                var resourceCapabilities = ResourceInitializer.Initialize(dataBase.DbContext, resourceProperties);
+                var resourceCapabilities = ResourceInitializer.Initialize(dbContext, resourceProperties);
 
                 var operationGenerator = new OperationGenerator();
                 operationGenerator.GenerateOperations(productStructure.NodesPerLevel, transitionMatrix,
                     inputTransitionMatrix, resourceCapabilities);
-                OperationInitializer.Init(productStructure.NodesPerLevel, dataBase.DbContext);
+                OperationInitializer.Init(productStructure.NodesPerLevel, dbContext);
 
                 var inputBillOfMaterial = new Master40.DataGenerator.DataModel.BillOfMaterial.InputParameterSet
                 {
-                    RoundEdgeWeight = false,
+                    RoundEdgeWeight = true,
                     WeightEpsilon = 0.001m
                 };
 
                 var billOfMaterialGenerator = new BillOfMaterialGenerator();
                 billOfMaterialGenerator.GenerateBillOfMaterial(inputBillOfMaterial, productStructure.NodesPerLevel, transitionMatrix, units);
-                BillOfMaterialInitializer.Init(productStructure.NodesPerLevel, dataBase.DbContext);
+                BillOfMaterialInitializer.Init(productStructure.NodesPerLevel, dbContext);
 
                 var businessPartner = new MasterTableBusinessPartner();
-                businessPartner.Init(dataBase.DbContext);
+                businessPartner.Init(dbContext);
 
-                dataBase.DbContext.SaveChanges();
+                dbContext.SaveChanges();
 
                 List<M_ArticleToBusinessPartner> articleToBusinessPartners = new List<M_ArticleToBusinessPartner>();
                 foreach (var article in articleTable)
@@ -215,8 +252,8 @@ namespace Master40.XUnitTest.DataGenerator
                     });
                 }
 
-                dataBase.DbContext.ArticleToBusinessPartners.AddRange(articleToBusinessPartners);
-                dataBase.DbContext.SaveChanges();
+                dbContext.ArticleToBusinessPartners.AddRange(articleToBusinessPartners);
+                dbContext.SaveChanges();
 
                 var transitionMatrixGeneratorVerifier = new TransitionMatrixGeneratorVerifier();
                 transitionMatrixGeneratorVerifier.Verify(transitionMatrix, productStructure.NodesPerLevel, resourceCapabilities);
