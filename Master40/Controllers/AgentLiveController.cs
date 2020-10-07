@@ -10,6 +10,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Master40.SimulationCore.Environment.Options;
+using Master40.Tools.Connectoren.Ganttplan;
+using Master40.SimulationCore;
+using Master40.Tools.SignalR;
 
 namespace Master40.Controllers
 {
@@ -18,12 +21,15 @@ namespace Master40.Controllers
         private readonly AgentCore _agentSimulator;
         private readonly ProductionDomainContext _context;
         private readonly ResultContext _resultCtx;
+        private readonly IMessageHub _messageHub;
+        private const string GanttPlanCtxString = "SERVER=(localdb)\\MSSQLLocalDB;DATABASE=GanttPlanImportTestDB;Trusted_connection=Yes;UID=;PWD=;MultipleActiveResultSets=true";
 
-        public AgentLiveController(AgentCore agentSimulator, ProductionDomainContext context, ResultContext resultCtx)
+        public AgentLiveController(AgentCore agentSimulator, ProductionDomainContext context, ResultContext resultCtx, IMessageHub messageHub)
         {
             _agentSimulator = agentSimulator;
             _resultCtx = resultCtx;
             _context = context;
+            _messageHub = messageHub;
         }
         public async Task<IActionResult> Index()
         {
@@ -43,6 +49,8 @@ namespace Master40.Controllers
             switch (simulationType)
             {
                 case 1: simKind = SimulationType.Default; break;
+                case 2: RunGanttSimulation(orderAmount, arivalRate, estimatedThroughputTime);
+                    return;
                 default: return;
             }
             // using Default Test Values
@@ -65,7 +73,51 @@ namespace Master40.Controllers
             await _agentSimulator.RunAkkaSimulation(configuration: simConfig);
         }
 
-        
+
+        public async void RunGanttSimulation(int orderAmount, double arivalRate, int estimatedThroughputTime)
+        {
+            var ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
+            ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
+
+            //Synchronisation GanttPlan
+            GanttPlanOptRunner.RunOptAndExport("Init");
+
+            var simContext = new GanttSimulation(ganttPlanContext, _context.Database.GetDbConnection().ConnectionString, messageHub: _messageHub);
+            var simConfig = ArgumentConverter.ConfigurationConverter(resultCtx: _resultCtx, 1);
+            // update customized Items
+            simConfig.AddOption(new DBConnectionString(_resultCtx.Database.GetDbConnection().ConnectionString));
+            simConfig.ReplaceOption(new KpiTimeSpan(480));
+            simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
+            simConfig.ReplaceOption(new SimulationKind(value: SimulationType.Central));
+            simConfig.ReplaceOption(new OrderArrivalRate(value: arivalRate));
+            simConfig.ReplaceOption(new OrderQuantity(value: orderAmount));
+            simConfig.ReplaceOption(new EstimatedThroughPut(value: estimatedThroughputTime));
+            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
+            simConfig.ReplaceOption(new Seed(value: 169));
+            simConfig.ReplaceOption(new SettlingStart(value: 2880));
+            simConfig.ReplaceOption(new SimulationEnd(value: 10080));
+            simConfig.ReplaceOption(new SaveToDB(value: true));
+            simConfig.ReplaceOption(new DebugSystem(value: false));
+            simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
+
+            var simulation = await simContext.InitializeSimulation(configuration: simConfig);
+
+            //emtpyResultDBbySimulationNumber(simNr: simConfig.GetOption<SimulationNumber>());
+
+            var simWasReady = false;
+            if (simulation.IsReady())
+            {
+                // set for Assert 
+                simWasReady = true;
+                // Start simulation
+                var sim = simulation.RunAsync();
+                simContext.StateManager.ContinueExecution(simulation);
+                await sim;
+            }
+
+
+        }
+
 
         // POST: Orders/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 

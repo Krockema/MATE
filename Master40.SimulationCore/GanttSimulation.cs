@@ -56,10 +56,10 @@ namespace Master40.SimulationCore
         /// Prepare Simulation Environment
         /// </summary>
         /// <param name="debug">Enables AKKA-Global message Debugging</param>
-        public GanttSimulation(GanttPlanDBContext DBContext, ProductionDomainContext productionContext, IMessageHub messageHub)
+        public GanttSimulation(GanttPlanDBContext DBContext, string productionContextDbString, IMessageHub messageHub)
         {
             _ganttContext = DBContext;
-            _productionContext = productionContext;
+            _productionContext = ProductionDomainContext.GetContext(productionContextDbString);
             _messageHub = messageHub;
             _resourceDictionary = new ResourceDictionary();
         }
@@ -82,7 +82,7 @@ namespace Master40.SimulationCore
 
                     _resourceDictionary.Add(worker.Id, new ResourceDefinition(worker.Name, worker.Id, ActorRefs.Nobody, workergroup.WorkergroupId, resourceType: 3));
                 }
-                _ganttContext.GptblPrt.Select(x => new { x.Id, x.Name}).ForEach(x => _resourceDictionary.Add(x.Id,new ResourceDefinition(x.Name, x.Id, ActorRefs.Nobody,"1", resourceType: 5)));
+                _ganttContext.GptblPrt.Where(x => !x.CapacityType.Equals(1)).Select(x => new { x.Id, x.Name}).ForEach(x => _resourceDictionary.Add(x.Id,new ResourceDefinition(x.Name, x.Id, ActorRefs.Nobody,"1", resourceType: 5)));
                 _ganttContext.GptblWorkcenter.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(x.Id, new ResourceDefinition(x.Name, x.Id, ActorRefs.Nobody, string.Empty, resourceType: 1)));
 
             // Create DataCollectors

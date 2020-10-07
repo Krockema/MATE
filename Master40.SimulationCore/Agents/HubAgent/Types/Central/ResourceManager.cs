@@ -77,15 +77,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
                 }
                 else
                 {
-                    var nextQueueItem = x.ActivityQueue.Peek();
-                    if (nextQueueItem == null)
+                    if (x.ActivityQueue.Count < 1)
                     {
                         System.Diagnostics.Debug.WriteLine(
                             $"NextQueueItem {x.ResourceDefinition.Name} has no activity in queue");
 
                         continue;
-                        
                     }
+                    var nextQueueItem = x.ActivityQueue.Peek();
+                    
                     System.Diagnostics.Debug.WriteLine(
                         $"NextQueueItem {x.ResourceDefinition.Name}|{nextQueueItem.ProductionorderId}|{nextQueueItem.OperationId}|{nextQueueItem.ActivityId}");
                    

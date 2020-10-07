@@ -67,7 +67,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 case BasicInstruction.ChildRef instruction: OnChildAdd(childRef: instruction.GetObjectFromMessage); break;
                 // ToDo Benammung : Sollte die Letzte nachricht zwischen Produktionsagent und Contract Agent abfangen und Inital bei der ersten Forward Terminierung setzen
                 case SetEstimatedThroughputTime instruction: SetEstimatedThroughputTime(getObjectFromMessage: instruction.GetObjectFromMessage); break;
-                case CreateContractAgent instruction: CreateContractAgent(orderPart: instruction.GetObjectFromMessage); break;
+                case CreateContractAgent instruction: CreateContractAgent(order: instruction.GetObjectFromMessage); break;
                 case RequestArticleBom instruction: RequestArticleBom(articleId: instruction.GetObjectFromMessage); break;
                 case OrderProvided instruction: OrderProvided(instruction: instruction); break;
                 case SystemCheck instruction: SystemCheck(); break;
@@ -93,8 +93,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             _estimatedThroughPuts.UpdateOrCreate(name: getObjectFromMessage.ArticleName, time: getObjectFromMessage.Time);
         }
 
-        private void CreateContractAgent(T_CustomerOrderPart orderPart)
+        private void CreateContractAgent(T_CustomerOrder order)
         {
+            var orderPart = order.CustomerOrderParts.First();
             _orderQueue.Enqueue(item: orderPart);
             Agent.DebugMessage(msg: $"Creating Contract Agent for order {orderPart.CustomerOrderId} with {orderPart.Article.Name} DueTime {orderPart.CustomerOrder.DueTime}");
             var agentSetup = AgentSetup.Create(agent: Agent, behaviour: ContractAgent.Behaviour.Factory.Get(simType: _simulationType));
@@ -166,8 +167,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             long period = order.DueTime - (eta.Value); // 1 Tag und 1 Schicht
             if (period < 0 || eta.Value == 0)
             {
-                order.CustomerOrderParts.ToList()
-                     .ForEach(CreateContractAgent);
+                CreateContractAgent(order);
                 return;
             }
             _openOrders.Add(item: order);
@@ -182,8 +182,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             // Debug.WriteLine("SystemCheck(" + CurrentTime + "): " + orders.Count() + " of " + _openOrders.Count() + "found");
             foreach (var order in orders)
             {
-                order.CustomerOrderParts.ToList()
-                     .ForEach(CreateContractAgent);
+                CreateContractAgent(order);
                 _openOrders.RemoveAll(match: x => x.Id == order.Id);
             }
 

@@ -68,7 +68,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 case BasicInstruction.ChildRef instruction: OnChildAdd(childRef: instruction.GetObjectFromMessage); break;
                 // ToDo Benammung : Sollte die Letzte nachricht zwischen Produktionsagent und Contract Agent abfangen und Inital bei der ersten Forward Terminierung setzen
                 case SetEstimatedThroughputTime instruction: SetEstimatedThroughputTime(getObjectFromMessage: instruction.GetObjectFromMessage); break;
-                case CreateContractAgent instruction: CreateContractAgent(orderPart: instruction.GetObjectFromMessage); break;
+                case CreateContractAgent instruction: CreateContractAgent(order: instruction.GetObjectFromMessage); break;
                 case RequestArticleBom instruction: RequestArticleBom(articleId: instruction.GetObjectFromMessage); break;
                 case OrderProvided instruction: OrderProvided(instruction: instruction); break;
                 case SystemCheck instruction: SystemCheck(); break;
@@ -94,8 +94,14 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             _estimatedThroughPuts.UpdateOrCreate(name: getObjectFromMessage.ArticleName, time: getObjectFromMessage.Time);
         }
 
-        private void CreateContractAgent(T_CustomerOrderPart orderPart)
+        private void CreateContractAgent(T_CustomerOrder order)
         {
+
+            _productionContext.CustomerOrders.Add(order);
+            _productionContext.SaveChanges();
+
+            var orderPart = order.CustomerOrderParts.First();
+
             _orderQueue.Enqueue(item: orderPart);
             Agent.DebugMessage(msg: $"Creating Contract Agent for order {orderPart.CustomerOrderId} with {orderPart.Article.Name} DueTime {orderPart.CustomerOrder.DueTime}");
             var agentSetup = AgentSetup.Create(agent: Agent, behaviour: ContractAgent.Behaviour.Factory.Get(simType: _simulationType));
@@ -160,17 +166,14 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
             var order = _orderGenerator.GetNewRandomOrder(time: Agent.CurrentTime);
             
-            _productionContext.SaveChanges();
-
             Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: order.CreationTime - Agent.CurrentTime);
-            var eta = _estimatedThroughPuts.Get(name: order.CustomerOrderParts.First().Article.Name);
+            var eta = _estimatedThroughPuts.Get(name: order.Name);
             Agent.DebugMessage(msg: $"EstimatedTransitionTime {eta.Value} for order {order.Name} {order.Id}");
 
             long period = order.DueTime - (eta.Value); // 1 Tag und 1 Schicht
             if (period < 0 || eta.Value == 0)
             {
-                order.CustomerOrderParts.ToList()
-                     .ForEach(CreateContractAgent);
+                CreateContractAgent(order);
                 return;
             }
             _openOrders.Add(item: order);
@@ -181,12 +184,11 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: 1);
 
             // TODO Loop Through all CustomerOrderParts
-            var orders = _openOrders.Where(predicate: x => x.DueTime - _estimatedThroughPuts.Get(name: x.CustomerOrderParts.First().Article.Name).Value <= Agent.CurrentTime).ToList();
+            var orders = _openOrders.Where(predicate: x => x.DueTime - _estimatedThroughPuts.Get(name: x.Name).Value <= Agent.CurrentTime).ToList();
             // Debug.WriteLine("SystemCheck(" + CurrentTime + "): " + orders.Count() + " of " + _openOrders.Count() + "found");
             foreach (var order in orders)
             {
-                order.CustomerOrderParts.ToList()
-                     .ForEach(CreateContractAgent);
+                CreateContractAgent(order);
                 _openOrders.RemoveAll(match: x => x.Id == order.Id);
             }
 

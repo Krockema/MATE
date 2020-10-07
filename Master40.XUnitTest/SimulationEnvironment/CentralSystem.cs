@@ -117,10 +117,11 @@ namespace Master40.XUnitTest.SimulationEnvironment
             //Synchronisation GanttPlan
             GanttPlanOptRunner.RunOptAndExport("Init");
 
-            var simContext = new GanttSimulation(ganttPlanContext, masterPlanContext, messageHub: new ConsoleHub());
+            var simContext = new GanttSimulation(ganttPlanContext, masterCtxString, messageHub: new ConsoleHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
             // update customized Items
             simConfig.AddOption(new DBConnectionString(masterResultCtxString));
+            simConfig.ReplaceOption(new KpiTimeSpan(60));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new SimulationKind(value: simtulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));

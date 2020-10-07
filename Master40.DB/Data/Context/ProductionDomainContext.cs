@@ -129,7 +129,6 @@ namespace Master40.DB.Data.Context
                 CustomerOrderParts = olist
             };
 
-            this.CustomerOrders.Add(entity: order);
             return order;
         }
 

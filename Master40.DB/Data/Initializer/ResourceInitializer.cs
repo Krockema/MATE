@@ -26,6 +26,9 @@ namespace Master40.DB.Data.Initializer
             resourceCapabilities.InitBasicCapabilities(context);
             switch (setupModelSize)
             {
+                case ModelSize.XSmall:
+                    resourceCapabilities.CreateToolingCapabilities(context, 1, 1, 1);
+                    break;
                 case ModelSize.Small:
                     resourceCapabilities.CreateToolingCapabilities(context, 2, 2, 2);
                     break;
