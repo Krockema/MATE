@@ -121,7 +121,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             var simConfig = ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
             // update customized Items
             simConfig.AddOption(new DBConnectionString(masterResultCtxString));
-            simConfig.ReplaceOption(new KpiTimeSpan(60));
+            simConfig.ReplaceOption(new KpiTimeSpan(480));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new SimulationKind(value: simtulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
