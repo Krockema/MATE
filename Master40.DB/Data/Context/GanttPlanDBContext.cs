@@ -23,6 +23,16 @@ namespace Master40.DB.Data.Context
                 .Options);
         }
 
+        public static int ClearDatabase(string connectionString)
+        {
+            int affectedRows;
+            using (var ctx = GetContext(connectionString))
+            {
+                affectedRows = ctx.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
+            }
+            return affectedRows;
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
         }

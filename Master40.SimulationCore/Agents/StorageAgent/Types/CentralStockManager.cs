@@ -8,7 +8,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Types
 {
     public class CentralStockManager
     {
-        public FCentralStockDefinition _stockDefinition { get; }
+        private FCentralStockDefinition _stockDefinition { get; }
 
         public double _quantity { get; private set; }
         public CentralStockManager(FCentralStockDefinition stockDefinition)
@@ -28,5 +28,9 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Types
             _quantity -= quantity;
         }
 
+        public string MaterialType => _stockDefinition.MaterialType;
+        public string MaterialName => _stockDefinition.MaterialName;
+        public long DeliveryPeriod => _stockDefinition.DeliveryPeriod;
+        public double Value => Convert.ToDouble(value: _quantity) * Convert.ToDouble(value: _stockDefinition.Price);
     }
 }

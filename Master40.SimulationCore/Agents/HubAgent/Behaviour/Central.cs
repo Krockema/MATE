@@ -446,12 +446,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             {
                 //_stockPostingManager.AddInsertStockPosting(product.MaterialId,productionOrder.QuantityNet.Value,productionOrder.QuantityUnitId,GanttStockPostingType.Relatively,Agent.CurrentTime);
 
-                CreateLeadTime(product, productionOrder.EarliestStartDate.Value.ToSimulationTime());
-
                 var salesorderId = _SalesorderMaterialrelations.Single(x => x.ChildId.Equals(productionOrder.ProductionorderId)).SalesorderId;
 
                 var salesorder = _salesOrder.Single(x => x.SalesorderId.Equals(salesorderId));
 
+                CreateLeadTime(product, long.Parse(salesorder.Info1));
+                
                 salesorder.Status = 8;
                 salesorder.QuantityDelivered = 1;
 
@@ -459,8 +459,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                                                                  ,materialId : product.MaterialId
                                                                 ,materialName: product.Name
                                                                , salesOrderId: salesorderId
-                                                         , materialFinishedAt: Agent.CurrentTime           
-                                                                 );
+                                                         , materialFinishedAt: Agent.CurrentTime);
 
                 Agent.Send(DirectoryAgent.Directory.Instruction.Central.ForwardProvideOrder.Create(provideOrder, Agent.ActorPaths.StorageDirectory.Ref));
             }

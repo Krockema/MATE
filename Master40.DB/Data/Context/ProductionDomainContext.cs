@@ -20,6 +20,12 @@ namespace Master40.DB.Data.Context
                 .Options);
         }
 
+        public void ClearCustomerOrders()
+        {
+            this.Database.ExecuteSqlRaw("Delete from T_CustomerOrderPart");
+            this.Database.ExecuteSqlRaw("Delete from T_CustomerOrder");
+        }
+
         public T_CustomerOrder OrderById(int id)
         {
             return CustomerOrders.FirstOrDefault(predicate: x => x.Id == id);

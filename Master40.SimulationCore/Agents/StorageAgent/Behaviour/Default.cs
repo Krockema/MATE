@@ -28,6 +28,8 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
         internal StockManager _stockManager { get; set; }
         internal ArticleList _requestedArticles { get; set; }
 
+        internal void LogValueChange(string article, string articleType, double value)
+                      => ((Storage) Agent).LogValueChange(article, articleType, value);
 
         public override bool Action(object message)
         {
@@ -72,7 +74,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             //stockExchange.RequiredOnTime = (int)Context.TimePeriod;
             stockExchange.Time = (int)Agent.CurrentTime;
             _stockManager.AddToStock(stockExchange);
-            LogValueChange(article: _stockManager.Article, value: Convert.ToDouble(value: _stockManager.Current) * Convert.ToDouble(value: _stockManager.Price));
+            LogValueChange(article: _stockManager.Article.Name, articleType: _stockManager.Article.ArticleType.Name, value: Convert.ToDouble(value: _stockManager.Current) * Convert.ToDouble(value: _stockManager.Price));
 
             // no Items to be served.
             if (!_requestedArticles.Any()) return;
@@ -118,7 +120,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             _stockManager.StockExchanges.Add(stockExchange);
 
             // log Changes 
-            LogValueChange(article: _stockManager.Article, value: Convert.ToDouble(value: _stockManager.Current) * Convert.ToDouble(value: _stockManager.Price));
+            LogValueChange(article: _stockManager.Article.Name, articleType: _stockManager.Article.ArticleType.Name, value: Convert.ToDouble(value: _stockManager.Current) * Convert.ToDouble(value: _stockManager.Price));
 
             // Check if the most Important Request can be provided.
             var mostUrgentRequest = _requestedArticles.First(predicate: x => x.DueTime == _requestedArticles.Min(selector: r => r.DueTime));
@@ -269,7 +271,9 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
         {
             var stockExchange = _stockManager.GetStockExchangeByTrackingGuid(exchangeId);
             if (stockExchange == null) throw new Exception(message: "No StockExchange was found");
-            LogValueChange(article: _stockManager.Article, value: Convert.ToDouble(value: _stockManager.Current) * Convert.ToDouble(value: _stockManager.Price));
+            LogValueChange(article: _stockManager.Article.Name, 
+                       articleType: _stockManager.Article.ArticleType.Name, 
+                             value: Convert.ToDouble(value: _stockManager.Current) * Convert.ToDouble(value: _stockManager.Price));
 
             stockExchange.State = State.Finished;
             stockExchange.Time = (int)Agent.CurrentTime;
@@ -278,12 +282,5 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 
         }
 
-        internal void LogValueChange(M_Article article, double value)
-        {
-            var pub = new FUpdateStockValue(stockName: article.Name
-                                            , newValue: value
-                                            , articleType: article.ArticleType.Name);
-            Agent.Context.System.EventStream.Publish(@event: pub);
-        }
     }
 }

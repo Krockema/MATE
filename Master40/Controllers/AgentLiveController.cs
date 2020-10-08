@@ -9,9 +9,11 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.DB.Data.WrappersForPrimitives;
 using Master40.SimulationCore.Environment.Options;
 using Master40.Tools.Connectoren.Ganttplan;
 using Master40.SimulationCore;
+using Master40.SimulationCore.Environment;
 using Master40.Tools.SignalR;
 
 namespace Master40.Controllers
@@ -45,77 +47,67 @@ namespace Master40.Controllers
         [HttpGet(template: "[Controller]/RunAsync/{simulationType}/orderAmount/{orderAmount}/arivalRate/{arivalRate}/estimatedThroughputTime/{estimatedThroughputTime}")]
         public async void RunAsync(int simulationType, int orderAmount, double arivalRate,int estimatedThroughputTime)
         {
-            var simKind = SimulationType.None;
-            switch (simulationType)
-            {
-                case 1: simKind = SimulationType.Default; break;
-                case 2: RunGanttSimulation(orderAmount, arivalRate, estimatedThroughputTime);
-                    return;
-                default: return;
-            }
-            // using Default Test Values
-            var simConfig = ArgumentConverter.ConfigurationConverter(_resultCtx, 1);
-            // update customized Items
-            simConfig.ReplaceOption(new SimulationKind(value: simKind));
-            simConfig.ReplaceOption(new TimeToAdvance(value: TimeSpan.FromMilliseconds(50)));
-            simConfig.ReplaceOption(new OrderArrivalRate(value: arivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: orderAmount));
-            simConfig.ReplaceOption(new EstimatedThroughPut(value: estimatedThroughputTime));
-            simConfig.ReplaceOption(new KpiTimeSpan(value: 60));
-            simConfig.ReplaceOption(new Seed(value: 1337));
-            simConfig.ReplaceOption(new SettlingStart(value: 2880));
-            simConfig.ReplaceOption(new SimulationEnd(value: 20160));
-            simConfig.ReplaceOption(new SaveToDB(value: false));
-            simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
-            // simConfig.ReplaceOption(new DebugSystem(true));
-            // new DBConnectionString(value: "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true")
- 
-            await _agentSimulator.RunAkkaSimulation(configuration: simConfig);
-        }
+            _context.ClearCustomerOrders();
 
-
-        public async void RunGanttSimulation(int orderAmount, double arivalRate, int estimatedThroughputTime)
-        {
-            var ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
-            ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
-
-            //Synchronisation GanttPlan
-            GanttPlanOptRunner.RunOptAndExport("Init");
-
-            var simContext = new GanttSimulation(ganttPlanContext, _context.Database.GetDbConnection().ConnectionString, messageHub: _messageHub);
             var simConfig = ArgumentConverter.ConfigurationConverter(resultCtx: _resultCtx, 1);
             // update customized Items
             simConfig.AddOption(new DBConnectionString(_resultCtx.Database.GetDbConnection().ConnectionString));
             simConfig.ReplaceOption(new KpiTimeSpan(480));
+            simConfig.ReplaceOption(new TimeToAdvance(value: TimeSpan.FromMilliseconds(50)));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
-            simConfig.ReplaceOption(new SimulationKind(value: SimulationType.Central));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: orderAmount));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: estimatedThroughputTime));
-            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
+            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
             simConfig.ReplaceOption(new Seed(value: 169));
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
             simConfig.ReplaceOption(new SimulationEnd(value: 10080));
-            simConfig.ReplaceOption(new SaveToDB(value: true));
+            simConfig.ReplaceOption(new SaveToDB(value: false));
             simConfig.ReplaceOption(new DebugSystem(value: false));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
+            simConfig.ReplaceOption(new MaxDeliveryTime(3120));
+            simConfig.ReplaceOption(new MinDeliveryTime(2160));
+
+
+
+            switch (simulationType)
+            {
+                case 1: RunAgentSimulation(simConfig); return;
+                case 2: RunGanttSimulation(simConfig); return;
+                default: return;
+            }
+
+        }
+
+        public async void RunAgentSimulation(Configuration simConfig)
+        {
+            simConfig.ReplaceOption(new SimulationKind(value: SimulationType.Default));
+            simConfig.ReplaceOption(new SimulationNumber(2));
+            await _agentSimulator.RunAkkaSimulation(configuration: simConfig);
+        }
+
+        public async void RunGanttSimulation(Configuration simConfig)
+        {
+            GanttPlanDBContext.ClearDatabase(GanttPlanCtxString);
+            
+            //Synchronisation GanttPlan
+            GanttPlanOptRunner.Inizialize();
+
+            var simContext = new GanttSimulation(GanttPlanCtxString, _context.Database.GetDbConnection().ConnectionString, messageHub: _messageHub);
+            
+            simConfig.ReplaceOption(new SimulationKind(value: SimulationType.Central));
+            simConfig.ReplaceOption(new DebugSystem(value: false));
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 
             //emtpyResultDBbySimulationNumber(simNr: simConfig.GetOption<SimulationNumber>());
-
-            var simWasReady = false;
             if (simulation.IsReady())
             {
-                // set for Assert 
-                simWasReady = true;
                 // Start simulation
                 var sim = simulation.RunAsync();
                 simContext.StateManager.ContinueExecution(simulation);
                 await sim;
             }
-
-
         }
 
 
@@ -124,7 +116,7 @@ namespace Master40.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
 
         /// <summary>
-        /// TODO : Change from uri to json Body
+        /// TODO : Change from uri to json Body to post any parameter (more Dynamic)
         /// </summary>
         /// <param name="items"></param>
         /*

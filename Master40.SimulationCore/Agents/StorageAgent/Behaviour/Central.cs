@@ -1,13 +1,12 @@
 ﻿using Master40.DB.Nominal;
+using Master40.SimulationCore.Agents.StorageAgent.Types;
 using System;
 using System.Linq;
-using Akka.Util.Extensions;
-using Master40.SimulationCore.Agents.StorageAgent.Types;
-using static FCentralStockDefinitions;
-using static FCentralStockPostings;
-using static FCentralPurchases;
 using static FArticles;
 using static FCentralProvideOrders;
+using static FCentralPurchases;
+using static FCentralStockDefinitions;
+using static FCentralStockPostings;
 
 namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 {
@@ -17,9 +16,10 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
 
         internal ArticleList _requestedArticles { get; set; } = new ArticleList();
 
-        ///RequestStockQuantityAndPurchase
-
-        // PurchaseOrders --> Pop PurchaseEntry --> stock posting at time xxx
+        internal void LogValueChange()
+                        => ((Storage)Agent).LogValueChange(_stockManager.MaterialName
+                            , _stockManager.MaterialType
+                            , _stockManager.Value);
 
 
         public Central(FCentralStockDefinition stockDefinition, SimulationType simType) : base(simulationType: simType)
@@ -72,7 +72,7 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
             //purchase changes?
 
             Agent.Send(instruction: Storage.Instruction.Central.PopPurchase.Create(message: purchase, target: Agent.Sender), 
-                waitFor: Convert.ToInt32(_stockManager._stockDefinition.DeliveryPeriod));
+                waitFor: Convert.ToInt32(_stockManager.DeliveryPeriod));
         }
 
         /// <summary>
@@ -89,12 +89,14 @@ namespace Master40.SimulationCore.Agents.StorageAgent.Behaviour
         {
             Agent.DebugMessage($"{stockPosting.Quantity} {stockPosting.MaterialId} arrived");
             _stockManager.Remove(stockPosting.Quantity);
+            LogValueChange();
         }
 
         private void InsertMaterial(FCentralStockPosting stockPosting)
         {
             Agent.DebugMessage($"{stockPosting.Quantity} {stockPosting.MaterialId} arrived");
             _stockManager.Add(stockPosting.Quantity);
+            LogValueChange();
         }
     }
 }

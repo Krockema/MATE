@@ -92,7 +92,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                             , time: Agent.CurrentTime
                                             , debug: Agent.DebugThis
                                             , principal: Agent.Context.Self)
-                                            , name: ("Storage(" + stock.StockId + " " + stock.StockName +")").ToActorName());
+                                            , name: ("Storage(" + stock.StockId + " " + stock.MaterialName +")").ToActorName());
 
             StorageManager.AddOrCreateRelation(storage, stock.StockId.ToString());
             Agent.Send(instruction: BasicInstruction.Initialize.Create(target: storage, message: StorageAgent.Behaviour.Factory.Central(stockDefinition: stock, simType: SimulationType)));

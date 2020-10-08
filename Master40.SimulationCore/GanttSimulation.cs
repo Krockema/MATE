@@ -56,9 +56,9 @@ namespace Master40.SimulationCore
         /// Prepare Simulation Environment
         /// </summary>
         /// <param name="debug">Enables AKKA-Global message Debugging</param>
-        public GanttSimulation(GanttPlanDBContext DBContext, string productionContextDbString, IMessageHub messageHub)
+        public GanttSimulation(string ganttContextDbString, string productionContextDbString, IMessageHub messageHub)
         {
-            _ganttContext = DBContext;
+            _ganttContext = GanttPlanDBContext.GetContext(ganttContextDbString);
             _productionContext = ProductionDomainContext.GetContext(productionContextDbString);
             _messageHub = messageHub;
             _resourceDictionary = new ResourceDictionary();
@@ -229,11 +229,12 @@ namespace Master40.SimulationCore
 
                 var stockDefintion = new FCentralStockDefinition(
                     stockId: Int32.Parse(material.MaterialId), 
-                    stockName: material.Name, 
-                    initialQuantity: (double)initialStock.Quantity, 
+                    materialName: material.Name, 
+                    initialQuantity: initialStock.Quantity.Value, 
                     unit: material.QuantityUnitId, 
+                    price: material.ValueProduction.Value,
                     materialType:material.Info1, 
-                    deliveryPeriod: Double.Parse(material.Info2)
+                    deliveryPeriod: long.Parse(material.Info2)
                     );
 
                 _simulation.SimulationContext.Tell(message: Directory.Instruction.Central

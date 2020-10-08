@@ -7,6 +7,7 @@ namespace Master40.Tools.Connectoren.Ganttplan
     {
         private const string PATH_TO_GANTTOPTRUNNTER = "C:\\Program Files\\GANTTPLAN_V6\\GanttPlanOptRunner.exe";
 
+        public const string Init = "Init";
         /// <summary>
         /// Start default OptRun and Export Productionorder results to GanttPlanDB
         /// GanttPlanApics.GPInitInstanceEx(cPathApp: "C:\\Program Files\\GANTTPLAN_V6\\Init", cPathUser: "C:\\Users\\Administrator");
@@ -18,6 +19,11 @@ namespace Master40.Tools.Connectoren.Ganttplan
         //GanttPlanApics.GPExitInstance();
         /// </summary>
         // mode: "Continuous" or "Init"
+
+        public static void Inizialize()
+        {
+            RunOptAndExport(Init);
+        }
 
         public static void RunOptAndExport(string mode)
         {
