@@ -121,6 +121,13 @@ textarea {
     top: 20px !important;
 }
 
+#ganttValueBody tr {
+    border-bottom: 1px solid #1b1e21
+}
+#ganttValueBody td {
+    text-align: center
+}
+
 .footer {
     position: fixed;
     width: 100%;

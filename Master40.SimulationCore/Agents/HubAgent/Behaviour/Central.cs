@@ -13,13 +13,16 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data.HashFunction.xxHash;
+using System.Diagnostics;
 using System.Linq;
 using Akka.Util.Internal;
+using Newtonsoft.Json;
 using static FCentralActivities;
 using static FCentralProvideOrders;
 using static FCentralResourceRegistrations;
 using static FCentralStockPostings;
 using static FCreateSimulationJobs;
+using static FCentralGanttPlanInformations;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -76,6 +79,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         private void LoadProductionOrders(IActorRef inboxActorRef)
         {
+            var timeStamps = new Dictionary<string, long>();
+            long lastStep = 0;
+            var stopwatch = Stopwatch.StartNew();
+            stopwatch.Start();
+
             _stockPostingManager.TransferStockPostings();
             _confirmationManager.TransferConfirmations();
 
@@ -96,6 +104,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             }*/
 
             //update model planning time
+
+
             using (var localGanttPlanDbContext = GanttPlanDBContext.GetContext(_dbConnectionStringGanttPlan))
             {
                 var modelparameter = localGanttPlanDbContext.GptblModelparameter.FirstOrDefault();
@@ -106,9 +116,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 }
             }
 
+            lastStep = stopwatch.ElapsedMilliseconds;
+            timeStamps.Add("Write Confirmations", lastStep);
+
             System.Diagnostics.Debug.WriteLine("Start GanttPlan");
             GanttPlanOptRunner.RunOptAndExport("Continuous");
             System.Diagnostics.Debug.WriteLine("Finish GanttPlan");
+
+            lastStep = stopwatch.ElapsedMilliseconds - lastStep;
+            timeStamps.Add("Gantt Plan Execution", lastStep);
 
             using (var localGanttPlanDbContext = GanttPlanDBContext.GetContext(_dbConnectionStringGanttPlan))
             {
@@ -152,11 +168,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 }
             }
 
-            /*using (var localGanttPlanDbContext = GanttPlanDBContext.GetContext(_dbConnectionStringGanttPlan))
-            {
-                _activityManager.UpdateActvityIds(localGanttPlanDbContext.);
-            }*/
-
             //delete orders to avoid sync
             using (var masterDBContext = MasterDBContext.GetContext(_dbConnectionStringMaster))
             {
@@ -165,13 +176,17 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 masterDBContext.SaveChanges();
             }
 
-            
             Agent.DebugMessage($"GanttPlanning number {_planManager.PlanVersion} incremented {_planManager.IncrementPlaningNumber()}");
             _scheduledActivities.Clear();
 
             StartActivities();
-        
-            inboxActorRef.Tell("GanttPlan finished!", this.Agent.Context.Self);
+
+            lastStep = stopwatch.ElapsedMilliseconds - lastStep;
+            timeStamps.Add("Load Gantt Results", lastStep);
+            timeStamps.Add("TimeStep", Agent.CurrentTime);
+            stopwatch.Stop();
+            
+            inboxActorRef.Tell(new FCentralGanttPlanInformation(JsonConvert.SerializeObject(timeStamps), "Plan"), this.Agent.Context.Self);
            
         }
 

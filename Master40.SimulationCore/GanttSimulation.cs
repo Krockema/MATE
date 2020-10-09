@@ -112,6 +112,7 @@ namespace Master40.SimulationCore
                                                                          , this.ContractCollector
                                                                          , this.ResourceCollector
                                                                      }
+                                                        , _messageHub
                                                         , SimulationConfig.Inbox);
 
                 return _simulation;

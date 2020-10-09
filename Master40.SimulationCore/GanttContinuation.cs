@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Akka.Actor;
-using Akka.Actor.Dsl;
+﻿using Akka.Actor;
 using AkkaSim;
 using AkkaSim.Logging;
-using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Agents.HubAgent;
-using Master40.SimulationCore.Agents.HubAgent.Behaviour;
-using Master40.SimulationCore.Agents.JobAgent;
-using Master40.Tools.Connectoren.Ganttplan;
+using Master40.Tools.SignalR;
 using NLog;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using static FCentralGanttPlanInformations;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
 namespace Master40.SimulationCore
@@ -20,11 +17,13 @@ namespace Master40.SimulationCore
         private readonly List<IActorRef> _collectorRefs;
         private readonly Inbox _inbox;
         private readonly Logger _logger;
+        private readonly IMessageHub _messageHub;
 
-        public GanttStateManager(List<IActorRef> collectorRefs, Inbox inbox)
+        public GanttStateManager(List<IActorRef> collectorRefs, IMessageHub messageHub, Inbox inbox)
         {
             _collectorRefs = collectorRefs;
             _inbox = inbox;
+            _messageHub = messageHub;
             _logger = LogManager.GetLogger(TargetNames.LOG_AKKA);
         }
 
@@ -55,7 +54,8 @@ namespace Master40.SimulationCore
 
             Task.WaitAll(tasks.ToArray());
             //TODO might need to extend timespan
-            var test = _inbox.ReceiveWhere(x => x.ToString() == "GanttPlan finished!", TimeSpan.FromSeconds(60 * 60));
+            var results = _inbox.ReceiveWhere(x => x is FCentralGanttPlanInformation, TimeSpan.FromSeconds(60 * 60)) as FCentralGanttPlanInformation;
+            _messageHub.SendToClient("ganttListener", results.InfoJson);
         }
 
         public override void SimulationIsTerminating(Simulation sim)
