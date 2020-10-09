@@ -1,0 +1,2740 @@
+﻿// Copyright © 2008-2020 DUALIS GmbH IT Solution - All Rights Reserved
+// StringTable für GANTTPLAN (deutsch)
+//
+// wichtige Hinweise:
+// ------------------------------------------------------------------------------
+// Struktur der StringTable: [KEY]value
+//
+// Bereiche können festgelegt werden, indem das # Zeichen dem Beginn der Zeile hinzugefügt wird
+//
+// %-Zeichen müssen immer so geschrieben werden: %%
+//
+// dynamische Strings werden so beschrieben: %1 bzw. %2 usw.
+//	Beispiel: "Hier steht der erste String: %1 gefolgt vom zweiten String %2.
+// ------------------------------------------------------------------------------
+
+#OBJECTTYPES
+[attachment]Anhang
+[attachment+]Anhänge
+[bom]Stückliste
+[bom+]Stücklisten
+[bom_item]Stückliste-Position
+[bom_item+]Stückliste-Positionen
+[calendar]Kalender
+[calendar+]Kalender
+[calendar_interval]Kalendereintrag
+[calendar_interval+]Kalendereinträge
+[confirmation]Rückmeldung
+[confirmation+]Rückmeldungen
+[confirmation_resource]Rückmeldung-Ressource
+[confirmation_resource+]Rückmeldung-Ressourcen
+[confirmation_resource_interval]Rückmeldung-Ressource-Intervall
+[confirmation_resource_interval+]Rückmeldung-Ressource-Intervalle
+[custom]Custom
+[custom+]Customs
+[defaultganttcolorscheme]Leitstands-Farbschema
+[defaultganttcolorscheme+]Leitstands-Farbschemen
+[defaultreport]Report
+[defaultreport+]Reports
+[ganttcolorscheme]Eigenes Leitstands-Farbschema
+[ganttcolorscheme+]Eigene Leitstands-Farbschemen
+[ganttcolorscheme_filter]Leitstands-Farbschemen-Filter
+[ganttcolorscheme_filter+]Leitstands-Farbschemen-Filter
+[ganttcolorscheme_filter_item]Leitstand-Farbschema-Filterelement
+[ganttcolorscheme_filter_item+]Leitstand-Farbschema-Filterelemente
+[idtemplate]ID Template
+[idtemplate+]ID Templates
+[material]Material
+[material+]Materialien
+[material_unitconversion]materialspezifische Umrechnung
+[material_unitconversion+]materialspezifische Umrechnungen
+[material_optimizationgroup]Material-Optimierungsgruppe
+[material_optimizationgroup+]Material-Optimierungsgruppen
+[material_productionversion]Material-Fertigungsversion
+[material_productionversion+]Material-Fertigungsversionen
+[modelparameter]Modellparameter
+[modelparameter+]Modellparameter
+[objecttype]Objekttyp
+[objecttype+]Objekttypen
+[objecttype_udf]Objekttyp-Nutzerdefinierte Eigenschaft
+[objecttype_udf+]Objekttyp-Nutzerdefinierte Eigenschaften
+[optimizationgroup]Optimierungsgruppe
+[optimizationgroup+]Optimierungsgruppen
+[planningparameter]Planparameter
+[planningparameter+]Planparameter
+[plant]Werk
+[plant+]Werke
+[priority]Priorität
+[priority+]Prioritäten
+[priority_latenesscost]Priorität-Verspätungskosten
+[priority_latenesscost+]Priorität-Verspätungskosten
+[productioncontroller]Fertigungssteuerer
+[productioncontroller+]Fertigungssteuerer
+[productionorder]Fertigungsauftrag
+[productionorder+]Fertigungsaufträge
+[productionorder_operation_activity]Fertigungsauftrag-Vorgang-Aktivität
+[productionorder_operation_activity+]Fertigungsauftrag-Vorgang-Aktivitäten
+[productionorder_operation_activity_materialrelation]Fertigungsauftrag-Vorgang-Aktivität-Materialbeziehung
+[productionorder_operation_activity_materialrelation+]Fertigungsauftrag-Vorgang-Aktivität-Materialbeziehungen
+[productionorder_operation_activity_resource]Fertigungsauftrag-Vorgang-Aktivität-Ressource
+[productionorder_operation_activity_resource+]Fertigungsauftrag-Vorgang-Aktivität-Ressourcen
+[productionorder_operation_activity_resource_interval]Fertigungsauftrag-Vorgang-Aktivität-Ressourcen-Intervall
+[productionorder_operation_activity_resource_interval+]Fertigungsauftrag-Vorgang-Aktivität-Ressourcen-Intervalle
+[productionorder_operation_activity_fixedresource]Fertigungsauftrag-Vorgang-Aktivität-Fixierte Ressource
+[productionorder_operation_activity_fixedresource+]Fertigungsauftrag-Vorgang-Aktivität-Fixierte Ressourcen
+[prt]Fertigungshilfsmittel
+[prt+]Fertigungshilfsmittel
+[prt_calendarinterval]Fertigungshilfsmittel-Kalendereintrag
+[prt_calendarinterval+]Fertigungshilfsmittel-Kalendereinträge
+[prt_shiftmodel]Fertigungshilfsmittel-Schichtmodell
+[prt_shiftmodel+]Fertigungshilfsmittel-Schichtmodelle
+[prt_workcenter]Fertigungshilfsmittel-Arbeitsplatz
+[prt_workcenter+]Fertigungshilfsmittel-Arbeitsplatzn
+[purchaseorder]Lieferantenbestellung
+[purchaseorder+]Lieferantenbestellungen
+[report]Eigener Report
+[report+]Eigene Reports
+[report_colorfilter]Report-Farbfilter
+[report_colorfilter+]Report-Farbfilter
+[report_colorfilter_item]Report-Farbfilterelement
+[report_colorfilter_item+]Report-Farbfilterelemente
+[report_column]Report-Spalte
+[report_column+]Report-Spalten
+[report_rowfilter]Report-Zeilenfilter
+[report_rowfilter+]Report-Zeilenfilter
+[report_rowfilter_item]Report-Zeilenfilterelement
+[report_rowfilter_item+]Report-Zeilenfilterelemente
+[report_option]Report-Option
+[report_option+]Report-Optionen
+[report_option_item]Report-Optionselement
+[report_option_item+]Report-Optionselemente
+[resultinfo]Ergebnisinformation
+[resultinfo+]Ergebnisinformationen
+[routing]Arbeitsplan
+[routing+]Arbeitspläne
+[routing_operation]Arbeitsplan-Vorgang
+[routing_operation+]Arbeitsplan-Vorgänge
+[routing_operation_activity]Arbeitsplan-Vorgang-Aktivität
+[routing_operation_activity+]Arbeitsplan-Vorgang-Aktivitäten
+[routing_operation_activity_bom_item]Arbeitsplan-Vorgang-Aktivität-Stücklisten-Position
+[routing_operation_activity_bom_item+]Arbeitsplan-Vorgang-Aktivität-Stücklisten-Positionen
+[routing_operation_activity_prt]Arbeitsplan-Vorgang-Aktivität-Fertigungshilfsmittel
+[routing_operation_activity_prt+]Arbeitsplan-Vorgang-Aktivität-Fertigungshilfsmittel
+[routing_operation_activity_resourcereservation]Arbeitsplan-Vorgang-Aktivität-Ressourcenreservierung
+[routing_operation_activity_resourcereservation+]Arbeitsplan-Vorgang-Aktivität-Ressourcenreservierungen
+[routing_operation_activity_workcenterfactor]Arbeitsplan-Vorgang-Aktivität-Arbeitsplatzfaktor
+[routing_operation_activity_workcenterfactor+]Arbeitsplan-Vorgang-Aktivität-Arbeitsplatzfaktoren
+[routing_operation_operationrelation]Arbeitsplan-Vorgang-Nachfolgebeziehung
+[routing_operation_operationrelation+]Arbeitsplan-Vorgang-Nachfolgebeziehungen
+[routing_operation_optimizationgroup]Arbeitsplan-Vorgang-Optimierungsgruppe
+[routing_operation_optimizationgroup+]Arbeitsplan-Vorgang-Optimierungsgruppen
+[routing_operation_workcenter]Arbeitsplan-Vorgang-Arbeitsplatz
+[routing_operation_workcenter+]Arbeitsplan-Vorgang-Arbeitsplatz
+[routing_operation_worker]Arbeitsplan-Vorgang-Personalbedarf
+[routing_operation_worker+]Arbeitsplan-Vorgang-Personalbedarf
+[routing_scrap]Arbeitsplan-Ausschuss
+[routing_scrap+]Arbeitsplan-Ausschüsse
+[routing_scrap_item]Arbeitsplan-Ausschuss-Element
+[routing_scrap_item+]Arbeitsplan-Ausschuss-Elemente
+[salesorder]Bedarf
+[salesorder+]Bedarfe
+[salesorder_materialrelation]Bedarf-Materialbeziehung
+[salesorder_materialrelation+]Bedarf-Materialbeziehungen
+[setupmatrix]Rüstmatrix
+[setupmatrix+]Rüstmatrizen
+[setupmatrix_item]Rüstmatrix-Element
+[setupmatrix_item+]Rüstmatrix-Elemente
+[shift]Wochenplan
+[shift+]Wochenpläne
+[shift_interval]Wochenplaneintrag
+[shift_interval+]Wochenplaneinträge
+[shiftmodel]Schichtmodell
+[shiftmodel+]Schichtmodelle
+[shiftmodel_shift]Schichtmodell-Wochenplan
+[shiftmodel_shift+]Schichtmodell-Wochenpläne
+[stock]Bestand
+[stock+]Bestände
+[stockquantityposting]Bestandsbuchung
+[stockquantityposting+]Bestandsbuchungen
+[systemstatus]Systemstatus
+[systemstatus+]Systemstatus
+[unit]Einheit
+[unit+]Einheiten
+[unit_unitconversion]Einheit-Umrechnung
+[unit_unitconversion+]Einheit-Umrechnungen
+[usersettings]Nutzereinstellung
+[usersettings+]Nutzereinstellungen
+[workcenter]Arbeitsplatz
+[workcenter+]Arbeitsplätze
+[workcenter_calendarinterval]Arbeitsplatz-Kalendereintrag
+[workcenter_calendarinterval+]Arbeitsplatz-Kalendereinträge
+[workcenter_cost]Arbeitsplatz-Kosten
+[workcenter_cost+]Arbeitsplatz-Kosten
+[workcenter_parallelworkcenter]Arbeitsplatz-Parallelbedienbarer Arbeitsplatz
+[workcenter_parallelworkcenter+]Arbeitsplätze-Parallelbedienbare Arbeitsplätze
+[workcenter_shiftmodel]Arbeitsplatz-Schichtmodell
+[workcenter_shiftmodel+]Arbeitsplätze-Schichtmodelle
+[workcenter_worker]Arbeitsplatz-Personalbedarf
+[workcenter_worker+]Arbeitsplatz-Personalbedarf
+[workcentergroup]Arbeitsplatzgruppe
+[workcentergroup+]Arbeitsplatzgruppen
+[workcentergroup_calendarinterval]Arbeitsplatzgruppe-Kalendereintrag
+[workcentergroup_calendarinterval+]Arbeitsplatzgruppe-Kalendereinträge
+[workcentergroup_cost]Arbeitsplatzgruppe-Kosten
+[workcentergroup_cost+]Arbeitsplatzgruppe-Kosten
+[workcentergroup_shiftmodel]Arbeitsplatzgruppe-Schichtmodell
+[workcentergroup_shiftmodel+]Arbeitsplatzgruppe-Schichtmodelle
+[workcentergroup_workcenter]Arbeitsplatzgruppe-Arbeitsplatz
+[workcentergroup_workcenter+]Arbeitsplatzgruppe-Arbeitsplätze
+[worker]Personal
+[worker+]Personal
+[worker_activityqualification]Personal-Vorgangsqualifikation
+[worker_activityqualification+]Personal-Vorgangsqualifikationen
+[worker_calendarinterval]Personal-Kalendereintrag
+[worker_calendarinterval+]Personal-Kalendereinträge
+[worker_shiftmodel]Personal-Schichtmodell
+[worker_shiftmodel+]Personal-Schichtmodelle
+[worker_workcenterqualification]Personal-Arbeitsplatzqualifikation
+[worker_workcenterqualification+]Personal-Arbeitsplatzqualifikationen
+[workergroup]Personalgruppe
+[workergroup+]Personalgruppen
+[workergroup_activityqualification]Personalgruppe-Vorgangsqualifikation
+[workergroup_activityqualification+]Personalgruppe-Vorgangsqualifikationen
+[workergroup_calendarinterval]Personalgruppe-Kalendereintrag
+[workergroup_calendarinterval+]Personalgruppe-Kalendereinträge
+[workergroup_poolcapacity]Personalgruppe-Poolkapazität
+[workergroup_poolcapacity+]Personalgruppe-Poolkapazitäten
+[workergroup_shiftmodel]Personalgruppe-Schichtmodell
+[workergroup_shiftmodel+]Personalgruppe-Schichtmodelle
+[workergroup_workcenterqualification]Personalgruppe-Arbeitsplatzqualifikation
+[workergroup_workcenterqualification+]Personalgruppe-Arbeitsplatzqualifikationen
+[workergroup_worker]Personalgruppe-Personal
+[workergroup_worker+]Personalgruppe-Personal
+[workingtimemodel]Arbeitszeitmodell
+[workingtimemodel+]Arbeitszeitmodelle
+[workingtimemodel_shiftmodel]Arbeitszeitmodell-Schichtmodell
+[workingtimemodel_shiftmodel+]Arbeitszeitmodell-Schichtmodelle
+[resourcestatus]Ressourcenstatus
+[resourcestatus+]Ressourcenstatus
+[journal]Journal
+
+#OBJECTPROPERTIES
+[attachment.client_id]Mandant
+[attachment.attachment_id]Nummer
+[attachment.name]Bezeichnung
+[attachment.objecttype_id]Objekttyp
+[attachment.object_id]Objektvorauswahl
+[attachment.path]Pfad
+[attachment.type]Typ
+[attachment.value]Wert
+[attachment.last_modified]Zuletzt geändert
+[bom.client_id]Mandant
+[bom.bom_id]Nummer
+[bom.info1]Information 1
+[bom.info2]Information 2
+[bom.info3]Information 3
+[bom.name]Bezeichnung
+[bom.master_bom_id]Stücklistenvorlage
+[bom.last_modified]Zuletzt geändert
+[bom_item.client_id]Mandant
+[bom_item.bom_id]Stücklistennummer
+[bom_item.item_id]Stücklistenposition
+[bom_item.alternative_id]alternative Stücklistenposition
+[bom_item.name]Bezeichnung
+[bom_item.group]Stücklistengruppe
+[bom_item.material_id]Materialnummer
+[bom_item.preparation_time]Bereitstellungszeit
+[bom_item.quantity]Menge
+[bom_item.quantity_unit_id]Einheit Menge
+[bom_item.standard]Standard
+[calendar.client_id]Mandant
+[calendar.calendar_id]Nummer
+[calendar.info1]Information 1
+[calendar.info2]Information 2
+[calendar.info3]Information 3
+[calendar.name]Bezeichnung
+[calendar.last_modified]Zuletzt geändert
+[calendar_interval.client_id]Mandant
+[calendar_interval.calendar_id]Kalendernummer
+[calendar_interval.name]Bezeichnung
+[calendar_interval.date_from]Start
+[calendar_interval.date_to]Ende
+[calendar_interval.interval_type]Status
+[calendar_interval.repetition_type]Wiederholung
+[confirmation.client_id]Mandant
+[confirmation.confirmation_id]Nummer
+[confirmation.info1]Information 1
+[confirmation.info2]Information 2
+[confirmation.info3]Information 3
+[confirmation.name]Kennzeichen
+[confirmation.activity_end]Ende
+[confirmation.activity_start]Start
+[confirmation.confirmation_type]Rückmeldungstyp
+[confirmation.confirmation_date]Zeitpunkt
+[confirmation.productionorder_activity_id]Aktivität
+[confirmation.productionorder_alternative_id]Alternative
+[confirmation.productionorder_id]FA
+[confirmation.productionorder_operation_id]Vorgang
+[confirmation.productionorder_split_id]Split
+[confirmation.quantity_finished]Gefertigt
+[confirmation.quantity_finished_unit_id]Einheit
+[confirmation.last_modified]Zuletzt geändert
+[confirmation_resource.client_id]Mandant
+[confirmation_resource.confirmation_id]Buchungsnummer
+[confirmation_resource.resource_id]Ressource
+[confirmation_resource.resource_type]Ressourcentyp
+[confirmation_resource.group_id]Gruppennummer
+[confirmation_resource.allocation]verursachte Auslastung
+[confirmation_resource_interval.client_id]Mandant
+[confirmation_resource_interval.confirmation_id]Buchungsnummer
+[confirmation_resource_interval.resource_id]Ressource
+[confirmation_resource_interval.resource_type]Ressourcentyp
+[confirmation_resource_interval.date_from]Start
+[confirmation_resource_interval.date_to]Ende
+[confirmation_resource_interval.interval_allocation_type]Intervalltyp
+[ganttcolorscheme.client_id]Mandant
+[ganttcolorscheme.ganttcolorscheme_id]Farbschema Nr
+[ganttcolorscheme.name]Name
+[ganttcolorscheme.category]Kategorie:
+[ganttcolorscheme.default_type]Typ der Standardfarbe
+[ganttcolorscheme.default_randomcolor_property_id]Eigenschaft
+[ganttcolorscheme.default_color]Standard Farbe
+[ganttcolorscheme.default_ganttcolorscheme_id]Standard Farbschema
+[ganttcolorscheme.user_id]Nutzer
+[ganttcolorscheme.last_modified]Zuletzt geändert
+[ganttcolorscheme_filter.client_id]Mandant
+[ganttcolorscheme_filter.ganttcolorscheme_id]Farbschema Nr
+[ganttcolorscheme_filter.color]Farbe
+[ganttcolorscheme_filter.priority_value]Priorität
+[ganttcolorscheme_filter.filter_id]Filter Nr
+[ganttcolorscheme_filter.filter_operator]Elementkombination
+[ganttcolorscheme_filter_item.client_id]Mandant
+[ganttcolorscheme_filter_item.ganttcolorscheme_id]Farbschema Nr
+[ganttcolorscheme_filter_item.filter_id]Filter Nr
+[ganttcolorscheme_filter_item.property_id]Eigenschaft
+[ganttcolorscheme_filter_item.value]Wert
+[ganttcolorscheme_filter_item.case_sensitive]Groß/Kleinschreibung beachten
+[ganttcolorscheme_filter_item.filter_matching_type]Filtertyp
+[idtemplate.objecttype_id]Objekttyp
+[idtemplate.value_start]Startwert
+[material.client_id]Mandant
+[material.material_id]Nummer
+[material.info1]Information 1
+[material.info2]Information 2
+[material.info3]Information 3
+[material.name]Bezeichnung
+[material.check_stock_quantity]Bestandsprüfung durchführen
+[material.inhouse_production]Eigenfertigung
+[material.lot_size_max]Maximale Losgröße
+[material.lot_size_min]Minimale Losgröße
+[material.lot_size_opt]Optimale Losgröße
+[material.productioncontroller_id]Fertigungssteuerer
+[material.purchase_time_quantity_dependent]Mengenabh. Beschaffungsdauer
+[material.purchase_time_quantity_independent]Mengenunabh. Beschaffungsdauer
+[material.quantity_rounding_value]Rundungswert
+[material.quantity_unit_id]Einheit
+[material.reduce_stock_quantity]Bestandsabbuchung durchführen
+[material.safety_stock_usage]Sicherheitsbestand verplanbar
+[material.safety_stock_value]Sicherheitsbestand
+[material.value_production]Wert Herstellung
+[material.value_purchase]Wert Beschaffung
+[material.value_sales]Wert Verkauf
+[material.waiting_time_max]Maximale Wartezeit auf Material
+[material.report_productioncontroller]Fertigungssteuerer
+[material.report_productioncontroller_permission]Fertigungssteuerer-Berechtigung
+[material.last_modified]Zuletzt geändert
+[material_unitconversion.client_id]Mandant
+[material_unitconversion.material_id]Materialnummer
+[material_unitconversion.unit_id]Einheit
+[material_unitconversion.conversion_unit_id]Einheit Umrechnung
+[material_unitconversion.conversion_factor]Faktor Umrechnung
+[material_optimizationgroup.material_id]Materialnummer
+[material_optimizationgroup.optimizationgroup_type]Optimierungsgruppentyp
+[material_optimizationgroup.optimizationgroup_id]Optimierungsgruppennummer
+[material_optimizationgroup.optimizationgroup_value]Merkmal
+[material_productionversion.client_id]Mandant
+[material_productionversion.material_id]Materialnummer
+[material_productionversion.productionversion_id]Fertigungsversion
+[material_productionversion.bom_id]Stücklistennummer
+[material_productionversion.routing_id]Arbeitsplannummer
+[material_productionversion.valid_from]Gültig ab
+[material_productionversion.valid_until]Gültig bis
+[modelparameter.client_id]Mandant
+[modelparameter.modelparameter_id]Nummer
+[modelparameter.actual_time]Istlinie
+[modelparameter.actual_time_from_system_time]Aktuelle Systemzeit verwenden
+[modelparameter.allow_change_worker_activity_time_min]Mindestdauer eines Vorgangs für Mehrschichtbearbeitung
+[modelparameter.allow_multiple_machine_work]Mehrarbeitsplatzbedienung
+[modelparameter.allow_overlap_activity_type_setup]Rüsten-Aktivität darf Vorgänger-Vorgang überlappen
+[modelparameter.allow_overlap_activity_type_wait]Liegen-Aktivität darf Vorgänger-Vorgang überlappen
+[modelparameter.auto_calculate_periods]Berechne Planungszeiten
+[modelparameter.auto_confirm_child_productionorders]Sekundäraufträge automatisch rückmelden
+[modelparameter.capacity_period_end]Ende Planungszeitraum
+[modelparameter.capacity_period_past]Kapazitätsbereitstellung vor Istlinie
+[modelparameter.capacity_period_planning]Kapazitätsbereitstellung nach Istlinie
+[modelparameter.capacity_period_start]Start Planungszeitraum
+[modelparameter.capital_commitment_interest_rate]Zinssatz Kapitalbindung
+[modelparameter.data_period_end]Ende Datenzeitraum
+[modelparameter.data_period_planning]Datenbeachtung nach Istlinie
+[modelparameter.objective_function_type]Zielfunktion
+[modelparameter.schedule_prt]Fertigungshilfsmittel planen
+[modelparameter.schedule_worker]Personal planen
+[modelparameter.scheduling_status_late]FA gilt als verspätet
+[modelparameter.scheduling_status_ontime]FA gilt als pünktlich
+[modelparameter.stock_priority_id]Priorität für Lageraufträge
+[modelparameter.time_buffer_purchaseorder]Sicherheitszeit zwischen Materiallieferung und Verbrauch
+[modelparameter.time_buffer_salesorder]Sicherheitszeit zwischen Planende und Bedarfstermin
+[modelparameter.worker_interval_time_min]Mindestdauer aufeinanderfolgender Personal-Invervalle
+[modelparameter.last_modified]Zuletzt geändert
+[objecttype.client_id]Mandant
+[objecttype.objecttype_id]Objekttyp
+[objecttype.last_modified]Zuletzt geändert
+[objecttype_udf.category]Kategorie
+[objecttype_udf.client_id]Mandant
+[objecttype_udf.udf_id]Nutzerdefinierte Eigenschaft
+[objecttype_udf.datatype]Datentyp
+[objecttype_udf.info1]Information 1
+[objecttype_udf.info2]Information 2
+[objecttype_udf.info3]Information 3
+[objecttype_udf.name]Name
+[objecttype_udf.objecttype_id]Objekttyp
+[objecttype_udf.range]Wertebereich
+[optimizationgroup.client_id]Mandant
+[optimizationgroup.optimizationgroup_id]Nummer
+[optimizationgroup.info1]Information 1
+[optimizationgroup.info2]Information 2
+[optimizationgroup.info3]Information 3
+[optimizationgroup.name]Name
+[optimizationgroup.value_difference_max]Maximale Abweichung
+[optimizationgroup.last_modified]Zuletzt geändert
+[planningparameter.client_id]Mandant
+[planningparameter.planningparameter_id]Nummer
+[planningparameter.importance_capital_commitment]Gewichtung Kapitalbindung
+[planningparameter.importance_lateness]Gewichtung Termintreue
+[planningparameter.importance_processing]Gewichtung Fertigungsaufwand
+[planningparameter.importance_setup]Gewichtung Rüstaufwand
+[planningparameter.importance_throughput_time]Gewichtung DLZ
+[planningparameter.importance_utilization]Gewichtung Kapazitätsauslastung
+[planningparameter.importance_worker]Gewichtung Personalaufwand
+[planningparameter.optimization_run_count]Optimierungsläufe
+[planningparameter.planning_mode]Planungsart
+[planningparameter.planning_types]Planungstypen
+[planningparameter.result_count]Ergebnisse
+[planningparameter.stable_period]Stabiler Zeitraum
+[planningparameter.strategy_type]Terminierungsart
+[planningparameter.mrp_check_inhouse_production]Eigenfertigung prüfen
+[planningparameter.mrp_check_purchase]Fremdbezug prüfen
+[planningparameter.mrp_create_inhouse_production]Fertigungsaufträge erstellen
+[planningparameter.mrp_create_purchase]Bestellvorschläge erstellen
+[planningparameter.mrp_relink_productionorders]Flexible Auftragsbeziehungen
+[planningparameter.mrp_relink_purchaseorders]Flexible Bestellreservierungen
+[planningparameter.mrp_relink_stockreservations]Flexible Lagerreservierungen
+[planningparameter.lotsize_optimization]Losgrößen optimieren
+[planningparameter.last_modified]Zuletzt geändert
+[plant.client_id]Mandant
+[plant.plant_id]Nummer
+[plant.name]Bezeichnung
+[plant.default]Standard
+[plant.timezone]Zeitzone
+[plant.last_modified]Zuletzt geändert
+[priority.client_id]Mandant
+[priority.priority_id]Nummer
+[priority.info1]Information 1
+[priority.info2]Information 2
+[priority.info3]Information 3
+[priority.name]Name
+[priority.priority_value]Prioritätswert
+[priority.last_modified]Zuletzt geändert
+[priority_latenesscost.client_id]Mandant
+[priority_latenesscost.priority_id]Priorität
+[priority_latenesscost.name]Bezeichnung
+[priority_latenesscost.start]Verzug (in Stunden)
+[priority_latenesscost.costs_absolute]abs. Kosten
+[priority_latenesscost.costs_absolute_interval]Intervall absolut (in Stunden)
+[priority_latenesscost.costs_relative_interval]Intervall relativ (in Stunden)
+[priority_latenesscost.costs_relative]rel. Kosten (in %% p.a)
+[productioncontroller.client_id]Mandant
+[productioncontroller.productioncontroller_id]Nummer
+[productioncontroller.name]Bezeichnung
+[productioncontroller.plant_id]Werksnummer
+[productioncontroller.last_modified]Zuletzt geändert
+[productionorder.client_id]Mandant
+[productionorder.productionorder_id]Nummer
+[productionorder.info1]Information 1
+[productionorder.info2]Information 2
+[productionorder.info3]Information 3
+[productionorder.name]Bezeichnung
+[productionorder.approved]Freigegeben
+[productionorder.bom_id]Stücklistenummer
+[productionorder.date_start]Start
+[productionorder.date_end]Ende
+[productionorder.duedate]Termin
+[productionorder.earliest_start_date]Frühester Start
+[productionorder.fixed_properties]Termin, Priorität, Planungstyp automatisch
+[productionorder.info_date_end_initial]Ende (Initial)
+[productionorder.info_date_start_initial]Start (Initial)
+[productionorder.info_debug]Debug
+[productionorder.locked]Gesperrt
+[productionorder.lot_parent_id]Elternlos
+[productionorder.material_id]Materialnummer
+[productionorder.planning_filter]Planfilter
+[productionorder.planning_type]Planungstyp
+[productionorder.priority_id]Priorität
+[productionorder.productioncontroller_id]Fertigungssteuerer
+[productionorder.productionversion_id]Fertigungsversion
+[productionorder.quantity_gross]Bruttomenge
+[productionorder.quantity_net]Nettomenge
+[productionorder.quantity_unit_id]Einheit
+[productionorder.routing_id]Arbeitsplan
+[productionorder.scheduling_status]Planungsstatus
+[productionorder.status]Status
+[productionorder.value_production]Wert Herstellung
+[productionorder.value_sales]Wert Verkauf
+[productionorder.last_modified]Zuletzt geändert
+[productionorder.report_due_date_delay]Terminverzug in d
+[productionorder.report_deviation_previous_end_to_current_end]Abweichung Bisher/Ist in Tagen (Ende)
+[productionorder.report_deviation_initial_end_to_current_end]Abweichung Initial/Ist in Tagen (Ende)
+[productionorder.report_start_previous]Start (bisher)
+[productionorder.report_end_previous]Ende (bisher)
+[productionorder.report_parent_productionorder_count]Anzahl Primäraufträge
+[productionorder.report_parent_productionorder_ids]Primärauftrag IDs
+[productionorder.report_parent_productionorder_names]Primärauftragsnamen
+[productionorder.report_child_productionorder_count]Anzahl Sekundäraufträge
+[productionorder.report_child_productionorder_ids]Sekundärauftrag IDs
+[productionorder.report_child_productionorder_scheduled]Sekundäraufträge geplant
+[productionorder.report_salesorder_ids]Primärbedarf IDs
+[productionorder.report_salesorder_name]Primärbedarfsname
+[productionorder.report_salesorder_info1]Primärbedarfsinfo1
+[productionorder.report_salesorder_info2]Primärbedarfsinfo2
+[productionorder.report_salesorder_info3]Primärbedarfsinfo3
+[productionorder.report_salesorder_quantity]Primärbedarfsmenge
+[productionorder.report_salesorder_duedate]Primärbedarfstermin
+[productionorder.report_salesorder_priority_ids]Primärbedarfspriorität
+[productionorder.report_bottleneck_delay_activity]Engpassvorgang Verspätung
+[productionorder.report_bottleneck_delay_resource]Engpassressource Verspätung
+[productionorder.report_bottleneck_delay_resource_type]Engpassressourcentyp Verspätung
+[productionorder.report_bottleneck_delay_time]Engpass Verspätung (h)
+[productionorder.report_bottleneck_lag_activity]Engpassvorgang Verzögerung
+[productionorder.report_bottleneck_lag_resource]Engpassressource Verzögerung
+[productionorder.report_bottleneck_lag_resource_type]Engpassressourcentyp Verzögerung
+[productionorder.report_bottleneck_lag_time]Engpass Verzögerung (h)
+[productionorder.report_throughput_time]DLZ in d
+[productionorder.report_throughput_time_plan]DLZ in d (nicht beendet)
+[productionorder.report_throughput_time_productionorder_network]DLZ FA-Netz in d
+[productionorder.report_throughput_time_plan_productionorder_network]DLZ FA-Netz in d (nicht beendet)
+[productionorder.report_ratio_average_waiting_time_to_process_time]Liegezeit/Vorgang in h
+[productionorder.report_overall_waiting_time]Liegezeit gesamt in h
+[productionorder.report_quantity_for_sales_orders]Menge für Kundenbedarfe
+[productionorder.report_quantity_for_stock_orders]Menge für Lagerbedarfe
+[productionorder.report_quantity_for_secondary_orders]Menge für Sekundärbedarfe
+[productionorder.report_quantity_not_reserved]Menge unreserviert
+[productionorder.report_quantity_not_reserved_adjusted_lot_sizes]Menge unreserviert (losgrößenbereinigt)
+[productionorder.report_quantity_for_stock]Menge für Lager
+[productionorder.report_calculated_earliest_start_date]Frühester Start eines Startvorgangs
+[productionorder.report_po_level]FA-Level
+[productionorder.report_capital_commitment]Kapitalbindung
+[productionorder.report_delay_costs]Verspätungskosten
+[productionorder.report_value_setup]Rüstkosten
+[productionorder.report_value_processing]Fertigungskosten
+[productionorder.report_value_worker]Personalkosten
+[productionorder.report_productioncontroller]Fertigungssteuerer
+[productionorder.report_productioncontroller_permission]Fertigungssteuerer-Berechtigung
+[productionorder_operation_activity.client_id]Mandant
+[productionorder_operation_activity.productionorder_id]Fertigungsauftragsnummer
+[productionorder_operation_activity.operation_id]Vorgangsnummer
+[productionorder_operation_activity.activity_id]Vorgangsaktivitätsnummer
+[productionorder_operation_activity.alternative_id]Alternative
+[productionorder_operation_activity.split_id]Splitnummer
+[productionorder_operation_activity.info1]Information 1
+[productionorder_operation_activity.info2]Information 2
+[productionorder_operation_activity.info3]Information 3
+[productionorder_operation_activity.name]Bezeichnung
+[productionorder_operation_activity.activity_type]Typ
+[productionorder_operation_activity.value_production]Wert Herstellung
+[productionorder_operation_activity.confirmation_type]Rückmeldungstyp
+[productionorder_operation_activity.date_end]Ende
+[productionorder_operation_activity.date_start]Start
+[productionorder_operation_activity.date_start_fix]Fixierter Start
+[productionorder_operation_activity.duration_fix]Fixierte Dauer
+[productionorder_operation_activity.earliest_start_date]Frühester Start
+[productionorder_operation_activity.info_date_earliest_end_initial]Grobplanung frühestes Ende (Initial)
+[productionorder_operation_activity.info_date_earliest_end_material]Grobplanung frühestes Ende (Material)
+[productionorder_operation_activity.info_date_earliest_end_scheduling]Grobplanung frühestes Ende (Optimierung)
+[productionorder_operation_activity.info_date_earliest_start_initial]Grobplanung frühester Start (Initial)
+[productionorder_operation_activity.info_date_earliest_start_material]Grobplanung frühester Start (Material)
+[productionorder_operation_activity.info_date_earliest_start_scheduling]Grobplanung frühester Start (Optimierung)
+[productionorder_operation_activity.info_date_end_initial]Grobplanung Ende (Initial)
+[productionorder_operation_activity.info_date_latest_end_initial]Grobplanung spätestes Ende (Initial)
+[productionorder_operation_activity.info_date_latest_end_material]Grobplanung spätestes Ende (Material)
+[productionorder_operation_activity.info_date_latest_end_scheduling]Grobplanung spätestes Ende (Optimierung)
+[productionorder_operation_activity.info_date_latest_start_initial]Grobplanung spätester Start (Initial)
+[productionorder_operation_activity.info_date_latest_start_material]Grobplanung spätester Start (Material)
+[productionorder_operation_activity.info_date_latest_start_scheduling]Grobplanung spätester Start (Optimierung)
+[productionorder_operation_activity.info_date_start_initial]Grobplanung Start (Initial)
+[productionorder_operation_activity.info_debug]Debug
+[productionorder_operation_activity.info_duration]Vorgangsdauer
+[productionorder_operation_activity.info_note]Notiz
+[productionorder_operation_activity.info_setup]Rüstinformation
+[productionorder_operation_activity.info_time_buffer_initial]Initialer Puffer (Grobplanung)
+[productionorder_operation_activity.info_time_buffer_latest_end]Tatsächlicher Puffer (aktuelle Planung)
+[productionorder_operation_activity.info_time_buffer_material]Puffer mit fremdbezogenen Material (Grobplanung)
+[productionorder_operation_activity.info_time_buffer_scheduling]Puffer während Optimierung (Grobplanung)
+[productionorder_operation_activity.info_worker_utilization]Prozentualer Bedienanteil Mitarbeiter
+[productionorder_operation_activity.job_parallel_id]Job Parallel
+[productionorder_operation_activity.job_sequential_id]Job Sequentiell
+[productionorder_operation_activity.last_confirmation_date]Zeitpunkt letzter Teilrückmeldung
+[productionorder_operation_activity.operation_type]Vorgangstyp
+[productionorder_operation_activity.priority_value]Prioritätswert
+[productionorder_operation_activity.quantity_finished_net]Bereits fertiggestellt
+[productionorder_operation_activity.quantity_gross]Bruttomenge
+[productionorder_operation_activity.quantity_net]Nettomenge
+[productionorder_operation_activity.scheduling_level]Planlevel
+[productionorder_operation_activity.status]Status
+[productionorder_operation_activity.value_production_accumulated]Wert Herstellung kumuliert
+[productionorder_operation_activity.report_activity_id_info]Aktivität
+[productionorder_operation_activity.report_operation_id_info]Vorgang
+[productionorder_operation_activity.report_start_previous]Start (bisher)
+[productionorder_operation_activity.report_end_previous]Ende (bisher)
+[productionorder_operation_activity.report_deviation_initial_end_to_current_end]Abweichung Initial/Ist in Tagen (Ende)
+[productionorder_operation_activity.report_deviation_previous_end_to_current_end]Abweichung Bisher/Ist in Tagen (Ende)
+[productionorder_operation_activity.report_duration]Bearbeitungszeit [h]
+[productionorder_operation_activity.report_material_supply]Material Bereitstellung
+[productionorder_operation_activity.report_planning_number]Planreihenfolge
+[productionorder_operation_activity.report_static_setup_optimizationgroup_id]Gruppe statisch Rüsten
+[productionorder_operation_activity.report_dynamic_setup_optimizationgroup_id]Gruppe dynamisch Rüsten
+[productionorder_operation_activity.report_parallel_processing_optimizationgroup_id]Gruppe Parallelbelegung
+[productionorder_operation_activity.report_scheduling_level_value]Planlevel (Wert)
+[productionorder_operation_activity.report_successor_name]Nachfolger Bezeichnung
+[productionorder_operation_activity.report_successor_status]Nachfolger Status
+[productionorder_operation_activity.report_successor_workcenter_id]Nachfolger Arbeitsplatznummer
+[productionorder_operation_activity.report_successor_workcenter_name]Nachfolger Arbeitsplatzname
+[productionorder_operation_activity.report_successor_start]Nachfolger Start
+[productionorder_operation_activity.report_successor_buffer]Nachfolger Überlappungswert
+[productionorder_operation_activity.report_successor_id]Nachfolger Nummer
+[productionorder_operation_activity.report_worker_amount]Anzahl Bediener
+[productionorder_operation_activity.report_inhouseproduction_reservation_order]Reservierungsreihenfolge Eigenfertigung
+[productionorder_operation_activity.report_purchase_reservation_order]Reservierungsreihenfolge Fremdbezug
+[productionorder_operation_activity.report_capacity_violation]Kapazitätsverletzung
+[productionorder_operation_activity.report_linked_operations_id]Plangruppennummer
+[productionorder_operation_activity.report_workcenter_delta]Arbeitsplatz Delta
+[productionorder_operation_activity.report_operation_split_parent]ID des Originalsplits
+[productionorder_operation_activity.report_quantity_finished_percentage]Bereits fertiggestellt in %%
+[productionorder_operation_activity.report_value_workcenter]Arbeitsplatzkosten
+[productionorder_operation_activity.report_value_worker]Personalkosten
+[productionorder_operation_activity_materialrelation.client_id]Mandant
+[productionorder_operation_activity_materialrelation.productionorder_id]Fertigungsauftragsnummer
+[productionorder_operation_activity_materialrelation.operation_id]Vorgangsnummer
+[productionorder_operation_activity_materialrelation.activity_id]Vorgangsaktivitätsnummer
+[productionorder_operation_activity_materialrelation.split_id]Splitnummer
+[productionorder_operation_activity_materialrelation.materialrelation_type]Materialbeziehungstyp
+[productionorder_operation_activity_materialrelation.child_id]Nummer Objekt eingehend
+[productionorder_operation_activity_materialrelation.child_operation_id]Vorgangsnummer Objekt eingehend
+[productionorder_operation_activity_materialrelation.child_activity_id]Vorgangsaktivitätsnummer Objekt eingehend
+[productionorder_operation_activity_materialrelation.child_split_id]Splitnummer Objekt eingehend
+[productionorder_operation_activity_materialrelation.fixed]Fix
+[productionorder_operation_activity_materialrelation.info_date_availability]Bereit ab
+[productionorder_operation_activity_materialrelation.info_time_buffer]Puffer
+[productionorder_operation_activity_materialrelation.overlap_value]Überlappungswert
+[productionorder_operation_activity_materialrelation.quantity]Menge
+[productionorder_operation_activity_materialrelation.quantity_unit_id]Einheit
+[productionorder_operation_activity_materialrelation.alternative_id]Alternativennummer
+[productionorder_operation_activity_materialrelation.child_alternative_id]Alternativennummer Objekt eingehend
+[productionorder_operation_activity_resource.client_id]Mandant
+[productionorder_operation_activity_resource.productionorder_id]Fertigungsauftragsnummer
+[productionorder_operation_activity_resource.operation_id]Vorgangsnummer
+[productionorder_operation_activity_resource.activity_id]Vorgangsaktivitätsnummer
+[productionorder_operation_activity_resource.alternative_id]Alternativennummer
+[productionorder_operation_activity_resource.split_id]Splitnummer
+[productionorder_operation_activity_resource.resource_id]Ressourcennummer
+[productionorder_operation_activity_resource.resource_type]Ressourcentyp
+[productionorder_operation_activity_resource.group_id]Gruppe
+[productionorder_operation_activity_resource.allocation]verursachte Auslastung
+[productionorder_operation_activity_resource_interval.client_id]Mandant
+[productionorder_operation_activity_resource_interval.productionorder_id]Fertigungsauftragsnummer
+[productionorder_operation_activity_resource_interval.operation_id]Vorgangsnummer
+[productionorder_operation_activity_resource_interval.activity_id]Vorgangsaktivitätsnummer
+[productionorder_operation_activity_resource_interval.alternative_id]Alternativennummer
+[productionorder_operation_activity_resource_interval.split_id]Splitnummer
+[productionorder_operation_activity_resource_interval.date_from]Start
+[productionorder_operation_activity_resource_interval.resource_id]Ressourcennummer
+[productionorder_operation_activity_resource_interval.resource_type]Ressourcentyp
+[productionorder_operation_activity_resource_interval.date_to]Ende
+[productionorder_operation_activity_resource_interval.interval_allocation_type]Intervalltyp
+[productionorder_operation_activity_fixedresource.client_id]Mandant
+[productionorder_operation_activity_fixedresource.productionorder_id]Fertigungsauftragsnummer
+[productionorder_operation_activity_fixedresource.operation_id]Vorgangsnummer
+[productionorder_operation_activity_fixedresource.activity_id]Vorgangsaktivitätsnummer
+[productionorder_operation_activity_fixedresource.alternative_id]Alternativennummer
+[productionorder_operation_activity_fixedresource.split_id]Splitnummer
+[productionorder_operation_activity_fixedresource.resource_id]Ressourcennummer
+[productionorder_operation_activity_fixedresource.resource_type]Ressourcentyp
+[productionorder_operation_activity_fixedresource.group_id]Gruppe
+[prt.client_id]Mandant
+[prt.prt_id]Nummer
+[prt.info1]Information 1
+[prt.info2]Information 2
+[prt.info3]Information 3
+[prt.name]Bezeichnung
+[prt.allocation_max]Max. Belegung
+[prt.allow_change_workcenter]Arbeitsplatzwechsel
+[prt.capacity_type]Kapazitätsprüfungstyp
+[prt.factor_processing_speed]Geschwindigkeitsfaktor
+[prt.global_calendar_id]globale Kalendernummer
+[prt.maintenance_interval_quantity]Maximale Produktionsleistung
+[prt.maintenance_interval_quantity_unit_id]Einheit
+[prt.maintenance_interval_time]Maximale Nutzungsdauer
+[prt.setup_time]Rüstzeit
+[prt.parallel_allocation_criteria]Parallelbelegungskriterium
+[prt.interruption_time_max]Maximale Unterbrechungsdauer
+[prt.synchronous_start]Synchroner Start
+[prt.cost_rate_processing]Bearbeitung
+[prt.cost_rate_setup]Rüste
+[prt.valid_until]Gültig bis
+[prt.last_modified]Zuletzt geändert
+[prt.report_bottleneck_delay_waiting_time]Verursachte Verspätung (h)
+[prt.report_bottleneck_lag_waiting_time]Verursachte Verzögerung (h)
+[prt.report_utilization_demand_hr]Bedarf gesamt (h)
+[prt.report_utilization_demand_percent]Auslastung gesamt (%%)
+[prt_workcenter.client_id]Mandant
+[prt_workcenter.prt_id]Fertigungshilfsmittelnummer
+[prt_workcenter.workcenter_id]Arbeitsplatznummer
+[prt_workcenter.factor_setup_time]Rüstzeitfaktor
+[prt_workcenter.priority_value]Prioritätswert
+[prt_calendarinterval.client_id]Mandant
+[prt_calendarinterval.prt_id]Fertigungshilfsmittelnummer
+[prt_calendarinterval.date_from]Start
+[prt_calendarinterval.name]Bezeichnung
+[prt_calendarinterval.date_to]Ende
+[prt_calendarinterval.interval_type]Status
+[prt_calendarinterval.repetition_type]Wiederholung
+[prt_shiftmodel.client_id]Mandant
+[prt_shiftmodel.prt_id]Fertigungshilfsmittelnummer
+[prt_shiftmodel.start_date]Start
+[prt_shiftmodel.shiftmodel_id]Schichtmodell Nummer
+[prt_shiftmodel.start_shift_index]Index
+[prt_shiftmodel.valid_until]Gültig bis
+[purchaseorder.client_id]Mandant
+[purchaseorder.purchaseorder_id]Nummer
+[purchaseorder.info1]Information 1
+[purchaseorder.info2]Information 2
+[purchaseorder.info3]Information 3
+[purchaseorder.name]Bezeichnung
+[purchaseorder.delivery_date]Liefertermin
+[purchaseorder.info_order_date]Bestelltermin
+[purchaseorder.locked]Gesperrt
+[purchaseorder.material_id]Materialnummer
+[purchaseorder.productioncontroller_id]Fertigungssteuerer
+[purchaseorder.purchaseorder_type]Bestelltyp
+[purchaseorder.quantity]Menge
+[purchaseorder.quantity_delivered]Gelieferte Menge
+[purchaseorder.quantity_unit_id]Einheit
+[purchaseorder.status]Status
+[purchaseorder.last_modified]Zuletzt geändert
+[purchaseorder.report_scheduling_status]Planungsstatus
+[purchaseorder.report_productionorder_ids]Belieferte Fertigungsaufträge
+[purchaseorder.report_materialrelation_parent_info]Zuordnung
+[purchaseorder.report_productioncontroller]Fertigungssteuerer
+[purchaseorder.report_productioncontroller_permission]Fertigungssteuerer-Berechtigung
+[report.client_id]Mandant
+[report.report_id]Nummer
+[report.date_from]Start
+[report.date_to]Ende
+[report.fixed_columns_count]Anzahl fixierte Spalten
+[report.name]Bezeichnung
+[report.order_asc]aufsteigend sortieren
+[report.pagebreak_after_object]Seitenumbruch beim Drucken mehrerer Objekte
+[report.report_type]Reportart
+[report.selected_object_id]Objektvorauswahl
+[report.sorting_column]initiale Sortierspalte
+[report.user_id]Nutzer
+[report.category]Kategorie
+[report.last_modified]Zuletzt geändert
+[report_colorfilter.client_id]Mandant
+[report_colorfilter.report_id]Reportnummer
+[report_colorfilter.filter_id]Filtername
+[report_colorfilter.bg_color]Hintergrundfarbe
+[report_colorfilter.filter_operator]Elementkombination
+[report_colorfilter.filter_result_count_max]maximale Anzahl gefilterter Ergebnisse
+[report_colorfilter.font_color]Schriftfarbe
+[report_colorfilter.full_column_coloring]Einfärbung gesamter Spalte
+[report_colorfilter.full_row_coloring]Einfärbung gesamter Zeile
+[report_colorfilter.priority_value]Prioritätswert
+[report_colorfilter.property_id]Spalte der einzufärbenden Zelle
+[report_colorfilter_item.client_id]Mandant
+[report_colorfilter_item.report_id]Reportnummer
+[report_colorfilter_item.filter_id]Filtername
+[report_colorfilter_item.index]Filterindex
+[report_colorfilter_item.case_sensitive]Groß-Kleinschreibung beachten
+[report_colorfilter_item.filter_matching_type]Filtertyp
+[report_colorfilter_item.property_id]zu filternde Spaltennummer
+[report_colorfilter_item.value]Wert
+[report_column.client_id]Mandant
+[report_column.report_id]Reportnummer
+[report_column.index]Spaltenindex
+[report_column.formula]Objekttyp der Sprungmarke
+[report_column.property_id]Spaltennummer
+[report_column.property_name]Spaltenname
+[report_rowfilter.client_id]Mandant
+[report_rowfilter.report_id]Reportnummer
+[report_rowfilter.filter_id]Filtername
+[report_rowfilter.filter_operator]Elementkombination
+[report_rowfilter.filter_result_count_max]maximale Anzahl gefilterter Ergebnisse
+[report_rowfilter.priority_value]Prioritätswert
+[report_rowfilter_item.client_id]Mandant
+[report_rowfilter_item.report_id]Reportnummer
+[report_rowfilter_item.filter_id]Filtername
+[report_rowfilter_item.index]Filterindex
+[report_rowfilter_item.case_sensitive]Groß-Kleinschreibung beachten
+[report_rowfilter_item.filter_matching_type]Filtertyp
+[report_rowfilter_item.property_id]zu filternde Spaltennummer
+[report_rowfilter_item.value]Wert
+[report_option.report_id]Reportnummer
+[report_option.option_id]Optionsnummer
+[report_option_item.report_id]Reportnummer
+[report_option_item.option_id]Optionsnummer
+[report_option_item.value]Wert
+[resourcestatus.client_id]Mandant
+[resourcestatus.resource_id]Nummer
+[resourcestatus.resource_type]Ressourcentyp
+[resourcestatus.name]Beschreibung
+[resourcestatus.bg_red]RGB-Wert (Rot)
+[resourcestatus.bg_green]RGB-Wert (Grün)
+[resourcestatus.bg_blue]RGB-Wert (Blau)
+[resourcestatus.date]Zeitstempel
+[resourcestatus.used_time]Aktuelle Betriebsdauer
+[resourcestatus.used_quantity]Aktuelle Produktionsmenge
+[resourcestatus.used_quantity_unit]Einheit
+[resourcestatus.report_timestamp_of_status_message]Zeitstempel der Statusmeldung
+[resourcestatus.report_next_time_for_maintenance]Nächster Wartungszeitpunkt
+[resourcestatus.report_buffer]Puffer
+[resourcestatus.report_buffer_in_seconds]Puffer in Sekunden
+[resourcestatus.report_current_hours_of_operation]Aktuelle Betriebsstunden
+[resourcestatus.report_maximum_hours_of_operation]Maximale Betriebsstunden
+[resourcestatus.report_wear_duration_in_percent]Abnutzung (Dauer) in %%
+[resourcestatus.report_current_production_quantity]Aktuelle Produktionsmenge
+[resourcestatus.report_maximum_production_quantity]Maximale Produktionsmenge
+[resourcestatus.report_wear_quantity_in_percent]Abnutzung (Menge) in %%
+[resourcestatus.report_maximum_production_quantity_unit_id]Einheit max. Produktionsmenge
+[resourcestatus.report_current_production_quantity_unit_id]Einheit akt. Produktionsmenge
+[resultinfo.client_id]Mandant
+[resultinfo.resultinfo_id]Nummer
+[resultinfo.timestamp]Erstellt am
+[resultinfo.name]Bezeichnung
+[resultinfo.count_productionorder_early]FA ok
+[resultinfo.count_productionorder_incomplete]FA unvollständig
+[resultinfo.count_productionorder_late]FA verspätet
+[resultinfo.count_productionorder_ontime]FA pünktlich
+[resultinfo.count_salesorder_incomplete]Bedarfe unvollständig
+[resultinfo.optimization_run]Optimierungslauf
+[resultinfo.value_capital_commitment]Wert Kapitalbindung
+[resultinfo.value_lateness]Wert Verspätung
+[resultinfo.value_objective_function]Wert Zielfunktion
+[resultinfo.value_processing]Wert Fertigung
+[resultinfo.value_setup]Wert Rüsten
+[resultinfo.value_throughput_time]DLZ (d)
+[resultinfo.value_total]Wert Gesamt
+[resultinfo.value_utilization]Wert Stillstand
+[resultinfo.value_worker]Wert Personal
+[resultinfo.last_modified]Zuletzt geändert
+[resultinfo.report_app_version]Softwareversion
+[resultinfo.report_datamodel_version]Datenmodellversion
+[resultinfo.report_max_memory_usage]Max. benötigter Arbeitsspeicher [MB]
+[resultinfo.report_count_productionorder]FA gesamt
+[resultinfo.report_rate_productionorder_early]Anteil FA ok %%
+[resultinfo.report_rate_productionorder_ontime]Anteil FA kritisch %%
+[resultinfo.report_rate_productionorder_late]Anteil FA verspätet %%
+[resultinfo.report_rate_productionorder_incomplete]Anteil FA unvollständig %%
+[resultinfo.report_value_sales_productionorder_total]Wert Verkauf FA gesamt
+[resultinfo.report_value_sales_productionorder_early]Wert Verkauf FA ok
+[resultinfo.report_value_sales_productionorder_ontime]Wert Verkauf FA pünktlich
+[resultinfo.report_value_sales_productionorder_late]Wert Verkauf FA verspätet
+[resultinfo.report_value_sales_productionorder_incomplete]Wert Verkauf FA unvollständig
+[resultinfo.report_value_production_productionorder_total]Wert Herstellung FA gesamt
+[resultinfo.report_value_production_productionorder_early]Wert Herstellung FA ok
+[resultinfo.report_value_production_productionorder_ontime]Wert Herstellung FA pünktlich
+[resultinfo.report_value_production_productionorder_late]Wert Herstellung FA verspätet
+[resultinfo.report_value_production_productionorder_incomplete]Wert Herstellung FA unvollständig
+[resultinfo.report_rate_value_sales_productionorder_late]Anteil Wert Verkauf FA verspätet
+[resultinfo.report_rate_value_production_productionorder_late]Anteil Wert Herstellung FA verspätet
+[routing.client_id]Mandant
+[routing.routing_id]Nummer
+[routing.info1]Information 1
+[routing.info2]Information 2
+[routing.info3]Information 3
+[routing.name]Bezeichnung
+[routing.allow_overlap]Überlappung erlauben
+[routing.locked]Gesperrt
+[routing.master_routing_id]Vorlage-Arbeitsplannummer
+[routing.last_modified]Zuletzt geändert
+[routing_operation.client_id]Mandant
+[routing_operation.routing_id]Arbeitsplannummer
+[routing_operation.operation_id]Vorgangsnummer
+[routing_operation.alternative_id]Alternativennummer
+[routing_operation.split_id]Splitnummer
+[routing_operation.info1]Information 1
+[routing_operation.info2]Information 2
+[routing_operation.info3]Information 3
+[routing_operation.name]Bezeichnung
+[routing_operation.allow_interruptions]Unterbrechbar
+[routing_operation.description]Beschreibung
+[routing_operation.operation_type]Vorgangstyp
+[routing_operation.split_max]Maximaler Split
+[routing_operation.split_min]Minimaler Split
+[routing_operation.worker_requirement_type]Bedientyp
+[routing_operation.quantity_rounding_value]Rundungswert
+[routing_operation.report_predecessor_maxbuffer]Max. Puffer Vorgänger (s)
+[routing_operation.report_successor_maxbuffer]Max. Puffer Nachfolger (s)
+[routing_operation_activity.client_id]Mandant
+[routing_operation_activity.routing_id]Arbeitsplannummer
+[routing_operation_activity.operation_id]Vorgangsnummer
+[routing_operation_activity.activity_id]Vorgangsaktivitätsnummer
+[routing_operation_activity.alternative_id]Alternativennummer
+[routing_operation_activity.split_id]Splitnummer
+[routing_operation_activity.info1]Information 1
+[routing_operation_activity.info2]Information 2
+[routing_operation_activity.info3]Information 3
+[routing_operation_activity.name]Bezeichnung
+[routing_operation_activity.activity_type]Aktivitätstyp
+[routing_operation_activity.confirmation_required]Zurückzumelden
+[routing_operation_activity.description]Beschreibung
+[routing_operation_activity.interruption_time_max]Maximale Unterbrechungsdauer
+[routing_operation_activity.parallel_count_max]Maximale Parallelbelegung
+[routing_operation_activity.time_quantity_dependent]Mengenabh. Bearbeitungszeit
+[routing_operation_activity.time_quantity_independent]Mengenunabh. Bearbeitungszeit
+[routing_operation_activity.workcenter_allocation]Arbeitsplatzbelegung
+[routing_operation_activity_bom_item.client_id]Mandant
+[routing_operation_activity_bom_item.routing_id]Arbeitsplannummer
+[routing_operation_activity_bom_item.operation_id]Vorgangsnummer
+[routing_operation_activity_bom_item.activity_id]Vorgangsaktivitätsnummer
+[routing_operation_activity_bom_item.split_id]Splitnummer
+[routing_operation_activity_bom_item.bom_id]Stückliste
+[routing_operation_activity_bom_item.bom_item_id]Stücklistenposition
+[routing_operation_activity_bom_item.alternative_id]Alternativennummer
+[routing_operation_activity_prt.client_id]Mandant
+[routing_operation_activity_prt.routing_id]Arbeitsplannummer
+[routing_operation_activity_prt.operation_id]Vorgangsnummer
+[routing_operation_activity_prt.activity_id]Vorgangsaktivitätsnummer
+[routing_operation_activity_prt.alternative_id]Alternativennummer
+[routing_operation_activity_prt.split_id]Splitnummer
+[routing_operation_activity_prt.prt_id]Fertigungshilfsmittelnummer
+[routing_operation_activity_prt.group_id]Gruppe
+[routing_operation_activity_prt.prt_allocation]Fertigungshilfsmittelbelegung
+[routing_operation_activity_resourcereservation.client_id]Mandant
+[routing_operation_activity_resourcereservation.routing_id]Arbeitsplannummer
+[routing_operation_activity_resourcereservation.operation_id]Vorgangsnummer
+[routing_operation_activity_resourcereservation.activity_id]Vorgangsaktivitätsnummer
+[routing_operation_activity_resourcereservation.alternative_id]Alternativennummer
+[routing_operation_activity_resourcereservation.split_id]Splitnummer
+[routing_operation_activity_resourcereservation.reservation_id]Reservierungsnummer
+[routing_operation_activity_resourcereservation.reservation_type]Reservierungstyp
+[routing_operation_activity_resourcereservation.resource_type]Ressourcentyp
+[routing_operation_activity_resourcereservation.resource_id]Ressourcennummer
+[routing_operation_activity_workcenterfactor.client_id]Mandant
+[routing_operation_activity_workcenterfactor.routing_id]Arbeitsplannummer
+[routing_operation_activity_workcenterfactor.operation_id]Vorgangsnummer
+[routing_operation_activity_workcenterfactor.activity_id]Vorgangsaktivitätsnummer
+[routing_operation_activity_workcenterfactor.alternative_id]Alternativennummer
+[routing_operation_activity_workcenterfactor.split_id]Splitnummer
+[routing_operation_activity_workcenterfactor.workcenter_id]Arbeitsplatznummer
+[routing_operation_activity_workcenterfactor.factor_workcenter_time]Zeit-Faktor
+[routing_operation_operationrelation.client_id]Mandant
+[routing_operation_operationrelation.routing_id]Arbeitsplannummer
+[routing_operation_operationrelation.operation_id]Vorgangsnummer
+[routing_operation_operationrelation.alternative_id]Alternativennummer
+[routing_operation_operationrelation.split_id]Splitnummer
+[routing_operation_operationrelation.successor_operation_id]Nachfolge-Vorgang
+[routing_operation_operationrelation.successor_alternative_id]alternativer Nachfolge-Vorgang
+[routing_operation_operationrelation.successor_split_id]Nachfolge-Splitnummer
+[routing_operation_operationrelation.overlap_type]Überlappungstyp
+[routing_operation_operationrelation.overlap_value]Überlappungswert
+[routing_operation_operationrelation.time_buffer_max]Max. Puffer
+[routing_operation_operationrelation.time_buffer_min]Min. Puffer
+[routing_operation_optimizationgroup.client_id]Mandant
+[routing_operation_optimizationgroup.routing_id]Arbeitsplannummer
+[routing_operation_optimizationgroup.operation_id]Vorgangsnummer
+[routing_operation_optimizationgroup.alternative_id]Alternativennummer
+[routing_operation_optimizationgroup.split_id]Splitnummer
+[routing_operation_optimizationgroup.optimizationgroup_type]Optimierungsgruppentyp
+[routing_operation_optimizationgroup.optimizationgroup_id]Optimierungsgruppennummer
+[routing_operation_optimizationgroup.optimizationgroup_value]Merkmal
+[routing_operation_workcenter.client_id]Mandant
+[routing_operation_workcenter.routing_id]Arbeitsplannummer
+[routing_operation_workcenter.operation_id]Vorgangsnummer
+[routing_operation_workcenter.alternative_id]Alternativennummer
+[routing_operation_workcenter.split_id]Splitnummer
+[routing_operation_workcenter.workcenter_id]Arbeitsplatznummer
+[routing_operation_workcenter.delta]Delta
+[routing_operation_workcenter.lot_size_max]Maximale Losgröße
+[routing_operation_workcenter.lot_size_min]Minimale Losgröße
+[routing_operation_worker.client_id]Mandant
+[routing_operation_worker.routing_id]Arbeitsplannummer
+[routing_operation_worker.operation_id]Vorgangsnummer
+[routing_operation_worker.alternative_id]Alternativennummer
+[routing_operation_worker.split_id]Splitnummer
+[routing_operation_worker.group_id]Gruppe
+[routing_operation_worker.activityqualification_id]Vorgangsqualifikation
+[routing_operation_worker.activity_type]Vorgangsaktivitätstyp
+[routing_operation_worker.change_worker_type]Personalwechseltyp
+[routing_operation_worker.workcenter_id]Arbeitsplatznummer
+[routing_operation_worker.worker_requirement_count]Minimale Personenanzahl
+[routing_operation_worker.worker_requirement_count_max]Maximale Personalanzahl
+[routing_operation_worker.worker_requirement_utilization]Personalauslastung
+[routing_scrap.client_id]Mandant
+[routing_scrap.routing_id]Arbeitsplannummer
+[routing_scrap.unit_id]Einheit
+[routing_scrap_item.client_id]Mandant
+[routing_scrap_item.routing_id]Arbeitsplannummer
+[routing_scrap_item.quantity_limit]Limit
+[routing_scrap_item.scrap_rate]Ausschuss in %
+[salesorder.client_id]Mandant
+[salesorder.salesorder_id]Nummer
+[salesorder.info1]Information 1
+[salesorder.info2]Information 2
+[salesorder.info3]Information 3
+[salesorder.name]Bezeichnung
+[salesorder.duedate]Termin
+[salesorder.locked]Gesperrt
+[salesorder.material_id]Materialnummer
+[salesorder.planning_filter]Planfilter
+[salesorder.planning_type]Planungstyp
+[salesorder.priority_id]Priorität
+[salesorder.productioncontroller_id]Fertigungssteuerer
+[salesorder.quantity]Menge
+[salesorder.quantity_delivered]Gelieferte Menge
+[salesorder.quantity_unit_id]Einheit
+[salesorder.salesorder_type]Bedarfstyp
+[salesorder.status]Status
+[salesorder.value_sales]Wert/Einheit
+[salesorder.last_modified]Zuletzt geändert
+[salesorder.report_scheduling_status]Planstatus
+[salesorder.report_productionorder_ids]Deckung
+[salesorder.report_quantity_production]Fertigungsmenge
+[salesorder.report_end_schedule]Liefertermin
+[salesorder.report_buffer]Puffer
+[salesorder.report_quantity_remaining]Offene Menge
+[salesorder.report_stock_withdrawal]Lagerentnahme
+[salesorder.report_productioncontroller]Fertigungssteuerer
+[salesorder.report_productioncontroller_permission]Fertigungssteuerer-Berechtigung
+[salesorder_materialrelation.client_id]Mandant
+[salesorder_materialrelation.salesorder_id]Bedarfsnummer
+[salesorder_materialrelation.child_id]Nummer des materialbereitstellenden Objekts	
+[salesorder_materialrelation.materialrelation_type]Materialbeziehungstyp
+[salesorder_materialrelation.fixed]Fix
+[salesorder_materialrelation.info_date_availability]Bereit ab
+[salesorder_materialrelation.info_time_buffer]Puffer
+[salesorder_materialrelation.quantity]Menge
+[salesorder_materialrelation.quantity_unit_id]Einheit
+[salesorder_materialrelation.report_child_due_date]Termin des materialbereitstellenden Objekts 
+[setupmatrix.client_id]Mandant
+[setupmatrix.setupmatrix_id]Nummer
+[setupmatrix.info1]Information 1
+[setupmatrix.info2]Information 2
+[setupmatrix.info3]Information 3
+[setupmatrix.name]Bezeichnung
+[setupmatrix.last_modified]Zuletzt geändert
+[setupmatrix_item.client_id]Mandant
+[setupmatrix_item.comment]Kommentar
+[setupmatrix_item.setupmatrix_id]Rüstmatrixnummer
+[setupmatrix_item.from_optimizationgroup_id]von Optimierungsgruppe
+[setupmatrix_item.to_optimizationgroup_id]nach Optimierungsgruppe
+[setupmatrix_item.setup_costs]Rüstkosten
+[setupmatrix_item.setup_time]Rüstzeit
+[shift.client_id]Mandant
+[shift.shift_id]Nummer
+[shift.info1]Information 1
+[shift.info2]Information 2
+[shift.info3]Information 3
+[shift.name]Bezeichnung
+[shift.bg_blue]Hintergrundfarbe Blauanteil
+[shift.bg_green]Hintergrundfarbe Grünanteil
+[shift.bg_red]Hintergrundfarbe Rotanteil
+[shift.font_blue]Schriftfarbe Blauanteil
+[shift.font_green]Schriftfarbe Grünanteil
+[shift.font_red]Schriftfarbe Rotanteil
+[shift.last_modified]Zuletzt geändert
+[shift_interval.client_id]Mandant
+[shift_interval.shift_id]Wochenplannummer
+[shift_interval.name]Bezeichnung
+[shift_interval.date_from]Start
+[shift_interval.date_to]Ende
+[shift_interval.interval_type]Status
+[shift_interval.weekday_type]Wochentag
+[shiftmodel.client_id]Mandant
+[shiftmodel.shiftmodel_id]Schichtmodellname
+[shiftmodel.info1]Information 1
+[shiftmodel.info2]Information 2
+[shiftmodel.info3]Information 3
+[shiftmodel.name]Bezeichnung
+[shiftmodel.last_modified]Zuletzt geändert
+[shiftmodel_shift.client_id]Mandant
+[shiftmodel_shift.shiftmodel_id]Schichtmodellname
+[shiftmodel_shift.shift_id]Wochenplannummer
+[shiftmodel_shift.index]Index
+[stock.client_id]Mandant
+[stock.stock_id]Nummer
+[stock.info_stock_avg]Durchschnitt
+[stock.info_stock_final]Endbestand
+[stock.info_stock_initial]Anfangsbestand
+[stock.info_stock_initial_date]Anfangsbestandsdatum
+[stock.info_stock_max]max. Bestand
+[stock.info_stock_min]min. Bestand
+[stock.report_ratio_initial_stock_to_safety_stock]Anfangsbestand/Sicherheitsbestand
+[stock.last_modified]Zuletzt geändert
+[stockquantityposting.client_id]Mandant
+[stockquantityposting.stockquantityposting_id]Nummer
+[stockquantityposting.info1]Information 1
+[stockquantityposting.info2]Information 2
+[stockquantityposting.info3]Information 3
+[stockquantityposting.name]Bezeichnung
+[stockquantityposting.date]Zeitpunkt
+[stockquantityposting.info_object_id]Auslöser
+[stockquantityposting.info_objecttype_id]Typ
+[stockquantityposting.material_id]Materialnummer
+[stockquantityposting.quantity]Menge
+[stockquantityposting.quantity_unit_id]Einheit
+[stockquantityposting.posting_type]Buchungstyp
+[stockquantityposting.last_modified]Zuletzt geändert
+[unit.client_id]Mandant
+[unit.unit_id]Nummer
+[unit.info1]Information 1
+[unit.info2]Information 2
+[unit.info3]Information 3
+[unit.name]Bezeichnung
+[unit.last_modified]Zuletzt geändert
+[unit_unitconversion.client_id]Mandant
+[unit_unitconversion.unit_id]Einheit
+[unit_unitconversion.conversion_unit_id]Einheit Umrechnung
+[unit_unitconversion.conversion_factor]Faktor Umrechnung
+[usersettings.client_id]Mandant
+[usersettings.usersettings_id]Nummer
+[usersettings.name]Bezeichnung
+[usersettings.type_id]Objekttyp
+[usersettings.value]Wert
+[usersettings.user_id]Nutzer
+[usersettings.last_modified]Zuletzt geändert
+[workcenter.client_id]Mandant
+[workcenter.workcenter_id]Nummer
+[workcenter.info1]Information 1
+[workcenter.info2]Information 2
+[workcenter.info3]Information 3
+[workcenter.name]Bezeichnung
+[workcenter.allocation_max]Max. Belegung
+[workcenter.capacity_type]Kapazitätsprüfungstyp
+[workcenter.factor_speed]Geschwindigkeitsfaktor
+[workcenter.global_calendar_id]globale Kalendernummer
+[workcenter.idle_time_period]Stillstandskostenhorizont
+[workcenter.interruption_time_max]Maximale Unterbrechungsdauer
+[workcenter.lot_size_max]Maximale Losgröße
+[workcenter.lot_size_min]Minimale Losgröße
+[workcenter.lot_size_unit_id]Einheit
+[workcenter.mandatory_time_interval]Rüstzwangzeitintervall
+[workcenter.parallel_allocation_criteria]Parallelbelegungskriterium
+[workcenter.parallel_scheduling_type]Parallelbelegungstyp
+[workcenter.schedule_worker]Personal planen
+[workcenter.setup_mandatory_optimization_criteria]Rüstzwangkriterium
+[workcenter.setup_scheduling_type]Rüstoptimierungstyp
+[workcenter.setup_static_time_needless_criteria]statisches Rüstoptimierungskriterium
+[workcenter.setupmatrix_default_costs]Standard-Umrüstkosten
+[workcenter.setupmatrix_default_time]Standard-Umrüstzeit
+[workcenter.setupmatrix_id]Rüstmatrixnummer
+[workcenter.stable_period]Stabiler Zeitraum
+[workcenter.valid_until]Gültig bis
+[workcenter.last_modified]Zuletzt geändert
+[workcenter.report_bottleneck_delay_waiting_time]Verursachte Verspätung (h)
+[workcenter.report_bottleneck_lag_waiting_time]Verursachte Verzögerung (h)
+[workcenter.report_utilization_demand_hr]Bedarf gesamt (h)
+[workcenter.report_utilization_demand_percent]Auslastung gesamt (%%)
+[workcenter.report_stable_period_end]Ende des stabilen Zeitraums
+[workcenter.report_stable_period_end_indirect]Ende des indirekten stabilen Zeitraums
+[workcenter_calendarinterval.client_id]Mandant
+[workcenter_calendarinterval.workcenter_id]Arbeitsplatznummer
+[workcenter_calendarinterval.date_from]Start
+[workcenter_calendarinterval.name]Bezeichnung
+[workcenter_calendarinterval.date_to]Ende
+[workcenter_calendarinterval.interval_type]Status
+[workcenter_calendarinterval.repetition_type]Wiederholung
+[workcenter_cost.client_id]Mandant
+[workcenter_cost.workcenter_id]Arbeitsplatznummer
+[workcenter_cost.valid_from]Gilt ab
+[workcenter_cost.cost_rate_idle_time]Stillstand
+[workcenter_cost.cost_rate_processing]Bearbeitung
+[workcenter_cost.cost_rate_setup]Rüsten
+[workcenter_parallelworkcenter.client_id]Mandant
+[workcenter_parallelworkcenter.workcenter_id]Arbeitsplatznummer
+[workcenter_parallelworkcenter.parallel_workcenter_id]Arbeitsplatznummer Parallelbelegung
+[workcenter_shiftmodel.client_id]Mandant
+[workcenter_shiftmodel.workcenter_id]Arbeitsplatznummer
+[workcenter_shiftmodel.start_date]Start
+[workcenter_shiftmodel.shiftmodel_id]Schichtmodell Nummer
+[workcenter_shiftmodel.start_shift_index]Index
+[workcenter_shiftmodel.valid_until]Gültig bis
+[workcenter_worker.workcenter_id]Arbeitsplatznummer
+[workcenter_worker.group_id]Gruppe
+[workcenter_worker.activityqualification_id]Vorgangsqualifikation
+[workcenter_worker.activity_type]Vorgangsaktivitätstyp
+[workcenter_worker.change_worker_type]Personalwechseltyp
+[workcenter_worker.worker_requirement_count]Minimale Personenanzahl
+[workcenter_worker.worker_requirement_count_max]Maximale Personalanzahl
+[workcenter_worker.worker_requirement_utilization]Personalauslastung
+[workcentergroup.client_id]Mandant
+[workcentergroup.workcentergroup_id]Nummer
+[workcentergroup.info1]Information 1
+[workcentergroup.info2]Information 2
+[workcentergroup.info3]Information 3
+[workcentergroup.name]Name
+[workcentergroup.allocation_max]Max. Belegung
+[workcentergroup.capacity_type]Kapazitätsprüfungstyp
+[workcentergroup.global_calendar_id]globale Kalendernummer
+[workcentergroup.idle_time_period]Stillstandskostenhorizont
+[workcentergroup.mandatory_time_interval]Rüstzwangzeitintervall
+[workcentergroup.line_type]Linientyp
+[workcentergroup.parallel_allocation_criteria]Parallelbelegungskriterium
+[workcentergroup.parallel_scheduling_type]Parallelbelegungstyp
+[workcentergroup.valid_until]Gültig bis
+[workcentergroup.last_modified]Zuletzt geändert
+[workcentergroup.report_bottleneck_delay_waiting_time]Verursachte Verspätung (h)
+[workcentergroup.report_bottleneck_lag_waiting_time]Verursachte Verzögerung (h)
+[workcentergroup.report_utilization_demand_hr]Bedarf gesamt (h)
+[workcentergroup.report_utilization_demand_percent]Auslastung gesamt (%%)
+[workcentergroup_calendarinterval.client_id]Mandant
+[workcentergroup_calendarinterval.workcentergroup_id]Arbeitspatzgruppennummer
+[workcentergroup_calendarinterval.date_from]Start
+[workcentergroup_calendarinterval.name]Bezeichnung
+[workcentergroup_calendarinterval.date_to]Ende
+[workcentergroup_calendarinterval.interval_type]Status
+[workcentergroup_calendarinterval.repetition_type]Wiederholung
+[workcentergroup_cost.client_id]Mandant
+[workcentergroup_cost.workcentergroup_id]Arbeitspatzgruppennummer
+[workcentergroup_cost.valid_from]Gilt ab
+[workcentergroup_cost.cost_rate_idle_time]Stillstand
+[workcentergroup_cost.cost_rate_processing]Bearbeitung
+[workcentergroup_cost.cost_rate_setup]Rüsten
+[workcentergroup_shiftmodel.client_id]Mandant
+[workcentergroup_shiftmodel.workcentergroup_id]Arbeitspatzgruppennummer
+[workcentergroup_shiftmodel.start_date]Start
+[workcentergroup_shiftmodel.shiftmodel_id]Schichtmodell Nummer
+[workcentergroup_shiftmodel.start_shift_index]Index
+[workcentergroup_shiftmodel.valid_until]Gültig bis
+[workcentergroup_workcenter.client_id]Mandant
+[workcentergroup_workcenter.workcentergroup_id]Arbeitspatzgruppennummer
+[workcentergroup_workcenter.workcenter_id]Arbeitsplatznummer
+[workcentergroup_workcenter.group_type]Gruppentyp
+[worker.client_id]Mandant
+[worker.worker_id]Nummer
+[worker.info1]Information 1
+[worker.info2]Information 2
+[worker.info3]Information 3
+[worker.name]Name
+[worker.allocation_max]Max. Belegung
+[worker.capacity_type]Kapazitätsprüfungstyp
+[worker.cost_rate]Stundensatz
+[worker.global_calendar_id]globale Kalendernummer
+[worker.processing_time_penalty]Bedienzeitzuschlag
+[worker.setup_time_penalty]Rüstzeitzuschlag
+[worker.valid_until]Gültig bis
+[worker.last_modified]Zuletzt geändert
+[worker.report_bottleneck_delay_waiting_time]Verursachte Verspätung (h)
+[worker.report_bottleneck_lag_waiting_time]Verursachte Verzögerung (h)
+[worker.report_utilization_demand_hr]Bedarf gesamt (h)
+[worker.report_utilization_demand_percent]Auslastung gesamt (%%)
+[worker_activityqualification.client_id]Mandant
+[worker_activityqualification.worker_id]Personalnummer
+[worker_activityqualification.activityqualification_id]Vorgangsqualifikation
+[worker_activityqualification.priority_value]Prioritätswert
+[worker_activityqualification.valid_from]Gültig ab
+[worker_activityqualification.valid_until]Gültig bis
+[worker_calendarinterval.client_id]Mandant
+[worker_calendarinterval.worker_id]Personalnummer
+[worker_calendarinterval.date_from]Start
+[worker_calendarinterval.name]Bezeichnung
+[worker_calendarinterval.date_to]Ende
+[worker_calendarinterval.interval_type]Status
+[worker_calendarinterval.repetition_type]Wiederholung
+[worker_shiftmodel.client_id]Mandant
+[worker_shiftmodel.worker_id]Personalnummer
+[worker_shiftmodel.start_date]Start
+[worker_shiftmodel.shiftmodel_id]Schichtmodell Nummer
+[worker_shiftmodel.start_shift_index]Index
+[worker_shiftmodel.valid_until]Gültig bis
+[worker_workcenterqualification.client_id]Mandant
+[worker_workcenterqualification.worker_id]Personalnummer
+[worker_workcenterqualification.workcenter_id]Arbeitsplatznummer
+[worker_workcenterqualification.priority_value]Prioritätswert
+[worker_workcenterqualification.valid_from]Gültig ab
+[worker_workcenterqualification.valid_until]Gültig bis
+[worker_workcenterqualification.workcenterqualification_type]Qualifikationstyp
+[workergroup.client_id]Mandant
+[workergroup.workergroup_id]Nummer
+[workergroup.info1]Information 1
+[workergroup.info2]Information 2
+[workergroup.info3]Information 3
+[workergroup.name]Name
+[workergroup.allocation_max]Max. Belegung
+[workergroup.capacity_type]Kapazitätsprüfungstyp
+[workergroup.cost_rate]Stundensatz
+[workergroup.global_calendar_id]globale Kalendernummer
+[workergroup.pool_type]Personalpool
+[workergroup.processing_time_penalty]Bedienzeitzuschlag
+[workergroup.setup_time_penalty]Rüstzeitzuschlag
+[workergroup.valid_until]Gültig bis
+[workergroup.last_modified]Zuletzt geändert
+[workergroup.report_bottleneck_delay_waiting_time]Verursachte Verspätung (h)
+[workergroup.report_bottleneck_lag_waiting_time]Verursachte Verzögerung (h)
+[workergroup.report_utilization_demand_hr]Bedarf gesamt (h)
+[workergroup.report_utilization_demand_percent]Auslastung gesamt (%%)
+[workergroup_activityqualification.client_id]Mandant
+[workergroup_activityqualification.workergroup_id]Personalgruppennummer
+[workergroup_activityqualification.activityqualification_id]Vorgangsqualifikation
+[workergroup_activityqualification.priority_value]Prioritätswert
+[workergroup_activityqualification.valid_from]Gültig ab
+[workergroup_activityqualification.valid_until]Gültig bis
+[workergroup_calendarinterval.client_id]Mandant
+[workergroup_calendarinterval.workergroup_id]Personalgruppennummer
+[workergroup_calendarinterval.date_from]Start
+[workergroup_calendarinterval.name]Bezeichnung
+[workergroup_calendarinterval.date_to]Ende
+[workergroup_calendarinterval.interval_type]Status
+[workergroup_calendarinterval.repetition_type]Wiederholung
+[workergroup_shiftmodel.client_id]Mandant
+[workergroup_shiftmodel.workergroup_id]Personalgruppennummer
+[workergroup_shiftmodel.start_date]Start
+[workergroup_shiftmodel.shiftmodel_id]Schichtmodell Nummer
+[workergroup_shiftmodel.start_shift_index]Index
+[workergroup_shiftmodel.valid_until]Gültig bis
+[workergroup_poolcapacity.client_id]Mandant
+[workergroup_poolcapacity.workergroup_id]Personalgruppennummer
+[workergroup_poolcapacity.date_from]Datum
+[workergroup_poolcapacity.quantity]Anzahl Mitglieder
+[workergroup_workcenterqualification.client_id]Mandant
+[workergroup_workcenterqualification.workergroup_id]Personalgruppennummer
+[workergroup_workcenterqualification.workcenter_id]Arbeitsplatznummer
+[workergroup_workcenterqualification.priority_value]Prioritätswert
+[workergroup_workcenterqualification.valid_from]Gültig ab
+[workergroup_workcenterqualification.valid_until]Gültig bis
+[workergroup_workcenterqualification.workcenterqualification_type]Qualifikationstyp
+[workergroup_worker.client_id]Mandant
+[workergroup_worker.workergroup_id]Personalgruppennummer
+[workergroup_worker.worker_id]Personalnummer
+[workergroup_worker.group_type]Gruppentyp
+[defaultchart.name]Bezeichnung
+[defaultreport.name]Bezeichnung
+[defaultreport.last_modified]Zuletzt geändert
+[journal.client_id]Mandant
+[journal.journal_id]Nummer
+[journal.action_type]Aktionstyp
+[journal.date]Datum
+[journal.host]Host-PC
+[journal.object_id]Objekt
+[journal.objecttype_id]Objekttyp
+[journal.session_id]Sitzungsnummer
+[journal.user_id]Nutzer
+[journal.value]Wert
+
+#REPORTPROPERTIES
+[assignmentplan_worker.date_start]Start
+[assignmentplan_worker.date_end]Ende
+[assignmentplan_worker.prorated_process_time]Anteilige Bearbeitungszeit [%%]
+[assignmentplan_worker.prorated_working_time_hour]Anteilige Bearbeitungszeit [h]
+[assignmentplan_worker.prorated_working_time_hour_total]Anteilige Bearbeitungszeit (Vorgang) [h]
+[bottlenecks_overview.id]ID
+[bottlenecks_overview.name]Name
+[bottlenecks_overview.type]Typ
+[bottlenecks_overview.rank]Rang
+[bottlenecks_overview.sum_of_waiting_time_in_period]Summe Verspätung (h) im Zeitraum
+[bottlenecks_lag_overview.id]ID
+[bottlenecks_lag_overview.name]Name
+[bottlenecks_lag_overview.type]Typ
+[bottlenecks_lag_overview.rank]Rang
+[bottlenecks_lag_overview.sum_of_waiting_time_in_period]Summe Verzögerung (h) im Zeitraum
+[bottlenecks.id]ID
+[bottlenecks.date]Datum
+[bottlenecks.name]Name
+[bottlenecks.type]Typ
+[bottlenecks.waiting_time]Verspätung (h)
+[bottlenecks.total_current_waiting_time]Gesamte aktuelle Verspätung (h)
+[bottlenecks.resource_type]Ressourcentyp
+[bottlenecks_lag.id]ID
+[bottlenecks_lag.date]Datum
+[bottlenecks_lag.name]Name
+[bottlenecks_lag.type]Typ
+[bottlenecks_lag.waiting_time]Verzögerung (h)
+[bottlenecks_lag.total_current_waiting_time]Gesamte aktuelle Verzögerung (h)
+[productionorder_material.planning_type]Planstatus
+[productionorder_material.amount]Menge
+[productionorder_material.inhouse_production]Eigenfertigung
+[productionorder_material.demand_coverage]Bedarfsdeckung
+[utilization.resource]Ressource
+[utilization.resource_type]Ressourcentyp
+[utilization.resource_name]Name
+[utilization.start]Start
+[utilization.end]Ende
+[utilization.interval]Intervall
+[utilization.offer_capacity]Verfügbare Kapazität (Angebot h)
+[utilization.offer_time]Verfügbare Zeit (Angebot h)
+[utilization.quota_offer_capacity]Angebotene Kapazität (%%)
+[utilization.quota_offer_time]Angebotene Zeit (%%)
+[utilization.allocation_required_capacity]Benötigte Kapazität (Belegung h)
+[utilization.allocation_required_time]Benötigte Zeit (Belegung h)
+[utilization.allocation_free_capacity]Freie Kapazität (keine Belegung h)
+[utilization.allocation_free_time]Freie Zeit (keine Belegung h)
+[utilization.quota_allocation_required_capacity]Benötigte Kapazität (Belegung %%)
+[utilization.quota_allocation_required_time]Benötigte Zeit (Belegung %%) 
+[utilization.quota_allocation_free_capacity]Freie Kapazität (keine Belegung %%)
+[utilization.quota_allocation_free_time]Freie Zeit (keine Belegung %%)
+[utilization.demand_required_capacity]Benötigte Kapazität (Bedarf h)
+[utilization.demand_required_time]Benötigte Zeit (Bedarf h)
+[utilization.demand_free_capacity]Freie Kapazität (kein Bedarf h)
+[utilization.demand_free_time]Freie Zeit (kein Bedarf h)
+[utilization.quota_demand_required_capacity]Benötigte Kapazität (Bedarf %%)
+[utilization.quota_demand_required_time]Benötigte Zeit (Bedarf %%)
+[utilization.quota_demand_free_capacity]Freie Kapazität (kein Bedarf %%)
+[utilization.quota_demand_free_time]Freie Zeit (kein Bedarf %%)
+[utilization.overload_allocation_capacity]Überlast Kapazität (Belegung)
+[utilization.overload_allocation_time]Überlast Zeit (Belegung)
+[utilization.overload_demand_capacity]Überlast Kapazität (Bedarf)
+[utilization.overload_demand_time]Überlast Zeit (Bedarf)
+[utilization.offer_parallel]Angebot #
+[utilization.allocation_parallel]Belegung #
+[utilization.demand_parallel]Bedarf #
+[utilization.demand_setup_capacity]Benötigte Rüstkapazität (h)
+[utilization.demand_setup_time]Benötigte Rüstzeit (h)
+[utilization.quota_setup_capacity]Rüstgrad Kapazität (%%)
+[utilization.quota_setup_time]Rüstgrad Zeit (%%)
+[utilization.demand_processing_capacity]Benötigte Fertigungskapazität (h)
+[utilization.demand_processing_time]Benötigte Fertigungszeit (h)
+[utilization.quota_processing_capacity]Fertigungsgrad Kapazität (%%)
+[utilization.quota_processing_time]Fertigungsgrad Zeit (%%)
+[utilization.demand_setup_capacity_ratio]Rüstanteil Kapazität (%%)
+[utilization.demand_setup_time_ratio]Rüstanteil Zeit (%%)
+[utilization.demand_processing_capacity_ratio]Fertigungsanteil Kapazität (%%)
+[utilization.demand_processing_time_ratio]Fertigungsanteil Zeit (%%)
+[capital_commitment.date]Datum
+[capital_commitment.capital_commitment]Kapitalbindung
+[capital_commitment.difference]Differenz
+[stock_overview.minimum_stock]Min. Bestand (im Zeitraum)
+[stock_overview.maximum_stock]Max. Bestand (im Zeitraum)
+[stock_overview.average_stock]Durchschnitt (im Zeitraum)
+[stock_overview.minimum_stock_critical]Min. Bestand kritisch?
+[stock_overview.maximum_stock_critical]Max. Bestand kritisch?
+[stock_overview.final_stock_critical]Endbestand kritisch?
+[stock_overview.capital_commitment]Kapitalbindung
+[stock_overview.throughput]Wareneinsatz
+[stock_overview.inventory_turns]Umschlagshäufigkeit
+[stock_overview.average_turnover_period]Durchschnittliche Lagerdauer d
+[stock_overview.inventory_range]Lagerreichweite d
+[stock_overview.stock_safety_coefficient]Sicherheitskoeffizient
+[stock_overview.rate_stocking]Bevorratungsquote
+[stock_overview.rate_overproduction]Anteil Überproduktion
+[stock_changes.type_of_acquistion]Beschaffungsart
+[stock_changes.date]Datum
+[stock_changes.changes]Änderung
+[stock_changes.stock]Bestand
+[stock_changes.stock_critical]Bestand kritisch
+[stock_changes.trigger]Auslöser
+[stock_changes.trigger_type]Typ Auslöser
+[stock_changes.status]Status
+[stock_changes.trigger_duedate]Termin Auslöser
+[stock_changes_detailed.date]Datum
+[stock_changes_detailed.quantity]Menge
+[stock_changes_detailed.planned_stock]Geplanter Bestand
+[stock_changes_detailed.stock_critical]Bestand kritisch
+[stock_changes_detailed.trigger_id]Auslöser
+[stock_changes_detailed.trigger_type]Typ Auslöser
+[stock_changes_detailed.trigger_duedate]Termin Auslöser
+[stock_changes_detailed.trigger_unscheduled]Ungeplanter Auslöser
+[stock_changes_detailed.provider_id]Bereitsteller
+[stock_changes_detailed.provider_type]Typ Bereitsteller
+[stock_changes_detailed.consumer_id]Verbraucher
+[stock_changes_detailed.consumer_type]Typ Verbraucher
+[stock_changes_detailed.reservationorder]Planreihenfolge Entnahme
+[cost_analysis_material.material_costs_operation]Materialwert Vorgang
+[cost_analysis_material.material_costs_total]Materialwert gesamt
+[cost_analysis_material.material_costs_accumulated]Materialwert kumuliert
+[cost_analysis_material.average_production_costs_operation]Mittlere Fertigungskosten Vorgang
+[cost_analysis_material.maximum_production_costs_operation]Max. Fertigungskosten Vorgang
+[cost_analysis_material.minimum_production_costs_operation]Min. Fertigungskosten Vorgang
+[cost_analysis_material.average_production_costs_total]Mittlere Fertigungskosten gesamt
+[cost_analysis_material.maximum_production_costs_total]Max. Fertigungskosten gesamt
+[cost_analysis_material.minimum_production_costs_total]Min. Fertigungskosten gesamt
+[cost_analysis_material.average_production_costs_accumulated]Mittlere Fertigungskosten kumuliert
+[cost_analysis_material.maximum_production_costs_accumulated]Max. Fertigungskosten kumuliert
+[cost_analysis_material.minimum_production_costs_accumulated]Min. Fertigungskosten kumuliert
+[cost_analysis_material.average_worker_costs_operation]Mittlere Personalkosten Vorgang
+[cost_analysis_material.maximum_worker_costs_operation]Max. Personalkosten Vorgang
+[cost_analysis_material.minimum_worker_costs_operation]Min. Personalkosten Vorgang
+[cost_analysis_material.average_worker_costs_total]Mittlere Personalkosten gesamt
+[cost_analysis_material.maximum_worker_costs_total]Max. Personalkosten gesamt
+[cost_analysis_material.minimum_worker_costs_total]Min. Personalkosten gesamt
+[cost_analysis_material.average_worker_costs_accumulated]Mittlere Personalkosten kumuliert
+[cost_analysis_material.maximum_worker_costs_accumulated]Max. Personalkosten kumuliert
+[cost_analysis_material.minimum_worker_costs_accumulated]Min. Personalkosten kumuliert
+[wip_workcenter_after.workcenter_ids]Ressourcen
+[wip_workcenter_after.start]Start
+[wip_workcenter_after.end]Ende
+[wip_workcenter_after.interval]Intervall
+[wip_workcenter_after.delta]Delta
+[wip_workcenter_after.accumulated_inventory_at_interval_end]kumulierter Pufferbestand zum Intervallende
+[wip_workcenter_after.group_property]Gruppierung
+[wip_workcenter_before.workcenter_ids]Ressourcen
+[wip_workcenter_before.start]Start
+[wip_workcenter_before.end]Ende
+[wip_workcenter_before.interval]Intervall
+[wip_workcenter_before.delta]Delta
+[wip_workcenter_before.accumulated_inventory_at_interval_end]kumulierter Pufferbestand zum Intervallende
+[wip_workcenter_before.group_property]Gruppierung
+[productionquantities_workcenter.start]Start
+[productionquantities_workcenter.end]Ende
+[productionquantities_workcenter.interval]Intervall
+[productionquantities_workcenter.quantity]Menge
+[productionquantities_workcenter.quantity_accumulated]Menge kumuliert
+[productionquantities_workcenter.total_quantity_time_period]Gesamtmenge Zeitraum
+[productionquantities_workcenter.quantity_all_resources_per_interval]Menge aller Ressourcen
+[productionquantities_workcenter.total_quantity_all_resources_in_time_period]Gesamtmenge Zeitraum aller Ressourcen
+[productionquantities_workcenter.working_hours]Arbeitsstunden
+[productionquantities_workcenter.working_hours_single]Arbeitsstunden (einzeln)
+[productionquantities_workcenter.productivity_capacity]Arbeitsplatzproduktivität (Kapazität)
+[productionquantities_workcenter.productivity_time]Arbeitsplatzproduktivität (Zeit)
+[productionquantities_workcenter.quantity_late]Menge verspätet
+[productionquantities_workcenter.quota_quantity_late]Menge verspätet [%%]
+[productionquantities_workcenter.rate_throughput_capacity]Produktionsrate (Kapazität)
+[productionquantities_workcenter.rate_throughput_time]Produktionsrate (Zeit)
+[productionquantities_worker.start]Start
+[productionquantities_worker.end]Ende
+[productionquantities_worker.interval]Intervall
+[productionquantities_worker.quantity]Menge
+[productionquantities_worker.productivity_capacity]Personalproduktivität (Kapazität)
+[productionquantities_worker.productivity_time]Personalproduktivität (Zeit)
+[productionquantities_worker.quantity_late]Menge verspätet
+[productionquantities_worker.quota_quantity_late]Menge verspätet [%%]
+[productionquantities_worker.rate_throughput_capacity]Produktionsrate (Kapazität)
+[productionquantities_worker.rate_throughput_time]Produktionsrate (Zeit)
+[productionquantities_material.start]Start
+[productionquantities_material.end]Ende
+[productionquantities_material.interval]Intervall
+[productionquantities_material.quantity]Menge
+[productionquantities_material.quantity_accumulated]Menge kumuliert
+[productionquantities_material.total_quantity_time_period]Gesamtmenge Zeitraum
+[productionquantities_material.quantity_all_materials_per_interval]Menge aller Materialien
+[productionquantities_material.total_quantity_all_materials_in_time_period]Gesamtmenge Zeitraum aller Materialien
+[productionquantities_material.quantity_late]Menge verspätet
+[productionquantities_material.quota_quantity_late]Menge verspätet [%%]
+[bom_structure.bom_level]Stücklistenebene
+[bom_structure.quantity_single]Menge einzeln
+[bom_structure.quantity_accumulated]Menge kumuliert
+[bom_structure.supply_time]Bereitstellungszeit [Min]
+[planning_analysis.activity]Vorgang
+[planning_analysis.cause]Mögliche Ursache
+[planning_analysis.solution]Lösungsvorschlag
+[planning_analysis.description]Erklärung
+[planning_analysis.po_level]FA-Level
+[planning_analysis.delay]Verursachte Verspätung [h]
+[setup_overview.workcenter_id]Ressource
+[setup_overview.working_time]Bearbeitungszeit in Minuten
+[setup_overview.setup_predecessor_id]Ruestvorgänger
+[setup_overview.test_setup_predecessor_id]Test Ruestvorgänger
+[setup_overview.dynamic_setup_time]Dyn. Ruestdauer [Min]
+[setup_overview.test_dynamic_setup_time]Test dyn. Ruestdauer [Min]
+[setup_overview.info]Info
+[setup_overview.test_info]Test Info
+[setup_overview.static_optimization_criteria]Statische Ruestoptimierung
+[setup_overview.test_static_optimization_criteria]Test statische Ruestoptimierung
+[setup_overview.deviation_text]Abweichung betrifft
+[setup_overview.deviation]Abweichung
+[maintenance_overview.resource_id]Ressourcennummer
+[maintenance_overview.resource_name]Ressourcenname
+[salesorders_overview.due_date]Termin
+[salesorders_overview.scheduling_status]Planstatus
+[salesorders_overview.salesorders_overall]Kundenbedarfe - gesamt
+[salesorders_overview.forecastorders_overall]Prognosebedarfe - gesamt
+[salesorders_overview.stockorders_overall]Lagerbedarfe - gesamt
+[salesorders_overview.salesorders_quantity_open]Kundenbedarfe - Teilmenge offen
+[salesorders_overview.forecastorders_quantity_open]Prognosebedarfe - Teilmenge offen
+[salesorders_overview.stockorders_quantity_open]Lagerbedarfe - Teilmenge offen
+[salesorders_overview.salesorders_quantity_complete_open]Kundenbedarfe - vollständig offen
+[salesorders_overview.forecastorders_quantity_complete_open]Prognosebedarfe - vollständig offen
+[salesorders_overview.stockorders_quantity_complete_open]Lagerbedarfe - vollständig offen
+[salesorders_overview.salesorders_planningtype_optimization]Kundenbedarfe - Optimierung
+[salesorders_overview.forecastorders_planningtype_optimization]Prognosebedarfe - Optimierung
+[salesorders_overview.stockorders_planningtype_optimization]Lagerbedarfe - Optimierung
+[salesorders_overview.salesorders_planningtype_request]Kundenbedarfe - Anfrage
+[salesorders_overview.forecastorders_planningtype_request]Prognosebedarfe - Anfrage
+[salesorders_overview.stockorders_planningtype_request]Lagerbedarfe - Anfrage
+[salesorders_overview.salesorders_planningtype_request_asap]Kundenbedarfe - Zusatzanfrage ohne Termin
+[salesorders_overview.forecastorders_planningtype_request_asap]Prognosebedarfe - Zusatzanfrage ohne Termin
+[salesorders_overview.stockorders_planningtype_request_asap]Lagerbedarfe - Zusatzanfrage ohne Termin
+[salesorders_overview.salesorders_planningtype_request_alap]Kundenbedarfe - Zusatzanfrage mit Termin
+[salesorders_overview.forecastorders_planningtype_request_alap]Prognosebedarfe - Zusatzanfrage mit Termin
+[salesorders_overview.stockorders_planningtype_request_alap]Lagerbedarfe - Zusatzanfrage mit Termin
+[materialrelations.quantity]Menge
+[materialrelations.quantity_unit_id]Einheit
+[materialrelations.buffer]Puffer
+[materialrelations.parent_id]Nummer Verbraucher
+[materialrelations.parenttype]Typ Verbraucher
+[materialrelations.child_id]Nummer Bereitsteller
+[materialrelations.childtype]Typ Bereitsteller
+[materialrelations.linktype]Materialbeziehungstyp (Nummer)
+[materialrelations.linktype_name]Materialbeziehungstyp (Name)
+[shift_schedule.resource_id]Ressourcennummer
+[shift_schedule.resource_name]Ressourcenname
+[shift_schedule.resource_type]Ressourcentyp
+[shift_schedule.start]Start
+[shift_schedule.end]Ende
+[shift_schedule.interval_type]Intervalltyp
+[shift_schedule.comment]Kommentar
+[shift_schedule.availability]Verfügbarkeit
+[utilization_activity_qualifications.activityqualification_id]Vorgangsqualifikation
+[utilization_activity_qualifications.start]Start
+[utilization_activity_qualifications.end]Ende
+[utilization_activity_qualifications.interval]Intervall
+[utilization_activity_qualifications.offer_capacity]Verfügbare Kapazität (h)
+[utilization_activity_qualifications.demand_required_capacity]Benötigte Kapazität (h)
+[utilization_activity_qualifications.demand_free_capacity]Freie Kapazität (h)
+[utilization_activity_qualifications.quota_demand_required_capacity]Benötigte Kapazität (%%)
+[utilization_activity_qualifications.quota_demand_free_capacity]Freie Kapazität (%%)
+[utilization_activity_qualifications.overload_demand_capacity]Überlast Kapazität
+[utilization_activity_qualifications.demand_setup_capacity]Benötigte Rüstkapazität (h)
+[utilization_activity_qualifications.quota_setup_capacity]Rüstgrad Kapazität (%%)
+[utilization_activity_qualifications.demand_processing_capacity]Benötigte Fertigungskapazität (h)
+[utilization_activity_qualifications.quota_processing_capacity]Fertigungsgrad Kapazität (%%)
+[utilization_activity_qualifications.demand_setup_capacity_ratio]Rüstanteil Kapazität (%%)
+[utilization_activity_qualifications.demand_processing_capacity_ratio]Fertigungsanteil Kapazität (%%)
+
+#BASISTYPEN
+[APVorgangsTyp.ALTERNATIV]Alternativ
+[APVorgangsTyp.STATISCH]Standard
+[BedienTyp.ANZAHLBEDIENER]individuell
+[BedienTyp.MASCHINE]von Arbeitsplatz übernehmen
+[BELEGUNGSTYP.aktiv]aktiv
+[BELEGUNGSTYP.blockiert]blockiert
+[BELEGUNGSTYP.reserviert]reserviert
+[BelegungsTyp.PARALLEL]Parallel
+[BelegungsTyp.PARALLEL_ZWANG]Parallelzwang
+[BUCHUNGSTYP.ABSOLUTBUCHUNG]Bestandsmeldung
+[BUCHUNGSTYP.RELATIVBUCHUNG]Bestandsänderung
+[ChangeWorkerType.change_always]Wechsel erlaubt
+[ChangeWorkerType.change_on_start]kein Wechsel in Aktivität erlaubt
+[ChangeWorkerType.change_never]kein Wechsel in Vorgang erlaubt
+[ConfirmationType.gestartet]gestartet
+[ConfirmationType.teilrueck_abs]teilrückgemeldet (absolut)
+[ConfirmationType.teilrueck_rel]teilrückgemeldet (relativ)
+[ConfirmationType.unterbrochen]unterbrochen
+[ConfirmationType.beendet]beendet
+[ConfirmationType.bde_reset]zurücksetzen (ungeplant)
+[GroupType.Gruppenmitglied]Gruppenmitglied
+[GroupType.Kapazitaet]Kapazitaet
+[GroupType.Kosten]Kosten
+[GroupType.Arbeitszeitmodell]Arbeitszeitmodell
+[GroupType.Qualifikation]Qualifikation
+[IntervallTyp.Arbeit]Arbeit
+[IntervallTyp.Info]Information
+[IntervallTyp.Krank]Krank
+[IntervallTyp.Pause]Pause
+[IntervallTyp.Störung]Störung
+[IntervallTyp.Urlaub]Urlaub
+[IntervallTyp.Wartung]Wartung
+[KapazitaetspruefungsTyp.BEGRENZTEKAPAZI]Belegung + Zeit
+[KapazitaetspruefungsTyp.KEINEPLANKAPAZI]gesperrt
+[KapazitaetspruefungsTyp.OHNEKAPAZI]keine
+[KapazitaetspruefungsTyp.UNBEGRENZTEKAPAZI]Zeit
+[KapazitaetspruefungsTyp.UNBEGRENZTEZEIT]Belegung
+[LineType.no_line]keine Linie
+[LineType.line_free]Linie
+[LineType.line_sequence]Linie (sequentiell)
+[OptimierungsgruppenTyp.BELEGUNGSOPTIMIERUNG]Parallel Belegen
+[OptimierungsgruppenTyp.DYNRUSTOPTIMIERUNG]Dynamisch Rüsten
+[OptimierungsgruppenTyp.STATISCHERUESTOPTIMIERUNG]Statisch Rüsten
+[ParallelbelegungsTyp.KEINEPARALLEL]Keine
+[ParallelbelegungsTyp.ALLEPARALLEL]ohne Beschränkung
+[ParallelbelegungsTyp.JOBPARALLEL]Job
+[ParallelbelegungsTyp.MATERIALGRUPPEPARALLEL]Optimierungsgruppe
+[ParallelbelegungsTyp.PARALLELBEDIENUNGPARALLEL]Parallelbedienung
+[ParallelbelegungsTyp.MATERIALPARALLEL]Material
+[ParallelbelegungsTyp.VORGANGPARALLEL]Vorgang
+[ParallelbelegungsTyp.COMMONPARENTPARALLEL]Übergeordneter FA/Bedarf
+[ParallelbelegungsTyp.ACTIVITYTYPEPARALLEL]Aktivitätstyp
+[ParallelbelegungsTyp.PRODUCTIONORDERPARALLEL]Fertigungsauftrag
+[PLANSTATUSFA.kritisch]pünktlich
+[PLANSTATUSFA.nicht eingeplant]nicht eingeplant
+[PLANSTATUSFA.ok]ok
+[PLANSTATUSFA.verspätet]verspätet
+[PlanungsArt.NEUEINPLANEN]gewählte Planungstypen einplanen
+[PlanungsArt.UMPLANEN]gewählte Planungstypen umplanen
+[PlanungsArt.WIEDERPLANEN]nicht importieren und alle neu einplanen
+[PLANUNGSTYP.Anfrage]Anfrage
+[PLANUNGSTYP.Optimierung]Optimierung
+[PLANUNGSTYP.Zusatzanfrage mit Termin]Zusatzanfrage mit Termin
+[PLANUNGSTYP.Zusatzanfrage ohne Termin]Zusatzanfrage ohne Termin
+[PoolTyp.POOL_KEINPOOL]nein
+[PoolTyp.POOL_MAXBELEGUNG]konstante Kapazität
+[PoolTyp.POOL_MITGLIEDER]Anzahl Mitglieder
+[PoolTyp.POOL_VARIABEL]variable Kapazität
+[RESSOURCENTYP.FHM]FHM
+[RESSOURCENTYP.FHMGruppe]FHM-Gruppe
+[RESSOURCENTYP.Maschine]Arbeitsplatz
+[RESSOURCENTYP.Maschinengruppe]Arbeitsplatzgruppe
+[RESSOURCENTYP.Personal]Personal
+[RESSOURCENTYP.Personalgruppe]Personalgruppe
+[RuestoptimierungsTyp.RUESTOPTI_KEINE]keine Optimierung
+[RuestoptimierungsTyp.RUESTOPTI_STANDARD]Optimierung
+[RuestoptimierungsTyp.RUESTOPTI_ZWANG]Zwang
+[StatRuestOptKriterium.JOBNUMMER_SEQUENTIELL]Jobnummer (sequentiell)
+[StatRuestOptKriterium.MATERIALGRUPPE]Optimierungsgruppe
+[StatRuestOptKriterium.MATERIAL]Material
+[STATUSFA.beendet]beendet
+[STATUSFA.geplant]geplant
+[STATUSFA.gestartet]gestartet
+[STATUSFA.teilgeplant]teilgeplant
+[STATUSFA.teilrückgemeldet]teilrückgemeldet
+[STATUSFA.ungeplant]ungeplant
+[STATUSFA.unterbrochen]unterbrochen
+[TerminierungsTyp.RUECKWAERTS]Rückwärtsterminiert
+[TerminierungsTyp.VORWAERTS]Vorwärtsterminiert
+[UeberlappungsTyp.BERECHNEN]auto
+[UeberlappungsTyp.KEINE]-
+[UeberlappungsTyp.PROZENT]Prozent (%%)
+[UeberlappungsTyp.ZEIT]Zeit (Minuten)
+[unbekannt]-
+[VORGANGSTYP.blockiert]blockiert
+[VORGANGSTYP.reserviert]reserviert
+[VORGANGSTYP.fertigen]fertigen
+[VORGANGSTYP.fremdfertigen]fremdfertigen
+[VORGANGSTYP.liegen]liegen
+[VORGANGSTYP.Pause]Pause
+[VORGANGSTYP.rüsten]rüsten
+[WiederholungsTyp.einmalig]einmalig
+[WiederholungsTyp.jährlich]jährlich
+[WorkcenterQualificationType.fertigen]Fertigen
+[WorkcenterQualificationType.ruesten]Rüsten
+[ZielfunktionsTyp.PLANKOSTEN]Kosten
+[ZielfunktionsTyp.PLANZEIT]Zeit
+[ReportStatusTyp.NACHZUHOLEN]nachzuholen
+[ReportStatusTyp.STABIL]stabil
+[ReportStatusTyp.VARIABEL]automatisch
+[ReportStatusTyp.MANUELL]manuell
+[ReportStatusTyp.BDE]rückgemeldet
+[ReportStatusTyp.FIXIERT]fixiert
+[ReportStatusTyp.BENOETIGT]benötigt
+[ProductioncontrollerPermissiontype.ignorieren]ignorieren
+[ProductioncontrollerPermissiontype.anonym]anonym
+[ProductioncontrollerPermissiontype.betrachten]betrachten
+[ProductioncontrollerPermissiontype.planen]planen
+[ReplenishmentType.on_deficit]bei Unterdeckung
+[ReplenishmentType.with_next_demand]mit nächstem Verbrauch
+
+#DATASOURCE
+[Mode.Datamap]Temporär
+[Mode.Live]Permanent
+[Name.Const]Standard
+[Name.DBConfig]externe Datenbank
+[Name.DBGP]Datenbank
+[Name.GPModel]Planungsmodell
+[Name.NULL]keine
+[Name.XMLConfig]externe Datei
+[Name.XMLGP]Datei
+[Name.DLL]externes System
+[Name.REST]REST
+
+#FILTER
+[FILTER_TYPE_EXACT]gleich
+[FILTER_TYPE_GREATER_OR_EQUAL]größer-gleich
+[FILTER_TYPE_GREATER_THAN]größer
+[FILTER_TYPE_IS_IN]ist in Menge enthalten
+[FILTER_TYPE_LEFT]beginnt mit
+[FILTER_TYPE_LIKE]beinhaltet
+[FILTER_TYPE_NOT_LEFT]beginnt nicht mit
+[FILTER_TYPE_NOT_LIKE]beinhaltet nicht
+[FILTER_TYPE_NOT_RIGHT]endet nicht mit
+[FILTER_TYPE_RIGHT]endet mit
+[FILTER_TYPE_SMALLER_OR_EQUAL]kleiner-gleich
+[FILTER_TYPE_SMALLER_THAN]kleiner
+[FILTER_TYPE_UNEQUAL]ungleich
+[OPERATOR_ODER]oder
+[OPERATOR_UND]und
+
+#GPMODEL
+[Artikelbestände werden gebucht...]Materialbestände werden gebucht...
+[Ergebnis]Ergebnis %1
+[Fertigungsaufträge werden eingelastet...]Fertigungsaufträge werden eingelastet...
+[Fertigungsplan]Fertigungsplan
+[Schedules werden berechnet...]Kapazitäten werden berechnet...
+[Line]Linie
+[Szenario]Szenario
+
+#INTERFACEIMPORTMODELFROMDB
+[Daten optimieren]Daten optimieren
+[Import beenden]Import beenden
+[Konsistenz testen]Konsistenz testen
+[Planungsmodell erstellen]Planungsmodell erstellen
+[Planungsmodell verknüpfen]Planungsmodell verknüpfen
+[Vorbereiten des Modells]Vorbereiten des Modells
+
+#LICENCE
+[LicProtector nicht registriert]Fehler: Möglicherweise wurde LicProtector500.exe nicht korrekt registriert
+[Nicht ausreichend Ressourcen lizenziert]Ihr %1 ist lediglich für %2 Arbeitsplätze lizenziert, es sind jedoch %3 Arbeitsplätze im Modell verfügbar
+[Ungültige Lizenz oder inkorrekter Pfad]Fehler: Ungültige Lizenz oder inkorrekter Pfad zur Lizenzdatei
+[Fehler beim Kopieren der Lizenzdatei]Fehler: Alte Lizenzdatei konnte nicht kopiert werden. Bitte prüfen Sie die Ordnerberechtigungen.
+[Lizenzdatei schreibgeschützt]Fehler: Die Lizenzdatei ist schreibgeschützt (benötigt aber Schreibzugriff!)
+
+#MESSAGES
+[ID_]ID
+[IPE_]Programmbereich
+[IPE_0]Import
+[IPE_1]Planung
+[IPE_2]Export
+[IPE_3]Konsistenz
+[IPE_4]Sonstiges
+[IWE_]Level
+[IWE_0]Hinweis
+[IWE_1]Warnung
+[IWE_2]Fehler
+[MESSAGES]Meldung
+[MSG_S_1]Ein Objekt vom Typ "%1" besitzt keine ID
+[MSG_S_10]Für Nachfolgerelation "%1" im Arbeitsplan "%2" fehlt die Nummer des Ausgangsvorgangs
+[MSG_S_100]Die Startzeit des rückgemeldeten Vorgangs "%1" ist ungültig und wird auf "%2" gesetzt
+[MSG_S_101]%1 '%2': %3 '%4' als übergeordnetes Objekt existiert nicht
+[MSG_S_102]Unbekanntes Nutzerrecht '%1' bei Nutzer '%2' angegeben
+[MSG_S_103]Rückmeldung '%1': Arbeitsplatz und Gruppe in Rückmeldung angegeben. Die Gruppe wird ignoriert.
+[MSG_S_104]Rückmeldung %1: Angegebene Gruppe '%2' passt nicht zu angegebenem Arbeitsplatz '%3'. Die Gruppe wird ignoriert.
+[MSG_S_106]Bestellung "%1": Einheit: Pflichtfeld nicht gefüllt
+[MSG_S_107]Material "%1" aus Bestellung "%2" nicht gefunden
+[MSG_S_108]Bestellung "%1": Material: Pflichtfeld nicht gefüllt
+[MSG_S_11]Für Nachfolgerelation "%1" im Arbeitsplan "%2" fehlt die Nummer des Zielvorgangs
+[MSG_S_114]Material '%1': Referenzeinheit nicht angegeben
+[MSG_S_116]Material '%1': %2 '%3' aus Fertigungsversion '%4' existiert nicht
+[MSG_S_118]Mitarbeiter '%1' konnte der Gruppe '%2' nicht hinzugefügt werden
+[MSG_S_119]Vorgang '%s': Kein Arbeitsplatz an geplantem %s '%s' angegeben. Modulinformation wird ignoriert.
+[MSG_S_12]Alternativer Vorgang '%1' ist ein Split. Alternative Vorgänge können nicht gleichzeitig mit Splits verwendet werden, daher muss dessen Splitnummer 0 sein.
+[MSG_S_13]In Arbeitsplan "%1" ist eine Ausschussquote kleiner als Null
+[MSG_S_14]Die konfigurierte Plan-Zeiteinheit (%1 Sekunden) muss ein Teiler von 60 Minuten sein. Der Standardwert (1 Minute) wird genutzt.
+[MSG_S_143]Rüstmatrix "%1" konnte nicht mit Arbeitsplatz "%2" verknüpft werden
+[MSG_S_144]Arbeitsplatz "%1": Parallelbedienbarer Arbeitsplatz "%2" existiert nicht
+[MSG_S_145]Arbeitsplatz "%1" konnte der Gruppe "%2" nicht hinzugefügt werden
+[MSG_S_146]Es konnte keine Anzahl für Pool "%1" am %2 hinzugefügt werden
+[MSG_S_147]Element "%1" mit leerer ID in Rüstmatrix "%2" ignoriert
+[MSG_S_15]Für Objekt "%1" in Vorgang "%2" des Arbeitsplans "%3" fehlt eine Vorgangsaktivitätsnummer
+[MSG_S_151]Für Stückliste "%1" konnte die Relation zur Modell-Stückliste "%2" konnte nicht hergestellt werden
+[MSG_S_152]Ungültiger Ressourcentyp "%2" bei Objekt "%1" in Vorgang "%3" des Arbeitsplans "%4"
+[MSG_S_154]Stückliste "%1", Position "%2": Einheit "%3" existiert nicht
+[MSG_S_155]Stückliste "%1", Position "%2": Einheit - Pflichtfeld nicht gefüllt
+[MSG_S_157]Für STL "%1" wurde Material "%2" nicht gefunden
+[MSG_S_158]Position "%1/%2" in Stückliste "%3" ist leer
+[MSG_S_16]Für Objekt "%1" in Vorgangsaktivität "%2" des Vorgangs "%3" des Arbeitsplans "%4" fehlt die FHM-Nummer
+[MSG_S_177]Stücklistenposition einfügen: Vorgangsaktivität "%1" nicht gefunden in Vorgang "%2"
+[MSG_S_178]Arbeitsplatzfaktoren einfügen: Vorgangsaktivität "%1" nicht gefunden in Vorgang "%2"
+[MSG_S_18]Für Objekt "%1" in Vorgangsaktivität "%2" des Vorgangs "%3" des Arbeitsplans "%4" fehlt die Arbeitsplatznummer
+[MSG_S_2]"%1" "%2" besitzt keinen Vorlagearbeitsplan
+[MSG_S_19]Für Objekt "%1" in Vorgangsaktivität "%2" des Vorgangs "%3" des Arbeitsplans "%4" fehlt die Stücklisten-Nummer
+[MSG_S_20]Für Objekt "%1" in Vorgangsaktivität "%2" des Vorgangs "%3" des Arbeitsplans "%4" fehlt die Stücklistenpositionsnummer
+[MSG_S_21]Im Wochenplan "%1" liegt am "%2" für ein Intervall der Endzeitpunkt vor dem Startzeitpunkt (Start: "%3", Ende: "%4")
+[MSG_S_210]Basisqualifikationselement: Basisqualifikation "%1" nicht gefunden 
+[MSG_S_215]Vorgang im Arbeitsplan "%1" nicht eindeutig: "%2" existiert bereits
+[MSG_S_217]Arbeitsplan "%1": Von dem standard Vorgang "%2" geht kein eindeutiger standard Pfad aus
+[MSG_S_22]%1 "%2" ist nicht konsistent und wird ignoriert
+[MSG_S_221]Vorgang im Fertigungsauftrag "%1" nicht eindeutig: "%2" existiert bereits
+[MSG_S_224]Arbeitszeitmodell '%1' wird von keiner Ressource verwendet
+[MSG_S_225]Für %1 "%2" konnte dessen eigener Kalender "%3" nicht importiert werden
+[MSG_S_232]Fertigungsauftrag '%1': Arbeitsplan '%2' nicht gefunden oder ungültig
+[MSG_S_233]Fertigungsauftrag '%1': Stückliste '%2' nicht gefunden oder ungültig
+[MSG_S_234]Fertigungsauftrag '%1': Der auftragsbezogene Arbeitsplan '%2' zeigt nicht auf einen gültigen Stammarbeitsplan '%3'.
+[MSG_S_235]Fertigungsauftrag '%1': Die auftragsbezogene Stückliste '%2' zeigt nicht auf eine gültige Stammstückliste '%3'.
+[MSG_S_236]Fertigungsauftrag '%1': Der auftragsbezogene Arbeitsplan '%2' wird mehrfach verwendet. Fertigungsauftrag ist ungültig.
+[MSG_S_237]Fertigungsauftrag '%1': Die auftragsbezogene Stückliste '%2' wird mehrfach verwendet. Fertigungsauftrag ist ungültig.
+[MSG_S_238]Für %1 "%2" konnte dessen Arbeitszeitmodell "%3" nicht verknüpft werden
+[MSG_S_24]Für Objekt vom Typ "%1" mit der ID "%2" exitiert keine Materialnummer
+[MSG_S_243]Arbeitsplan "%1" nicht gefunden
+[MSG_S_245]Stückliste "%1" nicht gefunden
+[MSG_S_248]Keine Verbindung zur Datenbank möglich. Fehlerhafte Konfigurationsdatei
+[MSG_S_249]Keine Verbindung zur Datenbank möglich
+[MSG_S_251]Arbeitsplatz '%1' bei Arbeitsplatzqualifikation für Personal '%2' nicht gefunden
+[MSG_S_252]Arbeitsplatz '%1' bei Arbeitsplatzqualifikation für Personalgruppe '%2' nicht gefunden
+[MSG_S_25]Innerhalb der Planungsparameter wurde im Bereich Personal eine negative Mindestbearbeitungszeit eingestellt
+[MSG_S_26]Innerhalb der Planungsparameter wurde im Bereich Personal ein negatives Mindestintervall für Personalplanung eingestellt
+[MSG_S_3]Objekt "%1" mit der ID "%2" ist keine Arbeitsplankopfnummer zugeordnet
+[MSG_S_31]Ein Objekt vom Typ "%1" besitzt eine leere VorgangsqualifikationsID
+[MSG_S_32]Der Planungszeitraum-Start liegt nicht vor dem Planungszeitraum-Ende (Start: "%1", Ende: "%2")
+[MSG_S_33]Der Wert des Absolutkosten-Intervalls der Verspätungskosten der Priorität "%1" ist ungültig
+[MSG_S_34]Ein Objekt vom Typ "%1" besitzt keine ID
+[MSG_S_35]Ein Objekt vom Typ "%1" besitzt eine leere Personalnummer
+[MSG_S_36]Ein Objekt vom Typ "%1" besitzt keine Arbeitsplatznummer
+[MSG_S_37]Für ein Objekt vom Typ "%1" liegt der Startzeitpunkt nicht vor dem Endzeitpunkt (Personalnummer: "%2", Arbeitsplatznummer: "%3", Start: "%4", Ende: "%5")
+[MSG_S_38]Für ein Objekt vom Typ "%1" liegt der Startzeitpunkt nicht vor dem Endzeitpunkt (Personalnummer: "%2", VorgangsqualifikationsID: "%3", Start: "%4", Ende: "%5")
+[MSG_S_39]Für ein Objekt vom Typ "%1" in "%2" wurde kein Status vergeben
+[MSG_S_4]Für Objekt "%1" des Arbeitsplans "%2" existiert keine Vorgangsnummer
+[MSG_S_40]Für ein Objekt vom Typ "%1" in "%2" liegt der Endzeitpunkt vor dem Startzeitpunkt (Start: "%3", Ende: "%4")
+[MSG_S_41]Einem Bedarf "%1" ist FA "%2" hinterlegt, welcher ein anderes Material herstellt
+[MSG_S_42]Schichtmodell '%1': Zugeordneter Wochenplan '%2' nicht gefunden
+[MSG_S_43]Arbeitszeitmodell '%1': Zugeordnetes Schichtmodell '%2' nicht gefunden
+[MSG_S_44]Inkonsistenz im Arbeitszeitmodell %1: Zyklus des Schichtmodells "%2" kann nicht mit dem "%3"-ten Wochenplan beginnen
+[MSG_S_49]Für Arbeitsplan "%1" konnte die Relation zum zugehörigen Modell-Arbeitsplan "%2" konnte nicht hergestellt werden
+[MSG_S_5]Vorgang "%1" besitzt keine Vorgangsaktivitäten
+[MSG_S_50]Alternativer Vorgang "%1" konnte nicht gesetzt werden: zugehörigen Standard-Vorgang nicht gefunden
+[MSG_S_5001]Arbeitsplan "%1": Standard Vorgang "%2" kann nicht über einen standard Vorgänger erreicht werden  
+[MSG_S_5002]Arbeitsplatz einfügen: Vorgang "%1 / %2 / %4" in Arbeitsplan "%3" nicht gefunden
+[MSG_S_5003]Der Standardvorgang "%1" hatte Alternativen Vorgang %2 %3 %5 als Nachfolger und wurde auf Standardnachfolger "%4" umgestellt
+[MSG_S_5004]Relation von Vorgang "%1" nach Vorgang "%2 / %3 / %4" konnte nicht gesetzt werden
+[MSG_S_5005]Optimierungsgruppe einfügen: Vorgang "%1 / %2 / %4" in Arbeitsplan "%3" nicht gefunden
+[MSG_S_5006]Nachfolgerelation einfügen: Vorgang "%1 / %2 / %4" in Arbeitsplan "%3" nicht gefunden
+[MSG_S_5007]Vorgangsaktivität einfügen: Vorgang "%1 / %2 / %4" in Arbeitsplan "%3" nicht gefunden
+[MSG_S_5008]%1 einfügen: Vorgang "%2 / %3 / %4" in Arbeitsplan "%5" nicht gefunden
+[MSG_S_5009]Verknüpfung Fertigungsauftrags-Vorgang: zugehöriger Arbeitsplan-Vorgang nicht gefunden: "%1 / %2 / %3 / %4 / %5"
+[MSG_S_5011]Für Vorgang "%1" existieren mehr Splits ("%2") als erlaubt ("%3")
+[MSG_S_5012]Exporttabelle "%1" nicht gefunden
+[MSG_S_5013]Tabellenspalte "%1" in Exporttabelle "%2" nicht gefunden
+[MSG_S_5015]Fertigungsauftrag "%1": Sekundärauftrag "%2" konnte nicht gefunden werden
+[MSG_S_5018]FA "%2", Vorgang "%3": Zugeordnete Lieferantenbestellung "%1" nicht gefunden
+[MSG_S_5019]Bedarf "%1": FA "%2" konnte nicht zugewiesen werden
+[MSG_S_5032]Planintervall: zugehörige Planressource "%1" vom Typ "%2" für Vorgang "%3" nicht gefunden
+[MSG_S_5034]Rückmeldung-Ressourcen-Intervall: zugehörige Ressource "%1" vom Typ "%2" in Rückmeldung "%3" nicht gefunden
+[MSG_S_5036]Verbindungstimeouts konnten nicht gelesen werden
+[MSG_S_5037]Zusatzmodul '%1' konnte nicht geladen werden (Fehler: %2)
+[MSG_S_5038]Funktion '%1' konnte nicht in Zusatzmodul '%2' gefunden werden
+[MSG_S_5039]Zusatzmodul '%1' mit Versionsnummer '%2' ist nicht kompatibel mit dieser Version von GANTTPLAN ('%3')
+[MSG_S_5040]Einheit "%1" von Rückmeldung "%2" stimmt nicht mit Einheit "%3" von FA "%4" überein (rückgemeldete Menge wird nicht beachtet!)
+[MSG_S_5041]Einheiten beim Kumulieren der Rückmeldungen für FA-Vorgang '%1' unterscheiden sich
+[MSG_S_51]Einsprung in Alternativen Pfad mit Start in "%1" konnte nicht gesetzt werden: zugehörigen Standard nicht gefunden
+[MSG_S_52]Rücksprung von Alternativen Pfad mit Ende in "%1" konnte nicht gesetzt werden: zugehörigen Standard nicht gefunden
+[MSG_S_53]Sämtliche Alternativen Vorgänge im Arbeitsplan "%1" werden deaktiviert
+[MSG_S_57]Verknüpfung Arbeitsplan-Vorgang "%1": Alternative Ressource "%2" nicht gefunden
+[MSG_S_6]Für Vorgang "%1" wird ein Optimierungsgruppentyp doppelt eingelesen
+[MSG_S_60]Arbeitsplan-Vorgang '%1': Zugeordnete Stückliste '%2' nicht gefunden
+[MSG_S_6000]Am Material '%1' mit Referenzeinheit '%2' konnte Einheit '%3' nicht in Einheit '%4' umgerechnet werden, da mindestens eine Einheit nicht angegeben ist
+[MSG_S_6001]Am Material '%1' konnte Einheit '%2' nicht in Einheit '%3' umgerechnet werden
+[MSG_S_6002]Einheit '%1' wurde beim Import automatisch angelegt
+[MSG_S_61]Arbeitsplan-Vorgang '%1': Zugeordnete Stücklisten-Position '%2' existiert nicht in Stückliste '%3'
+[MSG_S_62]Verknüpfung Arbeitsplan-Vorgang "%1": Optimierungsgruppe "%2" nicht gefunden
+[MSG_S_63]Verknüpfung Arbeitsplan-Vorgang "%1": Optimierungsgruppentyp "%2" unbekannt
+[MSG_S_7]Für Objekt "%1" mit ID "%2" in Vorgang "%3" des Arbeitsplans "%4" ist kein gültiger Vorgangstyp hinterlegt
+[MSG_S_70]Arbeitsplan "%1": Verknüpfung alternative Ressource: Ressource %2 nicht gefunden
+[MSG_S_7003]Die definierte SQL-Ausführung vor dem Export ist fehlgeschlagen
+[MSG_S_7004]Die definierte SQL-Ausführung nach dem Export ist fehlgeschlagen
+[MSG_S_7005]FHM einfügen: Vorgangsaktivität "%1" nicht gefunden in Vorgang "%2"
+[MSG_S_7006]%1 '%2' ist nicht eindeutig und wird verworfen.
+[MSG_S_7007]Dem Vorgang "%1" ist kein Arbeitsplatz zugeordnet
+[MSG_S_7008]Der Planungstyp von "%1" ist ungültig
+[MSG_S_7009]In Rückmeldung "%1" wurde mehr als ein Arbeitsplatz gemeldet. Arbeitsplatz "%2" wurde automatisch entfernt.
+[MSG_S_7010]Vorgang "%1": Status ist nicht mindestens 'teilrückgemeldet' obwohl eine prozentuale Fertigstellung vorhanden ist
+[MSG_S_7012]Der Vorgang "%1" wird nicht im stabilen Zeitraum geplant, weil nicht alle Vorgänge (z.B. "%2") des Jobs "%3" im Stabilen Zeitraum sind.
+[MSG_S_7014]Arbeitsplan-Vorgang %1: Nachfolger-Relation MaxPuffer wird ignoriert, weil mehrere Nachfolger existieren.
+[MSG_S_7015]Arbeitsplan-Vorgang %1: Vorgänger-Relation MaxPuffer wird ignoriert, weil mehrere Vorgänger existieren.
+[MSG_S_7016]Arbeitsplan-Vorgang %1: Vorgang kann trotz Rüsten mit Unterbrechungen geplant werden.
+[MSG_S_7017]Arbeitsplan-Vorgang %1: Doppelte Ressourcenreservierungen werden entfernt.
+[MSG_S_7019]Rückmeldung "%1": Es wurde mehr als eine Arbeitsplatzgruppe gemeldet. Arbeitsplatzgruppe "%2" wurde automatisch entfernt.
+[MSG_S_7020]Rückmeldung "%1": Status des Vorgangs "%2" ist nicht mindestens 'teilrückgemeldet' obwohl eine prozentuale Fertigstellung vorhanden ist
+[MSG_S_7021]Die Fixierung von FA Vorgang '%1' wird ignoriert, da FA Vorgang '%2' ebenfalls fixiert ist
+[MSG_S_7022]Die in Vorgang '%1' beginnende sequentielle Linie wird nicht durchgehend auf '%2' geplant, da im Vorgang '%3' auf Linie '%4' gemeldet/fixiert wurde.
+[MSG_S_7066]Reservierung einfügen: Vorgangsaktivität "%1" nicht gefunden in Vorgang "%2"
+[MSG_S_71]Priorität nicht gefunden: %1
+[MSG_S_72]Bedarf "%1": Material "%2" existiert nicht
+[MSG_S_73]Bedarf "%1": Kein Material ausgewählt
+[MSG_S_75]Bedarf "%1": Keine Mengeneinheit ausgewählt
+[MSG_S_76]Der importierte Primärbedarf "%1" hat keinen Termin
+[MSG_S_77]Gestartete Aktivität '%1' konnte nicht wie gemeldet eingeplant werden
+[MSG_S_78]Verbleibende Dauer der teilrückgemeldeten Aktivität '%1' konnte nicht wie gemeldet eingeplant werden
+[MSG_S_79]Aktivität '%1' des gemeldeten Vorgangs '%2' konnte nicht eingeplant werden
+[MSG_S_8]Für Objekt "%1" in Vorgang "%2" des Arbeitsplans "%3" fehlt eine Arbeitsplatznummer
+[MSG_S_8001]Vorgegebene Rüstmatrix an Arbeitsplatz "%1" wird ignoriert
+[MSG_S_8002]Vorgegebene Standardumrüstzeit an Arbeitsplatz "%1" wird ignoriert
+[MSG_S_8003]Vorgegebene Standardumrüstkosten an Arbeitsplatz "%1" werden ignoriert
+[MSG_S_8004]Reihenfolgenvorgabe für Arbeitsplatz "%1" ist inkonsistent und wird ignoriert
+[MSG_S_86]Fertigungsauftrag "%1": Priorität nicht gefunden: "%2"
+[MSG_S_87]Fertigungsauftrag "%1": Material "%2" existiert nicht
+[MSG_S_88]Fertigungsauftrag "%1": Material: Pflichtfeld nicht gefüllt
+[MSG_S_90]Fertigungsauftrag "%1": Mengeneinheit: Pflichtfeld nicht gefüllt
+[MSG_S_91]Verknüpfung zwischen Arbeitsplan-Vorgang "%1" und zugehörigem Fertigungsauftrags-Vorgang fehlerhaft "%2"
+[MSG_S_96]Verknüpfung Fertigungsauftrags-Vorgang "%1": Fixierter Arbeitsplatz "%2" nicht gefunden
+[MSG_S_97]Verknüpfung Fertigungsauftrags-Vorgang "%1": Geplante Ressource "%2" vom Typ "%3" nicht gefunden
+[MSG_S_98]Die Startzeit des beendet gemeldeten Vorgangs "%1" ist in der Zukunft "%2"
+[MSG_S_99]Die Endezeit des beendet gemeldeten Vorgangs "%1" ist in der Zukunft "%2" und wurde auf die Istlinie gesetzt
+[OBJECT_]Bereich
+[TIME]Zeit
+
+#OPT
+[aktuelle Fertigungsaufträge werden ermittelt]Geänderte Fertigungsaufträge werden ermittelt
+[Updating]Aktualisiere geänderte %1
+[Deleting]Entferne alte %1
+[Writing]Übernehme neue %1
+
+#OTHER
+[neuer Vorgang]Neuer Vorgang
+
+#REPORT
+[IDAUSLASTUNG]Auslastung
+[IDSALESORDERS]Bedarfe
+[IDENGPASS_UEBERSICHT]Engpässe Übersicht
+[IDENGPASS_EINZELN]Engpässe
+[IDENGPASS_VERLAUF]Engpässe Verlauf
+[IDERGEBNISINFO]Ergebnisinfo
+[IDFERTIGUNGSAUFTRAGSVORGAENGE]Fertigungsauftragsvorgänge
+[IDPRODUCTIONORDERS]Fertigungsaufträge
+[IDKAPAZITAETSUEBERSCHREITUNG]Kapazitätskonflikte
+[IDKAPITALBINDUNG]Kapitalbindung
+[IDLIEFERANTENBESTELLUNG]Lieferantenbestellungen
+[IDMASCHINENBELEGUNG]Belegungsplan Arbeitsplätze
+[IDMATERIALBESTANDAENDERUNG_EINZELN]Bestände Änderungen
+[IDMATERIALBESTANDUEBERSICHT]Bestände Übersicht
+[IDPERSONALBELEGUNG]Belegungsplan Personal
+[IDSTLAUFLOESUNG]Fertigungsaufträge Material
+[OBJECT_DYNAMIC_JUMP]automatisch
+[permission_custom_denied]Mit dieser Lizenz können keine Reports angepaßt werden.
+
+#REPORTTYPEN
+[TYPE_AUSLASTUNG]Auslastung
+[TYPE_BEDARFE]Bedarfe (veraltet)
+[TYPE_ENGPASS_VERSPAETUNG_EINZELN]Engpässe Verspätung
+[TYPE_ENGPASS_VERZOEGERUNG_EINZELN]Engpässe Verzögerung
+[TYPE_ENGPASS_VERSPAETUNG_UEBERSICHT]Engpässe Verspätung Übersicht
+[TYPE_ENGPASS_VERZOEGERUNG_UEBERSICHT]Engpässe Verzögerung Übersicht
+[TYPE_ERGEBNISINFO]Ergebnisinfo
+[TYPE_FERTIGUNGSAUFTRAEGE]Fertigungsaufträge (veraltet)
+[TYPE_FERTIGUNGSAUFTRAGSVORGAENGE]Fertigungsauftragsvorgänge (veraltet)
+[TYPE_KAPITALBINDUNG]Kapitalbindung
+[TYPE_LIEFERANTENBESTELLUNG]Lieferantenbestellung (veraltet)
+[TYPE_MASCHINENBELEGUNG]Belegungsplan Arbeitsplätze
+[TYPE_MATERIALBESTANDAENDERUNG]Bestandsänderungen (veraltet)
+[TYPE_MATERIALBESTANDAENDERUNG_EINZELN]Bestandsänderungen
+[TYPE_MATERIALBESTANDUEBERSICHT]Bestandsübersicht
+[TYPE_PERSONALBELEGUNG]Belegungsplan Personal
+[TYPE_STLAUFLOESUNG]Fertigungsauftragsmaterial
+[TYPE_UNDEFINED]nicht definiert
+[TYPE_OBJECTS]Objektreport
+[TYPE_SHIFT_SCHEDULE]Schichtplan
+[TYPE_UTILIZATION_ACTIVITY_QUALIFICATIONS]Auslastung Vorgangsqualifikationen
+
+#STANDARDS
+[%]%%
+[Anfangsbestand]Anfangsbestand
+[Lager]Lager
+[Processtime]Bearbeitungszeit
+[Setuptime]Rüstzeit
+[Delay]Verspätung
+[euro]€
+[euro/h]€/h
+[h]h
+[IDCANCEL]Abbrechen
+[IDOK]OK
+[Ignorieren]$Ignorieren$
+[import]importiere
+[individual]individuell
+[Ja]Ja
+[Jahre]Jahre
+[kg]kg
+[KW]KW
+[min]min
+[Minuten]Minuten
+[Monate]Monate
+[Nein]Nein
+[Pflichtfeld]$Pflichtfeld$
+[read]lese
+[save]speichere
+[Sekunden]Sekunden
+[Stunden]Stunden
+[Tage]Tage
+[unbekannt]Unbekannt
+[Wochen]Wochen
+[Wochentag_0]Montag
+[Wochentag_1]Dienstag
+[Wochentag_2]Mittwoch
+[Wochentag_3]Donnerstag
+[Wochentag_4]Freitag
+[Wochentag_5]Samstag
+[Wochentag_6]Sonntag
+[write]schreibe
+[delete]lösche
+[Zeiteinheit_FACTOR_0]1
+[Zeiteinheit_FACTOR_1]60
+[Zeiteinheit_FACTOR_2]3600
+[Zeiteinheit_FACTOR_3]86400
+[Zeiteinheit_FACTOR_4]604800
+[Zeiteinheit_NAME_0]Sekunden
+[Zeiteinheit_NAME_1]Minuten
+[Zeiteinheit_NAME_2]Stunden
+[Zeiteinheit_NAME_3]Tage
+[Zeiteinheit_NAME_4]Wochen
+
+#SYSTEMOBJEKTEIGENSCHAFTENAKTIONEN
+[AUSLASTUNG]Auslastung anzeigen
+[ENGPASS]Engpässe anzeigen
+[LEITSTAND]Im Leitstand anzeigen
+[MODELL]auswählen
+
+// added 25.02.2011 RU
+#REPORTTYPEN
+[TYPE_KOSTENANALYSE]Kostenanalyse
+[TYPE_KAPAZITAETSUEBERSCHREITUNG]Kapazitätskonflikte
+
+#REPORT
+[IDKOSTENANALYSE]Kostenanalyse
+
+// added 10.03.11 WW
+#MESSAGES
+[MSG_S_6004]ID der Arbeitsplatzgruppe "%1" kommt ebenfalls als ID bei den Arbeitsplätzen vor. Arbeitsplatz "%1" wird durch Arbeitsplatzgruppe ersetzt.
+[MSG_S_6005]ID der Personalgruppe "%1" kommt ebenfalls als ID beim Personal vor. Personal "%1" wird durch Personalgruppe ersetzt.
+
+#DATASOURCE
+[Name.SQLite]Szenario
+
+// added 21.03.2011 RU
+#REPORTTYPEN
+[TYPE_STRUKTURSTL]Strukturstückliste
+
+#REPORT
+[IDSTRUKTURSTL]Strukturstückliste
+
+// added 18.05.11 RU
+#MESSAGES
+[MSG_S_5048]Vorgang "%1": Nur Standardvorgänge dürfen eine Materialbeziehung besitzen
+[MSG_S_5051]Arbeitsplan "%1": Die nicht zugeordnete Stücklistenposition "%2" wurde dem Arbeitsgang "%3" zugeordnet
+[MSG_S_5052]Fertigungsauftrag "%1": Standardvorgang "%2" konnte nicht gefunden werden
+[MSG_S_5053]Fertigungsauftrag "%1": Für Standardvorgang "%2" wurde Einheit "%3" der Materialbeziehung nicht gefunden
+[MSG_S_5054]STL "%1": Die Kombination aus Positionsnummer "%2" und Alternativennummer "%3" muss eindeutig sein
+[MSG_S_5055]STL "%1": Innerhalb einer Position muss immer genau eine Standardposition existieren. In Position "%2" gibt es "%3"
+[MSG_S_5056]STL "%1": Innerhalb einer Position darf nur eine oder gar keine Gruppe angegeben sein. Mehrere verschiedene Gruppennummern innerhalb einer Position sind verboten
+[MSG_S_5057]STL "%1": Für alle Positionen in Gruppe "%2" wird eine Alternativennummer erwartet
+[MSG_S_5058]STL "%1": Für alle Positionen mit Positionsnummer "%2" wird eine Alternativennummer erwartet
+
+// added 10.08.11 RU
+#MESSAGES
+[MSG_S_5060]Material "%1" in Arbeitsplanvorgang "%2" doppelt verbraucht. Lediglich die erste Aktivität wird verwendet.
+[MSG_S_5061]Für Verknüpfung zwischen Bedarf "%1" und Objekt "%2" wurde keine Einheit gefunden
+[MSG_S_5062]Bestellbeziehung "%1" konnte Bedarf "%2" nicht zugewiesen werden
+[MSG_S_5063]Lagerbestandsbeziehung "%1" konnte Bedarf "%2" nicht zugewiesen werden
+[MSG_S_5064]Fehlendes Material "%1" konnte Bedarf "%2" nicht zugewiesen werden
+[MSG_S_5065]FA "%1", Vorgang "%2": Zugeordneter Lagerbestand "%3" nicht gefunden
+[MSG_S_5066]FA "%1", Vorgang "%2": Material "%3" nicht gefunden
+[MSG_S_5067]FA "%1" ist gesperrt aber nicht freigeben
+[MSG_S_5068]Fertigungsauftrag "%1" enthält keine Vorgänge
+[MSG_S_5069]Mitarbeiter "%1" kommt in mehreren Personalpools vom Typ "Anzahl Mitarbeiter" vor
+[MSG_S_5070]Arbeitsplan "%1" enthält keine Vorgänge
+[MSG_S_5071]Arbeitszeitmodell '%1': Index des Wochenplans, mit dem Schichtmodell '%2' beginnen soll, ist kleiner 0
+
+#GPMRP
+[Sicherheitsbestand]Sicherheitsbestand
+[Sperrbestand]Sperrbestand
+[Anfangsbestand]Anfangsbestand
+
+#BASISTYPEN
+[PlanFilter.relevant]relevant
+[PlanFilter.konstant]konstant
+[PlanFilter.ignoriert]ignoriert
+[BedarfsTyp.Kundenbedarf]Kundenbedarf
+[BedarfsTyp.Prognosebedarf]Prognosebedarf
+[BedarfsTyp.Lagerbedarf]Lagerbedarf
+[BedarfsStatus.offen]offen
+[BedarfsStatus.gedeckt]gedeckt
+[BedarfsStatus.erfüllt]erfüllt
+[BestellTyp.Vorschlag]Bestellvorschlag
+[BestellTyp.Bestätigung]Bestellbestätigung
+[BestellStatus.offen]offen
+[BestellStatus.erfüllt]erfüllt
+
+// added 06.10.11 WW
+#MESSAGES
+[MSG_S_6007]Dem Bedarf "%1" ist ein fixierter Bestellvorschlag "%2" zugeordnet. Bestellvorschläge werden automatisch gelöscht. Die Fixierung wird daher nicht beachtet.
+[MSG_S_6008]Fertigungsauftrag "%1": Dem Standardvorgang "%2" ist ein fixierter Bestellvorschlag "%3" zugeordnet. Bestellvorschläge werden automatisch gelöscht. Die Fixierung wird daher nicht beachtet.
+
+#GPMODEL
+[waehle Ergebnis]wähle Ergebnis
+[loesche Ergebnis]lösche Ergebnis
+[uebernehme Ergebnis]übernehme Ergebnis
+[loesche alle Ergebnisse]lösche alle Ergebnisse
+
+#OPT
+[Importiere Daten]Importiere Daten
+[Modell-Import fehlgeschlagen!]Modell-Import fehlgeschlagen!
+[Modell-Import fehlgeschlagen! Abbruch der Planung]Modell-Import fehlgeschlagen! Abbruch der Planung.
+[Pruefe Lizenz]Prüfe Lizenz
+[Initialisiere Parameter]Initialisiere Parameter
+[Arbeitsvariablen vorbereiten]Arbeitsvariablen vorbereiten
+[Vorbereiten der Arbeitsvariablen fehlgeschlagen! Abbruch der Planung]Vorbereiten der Arbeitsvariablen fehlgeschlagen! Abbruch der Planung.
+[BDE verarbeiten]Rückmeldungen verarbeiten
+[Verarbeitung BDE fehlgeschlagen! Abbruch der Planung]Verarbeitung Rückmeldungen fehlgeschlagen! Abbruch der Planung.
+[Materialbedarf planen]Materialbedarf planen
+[Materialbedarfsplanung fehlgeschlagen! Abbruch der Planung]Materialbedarfsplanung fehlgeschlagen! Abbruch der Planung.
+[Losgroessen optimieren]Losgrößen optimieren
+[Losgroessenoptimierung fehlgeschlagen! Abbruch der Planung]Losgrößenoptimierung fehlgeschlagen! Abbruch der Planung.
+[Initialisiere Kapazitaetsplanung]Automatische Planung starten
+[Initialisierung der Kapazitaetsplanung fehlgeschlagen! Abbruch der Planung]Start der Automatischen Planung fehlgeschlagen! Abbruch der Planung.
+
+#REPORT
+[IDWIPWOKCENTERAFTER]Puffermengen Arbeitsplätze (danach)
+[IDWIPWOKCENTERBEFORE]Puffermengen Arbeitsplätze (davor)
+[IDPRODUKTIONSMENGENMASCHINEN]Produktionsmengen Arbeitsplätze
+[ID_PRODUCTIONQUANTITIES_WORKER]Produktionsmengen Personal
+[IDPRODUKTIONSMENGENMATERIAL]Produktionsmengen Material
+
+#REPORTTYPEN
+[TYPE_WIP_WORKCENTER_AFTER]Puffermengen Arbeitsplätze (danach)
+[TYPE_WIP_WORKCENTER_BEFORE]Puffermengen Arbeitsplätze (davor)
+[TYPE_PRODUKTIONSMENGENMASCHINEN]Produktionsmengen Arbeitsplätze
+[TYPE_PRODUCTIONQUANTITIES_WORKER]Produktionsmengen Personal
+[TYPE_PRODUKTIONSMENGENMATERIAL]Produktionsmengen Material
+
+// added 06.12.11 WW
+#MESSAGES
+[MSG_S_6010]%1 "%2": Einheit "%3" existiert nicht
+[MSG_S_6011]Vorgänge in FA "%1" und dessen AP nicht kompatibel. Der FA wird gesperrt. 
+[MSG_S_6012]Gegebene Menge in Beziehung von FA "%1" zu Sekundär-FA "%2" wird ignoriert, da mehrere Ende-Vorgänge existieren. Die Beziehungen zu mehreren Ende-Vorgängen müssen explizit mit einzelnen Mengen vorgegeben werden!
+[MSG_S_6013]Fertigungshilfsmittel "%1": Einheit für maximale Produkationsanzahl nicht angegeben
+[MSG_S_6014]Materialbeziehungen in FA "%1" können keinem Vorgang zugeordnet werden, weil keine Vorgänge existieren
+[MSG_S_6015]Ressourcenstatus: Ressource "%1" existiert nicht
+[MSG_S_6016]Ressourcenstatus: Pflichtfeld nicht gefüllt
+[MSG_S_6017]Für Objekt "%1" in Vorgangsaktivität "%2" des Vorgangs "%3" des Arbeitsplans "%4" fehlt die Gruppennummer bei den FHM-Zuweisungen
+[MSG_S_6018]Vorgang "%1": Ungültiger Ressourcentyp %2 in einer Planressource
+[MSG_S_6020]Ungültiger Datentyp '%1'
+[MSG_S_6021]Fertigungsauftrag '%1': Fertigungsversion '%2' existiert nicht am Material '%3'
+[MSG_S_6022]Fertigungsauftrag '%1': Arbeitsplan '%2' stimmt nicht mit Arbeitsplan '%3' aus eingestellter Fertigungsversion '%4' überein (Fertigungsversion wird zurückgesetzt)
+[MSG_S_6023]Fertigungsauftrag '%1': Stückliste '%2' stimmt nicht mit Stückliste '%3' aus eingestellter Fertigungsversion '%4' überein (Fertigungsversion wird zurückgesetzt)
+[MSG_S_6024]Rückgemeldeter Vorgang '%1': Arbeitsplatz '%2' wird anstelle des gemeldeten, aber gesperrten Arbeitsplatzes '%3' verwendet
+[MSG_S_6025]Ein Objekt vom Typ "%1" besitzt keine RückmeldungsNr
+[MSG_S_6026]Ein Objekt vom Typ "%1" besitzt keine RessourcenNr
+[MSG_S_6027]Ein Objekt vom Typ "%1" besitzt keinen gültigen Ressourcentyp
+
+#REPORT
+[IDWARTUNGSUEBERSICHT]Wartung Übersicht
+
+#REPORTTYPEN
+[TYPE_WARTUNGSUEBERSICHT]Wartungsübersicht
+
+// added 13.12.2011 WW
+#BASISTYPEN
+[OBJECTLINKTYP.OBJECTLINKTYPE_MATERIAL_ERROR]Materialmangel
+[OBJECTLINKTYP.OBJECTLINKTYPE_FERTIGUNGSAUFTRAG]Sekundärauftragsvorgang
+[OBJECTLINKTYP.OBJECTLINKTYPE_BESTELLUNG]Bestellung
+[OBJECTLINKTYP.OBJECTLINKTYPE_LAGER]Lagerreservierung
+
+// added 03.02.12 WW
+#MESSAGES
+[MSG_S_6028]Arbeitsplan "%1": Stücklistenposition "%2" mehrfach zugewiesen. Zuordnung wird ignoriert für Vorgang "%3"
+[MSG_S_6029]Material "%1": Priorität '%2' für Lageraufträge existiert nicht
+[MSG_S_6030]Material "%1": Optimierungsgruppentyp "%2" unbekannt
+
+#REPORT
+[IDFHMBELEGUNG]Belegungsplan Fertigungshilfsmittel
+
+#REPORTTYPEN
+[TYPE_FHMBELEGUNG]Belegungsplan Fertigungshilfsmittel
+
+// added 08.03.12 WW
+#MESSAGES
+[MSG_S_6032]Rückgemeldeter Vorgang '%1': Für die Rückmeldung konnte kein eindeutiger Arbeitsplatz automatisch festgelegt werden
+[MSG_S_6033]Rückgemeldeter Vorgang '%1': Der rückgemeldete Arbeitsplatz '%2' ist gesperrt und kann somit nicht verwendet werden
+[MSG_S_6034]Rückmeldung '%1': Soll-Arbeitsplatz '%2' nicht gefunden
+[MSG_S_6035]Rückmeldung '%1': Soll-Mitarbeiter '%2' nicht gefunden
+[MSG_S_6036]Rückmeldung '%1': Soll-FHM '%2' nicht gefunden
+[MSG_S_6037]Fertigungshilfsmittel '%1': Erlaubter Arbeitsplatz '%2' wurde nicht gefunden
+[MSG_S_6038]Fertigungshilfsmittel '%1': Arbeitsplatzwechsel ist wegen unbegrenzter Belegungskapazität immer möglich! Arbeitsplatzwechsel wird erlaubt
+[MSG_S_6039]Fertigungshilfsmittel '%1': Arbeitsplatzwechsel ist bei begrenzter Belegungskapazität und vorhandener Rüstzeit verboten! Arbeitsplatzwechsel wird nicht erlaubt
+[MSG_S_6040]Beim Vorgang '%1' stimmen nicht alle Fertigungsshilfsmittelgruppen zwischen der Rüst- und Fertigenaktivität überein (alle oder keine)
+[MSG_S_6041]Dem Vorgang '%1' sind Fertigungsshilfsmittel, jedoch kein Arbeitsplatz zugeordnet
+[MSG_S_6042]Zyklenerkennung: '%1 %2' wurde von '%3 %4' entfernt, um einen Zyklus aufzuheben
+
+// added 13.06.2013
+[MSG_S_6050]AP-Vorgang '%1': Direkt aufeinander folgende Prozessbeziehungen sind nicht erlaubt. Prozesseigenschaft zu Nachfolger '%2' wird entfernt
+[MSG_S_6051]Fertigungsauftragsvorgang '%1': Typ '%2' der fixierten Ressource '%3' entspricht keinem gültigen Wert
+[MSG_S_6052]In Vorgang '%1' wurden unterschiedliche Arbeitsplätze in den einzelnen Aktivitäten fixiert. Arbeitsplatz '%2' wurde als einziger fixierter Arbeitsplatz gesetzt.
+[MSG_S_6053]Vorgang '%1' wurde auf einen nicht gültigen Arbeitsplatz (%2) fixiert.
+[MSG_S_6054]Personalgruppe '%1' kann nicht Mitglied einer anderen Personalgruppe '%2' sein
+[MSG_S_6055]Arbeitsplatzgruppe '%1' kann nicht Mitglied einer anderen Arbeitsplatzgruppe '%2' sein
+
+// added 05.03.2014 MW
+[MSG_S_6056]Arbeitsplatzzeitfaktor in Aktivitäten des Vorgangs '%1' an Arbeitsplatz '%2' mehrfach vergeben
+[MSG_S_6058]Arbeitsplatzfaktoren werden für den Vorgangsaktivitätstyp '%1' nicht unterstützt
+
+// added 25.02.2019 ES
+[MSG_S_6059]Geplante Ressource '%1' von Vorgang '%2' hat ein Modul, obwohl es kein FHM ist. Nur FHMs können in Module geplant werden.
+[MSG_S_6060]Gemeldete Ressource '%1' aus Meldung '%2' hat ein Modul, obwohl es kein FHM ist. Nur FHMs können auf Module gemeldet werden.
+[MSG_S_6061]Das Elternlos '%1' des Auftragsloses '%2' existiert nicht.
+[MSG_S_6062]Das UDF '%1' wird für die alternative Aktivität '%2' nicht ausgwertet. Alternative Aktivitäten übernehmen immer den Wert der standard Aktivität für dieses UDF.
+
+#RUESTINFO
+[Statischer Rüstanteil:]Statischer Rüstanteil: 
+[entfällt (Rüstoptimierung)]entfällt (Rüstoptimierung)
+[Dynamischer Rüstanteil Maschine:]Dynamischer Rüstanteil Arbeitsplatz: 
+[Zusätzliche Rüstkosten Arbeitsplatz:]Zusätzliche Rüstkosten Arbeitsplatz:
+[Dynamischer Rüstanteil Fertigungshilfsmittel:]Dynamischer Rüstanteil Fertigungshilfsmittel:
+
+#MESSAGES
+[MSG_S_6043]Ein Objekt vom Typ "%1" besitzt keine Systemobjekt-ID
+
+// added 20.04.12 WW
+#REPORT
+[IDPLANAENDERUNGFA]Planänderung Fertigungsaufträge
+[IDPLANAENDERUNGFAVORGAENGE]Planänderung Fertigungsauftragsvorgänge
+
+// added 27.04.12 WW
+#REPORT
+[PLANANALYSE]Plananalyse
+
+#REPORTTYPEN
+[TYPE_PLANANALYSE]Plananalyse
+
+// added 07.06.12 WW
+#REPORT
+[IDFAUEBERPRODUKTION]Fertigungsaufträge Überproduktion
+
+// added 27.06.12 WW
+#GPMODEL
+[Vorheriges Ergebnis]Vorheriges Ergebnis
+
+// added 12.09.12 WW
+#MESSAGES
+[MSG_S_6047]Intervall Zuordnung Wochentag ausserhalb des erlaubten Bereichs
+
+#CHANGELOG
+[neu erstellt]neu erstellt
+[gelöscht]gelöscht
+[geändert]geändert
+
+#PLANANALYSE
+[MSG_U_0]Es konnte keine Ursache für die unvollständige Planung ermittelt werden.
+[MSG_L_0]
+[MSG_E_0]
+
+[MSG_U_1]Der Fertigungsauftrag ist gesperrt.
+[MSG_L_1]• Sperrung des Fertigungsauftrages aufheben
+[MSG_E_1]Gesperrte Fertigungsaufträge werden nicht mitgeplant.
+
+[MSG_U_2]Planungstyp des Fertigungsauftrages stimmt nicht mit den ausgewählten Planungstypen überein.
+[MSG_L_2]
+[MSG_E_2]Stimmt der Planungstyp nicht überein, so werden diese Aufträge nicht von der Planung beachtet.
+
+[MSG_U_3]Liefertermin liegt vor der Ist-Linie.
+[MSG_L_3]• Ggf. Liefertermin anpassen
+[MSG_E_3]
+
+[MSG_U_4]Frühestmöglicher Start verhindert einen früheren Beginn.
+[MSG_L_4]• Frühestmöglichen Start berichtigen\n• Sollzeiten berichtigen
+[MSG_E_4]Existiert ein fest vorgegebener frühester Start für den Auftrag oder den Vorgang selbst, so darf der Vorgang nicht vor diesem beginnen.
+
+[MSG_U_5]Es existiert mindestens ein Sekundärauftrag, dessen eigengefertigtes Material nicht zeitgerecht zur Verfügung steht.
+[MSG_L_5]• Sekundärauftrag %1 \nprüfen
+[MSG_E_5]Aufträge die eine geringe Pufferzeit zeigen können begrenzend sein und sollten geprüft werden.
+
+[MSG_U_6]Der Termin des Auftrags ist so nah an der Istlinie, dass die Durchlaufzeit des Auftrags zu Verspätung führt.
+[MSG_L_6]• Sollzeiten berichtigen\n• Auftragsmengen berichtigen\n• Kapazitäten bzw. Schichtmodell berichtigen\n• Ggf. Liefertermin anpassen\n• Prüfen auf fehlende Rückmeldungen
+[MSG_E_6]Wenn der Auftrag selbst bei Start zur Istlinie verspätet wäre, dann ist die Durchlaufzeit begrenzend.
+
+[MSG_U_7]Die Durchlaufterminierung ohne fremdbezogenes Material führt zu Verspätung.
+[MSG_L_7]• Auftragsmengen berichtigen\n• Kapazitäten bzw. Schichtmodell berichtigen\n• Ggf. Liefertermin anpassen\n• Prüfen auf fehlende Rückmeldungen
+[MSG_E_7]Der Vorgang ist der erste Vorgang in der Folge der Arbeitsgänge, welcher keinen Puffer in der Durchlaufterminierung aufweist.
+
+[MSG_U_8]Es existiert mindestens ein Sekundärauftrag, dessen fremdbezogenes Material nicht zeitgerecht zur Verfügung steht.
+[MSG_L_8]• Sekundärauftrag %1 \nprüfen
+[MSG_E_8]Sekundäraufträge können erst starten, wenn alle fremdbezogenen Materialien verfügbar sind.
+
+[MSG_U_9]Material %1 \nkann nicht rechtzeitig bereitgestellt werden.
+[MSG_L_9]• Wiederbeschaffungszeiten anpassen\n• Max. Wartezeit auf Bestellungen anpassen\n• Lagerbestand berichtigen
+[MSG_E_9]
+
+[MSG_U_10]Die Durchlaufterminierung mit fremdbezogenem Material führt zu Verspätung.
+[MSG_L_10]• Wiederbeschaffungszeiten anpassen\n• Max. Wartezeit auf Bestellungen anpassen\n• Lagerbestand berichtigen
+[MSG_E_10]Vorgänge können erst starten, wenn alle fremdbezogen Materilien verfügbar sind.
+
+[MSG_U_11]Der fixierter Start führt zu Verspätung.
+[MSG_L_11]• fixierten Start anpassen
+[MSG_E_11]
+
+[MSG_U_12]Die Terminierung des Sekundärauftrags '%1' führt zu Verspätung.
+[MSG_L_12]• Prüfen Sie Sekundärauftrag '%1'
+[MSG_E_12]Der Auftrag wurde bezogen auf andere Aufträge geringer priorisiert, wodurch er später auf der Ressource eingeplant wird.\nEine der benötigten Ressourcen stellt generell einen Engpass dar.
+
+[MSG_U_13b]prüfen Sie Ressource(n) %1
+[MSG_U_13c]prüfen Sie Auslastung/parallele Belegung der Ressource(n) %1
+[MSG_U_13]Kapazitätsmangel führt zu Verspätung, %1
+[MSG_L_13]• Arbeitsfortschritt ggf. anpassen\n• Bedarfstyp anpassen\n• Priorität anpassen\n• Liefertermin anpassen\n• Ressourcenkapazitäten erweitern (zusätzliche Schichten, zusätzliche Qualifikationen, zusätzliche Kapazität)
+[MSG_E_13]Der Auftrag wurde bezogen auf andere Aufträge geringer priorisiert, wodurch er später auf der Ressource eingeplant wird.\nEine der benötigten Ressourcen stellt generell einen Engpass dar.
+
+[MSG_U_14]Es konnte keine Ursache für die Verspätung ermittelt werden.
+[MSG_L_14]• Prüfen der Fertigungsauftragsvorgänge anhand der Information aus der Durchlaufterminierung (Auftrag und dazugehöriges Auftragsnetz, Fremdmaterialabhängigkeit, Abhängigkeit zu konkurrierende Aufträge)\n• Identifizierung des Auftragsvorgangs der hauptsächlich für die Verspätung verantwortlich ist\n• Problemlösung (Beseitigung von Dateninkonsistenzen,	Erweiterung von Kapazitäten, Anpassung von Auftragsdaten)
+[MSG_E_14]
+
+[MSG_U_15a]Kein Arbeitsplatz stellt genügend Kapazität zur Verfügung.
+[MSG_L_15a]• Prüfen, ob mindestens ein definierter Arbeitsplatz ausreichend Kapazität anbietet\n• Prüfen, ob die Kapazitätsangaben von einer Gruppe übernommen werden
+[MSG_E_15a]Jeder Vorgang benötigt mindestens eine definierte Arbeitsplatzressource.\nMindestens einer der definierten Arbeitsplätze muss genügend Kapazität zur Bearbeitung zur Verfügung stellen.
+
+[MSG_U_15b]Der fixierte/rückgemeldete Arbeitsplatz '%1' stellt nicht genügend Kapazität zur Verfügung.
+[MSG_L_15b]• Prüfen, ob der fixierte/rückgemeldete Arbeitsplatz ausreichend Kapazität anbietet
+[MSG_E_15b]Die vorgegebene Arbeitsplatzressource benötigt genügend Kapazität.
+
+[MSG_U_16]Keine FHM-Alternative stellt genügend Kapazität zur Verfügung.
+[MSG_L_16]• Prüfen, ob alle FHM aus mindestens einer FHM-Alternative ausreichend Kapazität anbieten
+[MSG_E_16]
+
+[MSG_U_17]Es gibt keine gültige Kombination von FHM-Alternative und definiertem Arbeitsplatz.
+[MSG_L_17]• Prüfen, ob alle FHM aus mindestens einer FHM-Alternative auf einem der definierten Arbeitsplätze verwendet werden dürfen
+[MSG_E_17]
+
+[MSG_U_18]Kein verfügbarer Mitarbeiter besitzt die benötigte Qualifikation für möglichen Arbeitsplatz %1.
+[MSG_L_18]• Ausreichend Mitarbeitern die benötigte Qualifikation erteilen\n• Ggf. Personalbedarf am Vorgang reduzieren\n• Prüfen, ob betroffene Mitarbeiter nicht gesperrt sind
+[MSG_E_18]• Nicht jeder Mitarbeiter darf jeden Vorgang bearbeiten.\nMindestens so viele Mitarbeiter, wie am Vorgang benötigt, müssen zunächst die korrekte Qualifikation für einen Arbeitsplatz und für den Typ der Vorgangsaktivität besitzen.
+
+[MSG_U_19]Kein verfügbarer Mitarbeiter besitzt die benötigte Vorgangsqualifikation %1.
+[MSG_L_19]• Die Vorgangsqualifikation am Vorgang entfernen, sofern falsch oder unnötig\n• Einen für den Arbeitsplatz qualifizierten Mitarbeiter die entsprechende Vorgangsqualifikation erteilen\n• Die Schreibweise ggf. korrigieren und vereinheitlichen\n• Prüfen, ob betroffene Mitarbeiter nicht gesperrt sind
+[MSG_E_19]Zusätzlich zu einer Arbeitsplatzqualifikation kann es notwendig sein, dass ein Mitarbeiter noch eine bestimmte Vorgangsqualifikation benötigt (dabei handelt es sich um einen beliebigen Freitext, bei dem die Schreibweise im Arbeitsplan und im Personal exakt übereinstimmten muss).
+
+[MSG_U_20]Kein verfügbarer Mitarbeiter stellt genügend Kapazität zur Verfügung.
+[MSG_L_20]• Prüfen, ob mindestens ein definierter Mitarbeiter ausreichend Kapazität anbietet\n• Prüfen, ob die Kapazitätsangaben von einer Gruppe übernommen werden\n• Prüfen, ob betroffene Mitarbeiter nicht gesperrt sind
+[MSG_E_20]Sofern Personal geplant werden soll und für den Vorgang (an dem Arbeitsplatz) benötigt wird, muss das benötigte Personal zur Verfügung stehen.
+
+[MSG_U_21]Der benötigte Personalbedarf konnte nicht erfüllt werden.
+[MSG_L_21]• Prüfen, ob benötigte Mitarbeiter ausreichend Kapazität anbieten\n• Ggf Kapazitätsangebot der Mitarbeiter erhöhen\n• Ggf. Personalbedarf des Vorgangs verringern\n• Gültigkeit des Arbeitszeitmodells der definierten Mitarbeiter prüfen
+[MSG_E_21]Sofern Personal geplant werden soll und für den Vorgang (an dem Arbeitsplatz) benötigt wird, muss das benötigte Personal zur Verfügung stehen.
+
+[MSG_U_22]Keine definierte FHM-Alternative besitzt ein für den Vorgang ausreichendes Arbeitszeitmodell in Kombination mit einer Prozessmaschine.
+[MSG_L_22]• Prüfen des Schichtmodells für alle Ressourcen, ob eine nicht unterbrochene Bearbeitung des Vorgangs gewährleistet werden kann (Personal darf sich bei Mehrschichtbetrieb ablösen)\n• Das Feld Prozessressource deaktivieren, sofern fälschlich aktiviert\n• Die Bearbeitungszeit der Vorgangsaktivität im Arbeitsplan anpassen\n• Die Herstellmenge des Fertigungsauftrags reduzieren
+[MSG_E_22]Bei einer Prozessressource darf ein begonnener Vorgang nicht durch Pausen unterbrochen werden, d.h. es muss ein Zeitintervall gefunden werden, in dem alle benötigten Ressourcen durchgehend zeitlich zur Verfügung stehen.
+
+[MSG_U_23]Keine definierte FHM-Alternative besitzt ein für den Vorgang ausreichendes Arbeitszeitmodell.
+[MSG_L_23]• Für alle FHM mindestens einer Alternative muss ein gültiges Arbeitszeitmodell eingestellt sein\n• Kapazitätsprüfung der entsprechenden FHM auf 'keine' setzen\n• Zeitbedarf der Vorgangsaktivität im Arbeitsplan anpassen
+[MSG_E_23]Jede Fertigungshilfsmittelressource besitzt ein Schichtmodell, das seine zeitliche Verfügbarkeit definiert. Für die Vorgangsdauer muss genügend Zeit an den verfügbaren Ressourcen bereitgestellt werden.
+
+[MSG_U_24]Eine verwendete Ressource ist eine Prozessressource.
+[MSG_L_24]• Prüfen des Schichtmodells für alle Arbeitsplätze, ob eine nicht unterbrochene Bearbeitung des Vorgangs gewährleistet werden kann (Personal darf sich bei Mehrschichtbetrieb ablösen)\n• Das Feld Prozessressource deaktivieren, sofern fälschlich aktiviert\n• Die Bearbeitungszeit der Vorgangsaktivität im Arbeitsplan anpassen\n• Die Herstellmenge des Fertigungsauftrags reduzieren
+[MSG_E_24]Bei einer Prozessressource darf ein begonnener Vorgang nicht durch Pausen unterbrochen werden, d.h. es muss ein Zeitintervall gefunden werden, in dem alle benötigten Ressourcen durchgehend zeitlich zur Verfügung stehen.
+
+[MSG_U_25]Kein definierter Arbeitsplatz besitzt ein für den Vorgang ausreichendes Arbeitszeitmodell.
+[MSG_L_25]• Für die Arbeitsplätze muss ein gültiges Arbeitszeitmodell eingestellt sein\n• Kapazitätsprüfung der entsprechenden Arbeitsplätze auf 'keine' setzen\n• Zeitbedarf der Vorgangsaktivität im Arbeitsplan anpassen
+[MSG_E_25]Jeder Arbeitsplatz besitzt ein Schichtmodell, das seine zeitliche Verfügbarkeit definiert. Für die Vorgangsdauer muss genügend Zeit an den verfügbaren Ressourcen bereitgestellt werden.
+
+[MSG_U_26]Zu wenig Personal besitzt ein für den Vorgang ausreichendes Arbeitszeitmodell in Kombination mit einer Prozessmaschine.
+[MSG_L_26]• Prüfen des Schichtmodells für alle Ressourcen, ob eine nicht unterbrochene Bearbeitung des Vorgangs gewährleistet werden kann (Personal darf sich bei Mehrschichtbetrieb ablösen)\n• Das Feld Prozessressource deaktivieren, sofern fälschlich aktiviert\n• Die Bearbeitungszeit der Vorgangsaktivität im Arbeitsplan anpassen\n• Die Herstellmenge des Fertigungsauftrags reduzieren
+[MSG_E_26]Bei einer Prozessressource darf ein begonnener Vorgang nicht durch Pausen unterbrochen werden, d.h. es muss ein Zeitintervall gefunden werden, in dem alle benötigten Ressourcen durchgehend zeitlich zur Verfügung stehen.
+
+[MSG_U_27]Zu wenig Personal besitzt ein für den Vorgang ausreichendes Arbeitszeitmodell.
+[MSG_L_27]• Für benötigtes Personal muss ein gültiges Arbeitszeitmodell eingestellt sein\n• Kapazitätsprüfung der entsprechenden Mitarbeiter auf 'keine' setzen\n• Zeitbedarf der Vorgangsaktivität im Arbeitsplan anpassen
+[MSG_E_27]Jede Personalressource besitzt ein Schichtmodell, das seine zeitliche Verfügbarkeit definiert. Für die Vorgangsdauer muss genügend Zeit an den verfügbaren Ressourcen bereitgestellt werden.
+
+[MSG_U_28]Zu wenig Personal erfüllt die geforderte Mindestdauer aufeinanderfolgender Personalintervalle (nur durch Pause getrennt).
+[MSG_L_28]• Abstimmung der Schichtmodelle und Sonderzeiten aller betroffenen Ressourcen, so dass beim Personal keine Blockiertzeiten auftreten können\n• Anpassen der geforderten Mindestdauer für Personalintervalle
+[MSG_E_28]Der Wert definiert, wie lange ein Mitarbeiter mindestens an einem Arbeitsgang zusammenhängend arbeiten muss.\nSofern dieses Intervall sehr groß gewählt ist und ein Arbeitsgang zwar von einem Mitarbeiter durchgängig bearbeitet werden könnte, jedoch nicht aufgrund einer regelmäßigen Nichtverfügbarkeit einer anderen Ressource (Arbeitsplatz oder Werkzeug) so kann dieser Arbeitsgang nicht eingeplant werden.
+
+[MSG_U_29]Der Vorgang kann zeitlich nicht vor Planungszeitraumende abgeschlossen werden.
+[MSG_L_29]• Korrektur des Planungszeitraums
+[MSG_E_29]Es kann vorkommen, dass alle Kapazitäten korrekt definiert wurden, jedoch der Planungszeitraum nicht ausreicht um alle Fertigungsaufträge zu bearbeiten. Ein Indiz kann die variierende Anzahl von ungeplanten Aufträgen je Optimierungslauf bei der Planung sein.
+
+[MSG_U_30]Der Vorgang kann nicht vor Planungszeitraumende mit einer der definierten FHM-Alternativen abgeschlossen werden.
+[MSG_L_30]• Korrektur des Planungszeitraums
+[MSG_E_30]Es kann vorkommen, dass alle Kapazitäten korrekt definiert wurden, jedoch der Planungszeitraum nicht ausreicht um alle Fertigungsaufträge zu bearbeiten. Ein Indiz kann die variierende Anzahl von ungeplanten Aufträgen je Optimierungslauf bei der Planung sein.
+
+[MSG_U_31]Der Vorgang kann nicht vor Planungszeitraumende auf einem der definierten Arbeitsplätze abgeschlossen werden.
+[MSG_L_31]• Korrektur des Planungszeitraums
+[MSG_E_31]Es kann vorkommen, dass alle Kapazitäten korrekt definiert wurden, jedoch der Planungszeitraum nicht ausreicht um alle Fertigungsaufträge zu bearbeiten. Ein Indiz kann die variierende Anzahl von ungeplanten Aufträgen je Optimierungslauf bei der Planung sein.
+
+[MSG_U_32]Der Vorgang kann nicht vor Planungszeitraumende mit vorhandenem Personal abgeschlossen werden.
+[MSG_L_32]• Korrektur des Planungszeitraums
+[MSG_E_32]Es kann vorkommen, dass alle Kapazitäten korrekt definiert wurden, jedoch der Planungszeitraum nicht ausreicht um alle Fertigungsaufträge zu bearbeiten. Ein Indiz kann die variierende Anzahl von ungeplanten Aufträgen je Optimierungslauf bei der Planung sein.
+
+[MSG_U_33]Der Sekundärvorgang '%1' ist ungeplant.
+[MSG_L_33]• Ursachen für ungeplante Vorgänge im Sekundärauftrag beheben
+[MSG_E_33]Konnte einer der Sekundäraufträge nicht vollständig geplant werden so kann auch der Primärauftrag nicht vollständig geplant werden.
+
+[MSG_U_34]Es gibt Materialmangel bei eigengefertigtem Material %1
+[MSG_L_34]• Prüfen, ob Material einen zum Bedarfstermin gültigen Arbeitsplan besitzt\n• Prüfen, ob evtl. vorhandenes Material schon für andere Verbraucher vorgesehen ist
+[MSG_E_34]• Wird an einer Vorgangsaktivität eigengefertigtes Material verbraucht, so kann diese nicht beginnen bevor das Material zur Verfügung steht\n• Existiert zum Bedarfstermin kein gültiger Arbeitsplan, so kann kein Auftrag generiert werden.
+
+[MSG_U_35]Es gibt Materialmangel bei eigengefertigtem Material %1
+[MSG_L_35]• Prüfen, ob evtl. vorhandenes Material schon für andere Verbraucher vorgesehen ist\n• Prüfen, ob Anfangsbestand korrekt definiert ist
+[MSG_E_35]Ist für die Bearbeitung eines Auftrags nicht ausreichend eigengefertigtes Verbrauchsmaterial im Bestand verfügbar, so kann der verarbeitende Arbeitsgang nicht eingeplant werden.
+
+[MSG_U_36]Es gibt Materialmangel bei fremdbezogenem Material %1
+[MSG_L_36]• Anpassung der Wiederbeschaffungsdauer\n• Prüfen, ob evtl. vorhandenes Material schon für andere Verbraucher vorgesehen ist\n• Anpassung des Planungszeitraums
+[MSG_E_36]Ist für die Bearbeitung eines Auftrags nicht ausreichend Einkaufsmaterial im Bestand verfügbar und kann dieses nicht innerhalb des definierten Planungszeitraums wiederbeschafft werden, so kann der verarbeitende Arbeitsgang nicht eingeplant werden.
+
+[MSG_U_37]Es gibt Materialmangel bei fremdbezogenem Material %1
+[MSG_L_37]• Prüfen, ob evtl. vorhandenes Material schon für andere Verbraucher vorgesehen ist\n• Prüfen, ob Anfangsbestand korrekt definiert ist
+[MSG_E_37]Ist für die Bearbeitung eines Auftrags nicht ausreichend Einkaufsmaterial im Bestand verfügbar, so kann der verarbeitende Arbeitsgang nicht eingeplant werden.
+
+[MSG_U_38]Arbeitsplatz '%1' hat nicht ausreichend Kapazität (mindestens %2), um alle Vorgänge des Paralleljobs '%3' zu bearbeiten.
+[MSG_L_38]• Arbeitsplatz ausreichend Kapazität zur Verfügung stellen\n• Anzahl der Paralleljobmitglieder reduzieren
+[MSG_E_38]Die Jobnummer (parallel) soll sicherstellen, dass alle Vorgänge, die die gleiche Jobnummer (parallel) besitzen, zum selben Zeitpunkt beginnen. Dies ist nur möglich, wenn ausreichend Kapazität zur Verfügung steht.
+
+[MSG_U_39]Hinweis: Möglicher Kapazitätsmangel bei Personal oder Fertigungshilfsmitteln um Paralleljob '%1' zu bearbeiten.
+[MSG_L_39]• Sekundärressourcen ausreichend Kapazität zur Verfügung stellen\n• Anzahl der Paralleljobmitglieder reduzieren
+[MSG_E_39]Die Jobnummer (parallel) soll sicherstellen, dass alle Vorgänge, die die gleiche Jobnummer (parallel) besitzen, zum selben Zeitpunkt beginnen. Dies ist nur möglich, wenn ausreichend Kapazität zur Verfügung steht.
+
+[MSG_U_40]Der Zielfunktionswert für Termintreue ist auf 0 gestellt.
+[MSG_L_40]• Zielfunktionswert für Termintreue beim Planparamtersatz größer 0 einstellen
+[MSG_E_40]Anfallende Verzugskosten werden nicht beachtet. Daher darf die Planung einen Auftrag beliebig stark verspäten.
+
+[MSG_U_41]Für den Auftrag entstehen keine Verzugskosten.
+[MSG_L_41]• Priorität zuweisen\n• Verzugskosten bei der Priorität einstellen\n• Auftragswert ungleich 0 angeben
+[MSG_E_41]Die Planung darf den Auftrag beliebig stark verspäten, solange keine Verzugskosten anfallen, welche eine Verspätung bestrafen würden.
+
+[MSG_U_42]Vorgegeber frühester Start liegt hinter dem Planungszeitraumende.
+[MSG_L_42]• Korrektur des Planungszeitraums\n• Frühesten Start anpassen
+[MSG_E_42]
+
+[MSG_U_43]Geplanter Arbeitsplatz '%1' ist nicht kompatibel mit benötigten Fertigungshilfsmitteln.
+[MSG_L_43]• Fertigungshilfsmittel auf geplantem Arbeitsplatz erlauben \n• Wenn möglich einen anderen Arbeitsplatz vorgeben\n• Bei einer Rückmeldung den Arbeitsplatz angeben
+[MSG_E_43]Bei Rückmeldung für Vorgänge mit mehreren alternativen Ressourcen müssen die tatsächlich verwendeten Ressourcen bekannt sein, damit diese für die verbleibende Dauer beplant werden können. %1 wählt sonst automatisch die erstbeste Alternativmaschine.
+
+[MSG_U_44]Es entsteht Verspätung auf Grund eines Jobs.
+[MSG_L_44]• Sicherstellen, dass für Jobplanung ausreichend Kapazität zur Verfügung steht
+[MSG_E_44]Ein Job wird so früh wie nötig eingeplant. Kann ein Vorgang nicht rechtzeitig eingeplant werden, dann müssen alle anderen auf diesen warten.
+
+[MSG_U_45]Vorgang liegt nicht im stabilen Zeitraum und darf daher frühestens zum Ende des stabilen Zeitraums eingeplant werden.
+[MSG_L_45]• Option in Projektkonfiguration deaktivieren\n• stabilen Zeitraum verkleinern
+[MSG_E_45]Nur zuvor im stabilen Zeitraum geplante Vorgänge dürfen wieder in den stabilen Zeitraum geplant werden. Alle anderen Vorgänge werden frühestens ab Ende des stabilen Zeitraums eingeplant.
+
+[MSG_U_46]Es gibt keinen Arbeitsplatz, der auf Grund der Losgrößeneinschränkungen diesen Vorgang bearbeiten könnte.
+[MSG_L_46]• Korrektur der Losgrößen an dem Arbeitsplatz
+[MSG_E_46]Liegt die Bruttomenge des Vorgangs außerhalb der erlaubten minimalen und maximalen Losgröße des Arbeitsplatzes, dann darf dieser Vorgang nicht von dem Arbeitsplatz bearbeitet werden.
+
+[MSG_U_47]Hinweis: Es gibt alternative Arbeitsplätze, welche eine Losgrößeneinschränkungen besitzen.
+[MSG_L_47]• Korrektur der Losgrößen an dem Arbeitsplatz
+[MSG_E_47]Die Losgrößeneinschränkung könnte ein Grund für den ungeplanten Vorgang sein. Liegt die Bruttomenge des Vorgangs außerhalb der erlaubten minimalen und maximalen Losgröße des Arbeitsplatzes, dann darf dieser Vorgang nicht von dem Arbeitsplatz bearbeitet werden.
+
+[MSG_U_48]Der Fertigungsauftrag ist laut aktuellen Planparametern nicht planungsrelevant und wurde daher von der Planung nicht beachtet.
+[MSG_L_48]• Planungsart der Planparameter überprüfen\n• Prüfen, dass der Termin nicht hinter dem Datenzeitraumende liegt
+[MSG_E_48]Nur relevante Fertigungsaufträge werden durch die Planung neu geplant. Alle anderen werden entweder nicht verändert (konstant) oder werden nicht beachtet (ignoriert).
+
+[MSG_U_49]Der Vorgang kann nicht vor Planungszeitraumende begonnen werden.
+[MSG_L_49]• Korrektur des Planungszeitraums\n• Bereitstellungszeitpunkt von Verbrauchsmaterial prüfen
+[MSG_E_49]
+
+[MSG_U_50]Der Fertigungsauftrag gehört zu einem Fertigungssteuerer, für welchen Sie kein Planungsrecht besitzen.
+[MSG_L_50]• Gewählte Fertigungssteuerer prüfen\n• Planungsrecht für betroffenen Fertigungssteuerer vergeben bzw. auswählen
+[MSG_E_50]Nur Fertigungsaufträge für deren zugehörige Fertigungssteuerer Sie das Planungsrecht besitzen werden von der Planung beachtet. Alle anderen werden ignoriert und nicht verändert.
+
+[MSG_U_51]Der Materialmangel für Material '%1' entsteht auf Grund des Fertigungssteuerers '%2', für welchen Sie kein Planungsrecht besitzen.
+[MSG_L_51]• Gewählte Fertigungssteuerer prüfen\n• Planungsrecht für betroffenen Fertigungssteuerer vergeben bzw. auswählen
+[MSG_E_51]Während des MRPs werden keine Fertigungsaufträge bzw. Bestellvorschläge erstellt, wenn Sie für den zugehörigen Fertigungssteuerer kein Planungsrecht besitzen.
+
+[MSG_U_52]Hinweise auf Verspätungsgründe:
+
+[MSG_U_53]Hat max. Pufferzeit zu einem Nachfolger.
+[MSG_L_53]Verspätung des Nachfolgers beseitigen
+[MSG_E_53]Es muss max. Pufferzeit zum Nachfolger einhalten werden.
+
+[MSG_U_54]Der Fertigungsauftrag ist auf einer sequentiellen Linie geplant.
+[MSG_L_54]Verspätung des Linienstarts beseitigen
+[MSG_E_54]Die Auftragsreihenfolge muss auf allen Stationen der Linie gleich sein.
+
+[MSG_U_55]Der Vorgang ist Teil einer Ressourcenreservierung.
+[MSG_L_55]Zeitfenster auf höher priorisiert Vorgänge prüfen
+[MSG_E_55]Höher priorisierte Vorgänge können eine zusammenhängende Einplanung der Reservierung verhindern.
+
+[MSG_U_56]Der Fertigungsauftrag ist nicht freigeben.
+[MSG_L_56]Fertigungsauftrag freigeben oder project/SCHEDULE_ORDER_APPROVED deaktivieren
+[MSG_E_56]Freigegebene Fertigungsaufträge werden vor nicht freigegebenen Fertigungsaufträgen eingeplant.
+
+[MSG_U_57]Der Vorgang darf höher priorisierte Vorgänge auf dem Arbeitsplatz nicht überholen.
+[MSG_L_57]Auftragspriorität erhöhen oder Ressource aus project/SCHEDULE_ORDER_BACK_WORKCENTER entfernen
+[MSG_E_57]Auf dem Arbeitsplatz gilt strenges Überholverbot: Lücken vor bereits geplanten Vorgängen werden nicht aufgefüllt.
+
+[MSG_U_58]Der Fertigungsauftrag ist Teil einer mehrstufigen FA-Sortierung (POSEQ).
+[MSG_L_58]Verspätung von Mitgliedern beseitigen
+[MSG_E_58]Die zu planende Bearbeitungs-Reihenfolge der Fertigungsaufträge kann 2-stufig sortiert erzwungen werden (mehr siehe Prototyp: mehrstufigen FA-Sortierung).
+
+[MSG_U_59]Der Vorgang wurde im stabilen Zeitraum geplant.
+[MSG_L_59]Früher geplante Vorgänge am Arbeitsplatz überprüfen
+[MSG_E_59]Vorgänge müssen ihre stabile Reihenfolge auf dem Arbeitsplatz einhalten.
+
+[MSG_U_60]Laut Planparameter soll Termintreue nicht beachtet werden.
+[MSG_L_60]Zielkriterium Termintreue erhöhen
+[MSG_E_60]Zielkriterien erlauben das individuelle Anpassen des Planungsalgorithmus.
+
+[MSG_U_61]Verspätungen werden akzeptiert um Gesamtkosten gering zu halten.
+[MSG_L_61]Gewichtung der Zielkriterien überprüfen
+[MSG_E_61]Zielkriterien erlauben das individuelle Anpassen des Planungsalgorithmus.
+
+[MSG_U_62]Freie Kapazitäten reichen evtl. nicht aus.
+[MSG_L_62]Fertigungsauftrag höher priorisieren
+[MSG_E_62]Auf allen benötigten Ressourcen muss zur gleichen Zeit ausreichend freie Kapazität verfügbar sein.
+
+// added 22.10.12 WW
+#MESSAGES
+[MSG_S_6048]Im Arbeitsplan "%1" darf der Nachfolger laut Nachfolge-Relation "%2" nicht die gleiche Vorgangs- und Splitnummer haben
+
+// added 16.05.13 WW
+#MESSAGES
+[MSG_S_6049]Vorgang '%1': alternative Vorgänge und Vorgänge mit Alternativen dürfen keine Jobs haben
+
+// added 18.03.13 WW
+#MESSAGES
+[MSG_S_7023]Die rückmeldepflichtige Vorgangsaktivität '%1' wurde automatisch beendet, da die folgende Vorgangsaktivität rückgemeldet ist.
+[MSG_S_7024]Der rückmeldepflichtige Vorgang '%1' wurde noch nicht gemeldet, obwohl dessen Nachfolger '%2' bereits rückgemeldet ist. Die ursprüngliche Reihenfolge laut Arbeitsplan wurde automatisch angepasst. 
+[MSG_S_7025]Der Sekundärvorgang '%1' wurde noch nicht gemeldet, obwohl der verbrauchende Primärvorgang '%2' bereits rückgemeldet ist. Die Materialbeziehung kann nicht automatisch auf einen späteren Vorgang verzögert werden.
+[MSG_S_7026]Der Sekundärvorgang '%1' wurde noch nicht gemeldet, obwohl der verbrauchende Primärvorgang '%2' bereits rückgemeldet ist. Die Materialbeziehung wurde automatisch auf den späteren Vorgang '%3' verzögert.
+
+// added 19.03.13 WW
+#BASISTYPEN
+[RuestZwangTyp.STATISCH_RUESTEN]statisch Rüsten
+[RuestZwangTyp.DYNAMISCH_RUESTEN]dynamisch Rüsten
+[RuestZwangTyp.FHM_RUESTEN]FHM Rüsten
+[Beschaffungstyp.Fremdbezug]Fremdbezug
+[Beschaffungstyp.Eigenfertigung]Eigenfertigung
+
+#IGPDATASOURCESQLITE
+[Scenario_Wrong_Databaseversion]Die gewählte Szenariodatei (DB-Version %1) ist nicht mit der aktuellen Version (DB-Version %2) kompatibel.\n\nDatei kann nicht geladen werden.
+
+#MESSAGES
+[MSG_S_7027]Nicht unterstützte Unterbrechung eines alternativen Vorgangs. Der Vorgang '%1' wird stattdessen teilrückgemeldet.
+[MSG_S_7028]Arbeitsplan-Vorgang '%1': angegebenes Fertigungshilfsmittel '%2' nicht gefunden
+[MSG_S_7029]AZM '%1': Kalender '%2' existiert nicht.
+[MSG_S_7030]Arbeitsplan-Vorgang-Personalbedarf '%1': zugeordneten Arbeitsplatz '%2' nicht gefunden
+[MSG_S_7031]Der Wert 'Anzahl Personal' am Objekt '%1' mit der ID '%2' ist negativ. Er wird wie 0 behandelt.
+[MSG_S_7033]Ungültiger Umrechnungsfaktor '%1' von '%2' nach '%3'
+[MSG_S_7034]Ungültiger Umrechnungsfaktor '%1' an Material '%2' von '%3' nach '%4'
+[MSG_S_7035]Es gibt %1 Bestandsbuchungen für ein nicht existierendes Material '%2'
+[MSG_S_7036]Doppeltes Unterobjekt '%1' vom Typ '%2' im Objekt '%3' vom Typ '%4' gefunden und ignoriert
+
+// added 05.05.14 WW
+#REPORTTYPEN
+[TYPE_SALESORDERS_OVERVIEW]Bedarfe Übersicht
+
+#REPORT
+[IDSALESORDERS_OVERVIEW]Bedarfe Übersicht
+[IDMATERIALERRORS]Materialmangel
+
+#SALESORDERS_OVERVIEW
+[Termin vor Ist-Linie]Termin vor Ist-Linie
+[Termin kleiner Ist-Linie plus Puffer]Termin <= Ist-Linie + %1
+[Termin groesser Ist-Linie plus Puffer]Termin > Ist-Linie + %1
+[Gesamt]Gesamt
+[alle]alle
+
+#REPORTTYPEN
+[TYPE_MATERIALRELATIONS]Materialbeziehungen
+
+#MESSAGES
+[MSG_S_7037]Zu viele Liegen-Aktivitäten im Vorgang '%1'. Die Liegen-Aktivität '%2' wird gelöscht.
+[MSG_S_7038]Mehrere direkt aufeinanderfolgende Liegen-Aktivitäten im Vorgang '%1'. Die Liegen-Aktivität '%2' wird gelöscht.
+[MSG_S_7039]Die Rüsten-Aktivität im Vorgang '%1' muss sich vor der Fertigen-Aktivität befinden. Die Rüsten-Aktivität '%2' wird gelöscht.
+[MSG_S_7040]Mehrere Rüsten-Aktivitäten im Vorgang '%1'. Die Rüsten-Aktivität '%2' wird gelöscht.
+[MSG_S_7041]Die Fertigen-Aktivität im Vorgang '%1' muss sich vor der abschliessenden Liegen-Aktivität befinden. Die Fertigen-Aktivität '%2' wird gelöscht.
+[MSG_S_7042]Mehrere Fertigen-Aktivitäten im Vorgang '%1'. Die Fertigen-Aktivität '%2' wird gelöscht.
+[MSG_S_7044]Objekt "%1" mit der ID "%2" ist keine Materialnummer zugeordnet
+
+#LICENSING
+[INFO_DEMO_REMAININGDAYS]Sie können die Demoversion noch %1 Tag(e) verwenden.
+[INFO_DEMO_ACTIVATION]Um die Demoversion von %1 verwenden zu können, muss diese einmalig online aktiviert werden.
+[POPUP_REMAININGDAYS_OVER]Die Zeit für die Verwendung von %1 mit ungültiger Lizenz ist abgelaufen!\n\n%1 wird jetzt beendet!
+[INFO_STANDARD_ACTIVATION]Im nächsten Schritt können Sie die %1-Lizenz aktivieren.
+[ACTIVATION_NOTE]Achtung:\n\nEine Netzwerklizenz muss immer von einem Netzlaufwerk (\\Server\Freigabe) aus aktiviert werden, in welchem die Nutzer Schreibrechte haben.\nEinzelplatzlizenzen können lokal aktiviert werden.
+[LICENCE_NOT_VALID]Es trat ein Fehler bei der Überprüfung der Lizenz auf!\n\n%1
+[LICENCE_NOT_VALID_COPYPROTECTION]Es trat ein Fehler bei der Prüfung des Kopierschutzes der Lizenz auf!\nEinzelheiten entnehmen Sie der GANTTPLAN.log.\n\n%1
+[ONLINEVERIFICATION_NOW]Für die Weiterverwendung müssen Sie Ihre Lizenz bis zum %1 erneut aktivieren. Ohne Reaktivierung wird die Lizenz ungültig und kann nicht mehr verwendet werden. Möchten Sie die Reaktivierung jetzt durchführen (Internetverbindung benötigt)?
+[WARNING_LICENCECONNECTION_LOST]%1 hat die Verbindung zu Ihrer Lizenzdatei verloren. %1 versucht die Verbindung wieder aufzunehmen. Bei Misserfolg wird %1 in %2 Minuten beendet.\n\nBitte speichern Sie vorsorglich Ihre Arbeit. 
+
+#FORMULA
+[unknown_property]Eigenschaft der Variable '%1' ist unbekannt
+[ambiguous_value]Wert der Variable '%1' ist nicht eindeutig
+[numerical_value]Wert der Variable '%1' ist nicht numerisch
+[compile_error]Fehler in Formel '%1'
+
+#MESSAGES
+[MSG_S_7045]Restriktion durch Job '%1' aus Vorgang '%2' kann nicht eingehalten werden, da kein gemeinsamer Arbeitsplatz vorhanden ist.
+[MSG_S_7047]Rückgemeldeter Vorgang '%1': Gemeldetes Personal '%2' / Gruppe '%3' konnte keinem Personalbedarf zugeordnet werden und wird für die Restlaufzeit des Vorgangs nicht weiter beachtet
+
+#MESSAGES
+[MSG_S_7049]Die Gruppennummer des Personalbedarfs am Vorgang '%1' des Arbeitsplans '%2' wird benötigt ('%3').
+[MSG_S_7050]Die Gruppennummer des Personalbedarfs am Arbeitsplatz '%1' wird benötigt ('%2').
+[MSG_S_7051]Vorgänge des Fertigungsauftrags '%1' passen nicht zu den Vorgängen im zugeordneten Arbeitsplan '%2'. Vorgänge wurden automatisch an die im Arbeitsplan angepasst.
+[MSG_S_7052]Die Vorgangsaktivität '%1' besitzt eine Materialbeziehung zu Material '%2', das nicht in der Stückliste der Aktivität vorkommt. Vor dem nächsten Ausführen des MRPs wird diese Materialbeziehung gelöscht.
+[MSG_S_7053]Bedarf '%1' besitzt eine Materialbeziehung zu Material '%2', obwohl Material '%3' benötigt wird.
+[execute_exe_failed]Fehler beim Ausführen der nutzerdefinierten EXE-Datei "%1"\n\n%2
+[run_exe_failed]Die Ausführung der nutzerdefinierten EXE-Datei "%1" ist fehlgeschlagen.\n\nFehlercode: %2\n%3
+
+#REPORT
+[->]→
+
+#BASISTYPEN
+[ResourceReservationType.reserve]Reservierung
+[ResourceReservationType.release]Freigabe
+[ResourceReservationType.reserve_without_breaks]Reservierung ohne Pausen
+
+#MESSAGES
+[MSG_S_7054]Min. Puffer < 0 in Nachfolgebeziehung von Vorgang '%1' nach Vorgang '%2' in Arbeitsplan '%3'
+[MSG_S_7055]Min. Puffer > Max. Puffer in Nachfolgebeziehung von Vorgang '%1' nach Vorgang '%2' in Arbeitsplan '%3'
+[MSG_S_7056]Überlappung < 0 in Nachfolgebeziehung von Vorgang '%1' nach Vorgang '%2' in Arbeitsplan '%3'
+[MSG_S_7057]Der Job '%1' enthält freigegebene und nicht freigegebene Fertigungsaufträge. Der Vorgang '%2' wird einzeln eingeplant.
+[MSG_S_7058]Die maximal mögliche parallele Belegung (%1) der verfügbaren Arbeitsplätze reicht nicht für den Gesamtbedarf (%2) des Parallel-Jobs '%3'. Der Vorgang '%4' wird einzeln eingeplant.
+[MSG_S_7059]Der Vorgang '%1' ist Nachfolger eines anderen Vorgangs des Parallel-Jobs '%2'. Der Vorgang wird einzeln eingeplant.
+[MSG_S_7060]Der Vorgang '%1' ist indirekter Nachfolger eines anderen Vorgangs des Sequenz-Jobs '%2'. Der Vorgang wird einzeln eingeplant.
+[MSG_S_7061]Die Vorgänge des Sequenz-Jobs '%1' haben keinen gemeinsamen Arbeitsplatz. Der Vorgang '%2' wird einzeln eingeplant.
+[MSG_S_7062]Die Vorgänge des Parallel-Jobs '%1' haben keinen gemeinsamen Arbeitsplatz. Der Vorgang '%2' wird einzeln eingeplant.
+
+#SYNCRONISATION
+[SYNC_FAILED]Synchronisierung fehlgeschlagen. Weitere Details finden Sie in der GANTTPLAN.log.
+[JOURNAL_UDF_EXTENSION] (Nutzerdefinierte Eigenschaften)
+[SYNC_PROGRESS]Synchronisieren: %s
+
+#MESSAGES
+[MSG_S_7063]Die minimale Losgröße des Materials '%1' ist größer als die maximale Losgröße
+[MSG_S_7064]Die optimale Losgröße des Materials '%1' ist kleiner als die minimale Losgröße
+[MSG_S_7065]Die optimale Losgröße des Materials '%1' ist größer als die maximale Losgröße
+[MSG_S_7076]Die Fertigungsversion mit leerer ID für Material '%1' wird ignoriert
+
+#PRODUCTIONCONTROLLER
+[*]?
+[default]Alle anderen
+
+#COLORSCHEME
+[CS_Name_Standard]Standardfarben
+[CS_Name_FA]FA
+[CS_Name_FA-Vorgang]FA-Vorgang
+[CS_Name_FA-Netz]FA-Netz
+[CS_Name_FA-Sequenz]FA-Sequenz
+[CS_Name_Verspätung_Ampel]Ampel
+[CS_Name_Verspätung_Relativ]Relativ
+[CS_Name_Planungstyp]Planungstyp
+[CS_Name_Material]Material
+[CS_Name_Statisch_Rüsten]Statisch Rüsten
+[CS_Name_Dynamisch_Rüsten]Dynamisch Rüsten
+[CS_Name_Parallel_Belegen]Parallelbelegung
+[CS_Name_Job_Parallel]Job Parallel
+[CS_Name_Job_Sequentiell]Job Sequentiell
+[CS_Name_Auftragslose]FA-Lose
+[CS_Name_Vorgangssplits]FA-Vorgang-Splits
+[CS_Name_Maschine]Arbeitsplatz
+[CS_Name_Personal]Personal
+[CS_Name_Fertigungshilfsmittel]FHM
+[CS_Name_Planlevel]Planlevel
+[CS_Name_Priorität]Priorität
+[CS_Name_Rangfolge]Prioritätswert
+[CS_Name_Produktionslinie]Linie
+[CS_Name_Engpass_Verspaetung]Engpass Verspätung
+[CS_Name_Engpass_Verzoegerung]Engpass Verzögerung
+[CS_Name_Ruestopt_(ja/nein)]*Rüstopt (ja/nein)
+[CS_Name_Ruestopt_(relativ)]*Rüstopt (relativ)
+[CS_Kategorie_FA]Fertigungsauftrag
+[CS_Kategorie_Verspätung]Verspätung
+[CS_Kategorie_Optimierungsgruppe]Optimierungsgruppe
+[CS_Kategorie_Priorität]Priorität
+[CS_Kategorie_Jobs]Jobs
+[CS_Kategorie_Engpass]Engpässe
+[CS_Kategorie_Rüstoptimierung]*Rüstoptimierung
+
+#PRODUCTIONORDERLOT
+[LOT_1]Der Fertigungsauftrag ist inkonsistent. Material und/oder Arbeitsplan sind undefiniert.
+[LOT_2]Die ausgewählten Fertigungssteuerer dürfen den Fertigungsauftrag nicht verplanen.
+[LOT_3]Die angegebene Auftragslosmenge ist kleiner als der Rundungswert des Materials. Die Menge muss mindestens %1 %2 sein.
+[LOT_4]Die angegebene Auftragslosmenge ist größer als erlaubt. Die Menge darf höchstens %1 %2 sein.
+[LOT_5]Die Fertigungsauftragsmenge von %1 %3 ist zu gering, um sie auf ein Auftragslos zu verteilen. Die Fertigungsauftragsmenge muss mindestens %2 %3 sein.
+[LOT_6]Die angegebene Auftragslos-ID '%1' ist bereits vergeben.
+[LOT_7]Es kann kein Auftragslos von Fertigungsaufträgen mit beendeten Vorgängen angelegt werden. Folgende Vorgänge sind beendet: %1.
+[LOT_8]Jobs werden nicht in das Auftragslos übernommen. Folgende Vorgänge sind Jobmitglieder: %1.
+[LOT_11]Die angegebene Auftragslosmenge wird auf %1 %2 abgerundet.
+[LOT_12]Der Materialbedarf des Fertigungsauftrags %1 ist für die Herstellung von %2 %3 gedeckt.
+[LOT_15]Materialbeziehungen werden am Auftrag %1 aufgeteilt, wobei das Elternlos hinsichtlich Verfügbarkeit bevorzugt wird.
+[LOT_20]Folgende Fertigungsaufträge sind über Jobs verknüpft: %1.
+[LOT_22]Die gerundete Losmenge %2 %3 passt nicht zu dem Rundungswert des sequentiellen Jobs %1.
+[LOT_23]Die Summe der Auftragsmengen im sequentiellen Job %1 ist zu gering, um ein Los zu erstellen.
+[LOT_24]Die mit dem Suffix '%1' generierte Fertigungsauftrags-ID '%2' existiert bereits.
+[LOT_25]Die mit dem Suffix '%1' generierte Paralleljob-ID '%2' existiert bereits.
+[LOT_26]Die mit dem Suffix '%1' generierte sequentielle Job-ID '%2' existiert bereits.
+[LOT_28]Alle über Jobs verknüpfte Fertigungsaufträge brauchen dieselbe Mengeneinheit.
+[LOT_29]Fertigungsauftrag %1 wird komplett in einen neuen Job verschoben.
+[LOT_30]Von Fertigungsauftrag %1 wird ein Los mit Menge %2 %3 erstellt, das in einen neuen Job verschoben wird. Die neue Auftragsmenge ist dann %4 %5.
+
+#MESSAGES
+[MSG_S_7067]Für Fertigungsauftrag %1 ist ein Wechsel der Fertigungsversion nicht erlaubt, da es sich bei diesem Auftrag um ein Auftragslos handelt.
+[MSG_S_7068]Für Fertigungsauftrag %1 ist ein Wechsel der Fertigungsversion nicht erlaubt, da ein Auftragslos dieses Auftrags existiert. 
+[MSG_S_7069]Für Fertigungsauftrag %1 ist ein Wechsel der Fertigungsversion nicht erlaubt, da folgende Vorgänge des Auftrags in manuell angelegten Jobs sind: %2.
+[MSG_S_7070]Für Fertigungsauftrag %1 ist ein Wechsel der Fertigungsversion nicht erlaubt, da folgende Vorgänge des Auftrags startfixiert sind: %2.
+[MSG_S_7071]Für Fertigungsauftrag %1 ist ein Wechsel der Fertigungsversion nicht erlaubt, da folgende Vorgänge des Auftrags fixierte Dauer haben: %2.
+[MSG_S_7072]Für Fertigungsauftrag %1 ist ein Wechsel der Fertigungsversion nicht erlaubt, da folgende Vorgänge des Auftrags fixierte Ressourcen haben: %2.
+[MSG_S_7073]Für Fertigungsauftrag %1 ist ein Wechsel der Fertigungsversion nicht erlaubt, da es sich bei folgenden Vorgängen des Auftrags um manuelle Splits handelt: %2.
+[MSG_S_7074]Für Fertigungsauftrag %1 ist ein Wechsel der Fertigungsversion nicht erlaubt, da folgende Vorgänge des Auftrags stabil geplant sind: %2.
+[MSG_S_7075]Für Fertigungsauftrag %1 ist ein Wechsel der Fertigungsversion nicht erlaubt, da folgende Vorgänge des Auftrags gestartet sind: %2.

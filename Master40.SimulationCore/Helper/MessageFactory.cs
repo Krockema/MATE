@@ -7,7 +7,6 @@ using Microsoft.FSharp.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Master40.DB.Data.Helper;
 using Master40.DB.GanttPlanModel;
 using static FArticles;

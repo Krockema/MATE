@@ -117,7 +117,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             //Synchronisation GanttPlan
             GanttPlanOptRunner.RunOptAndExport("Init");
 
-            var simContext = new GanttSimulation(ganttPlanContext, masterCtxString, messageHub: new ConsoleHub());
+            var simContext = new GanttSimulation(GanttPlanCtxString, masterCtxString, messageHub: new ConsoleHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
             // update customized Items
             simConfig.AddOption(new DBConnectionString(masterResultCtxString));

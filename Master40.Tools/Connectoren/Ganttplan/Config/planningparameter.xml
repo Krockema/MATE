@@ -2,5 +2,6 @@
 <objects>
     <object type="planningparameter">
         <field name="planningparameter_id" datatype="STRING" value="1" />
+        <field name="lotsize_optimization" datatype="INT" value="1" />
     </object>
 </objects>
