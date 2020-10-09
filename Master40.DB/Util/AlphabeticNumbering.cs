@@ -19,5 +19,23 @@ namespace Master40.DB.Util
             var c = (char) (65 + remainder);
             return AppendNextLetter(c + subResult, remainingPortion / 26);
         }
+
+        public static int GetNumericRepresentation(string number)
+        {
+            return number == "A" ? 0 : AddNextExponent(0, number);
+        }
+
+        private static int AddNextExponent(int exponent, string remainingPortion)
+        {
+            if (remainingPortion == "")
+            {
+                return 0;
+            }
+
+            char lastLetter = remainingPortion[remainingPortion.Length - 1];
+            var value = (lastLetter - 65) * (int) Math.Pow(26, exponent);
+            remainingPortion = remainingPortion.Substring(0, remainingPortion.Length - 1);
+            return value + AddNextExponent(exponent + 1, remainingPortion);
+        }
     }
 }

@@ -13,9 +13,8 @@ namespace Master40.DataGenerator.Generators
     {
         // Wie könnte man Testen, ob der Algorithmus dem aus SYMTEP enspricht (keine Fehler enthält)
         public ProductStructure GenerateProductStructure(InputParameterSet inputParameters,
-            MasterTableArticleType articleTypes, MasterTableUnit units, M_Unit[] unitCol)
+            MasterTableArticleType articleTypes, MasterTableUnit units, M_Unit[] unitCol, XRandom rng)
         {
-            var rng = new XRandom();
             var productStructure = new ProductStructure();
             var availableNodes = new List<HashSet<long>>();
             var nodesCounter = GenerateParts(inputParameters, productStructure, availableNodes,
@@ -23,7 +22,7 @@ namespace Master40.DataGenerator.Generators
 
             GenerateEdges(inputParameters, productStructure, rng, availableNodes, nodesCounter);
 
-            DeterminationOfEdgeWeights(inputParameters, productStructure);
+            DeterminationOfEdgeWeights(inputParameters, productStructure, rng);
 
             return productStructure;
         }
@@ -81,7 +80,7 @@ namespace Master40.DataGenerator.Generators
             {
                 truncatedDiscreteNormalDistribution = new TruncatedDiscreteNormal(1, null,
                     Normal.WithMeanVariance(inputParameters.MeanWorkPlanLength,
-                        inputParameters.VarianceWorkPlanLength));
+                        inputParameters.VarianceWorkPlanLength, rng.GetRng()));
             }
             for (var i = 1; i <= inputParameters.DepthOfAssembly; i++)
             {
@@ -350,10 +349,10 @@ namespace Master40.DataGenerator.Generators
             }
         }
 
-        private static void DeterminationOfEdgeWeights(InputParameterSet inputParameters, ProductStructure productStructure)
+        private static void DeterminationOfEdgeWeights(InputParameterSet inputParameters, ProductStructure productStructure, XRandom rng)
         {
             var logNormalDistribution = LogNormal.WithMeanVariance(inputParameters.MeanIncomingMaterialAmount,
-                Math.Pow(inputParameters.StdDevIncomingMaterialAmount, 2));
+                Math.Pow(inputParameters.StdDevIncomingMaterialAmount, 2), rng.GetRng());
             foreach (var edge in productStructure.Edges)
             {
                 edge.Weight = logNormalDistribution.Sample();

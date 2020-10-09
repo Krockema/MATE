@@ -15,7 +15,7 @@ namespace Master40.XUnitTest.DataGenerator
         // local TEST Context
         private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true";
         private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        private static int _simNr = 20;
+        private static int _simNr = 23;
 
         // Definition for Simulation runs each Call returns
         // TODO: return complete config objects to avoid errors, and separate Data Generator / Simulation configurations
