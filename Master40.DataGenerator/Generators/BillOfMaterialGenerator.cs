@@ -13,9 +13,8 @@ namespace Master40.DataGenerator.Generators
     public class BillOfMaterialGenerator
     {
 
-        public void GenerateBillOfMaterial(InputParameterSet inputParameters, List<Dictionary<long, Node>> nodesPerLevel, TransitionMatrix transitionMatrix, MasterTableUnit units)
+        public void GenerateBillOfMaterial(InputParameterSet inputParameters, List<Dictionary<long, Node>> nodesPerLevel, TransitionMatrix transitionMatrix, MasterTableUnit units, XRandom rng)
         {
-            var rng = new XRandom();
             for (var k = 0; k < nodesPerLevel.Count - 1; k++)
             {
                 foreach (var article in nodesPerLevel[k].Values)

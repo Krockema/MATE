@@ -28,7 +28,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
         // local TEST Context
         private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true";
         private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        
+        private const string testGeneratorCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestGeneratorContext;Trusted_Connection=True;MultipleActiveResultSets=true";
+
         // remote Context
         private const string remoteMasterCtxString = "Server=141.56.137.25,1433;Persist Security Info=False;User ID=SA;Password=123*Start#;Initial Catalog=Master40;MultipleActiveResultSets=true";
         private const string remoteResultCtxString = "Server=141.56.137.25,1433;Persist Security Info=False;User ID=SA;Password=123*Start#;Initial Catalog=Master40Result;MultipleActiveResultSets=true";
@@ -52,9 +53,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Theory]
         //[InlineData(remoteMasterCtxString, remoteResultCtxString)] 
         //[InlineData(masterCtxString, masterResultCtxString)]
-        [InlineData(testCtxString, testResultCtxString)]
-        public void ResetResultsDB(string connectionString, string resultConnectionString)
-        
+        [InlineData(testCtxString, testResultCtxString, testGeneratorCtxString)]
+        public void ResetResultsDB(string connectionString, string resultConnectionString, string generatorConnectionString)
         {
             MasterDBContext masterCtx = MasterDBContext.GetContext(connectionString);
             masterCtx.Database.EnsureDeleted();
@@ -65,7 +65,11 @@ namespace Master40.XUnitTest.SimulationEnvironment
             results.Database.EnsureDeleted();
             results.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(results);
-            
+
+            DataGeneratorContext generatorCtx = DataGeneratorContext.GetContext(generatorConnectionString);
+            generatorCtx.Database.EnsureDeleted();
+            generatorCtx.Database.EnsureCreated();
+
         }
 
         // [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]
