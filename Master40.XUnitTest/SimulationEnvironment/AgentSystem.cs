@@ -176,7 +176,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new KpiTimeSpan(1440));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 1500)); 
+            simConfig.ReplaceOption(new OrderQuantity(value: 5)); 
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
