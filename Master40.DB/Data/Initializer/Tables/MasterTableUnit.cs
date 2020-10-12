@@ -5,9 +5,9 @@ namespace Master40.DB.Data.Initializer.Tables
 {
     public class MasterTableUnit
     {
-        internal M_Unit KILO;
-        internal M_Unit LITER;
-        internal M_Unit PIECES;
+        public M_Unit KILO;
+        public M_Unit LITER;
+        public M_Unit PIECES;
 
         public MasterTableUnit()
         {

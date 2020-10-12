@@ -1,4 +1,5 @@
-﻿using Akka.TestKit.Xunit;
+﻿using System;
+using Akka.TestKit.Xunit;
 using AkkaSim.Logging;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
@@ -13,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using NLog;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.DB.Nominal.Model;
 using Xunit;
 
 namespace Master40.XUnitTest.SimulationEnvironment
@@ -27,7 +29,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
         // local TEST Context
         private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true";
         private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        
+        private const string testGeneratorCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestGeneratorContext;Trusted_Connection=True;MultipleActiveResultSets=true";
+
         // remote Context
         private const string remoteMasterCtxString = "Server=141.56.137.25,1433;Persist Security Info=False;User ID=SA;Password=123*Start#;Initial Catalog=Master40;MultipleActiveResultSets=true";
         private const string remoteResultCtxString = "Server=141.56.137.25,1433;Persist Security Info=False;User ID=SA;Password=123*Start#;Initial Catalog=Master40Result;MultipleActiveResultSets=true";
@@ -44,9 +47,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Theory]
         //[InlineData(remoteMasterCtxString, remoteResultCtxString)] 
         //[InlineData(masterCtxString, masterResultCtxString)]
-        [InlineData(testCtxString, testResultCtxString)]
-        public void ResetResultsDB(string connectionString, string resultConnectionString)
-        
+        [InlineData(testCtxString, testResultCtxString, testGeneratorCtxString)]
+        public void ResetResultsDB(string connectionString, string resultConnectionString, string generatorConnectionString)
         {
             MasterDBContext masterCtx = MasterDBContext.GetContext(connectionString);
             masterCtx.Database.EnsureDeleted();
@@ -57,7 +59,11 @@ namespace Master40.XUnitTest.SimulationEnvironment
             results.Database.EnsureDeleted();
             results.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(results);
-            
+
+            DataGeneratorContext generatorCtx = DataGeneratorContext.GetContext(generatorConnectionString);
+            generatorCtx.Database.EnsureDeleted();
+            generatorCtx.Database.EnsureCreated();
+
         }
 
         // [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]
@@ -137,15 +143,15 @@ namespace Master40.XUnitTest.SimulationEnvironment
             , ModelSize resourceModelSize, ModelSize setupModelSize
             , double arrivalRate, bool distributeSetupsExponentially)
         {
-            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PRIORITY, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.SCHEDULING, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.DISPOPRODRELATION, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PROPOSAL, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.INITIALIZE, LogLevel.Warn, LogLevel.Warn);
-            //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOB, LogLevel.Warn, LogLevel.Warn);
+            LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOB, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.ENQUEUE, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOBSTATE, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace, LogLevel.Trace);

@@ -47,8 +47,10 @@ namespace Master40.SimulationCore.Helper
         public static void PublishUpdateArticleProvider(Agent agent, FArticle article)
         {
             var pub = new FUpdateSimulationWorkProvider(fArticleProviderKeys: article.ProviderList
-                , requestAgentId: article.DispoRequester.Path.Uid.ToString()
-                , requestAgentName: article.DispoRequester.Path.Name
+                , requestAgentId: article.OriginRequester.Path.Uid.ToString()
+                , requestAgentName: article.OriginRequester.Path.Name
+                //, originRequesterId: article.OriginRequester.Path.Uid.ToString()
+                //, originRequesterName: article.OriginRequester.Path.Uid.ToString()
                 , isHeadDemand: article.IsHeadDemand
                 , customerOrderId: article.CustomerOrderId);
             agent.Context.System.EventStream.Publish(@event: pub);

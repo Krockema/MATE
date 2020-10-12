@@ -148,7 +148,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             if (jobConfirmation != null)
                 _scopeQueue.RemoveJob(jobConfirmation);
 
-            Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + requestProposal.Job.Name + " with Id: " + requestProposal.Job.Key + " for setup " + requestProposal.CapabilityId);
+            Agent.DebugMessage(msg: $"Asked by Hub for Proposal: " + requestProposal.Job.Name + " with Id: " + requestProposal.Job.Key + " for setup " + requestProposal.CapabilityId, CustomLogger.PROPOSAL, LogLevel.Warn);
             SendProposalTo(requestProposal);
         }
 

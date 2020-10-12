@@ -6,10 +6,10 @@ namespace Master40.DB.Data.Initializer.Tables
 {
     public class MasterTableResourceCapability
     {
-        internal M_ResourceCapability CUTTING;
-        internal M_ResourceCapability DRILLING;
-        internal M_ResourceCapability ASSEMBLING;
-        internal List<M_ResourceCapability> Capabilities;
+        public M_ResourceCapability CUTTING;
+        public M_ResourceCapability DRILLING;
+        public M_ResourceCapability ASSEMBLING;
+        public List<M_ResourceCapability> Capabilities;
 
         internal MasterTableResourceCapability()
         {

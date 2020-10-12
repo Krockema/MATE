@@ -3,7 +3,7 @@ using Master40.DB.DataModel;
 
 namespace Master40.DB.Data.Initializer.Tables
 {
-    internal static class MasterTableStock
+    public static class MasterTableStock
     {
         public static void Init(MasterDBContext context, M_Article[] articles)
         {
@@ -20,8 +20,8 @@ namespace Master40.DB.Data.Initializer.Tables
                     StartValue = (article.ToPurchase) ? 10000000 : 0,
                 };
                 context.Stocks.Add(entity: stock);
-                context.SaveChanges();
             }
+            context.SaveChanges();
         }
     }
 }
