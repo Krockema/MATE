@@ -13,9 +13,9 @@ namespace Master40.XUnitTest.DataGenerator
     public class SimulationTemplate
     {
         // local TEST Context
-        private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true";
+        private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true";
         private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        private static int _simNr = 13;
+        private static int _simNr = 23;
 
         // Definition for Simulation runs each Call returns
         // TODO: return complete config objects to avoid errors, and separate Data Generator / Simulation configurations
@@ -33,7 +33,7 @@ namespace Master40.XUnitTest.DataGenerator
                 , 10080  // simulation end
             };
             // Simulation run 2
-            yield return new object[]
+            /*yield return new object[]
             {
                 _simNr++// simulation number
                 , 5     // order Quantity
@@ -42,7 +42,7 @@ namespace Master40.XUnitTest.DataGenerator
                 , 1337  // Random seed
                 , 0.02  // arrival rate
                 , 2880  // simulation end
-            };
+            };*/
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Master40.XUnitTest.DataGenerator
 
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PRIORITY, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.SCHEDULING, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.DISPOPRODRELATION, LogLevel.Debug, LogLevel.Debug);

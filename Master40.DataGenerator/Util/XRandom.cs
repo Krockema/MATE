@@ -6,16 +6,16 @@ namespace Master40.DataGenerator.Util
 
     public class XRandom{
 
-        private Random _rng;
+        private readonly Random _rng;
 
         public XRandom()
         {
             _rng = new Random();
         }
 
-        public XRandom(int seed)
+        public XRandom(int? seed)
         {
-            _rng = new Random(seed);
+            _rng = seed == null ? new Random() : new Random((int) seed);
         }
 
         public int Next(int maxValue)
@@ -60,5 +60,12 @@ namespace Master40.DataGenerator.Util
             }
             return offset + _rng.Next(Convert.ToInt32(maxValue));
         }
+
+        public Random GetRng()
+        {
+            return _rng;
+        }
+
     }
+
 }

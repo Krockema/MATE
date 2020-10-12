@@ -1,6 +1,9 @@
 ﻿using System;
 using Master40.DataGenerator.DataModel.TransitionMatrix;
 using Master40.DataGenerator.Util;
+using Master40.DB.Data.Context;
+using Master40.DB.GeneratorModel;
+using TransitionMatrix = Master40.DataGenerator.DataModel.TransitionMatrix.TransitionMatrix;
 
 namespace Master40.DataGenerator.Generators
 {
@@ -19,7 +22,9 @@ namespace Master40.DataGenerator.Generators
 
         private double _organizationDegreeC;
 
-        public TransitionMatrix GenerateTransitionMatrix(InputParameterSet inputParameters, DataModel.ProductStructure.InputParameterSet inputProductStructure)
+        public TransitionMatrix GenerateTransitionMatrix(InputParameterSet inputParameters,
+            DataModel.ProductStructure.InputParameterSet inputProductStructure, XRandom rng,
+            DataGeneratorContext generatorCtx, InputParameter approach)
         {
             var jCorrector = 0;
             var matrixSize = inputParameters.WorkingStations.Length;
@@ -31,8 +36,6 @@ namespace Master40.DataGenerator.Generators
             _piA = new double[matrixSize, matrixSize];
             _piB = new double[matrixSize, matrixSize];
 
-            var rng = new XRandom();
-
             InitializePiA(inputParameters, rng, matrixSize, jCorrector);
             InitializePiB(inputParameters, inputProductStructure, matrixSize, jCorrector);
             while (Math.Abs(_organizationDegreeA - inputParameters.DegreeOfOrganization) > 0.001)
@@ -43,6 +46,7 @@ namespace Master40.DataGenerator.Generators
             {
                 Pi = _piA
             };
+            SaveToDB(transitionMatrix, generatorCtx, matrixSize, approach);
             return transitionMatrix;
         }
 
@@ -188,6 +192,26 @@ namespace Master40.DataGenerator.Generators
                 sum += Math.Pow(cell - reciprocalOfPiSize, 2);
             }
             return 1.0 / (matrixSize - 1) * sum;
+        }
+
+        private void SaveToDB(TransitionMatrix matrix, DataGeneratorContext ctx, int matrixSize, InputParameter approach)
+        {
+            for (var i = 0; i < matrixSize; i++)
+            {
+                for (var j = 0; j < matrixSize; j++)
+                {
+                    var entry = new Master40.DB.GeneratorModel.TransitionMatrix()
+                    {
+                        ApproachId = approach.Id,
+                        TransitionFrom = j,
+                        TransitionTo = i,
+                        Probability = matrix.Pi[i, j]
+                    };
+                    ctx.TransitionMatrices.AddRange(entry);
+                }
+            }
+
+            ctx.SaveChanges();
         }
 
     }
