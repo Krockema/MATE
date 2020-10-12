@@ -11,11 +11,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
+using AkkaSim.Logging;
 using Master40.DB.Nominal.Model;
 using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Helper;
 using Newtonsoft.Json;
 using Xunit;
+using NLog;
 using Xunit.Abstractions;
 
 namespace Master40.XUnitTest.Online.Integration
@@ -62,6 +64,9 @@ namespace Master40.XUnitTest.Online.Integration
         public void RunProduction(int uniqueSimNum, int orderQuantity, ModelSize resourceModelSize,
             ModelSize setupModelSize, ModelSize operatorModelSize, int numberOfWorkers, bool secondResource)
         {
+
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
             _testOutputHelper.WriteLine("DatabaseString: " + _contextDataBase.ConnectionString.Value);
 
             _testOutputHelper.WriteLine("ResultDatabaseString: " + _resultContextDataBase.ConnectionString.Value);
@@ -79,12 +84,11 @@ namespace Master40.XUnitTest.Online.Integration
             simConfig.ReplaceOption(new DBConnectionString(_resultContextDataBase.ConnectionString.Value));
             simConfig.ReplaceOption(new TimeToAdvance(new TimeSpan(0L)));
             simConfig.ReplaceOption(new KpiTimeSpan(240));
-            simConfig.ReplaceOption(new DebugAgents(false));
+            simConfig.ReplaceOption(new DebugAgents(true));
             simConfig.ReplaceOption(new MinDeliveryTime(1440));
             simConfig.ReplaceOption(new MaxDeliveryTime(2880));
             simConfig.ReplaceOption(new TransitionFactor(3));
             simConfig.ReplaceOption(new SimulationKind(value: SimulationType.Default));
-            simConfig.ReplaceOption(new DebugSystem(false));
             simConfig.ReplaceOption(new OrderArrivalRate(value: 0.15));
             simConfig.ReplaceOption(new OrderQuantity(value: orderQuantity));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: 1920));
