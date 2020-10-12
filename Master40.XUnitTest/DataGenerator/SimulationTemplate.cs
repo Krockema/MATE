@@ -25,12 +25,12 @@ namespace Master40.XUnitTest.DataGenerator
             yield return new object[]  
             {
                 _simNr++// simulation number
-                , 5     // order Quantity
-                , 240   // max bucket size
-                , 1920  // throughput time
+                , 500     // order Quantity
+                , 960   // max bucket size
+                , 2440  // throughput time
                 , 1337  // Random seed
-                , 0.03  // arrival rate
-                , 2880  // simulation end
+                , 0.02  // arrival rate
+                , 10080  // simulation end
             };
             // Simulation run 2
             yield return new object[]

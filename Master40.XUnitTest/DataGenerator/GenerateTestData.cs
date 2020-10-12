@@ -54,7 +54,8 @@ namespace Master40.XUnitTest.DataGenerator
                 var articleTypes = new MasterTableArticleType();
                 articleTypes.Init(dataBase.DbContext);
 
-                //Nebenbedingung lautet, dass Fertigungstiefe mindestens 1 sein muss, es macht aber wenig Sinn, wenn sie gleich 1 ist, da es dann keine Fertigungen gibt
+                //Nebenbedingung lautet, dass Fertigungstiefe mindestens 1 sein muss
+                //, es macht aber wenig Sinn, wenn sie gleich 1 ist, da es dann keine Fertigungen gibt
                 //-> Anpassung der Nebenbedingung: Fertigungstiefe muss mindestens 2 sein
                 //KG und MV nicht größer 5; FT nicht größer 20; Anzahl Endprodukte nicht größer 50
                 var randomGeneratedInputValues = false;
@@ -62,10 +63,10 @@ namespace Master40.XUnitTest.DataGenerator
                 var inputProductStructure = new InputParameterSet
                 {
                     EndProductCount = !randomGeneratedInputValues ? 4 : rng.Next(9) + 2,
-                    DepthOfAssembly = !randomGeneratedInputValues ? 6 : rng.Next(10) + 1,
-                    ComplexityRatio = !randomGeneratedInputValues ? 1.3 : rng.NextDouble() + 1,
+                    DepthOfAssembly = !randomGeneratedInputValues ? 4 : rng.Next(10) + 1,
+                    ComplexityRatio = !randomGeneratedInputValues ? 1.1 : rng.NextDouble() + 1,
                     ReutilisationRatio = !randomGeneratedInputValues ? 1.4 : rng.NextDouble() + 1,
-                    MeanIncomingMaterialAmount = 2.3, StdDevIncomingMaterialAmount = 0.7,
+                    MeanIncomingMaterialAmount = 2, StdDevIncomingMaterialAmount = 0.5,
                     MeanWorkPlanLength = getWorkPlanLengthFromTransitionMatrix ? double.NaN : 3,
                     VarianceWorkPlanLength = getWorkPlanLengthFromTransitionMatrix ? double.NaN : 1
                 };
@@ -97,10 +98,10 @@ namespace Master40.XUnitTest.DataGenerator
                         {
                             MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
-                                MeanMachiningTime = 15, VarianceMachiningTime = 5
+                                MeanMachiningTime = 10, VarianceMachiningTime = 5
                             },
-                            CapabilitiesCount = 1,
-                            ToolCount = 2,
+                            CapabilitiesCount = 2,
+                            ToolCount = 4,
                             SetupTime = 10,
                             OperatorCount = 0
                         },
@@ -110,8 +111,8 @@ namespace Master40.XUnitTest.DataGenerator
                             {
                                 MeanMachiningTime = 10, VarianceMachiningTime = 4
                             },
-                            CapabilitiesCount = 1,
-                            ToolCount = 2,
+                            CapabilitiesCount = 2,
+                            ToolCount = 4,
                             SetupTime = 3,
                             OperatorCount = 0
                         },
@@ -119,58 +120,13 @@ namespace Master40.XUnitTest.DataGenerator
                         {
                             MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
-                                MeanMachiningTime = 13, VarianceMachiningTime = 7
+                                MeanMachiningTime = 15, VarianceMachiningTime = 7
                             },
-                            CapabilitiesCount = 1,
-                            ToolCount = 5,
-                            SetupTime = 6,
+                            CapabilitiesCount = 3,
+                            ToolCount = 7,
+                            SetupTime = 15,
                             OperatorCount = 1
                         },
-                        new WorkingStationParameterSet()
-                        {
-                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
-                            {
-                                MeanMachiningTime = 20, VarianceMachiningTime = 3
-                            },
-                            CapabilitiesCount = 1,
-                            ToolCount = 4,
-                            SetupTime = 12,
-                            OperatorCount = 1
-                        },
-                        new WorkingStationParameterSet()
-                        {
-                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
-                            {
-                                MeanMachiningTime = 3, VarianceMachiningTime = 1
-                            },
-                            CapabilitiesCount = 1,
-                            ToolCount = 4,
-                            SetupTime = 10,
-                            OperatorCount = 1
-                        },
-                        new WorkingStationParameterSet()
-                        {
-                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
-                            {
-                                MeanMachiningTime = 12, VarianceMachiningTime = 2
-                            },
-                            CapabilitiesCount = 1,
-                            ToolCount = 3,
-                            SetupTime = 1,
-                            OperatorCount = 0
-                        },
-                        new WorkingStationParameterSet()
-                        {
-                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
-                            {
-                                MeanMachiningTime = 10, VarianceMachiningTime = 7
-                            },
-                            CapabilitiesCount = 1,
-                            ToolCount = 1,
-                            SetupTime = 5,
-                            OperatorCount = 0
-                        }
-                        
                     }
                 };
 

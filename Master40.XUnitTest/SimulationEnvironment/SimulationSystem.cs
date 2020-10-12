@@ -52,14 +52,14 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Theory]
         //[InlineData(remoteMasterCtxString, remoteResultCtxString)] 
         //[InlineData(masterCtxString, masterResultCtxString)]
-        [InlineData(testCtxString, testResultCtxString)]
+        [InlineData(testCtxString, masterResultCtxString)]
         public void ResetResultsDB(string connectionString, string resultConnectionString)
         
         {
-            MasterDBContext masterCtx = MasterDBContext.GetContext(connectionString);
-            masterCtx.Database.EnsureDeleted();
-            masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Small, ModelSize.Small, 3,  true);
+            // MasterDBContext masterCtx = MasterDBContext.GetContext(connectionString);
+            // masterCtx.Database.EnsureDeleted();
+            // masterCtx.Database.EnsureCreated();
+            // MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Small, ModelSize.Small, 3,  true);
             
             ResultContext results = ResultContext.GetContext(resultCon: resultConnectionString);
             results.Database.EnsureDeleted();

@@ -53,16 +53,18 @@ namespace Master40.Controllers
             simConfig.ReplaceOption(new OrderArrivalRate(value: arivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: orderAmount));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: estimatedThroughputTime));
-            simConfig.ReplaceOption(new KpiTimeSpan(value: 60));
+            simConfig.ReplaceOption(new KpiTimeSpan(value: 480));
             simConfig.ReplaceOption(new Seed(value: 1337));
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
             simConfig.ReplaceOption(new SimulationEnd(value: 20160));
-            simConfig.ReplaceOption(new SaveToDB(value: false));
+            simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             // simConfig.ReplaceOption(new DebugSystem(true));
-            // new DBConnectionString(value: "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true")
+            simConfig.ReplaceOption(new DBConnectionString(
+                value:
+                "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true"));
  
-            await _agentSimulator.RunAkkaSimulation(configuration: simConfig);
+             await _agentSimulator.RunAkkaSimulation(configuration: simConfig);
         }
 
         
