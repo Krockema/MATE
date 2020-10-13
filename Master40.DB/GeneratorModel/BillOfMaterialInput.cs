@@ -2,16 +2,13 @@
 
 namespace Master40.DB.GeneratorModel
 {
-    public class TransitionMatrix
+    public class BillOfMaterialInput
     {
-
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public int TransitionFrom { get; set; }
-        public int TransitionTo { get; set; }
-        public double Probability { get; set; }
+        public bool RoundEdgeWeight { get; set; }
+        public decimal WeightEpsilon { get; set; }
         public int ApproachId { get; set; }
-        public InputParameter Approach { get; set; }
-
+        public Approach Approach { get; set; }
     }
 }

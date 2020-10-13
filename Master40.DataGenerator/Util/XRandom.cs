@@ -8,14 +8,9 @@ namespace Master40.DataGenerator.Util
 
         private readonly Random _rng;
 
-        public XRandom()
+        public XRandom(int seed)
         {
-            _rng = new Random();
-        }
-
-        public XRandom(int? seed)
-        {
-            _rng = seed == null ? new Random() : new Random((int) seed);
+            _rng =  new Random(seed);
         }
 
         public int Next(int maxValue)

@@ -32,6 +32,7 @@ namespace Master40.Simulation.CLI
             , new MaxDeliveryTime()
             , new MinDeliveryTime()
             , new TimeConstraintQueueLength()
+            , new TestDataId()
         };
 
 

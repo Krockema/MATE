@@ -2,13 +2,12 @@
 using System.Linq;
 using Master40.DataGenerator.DataModel;
 using Master40.DataGenerator.DataModel.ProductStructure;
-using Master40.DataGenerator.DataModel.TransitionMatrix;
 using Master40.DataGenerator.Util;
 using Master40.DB.Data.DynamicInitializer.Tables;
 using Master40.DB.Data.Helper.Types;
 using Master40.DB.DataModel;
+using Master40.DB.GeneratorModel;
 using MathNet.Numerics.Distributions;
-using InputParameterSet = Master40.DataGenerator.DataModel.TransitionMatrix.InputParameterSet;
 
 namespace Master40.DataGenerator.Generators
 {
@@ -20,7 +19,7 @@ namespace Master40.DataGenerator.Generators
         private readonly List<TruncatedDiscreteNormal> _machiningTimeDistributions = new List<TruncatedDiscreteNormal>();
 
         public void GenerateOperations(List<Dictionary<long, Node>> nodesPerLevel, TransitionMatrix transitionMatrix,
-            InputParameterSet inputTransitionMatrix, MasterTableResourceCapability resourceCapabilities, XRandom rng)
+            TransitionMatrixInput inputTransitionMatrix, MasterTableResourceCapability resourceCapabilities, XRandom rng)
         {
             Prepare(transitionMatrix, inputTransitionMatrix, rng);
 
@@ -32,12 +31,12 @@ namespace Master40.DataGenerator.Generators
                 foreach (var article in nodesPerLevel[i].Values)
                 {
                     var hierarchyNumber = 0;
-                    var currentWorkingMachine = inputTransitionMatrix.WithStartAndEnd
+                    var currentWorkingMachine = inputTransitionMatrix.ExtendedTransitionMatrix
                         ? DetermineNextWorkingMachine(0, rng)
                         : rng.Next(tools.Count);
                     var lastOperationReached = false;
                     var operationCount = 0;
-                    var correction = inputTransitionMatrix.WithStartAndEnd ? 1 : 0;
+                    var correction = inputTransitionMatrix.ExtendedTransitionMatrix ? 1 : 0;
                     do
                     {
                         hierarchyNumber += 10;
@@ -53,7 +52,7 @@ namespace Master40.DataGenerator.Generators
 
                         currentWorkingMachine = DetermineNextWorkingMachine(currentWorkingMachine + correction, rng);
                         operationCount++;
-                        if (inputTransitionMatrix.WithStartAndEnd)
+                        if (inputTransitionMatrix.ExtendedTransitionMatrix)
                         {
                             lastOperationReached = _matrixSize == currentWorkingMachine + 1;
                         }
@@ -84,9 +83,9 @@ namespace Master40.DataGenerator.Generators
             return _cumulatedProbabilities[currentMachine][k].Key;
         }
 
-        private void Prepare(TransitionMatrix transitionMatrix, InputParameterSet inputTransitionMatrix, XRandom rng)
+        private void Prepare(TransitionMatrix transitionMatrix, TransitionMatrixInput inputTransitionMatrix, XRandom rng)
         {
-            _matrixSize = inputTransitionMatrix.WorkingStations.Length;
+            _matrixSize = inputTransitionMatrix.WorkingStations.Count;
             TruncatedDiscreteNormal unifyingDistribution = null;
             //darf lowerBound (also Mindestdauer einer Operation) 0 sein? -> wenn 0 selten vorkommt (also z.B. Zeiteinheit nicht Minuten, sondern Sekunden sind), dann ok
             if (inputTransitionMatrix.GeneralMachiningTimeParameterSet != null)
@@ -97,6 +96,8 @@ namespace Master40.DataGenerator.Generators
                     rng.GetRng());
                 unifyingDistribution = new TruncatedDiscreteNormal(0, null, normalDistribution);
             }
+
+            var workingStations = inputTransitionMatrix.WorkingStations.ToArray();
             for (var i = 0; i < _matrixSize; i++)
             {
                 TruncatedDiscreteNormal truncatedDiscreteNormalDistribution;
@@ -106,7 +107,7 @@ namespace Master40.DataGenerator.Generators
                 }
                 else
                 {
-                    var machiningTime = inputTransitionMatrix.WorkingStations[i].MachiningTimeParameterSet;
+                    var machiningTime = workingStations[i].MachiningTimeParameterSet;
                     var normalDistribution = Normal.WithMeanVariance(machiningTime.MeanMachiningTime,
                         machiningTime.VarianceMachiningTime, rng.GetRng());
                     truncatedDiscreteNormalDistribution = new TruncatedDiscreteNormal(0, null, normalDistribution);
@@ -114,7 +115,7 @@ namespace Master40.DataGenerator.Generators
 
                 _machiningTimeDistributions.Add(truncatedDiscreteNormalDistribution);
             }
-            if (inputTransitionMatrix.WithStartAndEnd)
+            if (inputTransitionMatrix.ExtendedTransitionMatrix)
             {
                 _matrixSize++;
             }

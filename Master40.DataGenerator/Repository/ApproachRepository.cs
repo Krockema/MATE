@@ -8,10 +8,16 @@ namespace Master40.DataGenerator.Repository
     public class ApproachRepository
     {
 
-        public static InputParameter GetApproachById(DataGeneratorContext ctx, int id)
+        public static Approach GetApproachById(DataGeneratorContext ctx, int id)
         {
             var approach = ctx.Approaches
-                .Include(x => x.TransitionMatrix)
+                .Include(x => x.BomInput)
+                .Include(x => x.ProductStructureInput)
+                .Include(x => x.TransitionMatrixInput)
+                    .ThenInclude(x => x.WorkingStations)
+                        .ThenInclude(x => x.MachiningTimeParameterSet)
+                .Include(x => x.TransitionMatrixInput)
+                    .ThenInclude(x => x.GeneralMachiningTimeParameterSet)
                 .Single(predicate: (x => x.Id == id));
             return approach;
         }

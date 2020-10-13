@@ -15,7 +15,7 @@ namespace Master40.XUnitTest.DataGenerator
         // local TEST Context
         private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true";
         private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        private static int _simNr = 23;
+        private const string testGeneratorCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestGeneratorContext;Trusted_Connection=True;MultipleActiveResultSets=true";
 
         // Definition for Simulation runs each Call returns
         // TODO: return complete config objects to avoid errors, and separate Data Generator / Simulation configurations
@@ -24,8 +24,7 @@ namespace Master40.XUnitTest.DataGenerator
             // Simulation run 1
             yield return new object[]  
             {
-                _simNr++// simulation number
-                , 5     // order Quantity
+                30      // order Quantity
                 , 240   // max bucket size
                 , 1920  // throughput time
                 , 1337  // Random seed
@@ -48,7 +47,7 @@ namespace Master40.XUnitTest.DataGenerator
         /// <summary>
         /// To Run this test the Database must have been filled with Master data
         /// </summary>
-        /// <param name="simNr"></param>
+        /// <param name="orderQuantity"></param>
         /// <param name="maxBucketSize"></param>
         /// <param name="throughput"></param>
         /// <param name="seed"></param>
@@ -58,8 +57,7 @@ namespace Master40.XUnitTest.DataGenerator
         [Theory]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
         [MemberData(nameof(GetTestData))]
-        public async Task SystemTestAsync(int simNr
-                                        , int orderQuantity
+        public async Task SystemTestAsync(int orderQuantity
                                         , int maxBucketSize
                                         , long throughput
                                         , int seed
@@ -68,6 +66,7 @@ namespace Master40.XUnitTest.DataGenerator
         {
             ResultContext ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);
             ProductionDomainContext masterCtx = ProductionDomainContext.GetContext(testCtxString);
+            DataGeneratorContext dataGenCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
 
             var simContext = new AgentSimulation(DBContext: masterCtx, messageHub: new ConsoleHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(ctxResult, 1);
@@ -86,6 +85,14 @@ namespace Master40.XUnitTest.DataGenerator
             //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace, LogLevel.Trace);
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
 
+            var dataGenSim = new DB.GeneratorModel.Simulation();
+            dataGenSim.ApproachId = simConfig.GetOption<TestDataId>().Value;
+            await Task.Run(() =>
+            {
+                dataGenCtx.Simulations.AddRange(dataGenSim);
+                dataGenCtx.SaveChanges();
+            });
+
             // update customized Configuration
             simConfig.AddOption(new DBConnectionString(testResultCtxString));  
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
@@ -98,7 +105,7 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new SimulationEnd(value: simulationEnd));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
-            simConfig.ReplaceOption(new SimulationNumber(value: simNr));
+            simConfig.ReplaceOption(new SimulationNumber(value: dataGenSim.Id));
             simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.0));
 
