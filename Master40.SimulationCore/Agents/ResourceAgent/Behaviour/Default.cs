@@ -460,6 +460,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var pub = new FCreateTaskItem(
                 type: JobType.OPERATION
                 , resource: Agent.Name.Replace("Resource(", "").Replace(")","")
+                , resourceId: _resourceId
                 , start: Agent.CurrentTime
                 , end: Agent.CurrentTime + item.Operation.RandomizedDuration
                 , capability: _jobInProgress.RequiredCapabilityName
@@ -475,6 +476,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var pub = new FCreateTaskItem(
                 type
                 , resource: Agent.Name.Replace("Resource(", "").Replace(")", "")
+                , resourceId: _resourceId
                 , start: Agent.CurrentTime
                 , end: Agent.CurrentTime + gap
                 , capability: _capabilityProviderManager.GetCurrentUsedCapability().Name

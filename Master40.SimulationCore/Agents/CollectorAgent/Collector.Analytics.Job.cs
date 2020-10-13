@@ -133,7 +133,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
  
             if (lastIntervalStart != Collector.Time)
             {
-                var OEE = OverallEquipmentEffectiveness(resources: _resources, Collector.Time - 1440L, Collector.Time);
+                //var OEE = OverallEquipmentEffectiveness(resources: _resources, Collector.Time - 1440L, Collector.Time);
                 lastIntervalStart = Collector.Time;
             }
             ThroughPut(finalCall);
@@ -148,8 +148,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             if (finalCall)
             {
-                List<ISimulationResourceData> allSimulationData = new List<ISimulationResourceData>(simulationJobs);
-                List<ISimulationResourceData> allSimulationSetupData = new List<ISimulationResourceData>(simulationResourceSetups);
+                List<ISimulationTask> allSimulationData = new List<ISimulationTask>(simulationJobs);
+                List<ISimulationTask> allSimulationSetupData = new List<ISimulationTask>(simulationResourceSetups);
 
                 var settlingStart = Collector.Config.GetOption<SettlingStart>().Value;
                 var resourcesDatas = kpiManager.GetSimulationDataForResources(resources: _resources, simulationResourceData: allSimulationData, simulationResourceSetupData: allSimulationSetupData, startInterval: settlingStart, endInterval: Collector.Time);
@@ -166,11 +166,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                     SetupTime = resourcesDatas.Sum(x => x._totalSetupTime),
                     SetupTimePercent = Math.Round((resourcesDatas.Sum(x => Convert.ToDouble(x._setupTime.Replace(".", ","))) / resourcesDatas.Count * 100), 4).ToString(_cultureInfo)
                 };
-
-                // Einschwingzeit - Ende der Simulation
-                var OEE = OverallEquipmentEffectiveness(resources: _resources, 0 + Collector.Config.GetOption<TimePeriodForThroughputCalculation>().Value, Collector.Time);
-                //Collector.CreateKpi(Collector, OEE, "OEE", KpiType.Ooe, true);
-
+                
                 Collector.messageHub.SendToClient(listener: "totalUtilizationListener", msg: JsonConvert.SerializeObject(value: toSend ));
             }
         }
@@ -236,74 +232,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             Collector.messageHub.SendToClient(listener: "ContractsV2", msg: JsonConvert.SerializeObject(value: new { Time = Collector.Time, Processing = products.Count().ToString() }));
         }
 
-        /// <summary>
-        /// OEE for dashboard
-        /// </summary>
-        private string OverallEquipmentEffectiveness(ResourceDictionary resources, long startInterval, long endInterval)
-        {
-            /* ------------- Total Production Time --------------------*/
-            var totalInterval = endInterval - startInterval;
-            var totalProductionTime = totalInterval * resources.Count;
-
-            /* ------------- RunTime --------------------*/
-            var totalPlannedDowntime = 0L;
-            var totalBreakTime = 0L;
-            double runTime = totalProductionTime - (totalPlannedDowntime - totalBreakTime);
-
-            /* ------------- WorkTime --------------------*/ //TODO add unplanned breakdown
-            var breakDown = 0L;
-            
-            List<ISimulationResourceData> allSimulationResourceSetups = new List<ISimulationResourceData>();
-            allSimulationResourceSetups.AddRange(simulationResourceSetups.Where(x => x.Start >= startInterval + 50).ToList());
-
-            var setupTime = kpiManager.GetTotalTimeForInterval(resources, allSimulationResourceSetups, startInterval, endInterval);
-
-            var totalUnplannedDowntime = breakDown + setupTime;
-
-            double workTime = runTime - totalUnplannedDowntime;
-
-            /* ------------- PerformanceTime --------------------*/
-            List<ISimulationResourceData> allSimulationResourceJobs = new List<ISimulationResourceData>();
-            allSimulationResourceJobs.AddRange(simulationJobs.Where(x => x.Start >= startInterval + 50).ToList());
-            var jobTime = kpiManager.GetTotalTimeForInterval(resources, allSimulationResourceJobs, startInterval, endInterval);
-
-            var idleTime = workTime - jobTime;
-
-            // var reducedSpeed = 0L; //TODO if this is implemented the GetTotalTimeForInterval must change. to reflect speed div.
-
-            double performanceTime = jobTime;
-
-            /* ------------- zeroToleranceTime --------------------*/
-
-            //TODO Feature: Branch QualityManagement
-            var goodGoods = 35L;
-            var badGoods = 0L;
-            var totalGoods = goodGoods + badGoods;
-
-            double zeroToleranceTime = performanceTime / totalGoods * goodGoods;
-
-            //1.Parameter Availability calculation
-            double availability =  workTime /runTime;
-
-            //2. Parameter Performance calculation
-            double performance = performanceTime / workTime;
-
-            //3. Parameter Quality calculation
-            double quality = zeroToleranceTime / performanceTime;
-
-            //Total OEE
-            var totalOEE = availability * performance * quality;
-
-            var totalOEEString = Math.Round(totalOEE * 100, 2).ToString();
-            if (totalOEEString == "NaN") totalOEEString = "0";
-
-            Collector.messageHub.SendToClient(listener: "oeeListener", msg: totalOEEString);
-
-            return totalOEEString;
-
-            //TODO Feature: vX.0 Enhance GUI with details about OEE
-
-        }
 
         private void CreateJob(FCreateSimulationJob simJob)
         {
@@ -330,7 +258,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 ArticleType = simJob.ArticleType,
                 CapabilityName = simJob.RequiredCapabilityName,
                 Start = simJob.Start,
-                End =  simJob.End
+                End =  simJob.End,
             };
 
             var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.Equals(simJob.Key));

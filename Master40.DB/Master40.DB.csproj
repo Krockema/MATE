@@ -34,7 +34,4 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Composition" Version="1.4.1" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ReportingModel\Interface\" />
-  </ItemGroup>
 </Project>

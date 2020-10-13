@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Master40.DB.GanttPlanModel;
+using Master40.DB.Nominal.Model;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
 {
@@ -32,7 +34,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
 
         }
 
-        public void FinishActivityForResource(GptblProductionorderOperationActivity activity, string resourceId)
+        public void FinishActivityForResource(GptblProductionorderOperationActivity activity, int resourceId)
         {
             Activities.SingleOrDefault(x => x.Activity.GetKey.Equals(activity.GetKey))?.FinishForResource(resourceId);
         }
@@ -65,7 +67,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             // check if Production Precondition is fulfilled to start setup.
             if (activity.ActivityType.Equals(2))
             {
-                var activityQueue = resourceStates.Single(x => x.ResourceDefinition.ResourceType == 1).ActivityQueue;
+                var activityQueue = resourceStates.Single(x => x.ResourceDefinition.ResourceType == ResourceType.Workcenter).ActivityQueue;
                 activity = activityQueue.Single(x => x.GetKey.Equals(activity.ProductionorderId + "|" + activity.OperationId + "|" + "3"))
                                             .ProductionorderOperationActivityResource
                                                 .ProductionorderOperationActivity;

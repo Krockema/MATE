@@ -1,5 +1,4 @@
-﻿using System;
-using Akka.TestKit.Xunit;
+﻿using Akka.TestKit.Xunit;
 using AkkaSim.Logging;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
@@ -14,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using NLog;
 using System.Linq;
 using System.Threading.Tasks;
-using Master40.DB.Nominal.Model;
 using Xunit;
 
 namespace Master40.XUnitTest.SimulationEnvironment
@@ -143,15 +141,15 @@ namespace Master40.XUnitTest.SimulationEnvironment
             , ModelSize resourceModelSize, ModelSize setupModelSize
             , double arrivalRate, bool distributeSetupsExponentially)
         {
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PRIORITY, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.SCHEDULING, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.DISPOPRODRELATION, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PROPOSAL, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.INITIALIZE, LogLevel.Warn, LogLevel.Warn);
-            LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOB, LogLevel.Warn, LogLevel.Warn);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOB, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.ENQUEUE, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOBSTATE, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace, LogLevel.Trace);
@@ -176,12 +174,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new KpiTimeSpan(1440));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 5)); 
+            simConfig.ReplaceOption(new OrderQuantity(value: 10)); 
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 2880));
-            simConfig.ReplaceOption(new SimulationEnd(value: 10080));
+            simConfig.ReplaceOption(new SettlingStart(value: 0));
+            simConfig.ReplaceOption(new SimulationEnd(value: 2880));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));

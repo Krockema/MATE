@@ -1,6 +1,6 @@
 ﻿module FCentralResourceDefinitions
     type public FCentralResourceDefinition = {
-        ResourceId : string
+        ResourceId : int
         ResourceName: string
         ResourceGroupId : string
         ResourceType : int

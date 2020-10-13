@@ -3,7 +3,7 @@
 open Akka.Actor
 
     type public FCentralResourceRegistration = {
-        ResourceId : string
+        ResourceId : int
         ResourceName: string
         ResourceActorRef: IActorRef
         ResourceGroupId : string

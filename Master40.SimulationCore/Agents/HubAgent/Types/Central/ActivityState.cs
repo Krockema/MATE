@@ -25,7 +25,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             Confirmations.Add(confirmation);
         }
 
-        public void FinishForResource(string resourceId)
+        public void FinishForResource(int resourceId)
         {
             var confirmation = Confirmations.Single(x => x.ResourceDefinition.Id.Equals(resourceId));
             confirmation.State = GanttConfirmationState.Finished;

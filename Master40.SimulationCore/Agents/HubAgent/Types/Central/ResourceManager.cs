@@ -25,12 +25,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             resourceStateList.Add(resourceState);
         }
 
-        public bool ResourceIsWorking(string resourceId)
+        public bool ResourceIsWorking(int resourceId)
         {
             return resourceStateList.Single(x => x.ResourceDefinition.Id.Equals(resourceId)).IsWorking;
         }
 
-        public bool StartActivityAtResource(string resourceId,
+        public bool StartActivityAtResource(int resourceId,
             GptblProductionorderOperationActivity productionorderOperationActivity)
         {
             var resource = resourceStateList.Single(x => x.ResourceDefinition.Id.Equals(resourceId));
@@ -44,12 +44,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             return resource.IsWorking;
         }
 
-        public void FinishActivityAtResource(string resourceId)
+        public void FinishActivityAtResource(int resourceId)
         {
             resourceStateList.Single(x => x.ResourceDefinition.Id.Equals(resourceId)).FinishActivityAtResource();
         }
 
-        public GptblProductionorderOperationActivity GetCurrentActivity(string resourceId)
+        public GptblProductionorderOperationActivity GetCurrentActivity(int resourceId)
         {
             return resourceStateList.Single(x => x.ResourceDefinition.Id.Equals(resourceId))
                 .CurrentProductionOrderActivity;

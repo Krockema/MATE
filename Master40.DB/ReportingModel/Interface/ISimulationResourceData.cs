@@ -5,17 +5,15 @@ using System.Text;
 
 namespace Master40.DB.ReportingModel.Interface
 {
-    public interface ISimulationResourceData
+    public interface ISimulationResourceData : ISimulationTask
     {
         int SimulationConfigurationId { get; set; }
         SimulationType SimulationType { get; set; }
         int SimulationNumber { get; set; }
-        long Time { get; set; }
-        long ExpectedDuration { get; set; }
-        long Start { get; set; }
-        long End { get; set; }
         string CapabilityProvider { get; set; }
         string CapabilityName { get; set; }
+        long ExpectedDuration { get; set; }
         int SetupId { get; set; }
+        long Time { get; set; }
     }
 }

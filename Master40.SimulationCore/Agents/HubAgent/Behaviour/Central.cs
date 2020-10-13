@@ -4,7 +4,6 @@ using Master40.DB.Data.Helper;
 using Master40.DB.GanttPlanModel;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Agents.HubAgent.Types.Central;
-using Master40.SimulationCore.Agents.ResourceAgent;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.Tools.Connectoren.Ganttplan;
@@ -16,6 +15,7 @@ using System.Data.HashFunction.xxHash;
 using System.Diagnostics;
 using System.Linq;
 using Akka.Util.Internal;
+using Master40.DB.Nominal.Model;
 using Newtonsoft.Json;
 using static FCentralActivities;
 using static FCentralProvideOrders;
@@ -23,6 +23,7 @@ using static FCentralResourceRegistrations;
 using static FCentralStockPostings;
 using static FCreateSimulationJobs;
 using static FCentralGanttPlanInformations;
+using Resource = Master40.SimulationCore.Agents.ResourceAgent.Resource;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 {
@@ -73,7 +74,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         private void AddResourceToHub(FCentralResourceRegistration resourceRegistration)
         {
-            var resourceDefintion = new ResourceDefinition(resourceRegistration.ResourceName, resourceRegistration.ResourceId, resourceRegistration.ResourceActorRef, resourceRegistration.ResourceGroupId, resourceRegistration.ResourceType);
+            var resourceDefintion = new ResourceDefinition(resourceRegistration.ResourceName, resourceRegistration.ResourceId, resourceRegistration.ResourceActorRef, resourceRegistration.ResourceGroupId, (ResourceType)resourceRegistration.ResourceType);
             _resourceManager.Add(resourceDefintion);
         }
 
@@ -142,7 +143,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                             .Include(x => x.ProductionorderOperationActivityResource)
                                 .ThenInclude(x => x.ProductionorderOperationActivity)
                                     .ThenInclude(x => x.ProductionorderOperationActivityResources)
-                            .Where(x => x.ResourceId.Equals(resourceState.ResourceDefinition.Id)
+                            .Where(x => x.ResourceId.Equals(resourceState.ResourceDefinition.Id.ToString())
                                         && x.IntervalAllocationType.Equals(1) 
                                         && (x.ProductionorderOperationActivityResource.ProductionorderOperationActivity.Status != (int)GanttActivityState.Finished 
                                             && x.ProductionorderOperationActivityResource.ProductionorderOperationActivity.Status != (int)GanttActivityState.Started))
@@ -297,10 +298,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     //do not request, because tool is infinity
                     continue;
                 }
-                var resourceState = _resourceManager.resourceStateList.Single(x => x.ResourceDefinition.Id == resourceForActivity.ResourceId);
+                var resourceState = _resourceManager.resourceStateList.Single(x => x.ResourceDefinition.Id == int.Parse(resourceForActivity.ResourceId));
 
                 //Agent.DebugMessage($"Try to start activity {fActivity.Key} at {resourceState.ResourceDefinition.Name}");
-                if (_resourceManager.ResourceIsWorking(resourceForActivity.ResourceId))
+                if (_resourceManager.ResourceIsWorking(int.Parse(resourceForActivity.ResourceId)))
                 {
                     //Agent.DebugMessage($"{resourceState.ResourceDefinition.Name} has current work{resourceState.GetCurrentProductionOperationActivity}. Stop TryStartActivity!");
                     return;

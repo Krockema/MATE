@@ -1,4 +1,5 @@
-﻿using Master40.DB.Nominal;
+﻿using System.Xml.Linq;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Types;
 using static FCentralActivities;
 using static FCentralResourceDefinitions;
@@ -68,7 +69,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             var pub = new FCreateTaskItem(
                 type: activity.ActivityType
-                , resource: Agent.Name.Replace("Resource(", "").Replace(")", "")
+                , resource: _resourceDefinition.ResourceName
+                , resourceId: _resourceDefinition.ResourceId
                 , start: Agent.CurrentTime
                 , end: Agent.CurrentTime + activity.Duration
                 , capability: activity.Capability

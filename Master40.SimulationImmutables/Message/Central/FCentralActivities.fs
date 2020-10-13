@@ -3,7 +3,7 @@
 open Akka.Actor
 
     type public FCentralActivity = {
-        ResourceId : string
+        ResourceId : int
         ProductionOrderId: string
         OperationId: string
         ActivityId: int

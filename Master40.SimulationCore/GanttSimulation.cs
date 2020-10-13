@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Master40.DB.DataModel;
+using Master40.DB.Nominal.Model;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.HubAgent.Types.Central;
 using static FCentralResourceHubInformations;
@@ -80,10 +81,10 @@ namespace Master40.SimulationCore
                 {
                     var workergroup = _ganttContext.GptblWorkergroupWorker.Single(x => x.WorkerId.Equals(worker.Id));
 
-                    _resourceDictionary.Add(worker.Id, new ResourceDefinition(worker.Name, worker.Id, ActorRefs.Nobody, workergroup.WorkergroupId, resourceType: 3));
+                    _resourceDictionary.Add(int.Parse(worker.Id), new ResourceDefinition(worker.Name, int.Parse(worker.Id), ActorRefs.Nobody, workergroup.WorkergroupId, resourceType: ResourceType.Worker));
                 }
-                _ganttContext.GptblPrt.Where(x => !x.CapacityType.Equals(1)).Select(x => new { x.Id, x.Name}).ForEach(x => _resourceDictionary.Add(x.Id,new ResourceDefinition(x.Name, x.Id, ActorRefs.Nobody,"1", resourceType: 5)));
-                _ganttContext.GptblWorkcenter.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(x.Id, new ResourceDefinition(x.Name, x.Id, ActorRefs.Nobody, string.Empty, resourceType: 1)));
+                _ganttContext.GptblPrt.Where(x => !x.CapacityType.Equals(1)).Select(x => new { x.Id, x.Name}).ForEach(x => _resourceDictionary.Add(int.Parse(x.Id),new ResourceDefinition(x.Name, int.Parse(x.Id), ActorRefs.Nobody,"1", resourceType: ResourceType.Tool)));
+                _ganttContext.GptblWorkcenter.Select(x => new { x.Id, x.Name }).ForEach(x => _resourceDictionary.Add(int.Parse(x.Id), new ResourceDefinition(x.Name, int.Parse(x.Id), ActorRefs.Nobody, string.Empty, resourceType: ResourceType.Workcenter)));
 
             // Create DataCollectors
             CreateCollectorAgents(configuration: configuration);
@@ -258,9 +259,9 @@ namespace Master40.SimulationCore
 
             foreach (var resource in _resourceDictionary)
             {
-                System.Diagnostics.Debug.WriteLine($"Creating Resource: {resource.Value}");
+                System.Diagnostics.Debug.WriteLine($"Creating Resource: {resource.Value.Name}");
 
-                var resourceDefinition = new FCentralResourceDefinitions.FCentralResourceDefinition(resourceId: resource.Key, resourceName: resource.Value.Name, resource.Value.GroupId, resource.Value.ResourceType);
+                var resourceDefinition = new FCentralResourceDefinitions.FCentralResourceDefinition(resourceId: resource.Key, resourceName: resource.Value.Name, resource.Value.GroupId, (int)resource.Value.ResourceType);
 
                 _simulation.SimulationContext
                     .Tell(message: Directory.Instruction.Central

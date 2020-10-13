@@ -1,8 +1,5 @@
 ﻿module FCreateSimulationJobs
-
 open System
-open IJobs
-
     type public FCreateSimulationJob = {
         Key : string
         DueTime : int64
