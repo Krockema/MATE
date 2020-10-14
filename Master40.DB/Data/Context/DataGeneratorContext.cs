@@ -35,6 +35,14 @@ namespace Master40.DB.Data.Context
                 .HasOne(sim => sim.Approach)
                 .WithMany(a => a.Simulations)
                 .HasForeignKey(sim => sim.ApproachId);
+            modelBuilder.Entity<Simulation>()
+                .ToTable("Simulation")
+                .Property(sim => sim.FinishTime)
+                .HasDefaultValue(null);
+            modelBuilder.Entity<Simulation>()
+                .ToTable("Simulation")
+                .Property(sim => sim.FinishedSuccessfully)
+                .HasDefaultValue(false);
             modelBuilder.Entity<BillOfMaterialInput>()
                 .ToTable("BomInput")
                 .HasOne(bom => bom.Approach)

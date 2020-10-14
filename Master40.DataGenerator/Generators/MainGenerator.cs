@@ -17,7 +17,7 @@ namespace Master40.DataGenerator.Generators
 
         public TransitionMatrix TransitionMatrix { get; set; }
 
-        public bool StartGeneration(Approach approach, MasterDBContext dbContext, ResultContext resultContext)
+        public void StartGeneration(Approach approach, MasterDBContext dbContext, ResultContext resultContext, bool doVerify = false)
         {
             dbContext.Database.EnsureDeleted();
             dbContext.Database.EnsureCreated();
@@ -63,23 +63,22 @@ namespace Master40.DataGenerator.Generators
             articleToBusinessPartner.Init(dbContext, articleTable, businessPartner);
 
 
-            if (approach.TransitionMatrixInput.ExtendedTransitionMatrix)
+            if (doVerify)
             {
-                var transitionMatrixGeneratorVerifier = new TransitionMatrixGeneratorVerifier();
-                transitionMatrixGeneratorVerifier.VerifyGeneratedData(TransitionMatrix, productStructure.NodesPerLevel,
-                    resourceCapabilities);
+                var productStructureVerifier = new ProductStructureVerifier();
+                productStructureVerifier.VerifyComplexityAndReutilizationRation(approach.ProductStructureInput,
+                    productStructure);
+
+                if (approach.TransitionMatrixInput.ExtendedTransitionMatrix)
+                {
+                    var transitionMatrixGeneratorVerifier = new TransitionMatrixGeneratorVerifier();
+                    transitionMatrixGeneratorVerifier.VerifyGeneratedData(TransitionMatrix,
+                        productStructure.NodesPerLevel, resourceCapabilities);
+                }
             }
 
-            var configurationItem = ConfigurationItemRepository.GetItemByProperty("TestDataId", resultContext);
-            if (configurationItem == null)
-            {
-                return false;
-            }
+            
 
-            configurationItem.PropertyValue = approach.Id.ToString();
-            resultContext.SaveChanges();
-
-            return true;
         }
     }
 }

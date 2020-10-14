@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Master40.DB.Data.Context;
 using Master40.Simulation.CLI;
 using Master40.SimulationCore;
 using Master40.SimulationCore.Environment.Options;
 using System.Threading.Tasks;
 using AkkaSim.Logging;
-using NLog;
+using Master40.DataGenerator.Generators;
+using Master40.DataGenerator.Repository;
+using Microsoft.Extensions.Logging;
 using Xunit;
+using LogLevel = NLog.LogLevel;
 
 namespace Master40.XUnitTest.DataGenerator
 {
@@ -24,7 +28,8 @@ namespace Master40.XUnitTest.DataGenerator
             // Simulation run 1
             yield return new object[]  
             {
-                30      // order Quantity
+                8       // approach id (test data generator input parameter set id)
+                , 30    // order Quantity
                 , 240   // max bucket size
                 , 1920  // throughput time
                 , 1337  // Random seed
@@ -34,7 +39,7 @@ namespace Master40.XUnitTest.DataGenerator
             // Simulation run 2
             /*yield return new object[]
             {
-                _simNr++// simulation number
+                2       // approach id (test data generator input parameter set id)
                 , 5     // order Quantity
                 , 240   // max bucket size
                 , 1920  // throughput time
@@ -47,6 +52,7 @@ namespace Master40.XUnitTest.DataGenerator
         /// <summary>
         /// To Run this test the Database must have been filled with Master data
         /// </summary>
+        /// <param name="approachId"></param>
         /// <param name="orderQuantity"></param>
         /// <param name="maxBucketSize"></param>
         /// <param name="throughput"></param>
@@ -57,7 +63,8 @@ namespace Master40.XUnitTest.DataGenerator
         [Theory]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
         [MemberData(nameof(GetTestData))]
-        public async Task SystemTestAsync(int orderQuantity
+        public async Task SystemTestAsync(int approachId
+                                        , int orderQuantity
                                         , int maxBucketSize
                                         , long throughput
                                         , int seed
@@ -67,6 +74,11 @@ namespace Master40.XUnitTest.DataGenerator
             ResultContext ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);
             ProductionDomainContext masterCtx = ProductionDomainContext.GetContext(testCtxString);
             DataGeneratorContext dataGenCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
+
+            var approach = ApproachRepository.GetApproachById(dataGenCtx, approachId);
+            var generator = new MainGenerator();
+            await Task.Run(() =>
+                generator.StartGeneration(approach, masterCtx, ctxResult));
 
             var simContext = new AgentSimulation(DBContext: masterCtx, messageHub: new ConsoleHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(ctxResult, 1);
@@ -86,7 +98,8 @@ namespace Master40.XUnitTest.DataGenerator
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
 
             var dataGenSim = new DB.GeneratorModel.Simulation();
-            dataGenSim.ApproachId = simConfig.GetOption<TestDataId>().Value;
+            dataGenSim.ApproachId = approachId;
+            dataGenSim.StartTime = DateTime.Now;
             await Task.Run(() =>
             {
                 dataGenCtx.Simulations.AddRange(dataGenSim);
@@ -109,6 +122,9 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.0));
 
+            await Task.Run(() => 
+                ArgumentConverter.ConvertBackAndSave(ctxResult, simConfig, dataGenSim.Id));
+
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 
             
@@ -118,6 +134,10 @@ namespace Master40.XUnitTest.DataGenerator
                 var sim = simulation.RunAsync();
                 simContext.StateManager.ContinueExecution(simulation);
                 await sim;
+                dataGenSim.FinishTime = DateTime.Now;
+                dataGenSim.FinishedSuccessfully = sim.IsCompletedSuccessfully;
+                await Task.Run(() => 
+                    dataGenCtx.SaveChanges());
                 Assert.True(condition: sim.IsCompleted);
             }
         }

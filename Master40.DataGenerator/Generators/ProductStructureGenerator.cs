@@ -18,10 +18,9 @@ namespace Master40.DataGenerator.Generators
         {
             var productStructure = new ProductStructure();
             var availableNodes = new List<HashSet<long>>();
-            var nodesCounter = GenerateParts(inputParameters, productStructure, availableNodes,
-                articleTypes, units, unitCol, rng);
+            GenerateParts(inputParameters, productStructure, availableNodes, articleTypes, units, unitCol, rng);
 
-            GenerateEdges(inputParameters, productStructure, rng, availableNodes, nodesCounter);
+            GenerateEdges(inputParameters, productStructure, rng, availableNodes);
 
             DeterminationOfEdgeWeights(inputParameters, productStructure, rng);
 
@@ -69,11 +68,10 @@ namespace Master40.DataGenerator.Generators
             return pk;
         }
 
-        private long GenerateParts(ProductStructureInput inputParameters, ProductStructure productStructure,
+        private void GenerateParts(ProductStructureInput inputParameters, ProductStructure productStructure,
             List<HashSet<long>> availableNodes, MasterTableArticleType articleTypes, MasterTableUnit units,
             M_Unit[] unitCol, XRandom rng)
         {
-            long nodesCounter = 0;
             bool sampleWorkPlanLength = inputParameters.MeanWorkPlanLength != null &&
                                         inputParameters.VarianceWorkPlanLength != null;
             TruncatedDiscreteNormal truncatedDiscreteNormalDistribution = null;
@@ -85,11 +83,9 @@ namespace Master40.DataGenerator.Generators
             }
             for (var i = 1; i <= inputParameters.DepthOfAssembly; i++)
             {
-                nodesCounter += GeneratePartsForEachLevel(inputParameters, productStructure, availableNodes,
+                productStructure.NodesCounter += GeneratePartsForEachLevel(inputParameters, productStructure, availableNodes,
                     articleTypes, units, unitCol, rng, i, sampleWorkPlanLength, truncatedDiscreteNormalDistribution);
             }
-
-            return nodesCounter;
         }
 
         private static long GeneratePartsForEachLevel(ProductStructureInput inputParameters,
@@ -180,13 +176,13 @@ namespace Master40.DataGenerator.Generators
         }
 
         private void GenerateEdges(ProductStructureInput inputParameters, ProductStructure productStructure, XRandom rng,
-            List<HashSet<long>> availableNodes, long nodesCounter)
+            List<HashSet<long>> availableNodes)
         {
             var nodesOfLastAssemblyLevelCounter =
                 productStructure.NodesPerLevel[inputParameters.DepthOfAssembly - 1].LongCount();
             var edgeCount = Convert.ToInt64(Math.Round(Math.Max(
-                inputParameters.ReutilisationRatio * (nodesCounter - inputParameters.EndProductCount),
-                inputParameters.ComplexityRatio * (nodesCounter - nodesOfLastAssemblyLevelCounter))));
+                inputParameters.ReutilisationRatio * (productStructure.NodesCounter - inputParameters.EndProductCount),
+                inputParameters.ComplexityRatio * (productStructure.NodesCounter - nodesOfLastAssemblyLevelCounter))));
             var pkPerI = GetSetOfCumulatedProbabilitiesPk1(inputParameters.DepthOfAssembly);
             if (inputParameters.ReutilisationRatio < inputParameters.ComplexityRatio)
             {
@@ -198,7 +194,7 @@ namespace Master40.DataGenerator.Generators
             }
 
             //scheinbar können hierbei Multikanten entstehen. ist das in Erzeugnisstruktur erlaubt? -> stellt kein Problem dar
-            GenerateSecondSetOfEdges(inputParameters, productStructure, rng, nodesCounter, edgeCount, pkPerI);
+            GenerateSecondSetOfEdges(inputParameters, productStructure, rng, edgeCount, pkPerI);
         }
 
         private void GenerateFirstSetOfEdgesForConvergingMaterialFlow(ProductStructureInput inputParameters, XRandom rng,
@@ -306,9 +302,9 @@ namespace Master40.DataGenerator.Generators
         }
 
         private static void GenerateSecondSetOfEdges(ProductStructureInput inputParameters, ProductStructure productStructure,
-            XRandom rng, long nodesCounter, long edgeCount, Dictionary<int, List<KeyValuePair<int, double>>> pkPerI)
+            XRandom rng, long edgeCount, Dictionary<int, List<KeyValuePair<int, double>>> pkPerI)
         {
-            var possibleStartNodes = nodesCounter - inputParameters.EndProductCount;
+            var possibleStartNodes = productStructure.NodesCounter - inputParameters.EndProductCount;
             for (var j = productStructure.Edges.LongCount() + 1; j <= edgeCount; j++)
             {
                 var startNodePos = rng.NextLong(possibleStartNodes) + 1;

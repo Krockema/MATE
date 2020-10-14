@@ -34,7 +34,7 @@ namespace Master40.XUnitTest.DataGenerator
         public void SetInput()
         {
             var success = true;
-            var iterations = 10;
+            var iterations = 1;
 
             for (var i = 0; i < iterations; i++)
             {
@@ -185,16 +185,16 @@ namespace Master40.XUnitTest.DataGenerator
                 double? doubleNull = null;
                 approach.ProductStructureInput = new ProductStructureInput
                 {
-                    EndProductCount = !randomGeneratedInputValues ? 3 : rng.Next(9) + 2,
-                    DepthOfAssembly = !randomGeneratedInputValues ? 3 : rng.Next(10) + 1,
-                    ComplexityRatio = !randomGeneratedInputValues ? 1.6 : rng.NextDouble() + 1,
-                    ReutilisationRatio = !randomGeneratedInputValues ? 1.5 : rng.NextDouble() + 1,
+                    EndProductCount = !randomGeneratedInputValues ? 5 : rng.Next(9) + 2,
+                    DepthOfAssembly = !randomGeneratedInputValues ? 13 : rng.Next(10) + 1,
+                    ComplexityRatio = !randomGeneratedInputValues ? 1.7 : rng.NextDouble() + 1,
+                    ReutilisationRatio = !randomGeneratedInputValues ? 2.5 : rng.NextDouble() + 1,
                     MeanIncomingMaterialAmount = 1.7,
                     StdDevIncomingMaterialAmount = 0.9,
                     MeanWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 3.0,
                     VarianceWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 1.0
                 };
-                _testOutputHelper.WriteLine(approach.ProductStructureInput.ToString());
+                //_testOutputHelper.WriteLine(approach.ProductStructureInput.ToString());
 
                 approach.BomInput = new BillOfMaterialInput
                 {
@@ -212,10 +212,9 @@ namespace Master40.XUnitTest.DataGenerator
         }
 
         [Fact]
-        public void GenerateData()
+        public void GenerateData() //Generierung für Simulation direkt im Testfall, wo Simulation durchgeführt wird
         {
-            
-            var approachId = 1;
+            var approachId = 14;
             var generatorDbCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
             var approach = ApproachRepository.GetApproachById(generatorDbCtx, approachId);
 
@@ -226,7 +225,8 @@ namespace Master40.XUnitTest.DataGenerator
             var resultContext = ResultContext.GetContext(testResultCtxString);
 
             var generator = new MainGenerator();
-            Assert.True(generator.StartGeneration(approach, dbContext, resultContext));
+            generator.StartGeneration(approach, dbContext, resultContext, true);
+            Assert.True(true);
 
         }
 
