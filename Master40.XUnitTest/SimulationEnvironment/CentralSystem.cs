@@ -85,6 +85,14 @@ namespace Master40.XUnitTest.SimulationEnvironment
         }
 
         [Fact]
+        public void ResetGanttPlanDB()
+        {
+            //Reset GanttPLan DB?
+            var ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
+            ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
+        }
+
+        [Fact]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
         public async Task CentralSystemTest()
         {

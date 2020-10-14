@@ -98,8 +98,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
 
         private void UpdateFeed(bool finalCall)
         {
-
-            var startInterval = Collector.Time - Collector.Config.GetOption<KpiTimeSpan>().Value;
             //JobWorkingTimes for interval
             var operationTasks = _taskItems.GetValueOrDefault(JobType.OPERATION);
             var setupTasks = _taskItems.GetValueOrDefault(JobType.SETUP);
@@ -118,18 +116,20 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             {
                 tempOperationTasks.AddRange(archiveOperationTask);
                 tempSetupTasks.AddRange(archiveSetupTask);
-                startInterval = Collector.Config.GetOption<SettlingStart>().Value;
+                lastIntervalStart = Collector.Config.GetOption<SettlingStart>().Value;
             }
 
             ResourceUtilization(finalCall, tempOperationTasks, tempSetupTasks);
 
-            var OEE = OverallEquipmentEffectiveness(resources: _resources, startInterval, Collector.Time, tempOperationTasks, tempSetupTasks);
+            var OEE = OverallEquipmentEffectiveness(resources: _resources, lastIntervalStart, Collector.Time, tempOperationTasks, tempSetupTasks);
             Collector.CreateKpi(Collector, OEE, "OEE", KpiType.Ooe, finalCall);
 
             archiveOperationTask.AddRange(tempOperationTasks);
             archiveSetupTask.AddRange(tempSetupTasks);
 
             LogToDB(writeResultsToDB: finalCall);
+
+            lastIntervalStart = Collector.Time;
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from WorkSchedule");
         }

@@ -52,7 +52,7 @@ namespace Master40.Controllers
             var simConfig = ArgumentConverter.ConfigurationConverter(resultCtx: _resultCtx, 1);
             // update customized Items
             simConfig.AddOption(new DBConnectionString(_resultCtx.Database.GetDbConnection().ConnectionString));
-            simConfig.ReplaceOption(new KpiTimeSpan(480));
+            simConfig.ReplaceOption(new KpiTimeSpan(240));
             simConfig.ReplaceOption(new TimeToAdvance(value: TimeSpan.FromMilliseconds(50)));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arivalRate));
