@@ -23,7 +23,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private int finishedOrderParts = 0;
         private int openOrderParts = 0;
         private int totalOrders = 0;
-        private readonly List<Kpi> _Kpis = new List<Kpi>();
         private double inTime = 0;
         private double toLate = 0;
 
@@ -112,7 +111,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             if (writeResultsToDB)
             {
-                _Kpis.Add(new Kpi
+                this.Collector.Kpis.Add(new Kpi
                 {
                     Name = "timeliness",
                     Value = Math.Round(timelines, 2),
@@ -125,7 +124,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                     SimulationType = Collector.simulationKind.Value
                 });
 
-                _Kpis.Add(new Kpi
+                this.Collector.Kpis.Add(new Kpi
                 {
                     Name = "OrderProcessed",
                     Value = totalOrders,
@@ -193,7 +192,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 {
                     ctx.SimulationOrders.AddRange(entities: simulationOrders);
                     ctx.SaveChanges();
-                    ctx.Kpis.AddRange(_Kpis);
+                    ctx.Kpis.AddRange(this.Collector.Kpis);
                     ctx.SaveChanges();
                     ctx.Dispose();
                 }

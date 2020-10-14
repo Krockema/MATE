@@ -23,7 +23,18 @@ namespace Master40.SimulationCore.Types
         public SimulationType SimulationType { get; }
         public Func<IUntypedActorContext, AgentSetup, IActorRef> ChildMaker { get; }
         public Agent Agent { get; set; }
-        public virtual bool AfterInit() { return true; }
+
+        public virtual bool AfterInit()
+        {
+            Agent.DebugMessage(msg: Agent.Name + " after Init Called.");
+            return true; 
+
+        }
         public virtual bool PostAdvance() { return true; }
+
+        public virtual void OnChildAdd(IActorRef actorRef)
+        {
+            Agent.DebugMessage(msg: Agent.Name + " Child created.");
+        }
     }
 }

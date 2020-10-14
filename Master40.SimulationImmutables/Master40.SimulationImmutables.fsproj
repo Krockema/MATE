@@ -2,10 +2,21 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="FunctionConverter.fs" />
+    <Compile Include="Message\Central\FCentralGanttPlanInformations.fs" />
+    <Compile Include="Message\Central\FCentralProvideOrders.fs" />
+    <Compile Include="Message\Central\FCentralProvideMaterials.fs" />
+    <Compile Include="Message\Central\FCentralActivities.fs" />
+    <Compile Include="Message\Central\FCentralResourceRegistration.fs" />
+    <Compile Include="Message\Central\FCentralPurchases.fs" />
+    <Compile Include="Message\Central\FCentralStockPostings.fs" />
+    <Compile Include="Message\Central\FCentralStockDefintions.fs" />
+    <Compile Include="Message\Central\FCentralResourceDefinitions.fs" />
+    <Compile Include="Message\Central\FCentralResourceHubInformations.fs" />
     <Compile Include="Message\FStockProvider.fs" />
     <Compile Include="Message\FUpdateBucketScopes.fs" />
     <Compile Include="Message\FBucketScopes.fs" />
@@ -13,7 +24,7 @@
     <Compile Include="Message\FThroughPutTimers.fs" />
     <Compile Include="Message\FUpdateStartCondition.fs" />
     <Compile Include="Message\FArticleProviders.fs" />
-    <Compile Include="Message\FProsponed.fs" />
+    <Compile Include="Message\FPosponed.fs" />
     <Compile Include="Message\FProposal.fs" />
     <Compile Include="Message\FResourceType.fs" />
     <Compile Include="Message\FStartConditions.fs" />
@@ -60,7 +71,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Akka" Version="1.4.4" />
+    <PackageReference Include="Akka" Version="1.4.10" />
   </ItemGroup>
 
   <ItemGroup>
@@ -68,7 +79,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="4.7.1" />
+    <PackageReference Update="FSharp.Core" Version="4.7.2" />
   </ItemGroup>
 
 </Project>

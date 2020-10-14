@@ -1,5 +1,4 @@
-﻿using System;
-using Master40.Tools.Messages;
+﻿using Master40.Tools.Messages;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json;
@@ -12,11 +11,6 @@ namespace Master40.Tools.SignalR
         public MessageHub(IHubContext<MessageHub> hubContext)
         {
             _hubContext = hubContext;
-        }
-
-        public void SystemReady()
-        {
-            this._hubContext.Clients.All.SendAsync(method: "clientListener", arg1: ReturnMsgBox(msg: "SignalR Hub active.", type: MessageType.info));
         }
 
         public void SendToAllClients(string msg, MessageType msgType = MessageType.info)

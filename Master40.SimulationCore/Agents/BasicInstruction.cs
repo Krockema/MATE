@@ -1,15 +1,13 @@
-﻿using System;
-using Akka.Actor;
+﻿using Akka.Actor;
 using AkkaSim.Definitions;
-using Master40.SimulationCore.Agents.JobAgent;
 using Master40.SimulationCore.Types;
-using static FBreakDowns;
+using System;
 using static FAgentInformations;
-using static IConfirmations;
-using static FArticles;
 using static FArticleProviders;
-using static IJobResults;
+using static FBreakDowns;
 using static FUpdateStartConditions;
+using static IConfirmations;
+using static IJobResults;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents

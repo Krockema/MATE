@@ -2,6 +2,7 @@
 {
     public enum ModelSize
     {
+        XSmall,
         Small,
         Medium,
         Large,

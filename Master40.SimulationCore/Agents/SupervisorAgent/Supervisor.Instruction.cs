@@ -18,14 +18,14 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
             */
             public class CreateContractAgent : SimulationMessage
             {
-                public static CreateContractAgent Create(T_CustomerOrderPart message, IActorRef target)
+                public static CreateContractAgent Create(T_CustomerOrder message, IActorRef target)
                 {
                     return new CreateContractAgent(message: message, target: target);
                 }
-                private CreateContractAgent(T_CustomerOrderPart message, IActorRef target) : base(message: message, target: target)
+                private CreateContractAgent(T_CustomerOrder message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public T_CustomerOrderPart GetObjectFromMessage { get => Message as T_CustomerOrderPart; }
+                public T_CustomerOrder GetObjectFromMessage { get => Message as T_CustomerOrder; }
 
             }
             public class RequestArticleBom : SimulationMessage
