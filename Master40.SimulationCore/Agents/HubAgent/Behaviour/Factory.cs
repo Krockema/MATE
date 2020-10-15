@@ -1,4 +1,5 @@
-﻿using Master40.DB.Nominal;
+﻿using System.Data.Common;
+using Master40.DB.Nominal;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
 
@@ -27,5 +28,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             return new Default(maxBucketSize: maxBucketSize, workTimeGenerator: workTimeGenerator);
         }
 
+
+        public static IBehaviour Central(string dbConnectionStringGanttPlan, string dbConnectionStringMaster, WorkTimeGenerator workTimeGenerator)
+        {
+            return new Central(dbConnectionStringGanttPlan, dbConnectionStringMaster, workTimeGenerator);
+        }
     }
 }

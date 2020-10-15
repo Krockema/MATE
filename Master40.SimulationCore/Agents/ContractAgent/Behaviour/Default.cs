@@ -1,4 +1,5 @@
 ﻿using System;
+using Akka.Actor;
 using Akka.Event;
 using Master40.DB.DataModel;
 using Master40.DB.Nominal;
@@ -81,7 +82,11 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
                 $"Scheduling finished with earliest End at: {estimatedEnd}");
 
         }
-
+        public override void OnChildAdd(IActorRef childRef)
+        {
+            Agent.Send(instruction: Dispo.Instruction.RequestArticle.Create(message: _fArticle, target: childRef));
+            Agent.DebugMessage(msg: "Dispo<" + _fArticle.Article.Name + "(OrderId: " + _fArticle.CustomerOrderId + ")>");
+        }
 
     }
 }

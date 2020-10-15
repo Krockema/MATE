@@ -1,0 +1,3502 @@
+﻿// Copyright © 2009-2020 DUALIS GmbH IT Solution - All Rights Reserved
+// StringTable für GANTTPLAN (englisch)
+//
+// wichtige Hinweise:
+// ------------------------------------------------------------------------------
+// Struktur der StringTable: [KEY]value
+//
+// Bereiche können festgelegt werden, indem das # Zeichen dem Beginn der Zeile hinzugefügt wird
+//
+// %-Zeichen müssen immer so geschrieben werden: %%
+//
+// dynamische Strings werden so beschrieben: %1 bzw. %2 usw.
+//	Beispiel: "Hier steht der erste String: %1 gefolgt vom zweiten String %2.
+// ------------------------------------------------------------------------------
+
+#OBJECTTYPES
+[EXPORT]Export
+[IMPORT]Import
+[LEITSTAND]Gantt Chart
+[PERSONALPLAN]Shift Schedule
+[PLANUNG]Automatic Scheduling
+[MANUAL_SCHEDULING]Manual Scheduling
+[MANUAL_SCHEDULING_LIVE]Manual Scheduling in Production Schedule
+[DISABLE_RESTRICTIONS]Disable Restrictions
+[APPLY_RESULT]Approve Result
+[SCENARIO_NEW]Start Scenario Mode
+[SCENARIO_OPEN]Open Scenario File
+[SCENARIO_SAVE]Save Scenario File
+[SCENARIO_APPLY]Apply Scenario 
+[CHECK_SOFTWAREUPDATE]Check for Updates
+[EDITION_VIEWER]Viewer Edition
+[EDITION_SMART]Smart Edition
+[EDITION_OPTIMIZATION]Optimization Edition
+[PROTOCOL_GLOBALREQUEST]Global Event History
+[PROTOCOL_WORKERINFO]Worker Information
+[DEBUG_AND_TEST_MODE]Perform Software Testing
+[QUALIFIKATIONSMATRIX]Qualifications Work Center
+[QUALIFIKATIONSMATRIX_ACTIVITY]Qualifications Activity
+[CUSTOMPROPERTIES]Custom Properties
+[REPORTBOARD]Tray
+[chart]Individual Chart
+[chart+]Individual Charts
+[chart_colorfilter]Chart Colorfilter
+[chart_colorfilter+]Chart Colorfilters
+[chart_colorfilter_item]Chart Colorfilter Item
+[chart_colorfilter_item+]Chart Colorfilter Items
+[chart_rowfilter]Chart Rowfilter
+[chart_rowfilter+]Chart Rowfilters
+[chart_rowfilter_item]Chart Rowfilter Item
+[chart_rowfilter_item+]Chart Rowfilter Items
+[chart_series]Chart Series
+[chart_series+]Chart Series
+[chart_text]Chart Text
+[chart_text+]Chart Texts
+[chart_text_item]Chart Text Item
+[chart_text_item+]Chart Text Items
+[defaultchart]Chart
+[defaultchart+]Charts
+[user]Systemuser
+[user+]Systemusers
+[user_permission]User Permission
+[user_permission+]User Permissions
+[user_productioncontroller]User Production Controller
+
+#OBJECTPROPERTIES
+[chart.client_id]Client
+[chart.chart_id]Chart ID
+[chart.name]Name
+[chart.all_in_one]All in One
+[chart.argument_data_member_id]Data Member ID
+[chart.chart_type]Chart Type
+[chart.color_palette_name]Color Palette Name
+[chart.custom_chart_title]Custom Chart Title
+[chart.custom_xaxis_title]Custom XAxis Title
+[chart.custom_yaxis_title]Custom YAxis Title
+[chart.header_as_argument]Header as Argument
+[chart.report_id]Report ID
+[chart.report_type]Report Type
+[chart.show_labels]Show Labels
+[chart.show_legend]Show Legend
+[chart.rotated]Rotated
+[chart.user_id]User
+[chart.category]Category
+[chart_colorfilter.client_id]Client
+[chart_colorfilter.chart_id]Chart ID
+[chart_colorfilter.color]Color
+[chart_colorfilter.filter_id]Filter ID
+[chart_colorfilter.filter_operator]Filter Operator
+[chart_colorfilter.priority_value]Priority Value
+[chart_colorfilter.property_id]Property ID
+[chart_colorfilter_item.client_id]Client
+[chart_colorfilter_item.chart_id]Chart ID
+[chart_colorfilter_item.filter_id]Filter ID
+[chart_colorfilter_item.index]Index
+[chart_colorfilter_item.filter_matching_type]Filter Matching Type
+[chart_colorfilter_item.property_id]Property ID
+[chart_colorfilter_item.value]Value
+[chart_rowfilter.client_id]Client
+[chart_rowfilter.chart_id]Chart ID
+[chart_rowfilter.filter_id]Filter ID
+[chart_rowfilter.filter_operator]Filter Operator
+[chart_rowfilter.priority_value]Priority Value
+[chart_rowfilter_item.client_id]Client
+[chart_rowfilter_item.chart_id]Chart ID
+[chart_rowfilter_item.filter_id]Filter ID
+[chart_rowfilter_item.index]Index
+[chart_rowfilter_item.filter_matching_type]Filter Matching Type
+[chart_rowfilter_item.property_id]Property ID
+[chart_rowfilter_item.value]Value
+[chart_series.client_id]Client
+[chart_series.chart_id]Chart ID
+[chart_series.series_id]Series ID
+[chart_series.color]Color
+[chart_series.chart_type]Chart Type
+[chart_series.report_column_name]Report Column Name
+[chart_series.report_column_property_id]Report Column Property ID
+[chart_text.client_id]Client
+[chart_text.chart_id]Chart ID
+[chart_text.text_id]Text ID
+[chart_text.text_type]Text Type
+[chart_text_item.client_id]Client
+[chart_text_item.chart_id]Chart ID
+[chart_text_item.text_id]Text ID
+[chart_text_item.property_id]Property ID
+[chart_text_item.property_name]Property Name
+[chart_text_item.property_name_type]Property Name Type
+[user.client_id]Client
+[user.user_id]User ID
+[user.info1]Information 1
+[user.info2]Information 2
+[user.info3]Information 3
+[user.name]Description of System User
+[user.forename]Forename
+[user.password]Password
+[user.status]Status
+[user.surname]Surname
+[user_permission.client_id]Client
+[user_permission.objecttype_id]Object Type ID
+[user_permission.permissiontype]Permission Type
+[user_permission.user_id]User ID
+[user_productioncontroller.client_id]Client
+[user_productioncontroller.user_id]User ID
+[user_productioncontroller.productioncontroller_id]Production Controller ID
+[user_productioncontroller.permissiontype]Permission Type
+
+#OBJECTTYPE_CATEGORIES
+[Kategorie_Auswertung]Report
+[Kategorie_Basis]Base
+[Kategorie_Stammdaten]Master Data
+[Kategorie_Bewegungsdaten]Process Data
+[Kategorie_Planung]Scheduling
+[Kategorie_System]System
+[Kategorie_Editionen]Editions
+
+#CSTDABOUTDLG
+[Datenbankversion_bekannt]Datamodel Version: %1
+[Title]About %1
+[Version_bekannt]Version: %1
+[Anwendung]Software
+[Details]Details
+[Updates_suchen]Search for updates
+[Lizenzinfo]License
+
+#DIALOGBARMODUS
+[IDC_BN_APPLY_RESULT]Approve Result
+
+#DLGBDE
+[Fertigungsauftrag]Production Order
+[IDC_STATIC_ENDE]End:
+[IDC_STATIC_FA]Production Order:
+[IDC_STATIC_FAVORG]Operation Activity:
+[IDC_STATIC_MENGE]Progress:
+[IDC_STATIC_NAME]Label:
+[IDC_STATIC_RMZEITPUNKT]Confirmation Date:
+[IDC_STATIC_RMZEITPUNKT_HINWEIS]There are more recent Confirmations (Sign-Off Time to adapt?)
+[IDC_STATIC_START]Start:
+[IDC_STATIC_STATUS]Status:
+[Ressource]Resource
+[Vorgänge]Operation Activity
+[StartEndeFehler]The specified end time is before the start time!
+
+#DLGBESTANDSBUCHUNG
+[IDC_ST_SUBHEADER]Properties
+[IDC_STATIC_CUSTOM1]Information:
+[IDC_STATIC_MENGE]Quantity:
+[IDC_STATIC_TERMIN]Date:
+[SearchUnit]Choose Unit
+[Titel]Add %1
+
+#DLGWORKERINFORMATION
+[Title]Workerinformation
+[Data]Data in %1 database about the worker
+[FileError]Error while exporting.
+[Search]Choose worker
+[Worker]Search for Worker ID:
+[Table]Tablename: gptbl_
+[Column]Columnnames:
+[Properties]Properties:
+[Objecttype]Objecttype:
+[TTSearch]Search through available Workers
+[TTExport]Export Data and open in default editor
+
+#DLGCHANGELOG
+[Protokollierung]Journal
+[Suchkriterien]Search Criteria
+[Suchergebnisse]Search Results
+[Filter]Filtervalue:
+[Filter_Helptext]Seperate values by empty space, e.g. "term1 term2"
+[Werte]Values
+[Details]Details
+[Zeitraum]Filter period:
+[GRIDCOLUMN_Aenderung]Action
+[GRIDCOLUMN_UserInfo]Userinfo
+[GRIDCOLUMN_Objekt]Object
+[GRIDCOLUMN_Zeitpunkt]Date
+[nachher]after
+[vorher]before
+[0]Login
+[1]Software Start
+[2]Software End
+[4]Licence Viewer opened
+[6]Export
+[7]Autoplan Start
+[8]Result written
+[10]Object added
+[11]Object changed
+[12]Object deleted
+[20]Scenario started
+[21]Scenario opened
+[22]Scenario created
+[23]Scenario saved to GANTTPLAN
+[24]Scenario saved to disk
+[25]Scenario closed
+[26]Scenario upgraded
+[30]Backup External Data
+[31]Deleted finished production orders
+[32]Deleted production orders without parents
+[33]Deleted unused workingtime models and calendar 
+[40]Workerinformation started
+[41]Workerinformation loaded
+[42]Workerinformation Export
+[45]Changelog started
+[46]Synchronization DBConfig->DBGP
+[47]Synchronization DBConfig->DBGP (manually started)
+[1000]Debug Reduce Model
+[1001]Debug Reset Process Data
+
+#DLGCREATEUSERVIEW
+[IDC_STATIC_NAME]Name
+[WINDOWTEXT]Create new View
+
+#DLGDELETEOBJECT
+[IDC_BTN_DELETE]Delete
+[IDC_DLGDELETE_ALLGEMEIN]Delete objects
+[IDC_DLGDELETE_INFO]Delete %1?
+[WINDOWTEXT]Delete %1
+[Löschen fehlgeschlagen]Delete failed!
+
+#DLGEINHEITENUMRECHNUNG
+[Einheitenumrechnung hinzufuegen]Add New Unit Conversion
+[UmrechnungFuer]Conversion for %1 %2
+[UmrechnungVorhanden]A conversion for both units already exists or can be calculated
+
+#DLGFILTER
+[Filter-]Filter - 
+[Filterkriterien]Filter Criteria
+[IDC_CHECK1]AND
+[IDC_STATIC_MAXERG]max. Amount of Search Results:
+
+#DLGKALENDER
+[Bezeichnung]Name
+[Ende]End
+[ID_POPUP_KALENDER_ADD_AUSNAHME]Add Interval
+[ID_POPUP_KALENDER_DEL_AUSNAHME]Delete Interval
+[IDC_KALENDER_ALLGEMEIN]General Calender Data
+[IDC_KALENDER_AUSNAHMEN]Intervals
+[IDC_STATIC_KALENDER_BESCHREIBUNG]Description:
+[IDC_STATIC_KALENDER_NAME]Calender Name:
+[Kalender bearbeiten]Edit Calender
+[Start]Start
+[Status]Status
+[Wiederholung]Repetition
+[Filter_zurücksetzen]Reset Filter
+[Label_Start]Start:
+[Label_Ende]End:
+[Label_Status]Status:
+[Label_Wiederholung]Repetition:
+[Label_Bezeichnung]Name:
+
+#DLGLOGIN
+[Anmeldung erfolgreich]Login success: User %1
+[Anmeldung nicht erfolgreich]Login failed: User %1
+[Anmeldung fehlgeschlagen_Passwort]Login failed.\r\nPlease check the password.
+[Anmeldung fehlgeschlagen_Username]Login failed.\r\nPlease check the username.
+[Anmeldung fehlgeschlagen_Authentifizierung]Login failed.\r\nPlease check the type of authentication.
+[Anmeldung fehlgeschlagen_UserTemplate]Login failed.\r\nThe user is an Usertemplate an cannot login.
+[Meldung_keine_Edition]The logged on user has no permission to start %1.
+[IDC_SHOWGANTT]Show Gantt Chart
+[IDC_BUTTON1]Login
+[IDC_BUTTON3]Start
+[IDC_BUTTON4]Licence
+[IDC_DLGLOGIN_ALLGEMEIN]Login
+[IDC_DLGLOGIN_OPTIONEN]Start Options
+[IDC_LOGIN_AUTO]Automatic Login
+[IDC_SAVEPW]Save Password?
+[IDC_STATIC_LOGIN_PASSWORT]Password:
+[IDC_STATIC_LOGIN_USER]Username:
+[IDC_STATIC_AUTHENTICATION]Authentication:
+[Title]%1 - Login
+[Viewer Edition]Viewer Edition
+[Smart Edition]Smart Edition
+[Optimization Edition]Optimization Edition
+[frei]free
+[IDC_DLGLOGIN_INFO_PLANT]Choose Plant and Production Controllers
+[IDC_DLGLOGIN_INFO_PRODUCTIONCONTROLLER]Choose Production Controllers
+[Kein Fertigungssteuerer gewaehlt]No Production Controller selected
+[Authentifizierung_GPNutzer]%1-Authentication
+[Authentifizierung_Windows]Windows-Authentication
+[Authentifizierung_UserTemplate]Usertemplate
+
+#DLGVERSIONUPDATEINFO
+[Release_verfuegbar_Header]New %1 version available
+[Release_verfuegbar_Caption_Bug]Version %1 is available for download!
+[Release_verfuegbar_Caption_Function]Version %1 is available!\n\nFor more information, please contact your customer advisor.
+[RC_verfuegbar_Header]New %1 Preview-Version available
+[RC_verfuegbar_Caption_Bug]Preview-Version %1 is available for download!
+[RC_verfuegbar_Caption_Function]Preview-Version %1 is available!\n\nFor more information, please contact your customer advisor.
+[Button_Download]Download
+[Button_Kontakt]Contact
+[Button_keine_Erinnerung]No, Thanks
+[Button_spaeter]Remind me later
+[Changelog]Changes since version %1
+[BtnChangelog]Changes
+
+#DLGMSG
+[Ab Fehler]From Error
+[Ab Info]From Info
+[Ab Warnung]From Warning
+[Ausgeblendet]Hidden
+[Baumansicht]Tree Structure
+[IDC_BN_DELFILE]Delete Messages
+[IDC_BTN_REFRESH]Refresh
+[IDC_BTN_SWITCHTREEVIEW]Table View
+[IDC_LBL_MSG_FILTER]Message Filter:
+[Tabellenansicht]Table View
+[WINDOWTEXT]Current system messages
+
+#DLGPROPERTYAPKOPFALLGEMEIN
+[Gehe zur Stückliste.]Go to BOM
+[Gültig ab]Valid from
+[Gültig bis]Gültig until
+[IDC_STATIC_EIGENSCHAFTEN]Properties
+[IDC_STATIC_STL]BOM:
+[productionversion]Production Version
+[Material]Material
+[Stückliste]BOM
+[Titel]General
+[SearchSTL]Choose BOM
+[RemoveSTL]Remove BOM from Routing
+
+#DLGPROPERTYAPKOPFAUSSCHUSS
+[ab]from
+[Ausschuss in %]Scrap in %%
+[ID_POPUP_AUSSCHUSS_ADD]Add Scrap Item
+[ID_POPUP_AUSSCHUSS_DEL]Delete Scrap Item
+[Limit]Limit
+[Titel]Scrap
+
+#DLGPROPERTYAPPOSITIONALLGEMEIN
+[IDC_CHK_BDE]Confirmation expected:
+[IDC_STATIC_NAME]Name:
+[IDC_STATIC_BASIS_TYP]Activity Type:
+[IDC_STATIC_BESCHREIBUNG]Description:
+[IDC_STATIC_ID]Activity:
+[Titel]Activity
+
+#DLGPROPERTYAPPOSITIONFHM
+[Fertigungshilfsmittel]Tools
+[IDC_STATIC_BENOETIGTEFHM]Required Tools
+[Titel]Tools
+[WM_ADD_ELEMENT]Add Tools
+[WM_DEL_ELEMENT]Delete Tools
+[WM_CHANGE_ALLOCATION]Change Allocation
+
+#DLGPROPERTYAPPOSITIONMASCHINEN
+[IDC_CHECK_MAXPARALLEL]Maximal Parallel Processing:
+[IDC_STATIC_MASCHBELFAKT]Work Center Allocation:
+[IDC_CHECK_PROZESS]Process:
+[IDC_STATIC_MASCHINENFAKTOREN]Work Center Factors
+[IDC_STATIC_MASCHINENMERKMALE]Work Center Features
+[Maschine]Work Center
+[Maschine (Gruppe)]Work Center (Group)
+[Maschinengruppe]Work Center Group
+[Titel]Work Center
+[WM_ADD_MASCHINENFAKTOREN]Add Factor for Work Center
+[WM_ADD_MASCHINENGRUPPENFAKTOREN]Add Factor for Work Center Group
+[WM_DEL_MASCHINENFAKTOREN]Delete Factor
+[Zeit-Faktor]Factor Time
+[IDC_STATIC_POSITIONSUNTERBRECHUNG]Process:
+
+#DLGPROPERTYAPVORGANGPERSONAL
+[IDC_STATIC_BEDIENTYP]Worker Requirement:
+[Titel]Workers
+[Selektierung_nicht_moeglich]Group already exists in another activity. Changing not possible.
+[Gruppennummer_existiert_bereits]Group already exists!
+[Gruppennummer_darf_nicht_leer_sein]An empty group is not allowed!
+[Kleiner_Null_ungültig]Utilization below 0%% is not allowed!
+[Eintrag_hinzufuegen]Add Worker Requirement
+[Eintrag_loeschen]Remove Worker Requirement
+[GroupID]Group
+[WorkcenterID]Work Center
+[ActivityType]Activity Type
+[ActivityqualificationID]Activity Qualification
+[ChangeWorkerType]Change Type
+[WorkerRequirementCount]Worker Requirement
+[WorkerRequirementUtilization]Utilization in %
+[Ruesten_Fertigen]All
+[Ruesten]Setup
+[Fertigen]Processing
+[Suche_Titel_Arbeitsplatz]Select Work Center (Group)
+[Suche_ID]ID
+[Suche_Type]Type
+[Suche_Name]Name
+[Wähle_Arbeitsplatz]Select Work Center (Group)
+[Entferne_Arbeitsplatz]Reset Work Center (Group)
+[Wähle_Vorgangsquali]Select Activity Qualification
+[Entferne_Vorgangsquali]Reset Activity Qualification
+
+#DLGPROPERTYAPPOSITIONSOLLZEITEN
+[IDC_STATIC_ME_UNABH_ZEIT]Fixed Process Time:
+[IDC_STATIC_ZEIT_PRO_EINHEIT]Process Time per Unit:
+[Titel]Target Times
+
+#DLGPROPERTYAPPOSITIONSTL
+[Bereitstellungszeit]Supply Time [h]
+[Bezeichnung]Description
+[Einheit]Unit
+[ID nicht in STL!]ID not in BOM!
+[Stückliste]BOM
+[Material]Material
+[Menge]Quantity
+[Position]Position
+[Titel]Bill of Material
+[WM_ADD_ELEMENT]Add Position
+[WM_DEL_ELEMENT]Delete Position
+[WM_USE_ELEMENT]Assign here
+[Suche_BomID]BOM ID
+[Suche_BomItemID]BOM Item ID
+[Suche_MaterialID]Material ID
+[Suche_MaterialName]Material Name
+[Alternative_Hinweis]The displayed BOM Items belong to the associated standard operation
+[Stücklistenposition]BOM Items:
+[Alle]All
+[Aus]From
+[Nicht_zugeordnet]Not assigned
+[Ungültig_zugeordnet]Invalidly assigned
+
+#DLGPROPERTYAPVORGANGALLGEMEIN
+[IDC_STATIC_ALTERNATIVE]Alternative:
+[IDC_STATIC_BESCHREIBUNG]Description:
+[IDC_STATIC_ID]Operation:
+[IDC_STATIC_MAXSPLIT]Max:
+[IDC_STATIC_MINSPLIT]Min:
+[IDC_STATIC_NAME]Name:
+[IDC_STATIC_SPLIT]Split Number:
+[IDC_STATIC_TYP]Type:
+[Titel]Operation
+[IDC_STATIC_AUTOSPLIT]Split:
+[IDC_STATIC_QRV]Rounding Value:
+[HELPTEXT_QRV]from Material
+[Split_None]-
+[Split_Auto]Auto
+[Split_Max]Max
+
+#DLGPROPERTYAPVORGANGMASCHINEN
+[Delta]Delta
+[Gruppe]Pool
+[Maschine]Work Center
+[Maschinen]Work Centers
+[Maschinengruppen]Work Center Groups
+[Bezeichnung]Name
+[Titel]Work Center
+[WM_ADD_MASCHINE]Add Work Center
+[WM_ADD_MASCHINEN_GRUPPE]Add Work Center Group
+[WM_DEL_ELEMENT]Delete Element
+[Losgröße_min]Minimum Lot Size
+[Losgröße_max]Maximum Lot Size
+
+#DLGPROPERTYAPVORGANGNACHFOLGER
+[max. Puffer]Max. Buffer
+[min. Puffer]Min. Buffer
+[Nachfolgerelationen]Operations
+[Titel]Successors
+[Überlappung]Overlap
+[Überlappungswert]Overlap Value
+[Vorgang]Operation
+[WM_ADD_ELEMENT]Add Element
+[WM_DEL_ELEMENT]Delete Element
+
+#DLGPROPERTYAPVORGANGOPTIMIERUNGSGRUPPEN
+[Auswahl]Choose
+[Optimierungsgruppe]Optimization Group
+[Merkmal]Value
+[Titel]Optimization Groups
+[Typ]Type
+[Bearbeiten]Edit
+[Option_keine]None
+[Option_von_Material]Adopt from Material
+[Option_individuell]Individual
+
+#DLGPROPERTYAZM
+[Beginnt am]Starting from
+[Beginnt mit]Starting with
+[Gehe zur Gruppe]Switch to Group
+[ID_POPUP_AZMDLG_ADD]Add Shift Model
+[ID_POPUP_AZMDLG_DEL]Delete Shift Model
+[IDC_BUTTON_SONDERZEITEN]Individual Calendar
+[IDC_INHERIT_VONGRUPPE]Adopt from Group:
+[IDC_STATIC_DATETIMEPICKER1]End
+[nein]no
+[Schichtmodell]Shift Model
+[Schichtmodell hinzufügen]Add Shift Model
+[Titel]Workingtime Model
+[Werkskalender]Global Calendar
+
+#DLGPROPERTYFAKOPFALLGEMEIN
+[Fertigstellungsdatum]Due Date:
+[Freigegeben]Approved
+[Frühester Start]Earliest Start:
+[Gehe zur Prioritaet]Go to Priority
+[Gesperrt]Locked
+[Fertigungsversion fixiert]Fixed Production Version
+[Priorität]Priority:
+[Titel]General
+[SearchPrio]Choose priority
+[RemovePrio]Remove Priority
+[IDC_STATIC_FAPLANUNGSTYP]Planning Type:
+[IDC_CHK_AUTOUPDATE]Due Date, Priority, Scheduling Type automatic
+[IDC_STATIC_PC]Production Controller:
+[Tooltip_Fertigungssteuerer]Choose Production Controller
+[ProductioncontrollerFromMaterial]Adopt from material
+
+#DLGPROPERTYFAKOPFMAT
+[Gehe zum Material]Go to Material
+[GotoEinheit]Go to Unit
+[Materialnummer]Material:
+[MengeBrutto]Gross Quantity:
+[MengeNetto]Net Quantity:
+[SearchUnit]Choose Unit
+[Titel]Material
+[WertHerstellen]Value Production:
+[WertVerkauf]Value Sales:
+
+#DLGPROPERTYFAKOPFPLANUNG
+[Endtermin]PO End:
+[Fertigungsstatus]Status:
+[Planungsstatus]Scheduling Status:
+[Starttermin]PO Start:
+[Titel]Schedule
+
+#DLGPROPERTYFAVORGANGALLGEMEIN
+[Alternative]Alternative:
+[Bezeichnung]Name:
+[Einheit]Unit
+[Fertigungsmenge]Gross Quantity:
+[Nettomenge]Net Quantity:
+[JobParallelNr]Job Parallel:
+[JobSequentiellNr]Job Sequential:
+[JobSequentiellInterruptible]interruptible
+[Positionsnummer]Activity:
+[Splitnummer]Split:
+[Status]Status:
+[Titel]General
+[Typ]Type:
+[Vorgangsnummer]Operation:
+[WertHerstellen]Value Production:
+[WertHerstellenKumuliert]Value Prod. Cumulated:
+[Personalkosten]Value Workers:
+[Notiz]Note:
+[Rüst-Information:]Setup Information:
+
+#DLGPROPERTYFAVORGANGDEBUG
+[Titel]Debug
+
+#DLGPROPERTYFACUSTOMINFO
+[Titel]Custom Information
+
+#DLGPROPERTYFAVORGANGGROBPLANUNG
+[Ende]End:
+[frühestens]Earliest
+[IDC_STATIC_MITFREMDMAT]Lead Time Scheduling Including Purchased Material
+[IDC_STATIC_OHNEFREMDMAT]Lead Time Scheduling Excluding Purchased Material
+[IDC_STATIC_OPT]Lead Time Scheduling during Optimization
+[spätestens]Latest
+[Start]Start:
+[Titel]Lead Time Scheduling
+
+#DLGPROPERTYFAVORGANGVERBRAUCH
+[Bereit ab]Availablity
+[Beschreibung]Description
+[Material]Material
+[Puffer]Buffer
+[Titel]Consumption
+
+#DLGPROPERTYFAVORGANGRUECKMELDUNG
+[Ende]End
+[Gefertigt]Processed
+[Ressource]Work Center
+[Start]Start
+[Status]Status
+[Titel]Confirmation
+[Zeitpunkt]Date
+[GotoBDE]Go to Confirmation
+[ID_POPUP_ADD_BDE]Add Confirmation
+[ID_POPUP_CHG_BDE]Change Confirmation
+[ID_POPUP_DEL_BDE]Delete marked Confirmation
+
+#DLGPROPERTYFAVORGANGPLANAENDERUNG
+[Ende]End:
+[IDC_STATIC_PLANAENDERUNG_AKTUELL]Currently scheduled
+[IDC_STATIC_PLANAENDERUNG_BISHER]Previously scheduled
+[IDC_STATIC_PLANAENDERUNG_INITIAL]Initially scheduled
+[Start]Start:
+[Titel]Plan-Deviations
+
+#DLGPROPERTYFAVORGANGPLANUNG
+[Bearbeitungszeit]Process Time:
+[Bedienanteil]Operating Rate:
+[Bereits fertiggestellt:]Already finished:
+[Ende]End:
+[IDC_STATIC_ZEITEN]Times
+[Start]Start:
+[Titel]Schedule
+[IDC_STATIC_RESSOURCEN]Planned Resources
+[Name]Name
+[Nummer]ID
+[Rückmeldezeitpunkt:]Confirmation Date:
+[Status]Status:
+[PlanStatus]Scheduling Level:
+[Typ]Type
+[Gruppe]Group
+[Belegung]Allocation
+[HINT_BDE_VORHANDEN]There are unprocessed confirmations...
+[Info]Info
+[Planintervalle]Interval(s)
+[für]for
+[Einheit]Unit
+
+#DLGPROPERTYFAVORGANGVORGABEN
+[IDC_STATIC_ZEITEN]Times
+[fixierter Start]Fixed Start:
+[frühestmöglicher Start]Earliest Start:
+[Titel]Constraints
+[IDC_STATIC_RESSOURCEN]Fixed Resources
+[Name]Name
+[Nummer]ID
+[Typ]Type
+[Gruppe]Group
+[ID_POPUP_ADD_FIX_MASCHINE]Add Work Center
+[ID_POPUP_ADD_FIX_PERSONAL]Add Worker
+[ID_POPUP_ADD_FIX_PERSONALGRUPPE]Add Worker Group
+[ID_POPUP_ADD_FIX_FHM]Add PRT
+[ID_POPUP_CHG_FIX_MASCHINE]Change Work Center 
+[ID_POPUP_DEL_FIX_RES]Remove Fixed Resource
+[ID_POPUP_APPLY_PLANRES]Scheduled Resources
+[IDC_STATIC_VORGABEN_FIXDAUER]Fixed Duration:
+
+#DLGPROPERTYFHMKAPAZITAET
+[IDC_STATIC_MR5_KAPTYP]Capacity Check:
+[IDC_STATIC_MR5_MAXKAP]Max. Allocation:
+[IDC_STATIC_PARALLELBELEGUNG]Parallel Allocation:
+[IDC_STATIC_SYNCHRONOUSSTART]Synchronous Start:
+[Titel]Capacity
+
+#DLGPROPERTYGRUPPEN
+[Arbeitszeitmodell]Workingtime Model
+[erbt]inherits
+[Info]Info
+[Kapazität]Capacity
+[Kosten]Costs
+[Mitglied von]Member of
+[Qualifikation]Qualifications
+[Titel]Groups
+
+#DLGPROPERTYMASCHINENKAPAZITAET
+[Gehe zur Gruppe, von der die Maschinenkapazität übernommen wird.]Go to Group with adopted Capacity.
+[ID_POPUP_PAR_BEL_ADD]Add Type
+[ID_POPUP_PAR_BEL_DEL]Delete Type
+[IDC_STATIC_EIGENSCHAFTEN]Properties
+[IDC_STATIC_MEHRSCHICHT]Allow Change Worker:
+[IDC_STATIC_MR5_BELEGUNG]Create parallel-jobs:
+[IDC_STATIC_MR5_KAPTYP]Capacity Check:
+[IDC_STATIC_MR5_MAXKAP]Max. Allocation:
+[IDC_VONGRUPPE]Adopt from Group:
+[nein]no
+[ParallelBelegungsTypen]Parallel Allocation Criteria
+[Titel]Capacity
+[Typ]Parallel Allocation Criteria
+[IDC_STATIC_ZWANGZEITINTERVALL]between:
+[IDC_STATIC_SYNCHRONOUSSTART]Synchronous Start:
+
+#DLGPROPERTYMASCHINENKOSTEN
+[Bearbeitung]Processing
+[Gehe zur Gruppe, von der die Maschinenkosten übernommen werden.]Go to Group with adopted Cost.
+[GiltAb]Valid from
+[ID_POPUP_KOSTEN_ADD]Add Cost
+[ID_POPUP_KOSTEN_DEL]Delete Cost
+[IDC_STATIC_KOSTENSAETZE]Costs
+[IDC_STATIC_STILLSTAND_DAUER]Idle Time Period:
+[IDC_STATIC_TAGE]Days
+[IDC_VONGRUPPE]Adopt from Group:
+[nein]no
+[Rüsten]Setup
+[Stillstand]Idle Time
+[Titel]Costs
+
+#DLGPROPERTYMASCHINENPARALLELBEDIENUNG
+[Bezeichnung]Name
+[ID_POPUP_PAR_MASCH_ADD]Add Work Center
+[ID_POPUP_PAR_MASCH_DEL]Delete Work Center
+[Maschine]Work Center
+[ParallelMaschinen]Parallel Work Center
+[Titel]Parallel Working
+[ID_POPUP_ALLOW_ALL_MACHINES]Allow parallel working for all work centers
+[ID_POPUP_DISALLOW_ALL_MACHINES]Disallow parallel working for all work centers
+[Keine Maschine ist parallel bedienbar]Parallel working not allowed for any work center
+[Alle Maschinen sind parallel bedienbar]Parallel working allowed for all work centers
+
+#DLGPROPERTYMASCHINENPERSONALBEDARF
+[IDC_STATIC_BEDIENBEDARF]Processing:
+[IDC_STATIC_PERSONALBEDARF]Worker Requirement
+[IDC_STATIC_PERSONALPLANEN]Schedule Workers:
+[IDC_STATIC_PERSONEN]Worker/-s
+[Titel]Workers
+[Eintrag_hinzufuegen]Add Worker Requirement
+[Eintrag_loeschen]Remove Worker Requirement
+[GroupID]Group
+[ActivityqualificationID]Activity Qualification
+[ActivityType]Activity Type
+[ChangeWorkerType]Change Type
+[WorkerRequirementCount]Worker Requirement
+[WorkerRequirementUtilization]Utilization in %
+[Ruesten_Fertigen]All
+[Ruesten]Setup
+[Fertigen]Processing
+[Gruppennummer_existiert_bereits]Group already exists!
+[Gruppennummer_darf_nicht_leer_sein]An empty group is not allowed!
+[Kleiner_Null_ungültig]Utilization below 0%% is not allowed!
+[Wähle_Vorgangsquali]Select Activity Qualification
+[Entferne_Vorgangsquali]Reset Activity Qualification
+
+#DLGPROPERTYMASCHINENUMRUESTUNG
+[Auswahl der Rüstmatrix]Select Setup Matrix
+[Eintrag für Rüstmatrix löschen]Delete Setup Matrix Entry
+[IDC_STATIC_DYNRUESTEN]Dynamic Setup Time
+[IDC_STATIC_RUESTOPTTYP]Setup Scheduling
+[IDC_STATIC_RUESTTYP]Setup Scheduling Type:
+[IDC_STATIC_STATRUESTEN]Static Setup Time
+[IDC_STATIC_UMRUESTMATRIX]Setup Matrix:
+[IDC_STATIC_UMRUESTMATRIX_SEQ]Setup Sequence:
+[IDC_STATIC_UMRUESTUNG]Default Values:
+[IDC_STATIC_UMRUESTZEIT]Time:
+[IDC_STATIC_UMRUESTKOSTEN]Extra Costs:
+[JumpMatrix]Go to Setup Matrix
+[Rüstmatrix hinzufügen]Add Setup Matrix
+[Titel]Setup
+[IDC_STATIC_RUESTZWANGTYP]Create sequential jobs for identical:
+[IDC_STATIC_ZWANGZEITINTERVALL]between:
+[IDC_STATIC_STATRUESTOPTKRITERIUM]Criterion:
+[IDC_STATIC_STATRUESTOPTKRITERIUM_DESC]Static setup time does not apply on matching criterion.
+[Ruestzwang_Alle]All Setup Criteria
+[Ruestzwang_Statisch]Static Setup Criterion
+[Ruestzwang_Dynamisch]Dynamical Setup Criterion
+[Ruestzwang_RelFHM]Tools relevant for Setup
+[Rüstsequenz]Setup Sequence
+[->]→
+
+#DLGPROPERTYMATERIALBESTAND
+[IDC_CHK_BESTAND_BUCHEN]Record Stock Withdrawal:
+[IDC_CHK_SICHERHEIT_PLAN]Use Safety Stock:
+[IDC_STATIC_BESTANDSDATEN]Stock Data
+[IDC_STATIC_SICHERHEITSBESTAND]Safety Stock:
+[Titel]Stock
+
+#DLGPROPERTYMATERIALEIGENSCHAFTEN
+[BestehtAusAnzahl]Equals
+[BestehtAusEinheit]Of unit
+[Einheit]One unit of
+[ID_POPUP_ELEMENT_ADD]Add New Conversion
+[ID_POPUP_ELEMENT_DEL]Delete Conversion
+[IDC_STATIC_EINHEIT]Unit:
+[IDC_STATIC_EINHEITUMRECHNUNG]Calculation
+[IDC_STATIC_REFERENZWERTE]Reference Value
+[IDC_STATIC_WERT_BESCHAFFUNG]Value Purchase:
+[IDC_STATIC_WERT_HERSTELLEN]Value Production:
+[IDC_STATIC_WERT_VERKAUF]Value Sales:
+[Titel]General
+
+#DLGPROPERTYMATERIALHERSTELLUNG
+[Arbeitsplan]Routing
+[Stückliste]BOM
+[Arbeitsplan waehlen]Choose Routing
+[Stueckliste waehlen]Choose BOM
+[productionversion]Production Version
+[Gültig ab]Valid from
+[Gültig bis]Valid until
+[ID_POPUP_ELEMENT_ADD]Add production version
+[ID_POPUP_ELEMENT_DEL]Delete production version
+[ID_POPUP_AP_EDIT]Change Routing
+[ID_POPUP_STL_EDIT]Change BOM
+[ID_POPUP_STL_DEL]Delete BOM
+[IDC_EIGENFERTIGUNG]Inhouse-Production
+[IDC_FREMDBEZUG]Purchase
+[IDC_GEBTYP]unit
+[IDC_STATIC_AUSWAHL]Selection
+[IDC_STATIC_BESCH_MENGEABH]Qty. Dependent Purchase Time:
+[IDC_STATIC_BESCH_MENGEUN]Fixed Purchase Time:
+[IDC_STATIC_EIGENFERTIGUNG]Inhouse-Production
+[IDC_STATIC_FREMDBEZUG]Purchase
+[IDC_STATIC_STUNDEPRO]hr /
+[Index]Index
+[Titel]Production
+[AddBomQuestion]Should a bill of material also be used?
+
+#DLGPROPERTYMATERIALLOSGROESSEN
+[IDC_STATIC_MAX_LOS]Maximum Lot Size:
+[IDC_STATIC_MIN_LOS]Minimum Lot Size:
+[IDC_STATIC_OPT_LOS]Optimal Lot Size:
+[Titel]Lot Sizes
+
+#DLGPROPERTYMATERIALOPTIMIERUNGSGRUPPEN
+[Titel]Optimization Groups
+[Typ]Type
+[Optimierungsgruppe]Optimization Group
+[Merkmal]Value
+[Ändern]Add/Edit
+[Löschen]Delete
+
+#DLGPROPERTYMODELLPARAMDIVERSES
+[IDC_CHK_UEBERLAPPLIEGEN]Waiting activities may be overlapped
+[IDC_CHK_UEBERLAPPRUEST]Setup activity may overlap previous operation
+[IDC_STATIC_AUSWERTUNG]Results
+[IDC_STATIC_FA_KRITISCH]Prod.Order is on time:
+[IDC_STATIC_FA_VERSPAETET]Prod.Order is delayed:
+[IDC_STATIC_PUFFERMATLIEF]Material Supply Buffer:
+[IDC_STATIC_SICHERHEITSZEIT]Due Date Safety Margin:
+[IDC_STATIC_SICHERHEITSZEITEN]Security Margin
+[IDC_STATIC_TAGENACH]Days after Due Date
+[IDC_STATIC_TAGEVOR]Days before Due Date
+[IDC_STATIC_UEBERLAPPUNG]Overlapping
+[Titel]Others
+
+#DLGPROPERTYMODELLPARAMINHALTE
+[IDC_CHK_AUTOBDESEKFA]Auto Confirm Child Production Orders
+[IDC_CHK_PLANFHM]Schedule Tools
+[IDC_CHK_PLANPERS]Schedule Workers
+[IDC_STATIC_BDE]Confirmations
+[IDC_STATIC_OPTIONEN]Options
+[IDC_STATIC_WASGEPLANT]What should be scheduled
+[Titel]Scheduling Contents
+
+#DLGPROPERTYMODELLPARAMKOSTEN
+[IDC_STATIC_ZIELFUNKTION]Goal:
+[IDC_STATIC_ZINSKAPITALBINDUNG]Interest Value WIP:
+[Titel]Costs
+
+#DLGPROPERTYMODELLPARAMPERSONAL
+[IDC_BTN_MMB]Allow Multiple Machine Work
+[IDC_STATIC_MEHRMASCHBED]Multiple Machine Work
+[IDC_STATIC_MEHRSCHICHTBEARB]Change Worker
+[IDC_STATIC_MINDAUERBEDIENANTEILMITPAUSEN]Minimum Duration of Allocation Intervals per Worker (only interrupted by pause):
+[IDC_STATIC_MINDAUERMEHRSCHICHT]Minimum Duration of Activities to Allow Change of Workers:
+[IDC_STATIC_PERSONAL]General
+[Titel]Workers
+
+#DLGPROPERTYMODELLPARAMZEITEN
+[IDC_STATIC_DATAFUTURE]Time Period for Check of Provided Data:
+[IDC_STATIC_KAPAFUTURE]Time Period for Capacity Planning:
+[IDC_STATIC_KAPAPAST]Time Period for Capacity Check:
+[IDC_STATIC_VERGANGENHEIT]Past
+[IDC_STATIC_ZUKUNFT]Future
+[Titel]Schedule Times
+
+#DLGPROPERTYOPTIMIERUNGOPTIMIERUNG
+[Optimierung_Start]Start
+[Optimierung_Stop]Stop
+[Optimierung_Abbruch]Will be stopped
+[IDC_CHECK_ISTLINIESYSTEMZEIT]Use current system time
+[IDC_CHECK_PZRDZRAUTO]Calculate Scheduling Periods
+[IDC_STATIC_ANZERGEBNIS]Results:
+[IDC_STATIC_ANZOPTLAUF]Optimization Runs:
+[IDC_STATIC_DZRENDE]Data until:
+[IDC_STATIC_ISTLINIE]Actual Time:
+[IDC_STATIC_OPT]Automatic Planning
+[IDC_STATIC_PLANUNGSZEITEN]Scheduling Period
+[IDC_STATIC_PZRENDE]Schedule until:
+[IDC_STATIC_PZRSTART]Schedule from:
+[IDC_STATIC_STABILERZEITRAUM]Stable Period:
+[IDC_THREADCHECK]Thread-Optimization:
+[Titel]Planning
+[App_beschäftigt]Optimization cannot be started, because the application is busy.\n\nPlease try again when all current tasks are completed.
+
+#DLGPROPERTYOPTIMIERUNGOPTIMIERUNGSTYPEN
+[IDC_CHECK_ANFRAGEN]Schedule Requests
+[IDC_CHECK_ANFRAGEN_ALAP]Schedule Extra Requests with Due Date
+[IDC_CHECK_ANFRAGEN_ASAP]Schedule Extra Requests without Due Date
+[IDC_CHECK_FERTIGUNGSAUFTRAEGE]Schedule Production Orders
+[IDC_STATIC_OPTTYPEN]Planning Types
+[IDC_STATIC_PLANUNGSART]Planning Mode
+[Titel]Content
+
+#DLGPROPERTYOPTIMIERUNGPLANUNGSSTRATEGIE
+[Titel]Strategy
+[IDC_BTN_RUECKWAERTS]Bottleneck based (Forward, Backward)
+[IDC_BTN_VORWAERTS]Schedule forward
+[IDC_STATIC_TERMINIERUNGSART]Schedule Strategy
+[IDC_STATIC_DLZOPT]Optimize Throughput Time:
+[IDC_STATIC_FERTIGUNGSOPT]Optimize Production Costs:
+[IDC_STATIC_KAPAZITAETSOPT]Optimize Utilization:
+[IDC_STATIC_KAPITALBIND]Optimize WIP:
+[IDC_STATIC_PERSONALOPT]Optimize Worker Costs:
+[IDC_STATIC_RUESTOPT]Optimize Setup Time and Costs:
+[IDC_STATIC_TERMINOPT]Optimize On-Time Deliveries:
+[IDC_STATIC_ZIELKRIT]Optimization Goals
+
+#DLGPROPERTYOPTIMIERUNGMRP
+[Titel]MRP
+[Group_MRP]Material Requirement Planning
+[Group_Lotsize]Lot Size Optimization
+[Note_ExistingRelations]Existing relations will not be changed and will be respected by the scheduler
+[CheckInhouseProduction]Check Inhouse-Production
+[CheckPurchase]Check Purchase
+[CreateInhouseProduction]Create Inhouse-Production
+[CreatePurchase]Create Purchase
+[RelinkProductionorders]Flexible Productionorder-Relations
+[RelinkPurchaseorders]Flexible Purchaseorder-Reservations
+[RelinkStockreservations]Flexible Stock-Reservation
+[LotSizeOptimization]Optimize Lot Sizes
+
+#DLGPROPERTYPERSONALKAPAZITAET
+[Gehe zur Gruppe, von der die Personalkapazität übernommen wird.]Go to Group with adopted Capacity.
+[IDC_LABEL_MAXBELEGUNG]Max. Allocation:
+[IDC_LABEL_POOL]Worker Pool:
+[IDC_STATIC_PRUEFUNG]Capacity Check:
+[IDC_VONGRUPPE]Adopt from Group:
+[nein]no
+[Titel]Capacity
+
+#DLGPROPERTYPERSONALKOSTEN
+[Gehe zur Gruppe, von der die Peronalkosten übernommen werden.]Go to Group with adopted Costs.
+[IDC_STATIC_BEDIENZUSCHLAG]Allowance for Processing:
+[IDC_STATIC_RUESTZUSCHLAG]Allowance for Setup:
+[IDC_STATIC_STUNDENSATZ]Costs/hr:
+[IDC_VONGRUPPE]Adopt from Group:
+[nein]no
+[Titel]Costs
+[Hinweis]Note
+[Zeitzuschläge werden nur beachtet...]Time penalties are taken into account only if exactly one person for the entire duration is scheduled (no change in position allowed).
+
+#DLGPROPERTYREPORTCHARTCONFIGADVANCED
+[IDC_CHECK_CUSTOMAXISXTITLE]Individual X-Axis Title
+[IDC_CHECK_ROTATED]Rotate Diagram
+[IDC_CHECK_SHOWLABELS]Show Labels
+[IDC_CHECK_SHOWLEGEND]Show Legend
+[IDC_CHECK_USECUSTOMAXISYTITLE]Individual Y-Axis Title
+[IDC_CHECK_USECUSTOMTITLE]Individual Chart Title
+[IDC_STATIC_ADVANCEDDISPLAYOPTIONS]Extended Display Options
+[IDC_STATIC_CONTENT_COLUMN]Content from column:
+[IDC_STATIC_OWNTEXT]Individual Text:
+[IDC_STATIC_TITLES]Names and Tooltips
+[IDC_STATIC_TOOLTIPLIST]Tooltip Content
+[Titel]Extended Settings
+
+#DLGPROPERTYREPORTCHARTCONFIGDATA
+[Datenspalte_entfernen]Remove Column
+[Datenspalte_hinzufuegen]Add Column
+[Farbauswahl_entfernen]Remove Color Selection
+[GRIDCOLUMN_Datenpunkt]Data Point
+[GRIDCOLUMN_Datenreihe]Data Row
+[GRIDCOLUMN_Farbe]Color
+[GRIDCOLUMN_Farbe_angezeigt]Selected Color
+[GRIDCOLUMN_Farbe_waehlen]Choose Color (optional)
+[GRIDCOLUMN_ViewType]Choose ViewType (optional)
+[IDC_CHECK_ALLINONE]Show in a single diagram
+[IDC_CHECK_HEADERASARGUMENT]Use Header as Reference
+[IDC_CHECK_USECUSTOMPALETTE]Use Individual Colors
+[IDC_STATIC_ARGUMENTDATAMEMBER]Reference / X-Axis:
+[IDC_STATIC_COLUMNS]General Settings
+[IDC_STATIC_DEFINEDPALETTE]Predefined Colors:
+[IDC_STATIC_PALETTE]Color Palette
+[IDC_STATIC_SERIES]Data Rows
+[IDC_STATIC_SERIES_ALTERNATIVE]Data Points
+[IDC_STATIC_VIEWTYPE]Diagram Type:
+[Titel]Data
+
+#DLGPROPERTYREPORTCHARTCONFIGFILTER
+[Titel]Filter
+
+#DLGPROPERTYREPORTCHARTCONFIGGENERAL
+[IDC_STATIC_REPORTNAME]Name:
+[IDC_STATIC_REPORTNUMMER]ID:
+[IDC_STATIC_REPORTKATEGORIE]Category:
+[IDC_STATIC_TABREPORT]Tabular Report:
+[Titel]General Settings
+[IDC_CHECK_GLOBAL]Allow usage for all users
+
+#DLGPROPERTYREPORTCONFIGBASE
+[Spalte_auswählen]Choose column:
+[Spalten_auswählen]Choose columns:
+
+#DLGPROPERTYREPORTCONFIGCOLUMNS
+[GRIDCOLUMN_Bezeichnung]Custom name
+[GRIDCOLUMN_ID]Filter
+[GRIDCOLUMN_Verknüpfung]Link
+[IDC_CHECK_REPORTAUFSTEIGENDSORTIEREN]sort ascending
+[IDC_ST_REPORTASSISTENT_SEITE2]Report Assistant - Step 2: Column Preferences
+[IDC_STATIC_FIXESPALTEN]Number of fix columns:
+[IDC_STATIC_SORTIERSPALTE]initial sorting column:
+[Alle Spalten entfernen]Delete all columns
+[ReportSpalten]Report Columns
+[Initiale_Sortierspalte]Initial Sorting Column
+[Spalten_auswaehlen]Choose columns
+[Spalten_loeschen]Delete columns
+[Spalte_loeschen]Delete column
+[Formel_hinzufuegen]Add formula
+[Formel_bearbeiten]Edit formula/timespan
+[Nachfrage_Spalten_loeschen]Do you really want to delete these columns (among the selected columns is at least one formula or timespan)?
+[Nachfrage_Formel_loeschen]Do you really want to delete this formula?
+[Zeitspanne_hinzufuegen]Add timespan
+
+#DLGREPORTCREATEFORMEL
+[Formelspalte]Formula
+[Formelspalte_erstellen]Create formula
+[Formelspalte_bearbeiten]Edit formula
+[Operatoren]Operators
+[Funktionen]Functions
+[Eigener_Spaltenname]Individual column name:
+[Formel]Formula
+[Variable_fuer_Formel]Variable for formula
+[zugewiesene_Eigenschaft]Assigned property
+[Variable_hinzufuegen]Add variable
+[Spalte_auswaehlen]Choose column
+[Variable_loeschen]Delete variable
+[Variable_vergeben]Variable name already exists!
+[Variable_ungueltig]Not a valid variable name!
+[Fehler]Error(s)
+[Formel_ausblenden]Hide formula column (still useable in filter)
+[Formelfilter]Formula
+[Formelfilter_erstellen]Create formula filter
+[Formelfilter_bearbeten]Edit formula filter
+
+#DLGREPORTCREATEDATECOLUMN
+[Zeitspanne]Timespan
+[Zeitspanne_erstellen]Calculate timespan
+[Zeitspanne_bearbeiten]Edit timespan
+[Eigener_Spaltenname]Individual column name:
+[Infotext]Note: The timespan is calculated as the difference of two date columns. The calculated period is displayed in the specified time format (seconds, minutes, hours, etc...).
+[Zeitformat]Difference in:
+[Datumsspalte1]Date column 1:
+[Var_Datumsspalte1]Datecolumn1
+[Datumsspalte2]Date column 2:
+[Var_Datumsspalte2]Datecolumn2
+[Formel_ausblenden]Hide formula column (still useable in filter)
+[Uhrzeit]Time
+
+#DLGPROPERTYREPORTCONFICOLORGFILTER
+[Farbfilter_entfernen]Delete Color Filter
+[Farbfilter_hinzufügen]Add Color Filter
+[Farbfilter_modifizieren]Modify Color Filter
+[Farbfilter_duplizieren]Duplicate Color Filter
+[GRIDCOLUMN_ID]Column
+[GRIDCOLUMN_Kurzfassung]Summary
+[IDC_ST_REPORTASSISTENT_SEITE4]Report Assistant - Step 4: Color Filter Preferences
+[FarbfilterSpalte]Column for Color Filter
+// Fuer Charts-Wizard
+[IDC_STATIC_FARBILTER]Color Filter
+
+#DLGPROPERTYREPORTCONFIGROWFILTER
+[IDC_ST_REPORTASSISTENT_SEITE5]Report Assistant - Step 5: Row Filter Preferences
+[GRIDCOLUMN_ID]Column
+[GRIDCOLUMN_Kurzfassung]Summary
+[Zeilenfilter_entfernen]Delete Row Filter
+[Zeilenfilter_hinzufügen]Add Row Filter
+[Zeilenfilter_modifizieren]Modify Row Filter
+[Zeilenfilter_duplizieren]Duplicate Row Filter
+// Fuer Charts-Wizard
+[IDC_STATIC_ZEILENFILTER]Row Filter
+
+#DLGPROPERTYREPORTCONFIGGENERAL
+[IDC_ST_REPORTASSISTENT_SEITE1]Report Assistant - Step 1: General Preferences
+[IDC_STATIC_OBJEKTVORAUSWAHL]Object Preselection:
+[IDC_STATIC_REPORTART]Report Type:
+[IDC_STATIC_REPORTNAME]Report Name:
+[IDC_STATIC_REPORTNUMMER]Report Number:
+[IDC_STATIC_REPORTKATEGORIE]Report Category:
+[IDC_CHECK_GLOBAL]Allow usage for all users
+[AddObjekttype]Add objecttype
+[ObjectType]chosen objecttypes
+[IDC_CHECK_DIRECTSHOW]Show report immediately
+
+#DLGPROPERTYREPORTCONFIGOPTION
+[IDC_ST_REPORTASSISTENT_SEITE3]Report Assistant - Step 3: Select Options
+[IDC_STATIC_DATUMENDE]End Column:
+[IDC_STATIC_DATUMFILTER]Preferences of Period Filter
+[IDC_STATIC_DATUMSSPALTE]Column with Date Information:
+[IDC_STATIC_DATUMSTART]Start Column:
+[IDC_STATIC_OBJEKTAUSWAHL]Allow Object Selection
+[IDC_STATIC_TAGESWECHSELFREIZEILE]Insert empty line at daychange
+[IDC_STATIC_ZEILENMARKIERUNG]Switch row mark
+[IDC_STATIC_ZEILENMARKIERUNGSPALTE]If change in:
+[IDC_STATIC_GRUPPIERUNG_LABEL]By value in column:
+[IDC_STATIC_GRUPPIERUNG_GROUPBOX]Group
+[IDC_STATIC_PRINTOPTION]Print settings
+[IDC_CHECK_REPORTSEITENUMBRUCH]Pagebreak when printing several objects
+[Startspalte]Column for start date
+[EndeSpalte]Column for end date
+[TageswechselSpalte]Column for day change
+[ZeilenmarkierungSpalte]Column for row marking
+[Gruppierungsspalte]Column for grouping
+
+#DLGREPORT_ROWFILTER_SELECTION
+[GRIDCOLUMN_ID]Filter
+[GRIDCOLUMN_Kurzfassung]Summary
+[GRIDCOLUMN_Objekt_verwenden]Active
+[IDC_STATIC_ZEILENFILTER]Existing rowfilter
+[Zeilenfilterauswahl]Rowfilter selection
+
+#DLGREPORTCHARTCONFIG
+[IDC_ST_REPORTCHARTASSISTENT]Diagram Assistant
+
+#DLGREPORTCHARTCONFIGCREATEFILTER
+[IDC_BUTTON_FARBE]Color of Data Point
+
+#DLGREPORTCONFIG
+[IDC_ST_REPORTASSISTENT]Report Assistant
+
+#DLGREPORTCONFIGCREATEFILTER
+[Filterelement_entfernen]Delete Filter
+[Filterelement_hinzufügen]Add Filter
+[Formelelement_hinzufügen]Add Formula
+[Zeitspannenelement_hinzufügen]Add Timespan
+[GRIDCOLUMN_Filtertyp]Filter Type
+[GRIDCOLUMN_gross/klein]case-sensitive
+[GRIDCOLUMN_Spalte]Property
+[GRIDCOLUMN_Wert]Value
+[IDC_BUTTON_HINTERGRUND]Background Color
+[IDC_BUTTON_SCHRIFT]Writing Color
+[IDC_CHECK_FULLCOL]Complete Column
+[IDC_CHECK_FULLROW]Complete Row
+[IDC_RADIO_LINKAND]AND
+[IDC_RADIO_LINKOR]OR
+[IDC_STATIC_ELEMENTVERKNUEPFUNG]Filter Combination:
+[IDC_STATIC_FILTEREIGENSCHAFTEN]Filter Preferences
+[IDC_STATIC_FILTERELEMENTE]Filter Elements
+[IDC_STATIC_FILTERNAME]Filter Name:
+[IDC_STATIC_GROUPFARBEN]Colors
+[IDC_STATIC_GROUPFARBOPTION]Color Options
+[IDC_STATIC_MAXANZAHL]max. Number:
+[neuen_Filter_anlegen]Create New Filter
+[einzufaerbende_Zelle]Cell to colorize:
+[Filterspalte_festlegen]Set Filter Property
+[Spalte_auswählen]Choose Property:
+
+#DLGGANTTFILTER
+[Filterelement_entfernen]Delete Filter
+[Filterelement_alle_entfernen]Delete all Filter
+[Filterelement_hinzufügen]Add Filter
+[GRIDCOLUMN_Filtertyp]Filter Type
+[GRIDCOLUMN_Spalte]Property
+[GRIDCOLUMN_Aktiv]Active
+[GRIDCOLUMN_Wert]Value
+[IDC_RADIO_LINKAND]AND
+[IDC_RADIO_LINKOR]OR
+[IDC_STATIC_GANTTFILTER]Quick Filter Ganttview
+[IDC_STATIC_ELEMENTVERKNUEPFUNG]Filter Combination:
+[Filterspalte_festlegen]Select Filter Property
+[Spalte_auswählen]Choose Property:
+[Formelelement_hinzufügen]Add Formula
+[Zeitspannenelement_hinzufügen]Add Timespan
+
+#DLGGANTTSCHEDULEORDER
+[Title]Schedule Order
+[Tooltip_previous]Previous Operation
+[Tooltip_next]Next Operation
+[Tooltip_play]Play
+[Tooltip_pause]Pause
+[Tooltip_toggle_label_mode]Toggle Labels
+[Tooltip_close]Close
+
+#DLGCOLORSCHEME
+[Title_Filterdialog]Filter for Color Scheme
+[Title]Custom Color Scheme
+[Header1]Set Properties
+[Header2]What color should be used when none of the custom filter applies?
+[Name]Name:
+[Kategorie]Category:
+[Grid_Kurzfassung]Summary
+[Grid_Farbe]Color
+[Grid_PlusButton]Add Custom Color
+[Filter_entfernen]Delete Filter
+[alle_Filter_entfernen]Delete all Filter
+[Info1]Note: The first matching filter specifies the color for the gantt bar of the process.
+[Radiobutton_Zufallsfarbe_anhand_Eigenschaft]Random Color based on Property:
+[Radiobutton_Farbschema]Color from Color Scheme:
+[Radiobutton_Standardfarbe]Default Color:
+[ColumnTree_Title]Select Filter Column
+[ColumnTree_Header]Choose Column:
+[Global]Allow usage for all users
+
+#DLGUPDATEOBJECT
+[IDC_CANCEL]Cancel
+[IDC_DLGUPDATE_ALLGEMEIN]Save Changes
+[IDC_UPDATE]Save
+[WINDOWTEXT]Change %1
+[wurde geändert]'%1' has been changed.\r\nDo you want to save changes?
+
+#GPFORMVIEWEX
+[Diese Identnummer darf nicht vergeben werden oder ist bereits vergeben!]This ID cannot be assigned or is already assigned!
+
+#GPEDITBOX
+[Cut]Cut
+[Copy]Copy
+[Paste]Paste
+[SelectAll]Select all
+[Undo]Undo
+[Redo]Redo
+
+#MENU
+[&Hilfe]Help
+[&Daten]File
+[Ablage]Tray
+[Ansicht]View
+[Auswertung]Reports
+[Nutzerverwaltung]User Management
+[Bewegungsdaten]Process Data
+[DeleteOldProcessOrders]Delete finished production orders (status finished)
+[DeleteProcessOrdersNoParents]Delete unneeded production orders (no demand assigned)
+[Dualis]DUALIS
+[GANTTPLANData]%1 Data
+[Grafisch]Graphical
+[EigeneGrafisch]Individual Graphical
+[Optimierung]Automatic Planning
+[Planung]Planning
+[Planungsdaten]Schedule Data
+[Qualifikationen]Qualifications
+[Werkskalender]Global Calendar
+[Buchungen]Stock
+[Reports]Reports
+[ResetProcessData]Reset Process Data
+[SZENARIO]Scenario Mode
+[RESID_32935]Start Scenario Mode
+[RESID_32841]Open Scenario File...
+[RESID_32840]Save Scenario File
+[RESID_32930]Save Scenario File as...
+[RESID_32942]Apply Scenario
+[RESID_32931]Stop Scenario Mode
+[RESID_32916]Data List
+[RESID_32918]Navigation
+[RESID_32919]Show Start View
+[RESID_32926]Exit and Logout
+[RESID_32928]Exit
+[RESID_57664]About...
+[RESID_32985]View Help
+[RESID_32983]Shortcuts
+[Rückmeldungen aus Fertigungsauftragssicht]Production Order View on Confirmations
+[Rückmeldungen aus Maschinensicht]Resource View on Confirmations
+[Stammdaten]Master Data
+[Tabellarisch]Tabular
+[EigeneTabellarisch]Individual Tabular
+[XML Konfiguration neu lesen]read new XML Configuration
+[Zugriffsrechte]User Rights
+[Extra]Extras
+[Import]Import
+[PrepareData]Prepare data
+[SynchronizeData]Synchronize data
+[ImportModel]Import Production Schedule
+[Export]Export
+[ExportPlan]Export Production Schedule
+[SyncExternalData]Copy external data to %1
+[Sicherung der externen Daten mit Fehlern abgeschlossen]Backup completed with errors
+[UDF_Overview]Object Management
+[RESID_32984]Third Party Software
+[Nachrichten]Current system messages
+
+#REPORTCHARTCONTEXTMENU
+[ID_POPUPREPORTCHART_ADDTOSTORAGE]Add to Tray
+[ID_POPUPREPORTCHART_ALLINONE]Overall View
+[ID_POPUPREPORTCHART_COLORSCHEME]Color scheme
+[ID_POPUPREPORTCHART_DEL]Delete
+[ID_POPUPREPORTCHART_DOWN]Down
+[ID_POPUPREPORTCHART_LARGER]Expand
+[ID_POPUPREPORTCHART_RESET]Reset
+[ID_POPUPREPORTCHART_ROTATED]Rotate
+[ID_POPUPREPORTCHART_SETTINGS]Settings
+[ID_POPUPREPORTCHART_SHOWLABELS]Show Labels
+[ID_POPUPREPORTCHART_SHOWLEGEND]Show Legend
+[ID_POPUPREPORTCHART_SMALLER]Shrink
+[ID_POPUPREPORTCHART_UP]Up
+[ID_POPUPREPORTCHART_VIEWTYPE]Diagram Type
+[ID_POPUPREPORT_RESTORE_INITAL_ROWSORT]Reset row sorting
+[ID_POPUPREPORT_RESTORE_INITAL_COLUMNSORT]Reset column sorting
+[ID_POPUPREPORT_RESTORE_INITAL_COLUMWIDTH]Restore column width
+
+#REPORTCHARTDEFAULTS
+[ID_AUSLASTUNG]Utilization
+[ID_BESTANDSVERLAUF]Stock Trend
+[ID_ENGPAESSE]Bottlenecks
+[ID_ENGPASSUEBERSICHT]Bottleneck Overview
+[ID_ERGEBNISINFOFA]Result Information PO
+[ID_ERGEBNISINFOKOSTEN]Result Information Costs
+[ID_KAPITALBINDUNG]Work in Progress
+
+#REPORTCHARTTEXT
+[Datum]Date
+
+#REPORTCHARTVIEWTYPES
+[Area]Area
+[Area3D]Area 3D
+[Bar]Bar
+[Bar3D]Bar 3D
+[Doughnut]Doughnut
+[Doughnut3D]Doughnut 3D
+[Funnel]Funnel
+[Funnel3D]Funnel 3D
+[Line]Line
+[Line3D]Line 3D
+[ManhattanBar]Bar Manhattan
+[Pie]Pie
+[Pie3D]Pie 3D
+[Point]Point
+[Spline]Spline
+[Spline3D]Spline 3D
+[SplineArea]Spline Area
+[SplineArea3D]Spline Area 3D
+[StackedArea]Stacked Area
+[StackedArea3D]Stacked Area 3D
+[StackedBar]Stacked Bar
+[StackedBar3D]Stacked Bar 3D
+[StackedSplineArea]Stacked Spline Area
+[StackedSplineArea3D]Stacked Spline Area 3D
+[StepLine]Step Line
+[StepLine3D]Step Line 3D
+
+#STATUSBAR
+[Partnerlizenz]Partner Licence for %1
+[Mittelwert]Average
+[Anzahl]Count
+[Summe]Sum
+[Minimum]Min
+[Maximum]Max
+[Median]Median
+[Modus]Mode
+
+#STDAPP
+[Abbruch nach schwerwiegendem Fehler!]Cancellation after fatal Error!\nApplication will be closed.
+[Bitte geben Sie ein gültiges Arbeitsverzeichnis an!]Please enter valid working Directory!
+[Datenbank-Export durchführen?]Starting Data Export?\n
+[dbupdate failed]Automatische Update failed!
+[Die definierte SQL Ausführung hat einen Fehler gemeldet.]Error occured in the defined SQL Statement.
+[Einstellungen konnten nicht gespeichert werden.]Settings could not be saved.\n
+[Es konnte keine Datenbank-Verbindung hergestellt werden.]Connecting to the Database is not possible.\n\nPlease proof the Connection String and make sure that the user has the "CONNECT"-permission.
+[Berechtigungsfehler]Connecting to the Database was successful, but the user has not all of the required permissions.\n\nThe following permissions are missing:\n%1\n\nApplication must be closed!
+[Export fehlgeschlagen!]Export failed!
+[Export gestartet]Export started
+[Export beendet]Export ended
+[ReloadOrders]Reload Orders?\n
+[Fertigungsplan neu berechnen?]Recalculate production schedule?
+[GANTTPLAN-Datenbank wird nicht unterstützt]The existing %1 database version is outdated.\n\nExisting version: %2\nRequested version: %3\n\nDo you want to update your database?\n\nNote: This operation can not be undone! Perform update only with existing database backup!
+[GANTTPLAN-Datenbank zu neu]The existing %1 database version is outdated.\nExisting version: %2\nRequested Version: %3\n\nPlease update %4!
+[no update right]The existing %1 database version is outdated.\n\nExisting version: %2\nRequested version: %3\n\nYou do not have the permission to update the database. Please contact your database administrator.
+[startconfig]start configuration?
+[TaskNotPossibleWhileBusy]Task not possible while %1 is busy!
+[TaskNotPossibleWhileResults]Discard all unsaved results?
+[Szenarien]Scenarios
+[AlleDateien]All files
+[UndefinedError]Undefined Error!
+[Konfiguration_neu_lesen_Hinweis]Some settings take effect only after a restart. 
+[Scenario_Wrong_Databaseversion]The selected scenario is based on an older datamodel version (%1).\n\nThe scenario must be converted to the current datamodel version (%2). After conversion the new scenario can be saved, the original file remains unchanged.\n\nDo you want to convert the scenario and open it?\n\nNote: This procedure can not be canceled and may take several minutes depending on file size and datamodel!
+[Scenario_Wrong_Databaseversion_Apply]The selected scenario is based on an older datamodel version and can not be loaded and directly applied to database.
+[Scenario_Newer_Databaseversion]The selected scenario is based on a newer datamodel version and can not be loaded.
+[Splashscreen_UserCommands]Perform custom commands...
+[Splashscreen_Synchronisation]Synchronize database...
+[Splashscreen_Init]Initialization running...
+[Splashscreen_GUIInitialization]Initialize user interface...
+[All rights reserved]All rights reserved.
+
+#STDMAINFRAME
+[DropResult]Discard result?
+[DropAllResult]Discard all results?
+[Ergebnis wirklich übernehmen?]Do you want to save this result?\nAll additional results will be deleted!
+[Serververbindung_fehlgeschlagen]Could not connect to update server!
+[Serverantwort_fehlerhaft]Update check not possible!\n\nNo or incorrect response from update server.
+[Version_aktuell]Your version is up to date!
+[WAITMESSAGE_Generell]Please wait
+[WAITMESSAGE_IMPORT_MODEL]Importing model...
+[WAITMESSAGE_SYNC]Synchronizing data...
+[WAITMESSAGE_READ_SCENARIO]Opening scenario...
+[WAITMESSAGE_READ_SCENARIO_SAVE_SCENARIO]Saving scenario...
+[WAITMESSAGE_APPLY_SCENARIO]Applying scenario...
+[WAITMESSAGE_APPLY_CURRENT_RESULT]Applying result...
+[WAITMESSAGE_APPLY_CURRENT_BDE]Applying confirmations...
+[WAITMESSAGE_CREATE_SCENARIO]Starting scenario mode...
+[WAITMESSAGE_CONVERT_SCENARIO]Converting scenario...
+[WAITMESSAGE_CLOSE_SCENARIO]Closing scenario mode...
+[WAITMESSAGE_OPTIMIZE]Executing optimization...
+[WAITMESSAGE_RELOAD_ORDERS]Reloading orders...
+[WAITMESSAGE_EXPORT]Executing export...
+[WAITMESSAGE_BACKUP_EXTERNALDATA]Applying external data...
+[WAITMESSAGE_PREPARE_DATA]Preparing import data...
+
+#TOOLTIP
+[Aktuell gesperrt von]\r\nCurrently locked by User: %1 (%2)
+[Ausführen]Run
+[Der Datensatz ist nicht gesperrt.]Data Object is not locked.
+[Der Datensatz kann nicht bearbeitet werden]Data Object cannot be edited.
+[Der Datensatz wurde zum Schreiben gesperrt.]Data Object is locked for editing.
+[Gesperrt durch Ergebnis]Data Object cannot be edited in result.
+[PC_fehlt]Productioncontroller permission missing
+[Durch Metadaten blockiert]Blocked by Metadata
+[Synchronisiertes Objekt]Synchronized object
+[Fehlende Objektberechtigung]Missing user permission
+[Bearbeiten_fehlt]Edit
+[Erstellen_fehlt]Create
+[Loeschen_fehlt]Delete
+[erlaubt]Permit
+[Erstellen]Make
+[Lesen]Read
+[Löschen]Delete
+[nicht erlaubt]Not permitted
+[Mode changed]The modes selected at login have changed.
+[Mode reduced]Due to restricted permissions some modes from the scenario had to be adapted.
+[Mode reverted]The modes selected at login have been restored.
+[Im Szenario eingestellte Fertigungssteuererberechtigungen werden nicht beachtet]Production controller permission modes set in the scenario are ignored
+[Nutzer:]User:
+[StartAutomaticPlanning]Start Automatic Planning§HOTKEY§
+[StopAutomaticPlanning]Stop Automatic Planning
+[StartManualPlanning]Start Manual Planning in new Result§HOTKEY§
+[SelectedPlanningParameter]Selected Planning Parameter
+[RESID_107]Show Current system Messages
+[RESID_108]Show Data Changes
+[RESID_1207]Turn Tools on/off
+[RESID_1215]Turn Workers on/off
+[RESID_3124]Previous Data Object
+[RESID_3126]Save Data Object
+[RESID_3130]Copy Data Object
+[RESID_3129]New Data Object
+[RESID_3125]Next Data Object
+[RESID_1395]Scales up Time Resolution
+[RESID_1396]Scales down Time Resolution
+[RESID_1397]Show current Time Line
+[RESID_3127]Edit Data Object
+[RESID_1420]Turn Work Centers on/off
+[RESID_1424]Show Resource View
+[RESID_1492]Save View
+[RESID_1515]Show Production Order in Gantt Chart
+[RESID_3121]Extended Search
+[RESID_1634]Apply active result as production schedule
+[RESID_181]Show Production Order View
+[RESID_2337]Save as File
+[RESID_2339]Add
+[RESID_2340]Select All
+[RESID_2348]Select
+[RESID_2342]Print
+[RESID_2345]Open in Excel
+[RESID_2436]Show Row Filter
+[RESID_2596]Delete All Objects
+[RESID_2597]Expand View
+[RESID_2598]Shrink View
+[RESID_3128]Discard Changes
+[RESID_32775]Backward
+[RESID_32776]Forward
+[RESID_32777]Discard currently chosen result
+[RESID_32778]Discard all results
+[RESID_3131]Delete Data Object
+[RESID_3132]Data Modifications
+[RESID_1912]Live Mode
+[Schreiben]Write
+[RESID_2844]Print
+[RESID_14]Show Data Object Modifications
+[RESID_3133]Show User Defined Fields
+[RESID_32780]Gantt Chart
+
+#VIEWACCESSCTRL
+[IDC_ST_NUTZER_ALLGEMEIN]User Data
+[IDC_ST_NUTZER_RECHTE]User Rights
+[IDC_STATIC_LOGIN]Username:
+[IDC_STATIC_NACHNAME]Last Name:
+[IDC_STATIC_PASSWORT]Password:
+[IDC_STATIC_STATUS]Authentication:
+[IDC_STATIC_VORNAME]First Name:
+[Authentifizierung_GPNutzer]%1-Authentication
+[Authentifizierung_Windows]Windows-Authentication
+[Authentifizierung_UserTemplate]Usertemplate
+[Helptext_Windows]Domain\Username
+[Helptext_GP]Username
+
+#VIEWARBEITSPLAN
+[Alternativ]Alternative
+[Gehe zur Arbeitsplanvorlage]Go to Master-Routing
+[IDC_APKOPF_EIGENSCHAFTEN]Properties
+[IDC_APKOPF_VORGAENGE]Operations
+[IDC_STATIC_MODELLAP]Master
+[IDC_STATIC_NAME]Name:
+[IDC_STATIC_OBJECTID]ID:
+[Neue Position anlegen]Add new Activity
+[Neuen Vorgang anlegen]Add new Operation
+[ALTERNATIVE_OPERATION_PREFIX]Alternative
+[AND]+
+[ADD_EMPTY_OPERATION]Add empty Operation
+[ADD_EMPTY_ALTERNATIVE_OPERATION]Add empty alternative Operation
+[ADD_OPERATION_WITH_POSITION]Add Operation with %1
+[andere Kombinationen]Other combinations...
+[ADD_POSITION]Add %1 %2
+[vorne]at beginning
+[hinten]at end
+[Neue Alternative]New Alternative
+[Position löschen]Delete Activity
+[Standard]Standard
+[Vorgang löschen]Delete Operation
+[Alle_ausklappen]Expand all Operations
+[Alle_einklappen]Collapse all Operations
+[RoutingVisualization]Visualize Routing
+[IDC_CHK_UEBERLAPPUNG]Allow Overlap:
+[IDC_STATIC_GESPERRT]Locked:
+
+#VIEWARBEITSPLANTEMP
+[IDC_ST_APKOPF]Order-Related Routing
+
+#VIEWARTIKEL
+[IDC_MATERIAL_EIGENSCHAFTEN]Properties
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+[IDC_STATIC_NAME]Name:
+[IDC_STATIC_OBJECTID]ID:
+[IDC_STATIC_PC]Productioncontroller:
+[Tooltip_Fertigungssteuerer]Choose Production Controller
+[Fertigungsversion Fehler]Object cannot be saved because the production version numbers are not unique!
+
+#VIEWAZM
+[Beschreibung]Description
+[ID_POPUP_SM_ADD]Add Shift
+[ID_POPUP_SM_DEL]Delete Shift
+[ID_POPUP_SM_GOTO]Show Shift ...
+[IDC_SCHICHTMODELLE_WP]Shifts
+[IDC_STATIC_BESCHREIBUNG]Name:
+[IDC_STATIC_NAME]ID:
+[Index]Index
+[verschiebt den ausgewählten Wochenplan um eine Position nach oben]Moves selected Shift one position up
+[verschiebt den ausgewählten Wochenplan um eine Position nach unten]Moves selected Shift one position down
+[Wochenplan]Shift
+[Wochenpläne]Shifts
+[unbekannter Wochenplan]unknown shift
+
+#VIEWBDE
+[BDE Meldung bearbeiten]Edit Confirmation
+[BDE Meldung hinzufügen]Add Confirmation
+[Beendete Vorgänge anzeigen]Show finished activities
+[Bemerkung]Label
+[Ende]End
+[Fertigungsauftrag]PO
+[Gefertigt]Processed
+[IDC_ST_SUBHEADER]Existing Confirmations
+[IDC_ST_SUBHEADER2]Scheduled Activities
+[Letzte Rückmeldung]Confirmation Date
+[Markierte Meldungen löschen]Delete Selected Confirmations
+[Material]Material
+[Materialname]Material Name
+[Nur zurückzumeldende Vorgänge anzeigen]Show only activities to be signed off
+[Ressource]Work Center
+[Ressourcentyp]Work Center Name
+[Start]Start
+[Status]Status
+[Vorgangsbezeichnung]Activity Name
+[VorgangsID]Activity
+[Zeige alle geplanten Vorgänge des Fertigungsauftrags]Show scheduled processes of that production order
+[Zeige alle geplanten Vorgänge für die Ressource]Show scheduled processes of that resource
+[Tooltip_FA]Goto Production Order
+[Tooltip_Arbeitsplatz]Go to Work Center
+[FAID]PO-ID:
+[FABezeichnung]PO-Name:
+[ArbeitsplatzID]Work Center ID:
+[ArbeitsplatzBezeichnung]Work Center Name:
+
+#VIEWBEDARF
+[IDC_STATIC_MENGE_GELIEFERT]Delivered Quantity:
+[IDC_STATIC_MENGE_OFFEN]Open Quantity:
+[IDC_CHECK_BEDARF_GESPERRT]Locked:
+[IDC_STATIC_MATERIALBEZIEHUNG]Material Input
+[Typ]Type
+[Nummer]Number
+[Menge]Quantity
+[Einheit]Unit
+[Bereit ab]Availablity
+[Puffer]Buffer
+[Fix]Fix
+[Fertigungsauftrag]Production Order
+[Bestellbestätigung vom]Purchase Order at
+[Bestellvorschlag für]Purchase Order Proposal for
+[Lagerreservierung]Stock Reservation
+[Auftragsreservierung hinzufügen]Add Production Order Reservation
+[Bestellreservierung hinzufügen]Add Purchase Order Reservation
+[Lagerreservierung hinzufügen]Add Stock Reservation
+[Eintrag löschen]Delete Entry
+[Aufträge]Scheduled Production Orders
+[GotoEinheit]Go to Unit
+[GotoMat]Go to Material
+[GotoPrio]Go to Priority
+[IDC_ST_SUBHEADER]Properties
+[IDC_STATIC_BEDARFSTYP]Order Type:
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+[IDC_STATIC_EINHEIT]Unit:
+[IDC_STATIC_MAT]Material:
+[IDC_STATIC_MENGE]Quantity:
+[IDC_STATIC_NAME]Name:
+[IDC_STATIC_OBJECTID]ID:
+[IDC_STATIC_PLANUNGSTYP]Planning Type:
+[IDC_STATIC_PRIO]Priority:
+[IDC_STATIC_STATUS]Status:
+[IDC_STATIC_TERMIN]Due Date:
+[IDC_STATIC_WERT]Unit Cost:
+[IDC_STATIC_PC]Production Controller:
+[SearchMat]Choose Material
+[SearchPrio]Choose Priority
+[SearchUnit]Choose Unit
+[RemovePrio]Remove Priority
+[Materialmangel]Lack of material
+[GotoGantt]Show all Secondary Production Orders in Gantt Chart
+[prognostizierter Bedarf]Forecasted Demand (%1)
+[Sekundaerbedarf]Secondary Order
+[Tooltip_Visualization]Visualize Salesorder
+[Tooltip_Fertigungssteuerer]Choose Production Controller
+[ProductioncontrollerFromMaterial]Adopt from material
+
+#VIEWBESTANDSBUCHUNGEN
+[COL_AENDERUNG]Changes
+[COL_AUSLOESER]User
+[COL_BESTAND]Stock
+[COL_BUCHUNGSTYP]Type of Posting
+[COL_DATUM]Date
+[COL_INFORMATION]Information
+[ID_POPUP_BOOKING_ADD_ABS]Add Stock Quantity Posting
+[ID_POPUP_BOOKING_ADD_REL]Add Stock Quantity Change Posting
+[ID_POPUP_BOOKING_DEL]Delete selected Postings
+[ID_POPUP_SHOW_LAST_BOOKINGS]Show Only Recent Postings
+[IDC_ST_SUBHEADER]Existing Stock Quantity Postings
+[IDC_ST_SUBHEADER2]Scheduled Stock
+[Nutzer]User
+[Umrechung in Referenzeinheit nicht möglich]Conversion to Reference-Unit %1 of Material %2 not possible
+[Tooltip_Visualization]Visualize Stock removals
+
+#VIEWDUALIS
+[Edition]Edition: %1
+[Datenbankversion_bekannt]Datamodel Version: %1
+[Geladenes Zusatzmodul]Loaded Additional Module: %1
+[Lizenz]Licence: %1
+[Lizenzablaufdatum]Licence Expiry Date: %1
+[Partnerlizenz]Partner Licence: %1
+[User]User: %1
+[Version_bekannt]Program Version: %1
+[LastSync]Last synchronization: %1
+
+#VIEWEINHEIT
+[BestehtAusAnzahl]Equals
+[BestehtAusEinheit]Of unit
+[direkte Umrechnungen in andere Einheiten]Direct conversions into other units
+[Einheit_Grid]One unit of
+[ID_POPUP_ELEMENT_ADD]Add New Conversion
+[ID_POPUP_ELEMENT_DEL]Delete Selected Conversions
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+[IDC_STATIC_NAME]Description:
+[Konsistenzfehler]Consistency error: "%1" not equal "%2"
+[Nummer]Abbreviation:
+[weitere indirekte Umrechnungen über andere Einheiten]Implicit conversions into further units
+
+#VIEWFANEU
+[alternative Vorgänge]Alternative Operations
+[Arbeitsplan]Routing:
+[Bezeichnung]Name:
+[Gehe zum Arbeitsplan]Go to Routing
+[Gehe zur Stückliste]Go to BOM
+[Nummer]ID:
+[Puffer]Buffer: 
+[Split]Split: 
+[Stueckliste]BOM:
+[Fertigungsversion]Production version:
+[Verzug]Delay: 
+[Vorgänge]Operations
+[Zeige Auftrag im Leitstand]Show PO in Gantt Chart
+[SearchProductionversion]Choose production version
+[CreateOrderRelatedRouting]Create Order-Related Routing
+[CreateOrderRelatedBom]Create Order-Related BOM
+[Tooltip_Visualize_Operations]Visualize Operations
+[Tooltip_Visualize_Net]Visualize Order-Net
+[Choose_productionversion]Production Version
+
+#VIEWFHM
+[IDC_ST_SUBHEADER]Properties
+[IDC_STATIC_NAME]Name:
+[IDC_STATIC_OBJECTID]ID:
+
+#VIEWGANTTSTD
+[Änderungen in der Ansicht speichern]Your own gantt view "%1" has been changed. Do you want to save changes?
+[Ansicht wirklich löschen]Do you really want to delete the View "%1"?
+[Artikel]Material: 
+[Artikel:]\nMaterial: 
+[Auftrag]Order: 
+[Bedarf]Sales Order: 
+[AZMGruppe]\nWorking Time Model Group: 
+[Bedarfs-Nr]Sales Order ID:
+[Belegungsfaktor:]Allocation Rate: 
+[Bestellmenge:]\nPurchase Order Quantity: 
+[Bestellnr]Purchase Order ID: 
+[Der Name der Ansicht ist unzulässig oder es existiert bereits eine Ansicht mit diesem Namen.]The Name of the View is invalid or a View with the same name already exists.
+[Die Standardansicht kann nicht geändert werden.]The Default View cannot be modified.
+[Die Standardansicht kann nicht gelöscht werden.]The Default View cannot be deleted.
+[Reservierungen]Reservations:
+[Ende:]End: 
+[prozentfertig]Ready
+[Frühester Start:]Earliest Start: 
+[gelieferte Menge:]\nDelivered Quantity: 
+[ID_POPUP_ADD_FA]Production Orders
+[ID_POPUP_ADD_SALESORDER]Production Orders (from Salesorders)
+[ID_POPUP_ADD_FHM]Add Tools
+[ID_POPUP_ADD_MASCHINE]Add Work Centers
+[ID_POPUP_ADD_MASCHINEGRP]Add Work Center Groups
+[ID_POPUP_ADD_PERSONAL]Add Workers
+[ID_POPUP_ADD_PERSONALGRP]Add Worker Groups
+[ID_QUESTION_GANTT_ALLE_AUSPLANEN]Unschedule all?
+[ID_POPUP_GANTT_FA_AUSPLANEN]Unschedule
+[ID_POPUP_GANTT_FA_EINPLANEN_FRUEH]Schedule early
+[ID_POPUP_GANTT_FA_EINPLANEN_OPT]Schedule auto
+[ID_POPUP_GANTT_FA_EINPLANEN_SPAET]Schedule late
+[ID_POPUPFA_GOTO]Switch to Production Order
+[ID_POPUP_ADD_FA_LINKED_ADD]Add %1
+[ID_POPUP_ADD_FA_LINKED]Linked Production Order
+[ID_POPUP_ADD_FA_DIRECT_LINKED]All directly linked Production Orders
+[ID_POPUP_ADD_FA_DIRECT_PARENTS]All direct Parent Production Orders
+[ID_POPUP_ADD_FA_DIRECT_CHILDREN]All direct Child Production Orders
+[ID_POPUP_ADD_FA_ALL_LINKED]All linked Production Orders
+[ID_POPUP_ADD_FA_ALL_PARENTS]All Parent Production Orders
+[ID_POPUP_ADD_FA_ALL_CHILDREN]All Child Production Orders
+[ID_POPUPFA_REMOVE]Remove PO from view
+[ID_POPUPRES_AUSLASTUNG]Show Utilization
+[ID_POPUPRES_BOTTLENECK]Show Bottlenecks
+[ID_POPUPRES_DOWN]Move Down
+[ID_POPUP_GANTT_COLLAPSE_NODES]Collapse all nodes
+[ID_POPUP_GANTT_EXPAND_NODES]Expand all nodes
+[ID_POPUP_GANTT_SHOW_UNUSED_RES]Hide unused Resources
+[ID_POPUPRES_GOTO]Switch to Resource
+[ID_POPUPRES_REMOVE]Remove Resource from view
+[ID_POPUPRES_RESVIEW]Show in Resource View
+[ID_POPUPRES_UP]Move Up
+[ID_POPUPVORG_FA]Show in Order View
+[ID_POPUP_GANTT_ALTERNRES_VIEW]Show alternative Resources
+[ID_POPUP_GANTT_VISUALIZE_NET]Show Production Order-Net-Visualization
+[ID_POPUP_GANTT_VISUALIZE_ORDER]Show Production Order-Visualization
+[ID_POPUP_GANTT_EDIT_CALENDAR]Edit Calendar
+[ID_POPUP_GANTT_CREATE_LOT]Create Lot
+[ID_POPUP_GANTT_RELEASE_LOT]Release Lot
+[ID_POPUP_GANTT_MANUAL_SET_PRODUCTIONVERSION]Set Production Version
+[ID_POPUP_GANTT_MANUAL_SWITCH_PRODUCTIONVERSION_FIXATION]Fix Production Version
+[KapGruppe]\nCapacity Group: 
+[Status]\nStatus: 
+[JobParallel]Job Parallel:
+[JobSequential]Job Sequential:
+[Materialgruppe]\nOptimization Group: 
+[Menge]Quantity: 
+[Menge:]\nQuantity: 
+[Mitarbeiter]Workers: 
+[Planende] End Schedule: 
+[Priorität]Priority:
+[Prioritätswert]Priority Value:
+[Produktionsendtermin]Due Date: 
+[Ressource:]Work Center: 
+[Rückmeldung:]Confirmation: 
+[spätester Bestelltermin]\nLatest Order Date: 
+[Standardansicht]Default View
+[Start:]\nStart: 
+[Termin]\nDue Date: 
+[Liefertermin]\nDue Date: 
+[Typ]\nType: 
+[Vorgang]Process: 
+[Farbschema_hinzufügen]New
+[Farbschema_kopieren]Copy
+[Farbschema_bearbeiten]Edit
+[Farbschema_löschen]Delete
+[Nutzeransicht_hinzufügen]New
+[Ansicht_bearbeiten]Edit
+[Ansicht_bearbeiten_2]Edit View
+[Ansicht_kopieren]Copy
+[Ansicht_kopieren_2]Copy View
+[Nutzeransicht_löschen]Delete
+[Fertigungshilfsmittel:]Tools:
+[ID_POPUP_PLANANALYSE]Show Plan-Analysis
+[zu Ansicht hinzufügen]Add to View
+[aus Ansicht entfernen]Remove from View
+[Ansicht leeren]Clear View
+[ID_POPUP_GANTT_PLANUNG_MANUELL_VORGEBEN]Set Schedule
+[ID_POPUP_GANTT_SPLIT_MANUAL_MOUSE]Split here
+[ID_POPUP_GANTT_SPLIT_MANUAL_EVEN]Split evenly
+[ID_POPUP_GANTT_UPDATE_BDE]Update all sign-offs
+[ID_POPUP_GANTT_AUTOPLAN_OPT]Auto schedule (respect all Restrictions)
+[ID_POPUP_GANTT_AUTOPLAN_STABLE]Repair schedule (respect all Restrictions)
+[ID_POPUP_GANTT_AUTOPLAN_STABLE_EARLY]Close gaps (respect all Restrictions)
+[ID_POPUP_GANTT_RESULT_ADD]Duplicate result
+[ID_POPUP_GANTT_RESULT_DROP]Drop this result
+[ID_POPUP_GANTT_RESULT_DROPOTHERS]Drop other results
+[ID_POPUP_GANTT_RESULT_DROPALL]Drop all results
+[Plan bearbeiten]Change Result
+[Fertigungsauftrag bearbeiten]Change Production Order
+[Fertigungsaufträge bearbeiten]Change Production Orders
+[Vorgang bearbeiten]Change Operation
+[Vorgänge bearbeiten]Change Operations
+[Vorgang_fixieren]Fix
+[Start_Fixierung_umschalten]Fix Start
+[Start_Fixierung_setzen]Fix Start
+[Start_Fixierung_aufheben]Remove Start Fixation
+[Dauer_Fixierung_umschalten]Fix Duration
+[Dauer_Fixierung_setzen]Fix Duration
+[Dauer_Fixierung_aufheben]Remove Duration Fixation
+[Ressourcen_Fixierung_umschalten]Fix Resource(s)
+[Ressourcen_Fixierung_setzen]Fix all Resources
+[Ressourcen_Fixierung_aufheben]Remove all Resource Fixations
+[Arbeitsplätze_Fixierung_setzen]Fix all Work Centers
+[Arbeitsplätze_Fixierung_aufheben]Remove all Work Center Fixations
+[Personal_Fixierung_setzen]Fix all Workers
+[Personal_Fixierung_aufheben]Remove all Worker Fixations
+[FHM_Fixierung_setzen]Fix all PRT
+[FHM_Fixierung_aufheben]Remove all PRT Fixations
+[Tooltip_Fixierungen]Fixations:
+[Tooltip_FixierterStart]Start:
+[Tooltip_FixierteDauer]Duration:
+[Tooltip_FixierteRessourcen]Resources:
+[Tooltip_Debug]Debug
+[Tooltip_CustomInfo]Custom Information
+[Tooltip_NextMaintenance]Upcoming maintenance on
+[EditUserview]Edit View
+[CopyUserview]Copy View
+[Ansicht_wirklich_leeren]Do you really want to clear the view?
+[Ressource_wirklich_entfernen]Do you really want to remove resource "%1" from the view?
+[Liegen]Waiting:
+[Puffer]Buffer:
+
+#VIEWLIEFBESTELL
+[GotoEinheit]Go to Unit
+[GotoMat]Go to Material
+[IDC_ST_SUBHEADER]Properties
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+[IDC_STATIC_EINHEIT]Unit:
+[IDC_STATIC_LIEFBESTTYP]Type:
+[IDC_STATIC_MAT]Material:
+[IDC_STATIC_MENGE]Quantity:
+[IDC_STATIC_NAME]Name:
+[IDC_STATIC_OBJECTID]ID:
+[IDC_STATIC_TERMIN]Due Date:
+[IDC_STATIC_PC]Production Controller:
+[SearchEinheit]Unit
+[SearchMat]Material
+[Tooltip_Visualization]Visualize Purchaseorder
+[Tooltip_Fertigungssteuerer]Choose Production Controller
+[ProductioncontrollerFromMaterial]Adopt from material
+
+#VIEWMASCHINE
+[IDC_MASCHINE_EIGENSCHAFTEN]Properties
+[IDC_STATIC_MASCHINE_AUSLASTUNG]Speed Factor:
+[IDC_STATIC_MASCHINE_NAME]Name:
+[IDC_STATIC_MASCHINE_PROZESS]Disallow Activity Interrupt.:
+[IDC_STATIC_OBJECTID]ID:
+[IDC_STATIC_STABILER_ZEITRAUM]Stable Period:
+
+#VIEWMASCHINENGR
+[Arbeitszeitmodell]Workingtime Model
+[Bezeichnung]Work Center Name
+[ID_POPUP_MASCHGRP_ADD]Add Work Center
+[ID_POPUP_MASCHGRP_DEL]Delete Work Center
+[ID_POPUP_MASCHGRP_DELALL]Delete All Work Centers
+[IDC_MASCHGRP_EIGENSCHAFTEN]Group Properties
+[IDC_MASCHGRP_MITGLIEDER]Group Members
+[IDC_STATIC_MASCHGRP_NAME]Name:
+[IDC_STATIC_OBJECTID]ID:
+[Kapazität]Capacity
+[Kosten]Costs
+[Maschine hinzufügen]Add Work Center
+[Maschinennummer]Work Center ID
+[Linientyp]Line Type:
+[synchronized]Synchronized:
+[Message_Linie]This Work Center Group cannot be a Line, because the following Work Centers are already in use in other Lines:
+[Message]in Line
+[Message_Arbeitsplatz_in_Linie]The following Work Centers can not be addded, because they are already in use in other Lines:
+[Productmix]Product Mix
+
+#VIEWMATERIALGR
+[IDC_STATIC_MATGR_ID]ID:
+[IDC_STATIC_MATGR_MAXABWEICHUNG]Maximum Deviation:
+[IDC_STATIC_MATGR_NAME]Name:
+[Zuordnungen]Associated Objects
+[Materialien]Materials
+[Arbeitspläne]Routings
+[Material_ID]Material
+[Material_Bezeichnung]Name
+[Arbeitsplan_ID]Routing
+[Arbeitsplan_Bezeichnung]Routing Name
+[Vorgang_ID]Operation
+[Vorgang_Bezeichnung]Operation Name
+[Statisch_Rüsten]Static
+[Dynamisch_Rüsten]Dynamic
+[Parallel_Rüsten]Parallel
+
+#VIEWOPTIMIERUNG
+[Abbruch der Planung nach schwerwiegendem Fehler im Optimierungslauf!]Shut down Scheduling. Fatal Error during Optimization Run!
+[Abbruch nach schwerwiegendem Fehler beim Beenden der Planung!]Shut down Scheduling. Fatal Error during Termination of Scheduling Process!
+[Anzahl FA]- Number Production Orders:
+[DLZ in d]Throughput Time in Days
+[FA OK.]Production Orders Early
+[FA Terminkritisch]Production Orders on Time
+[FA Terminverzug]Production Orders Late
+[FA unvollständig]Production Orders Incomplete
+[Fertigung]Value Processing
+[Gesamtkosten]Value Total
+[IDC_OPTIMIERUNG_EIGENSCHAFTEN]Properties
+[IDC_ST_OPTIMIERUNG]Automatic Planning
+[IDC_STATIC_OBJECTID]Parameter:
+[Kapitalbindung]Value Capital Commitment
+[Modell-Import fehlgeschlagen!]Model Import failed!
+[Opt.-Lauf]Run
+[Optimierungslauf]Optimization Runs
+[Optimierung läuft]Automatic Planning runs (%1/%2)
+[Optimierung wird beendet]Automatic Planning will be terminated
+[Personal]Value Workers
+[Rüsten]Value Setup
+[Stillstand]Value Utilization
+[Verspätung]Value Lateness
+[Zielfkt.]Value Objective Function
+[Bisher nicht übernommene Ergebisse werden verworfen]Unused Results will be deleted. Continue?\n
+
+#VIEWPERSONAL
+[IDC_PERSONAL_EIGENSCHAFTEN]Properties
+[IDC_STATIC_OBJECTID]ID:
+[IDC_STATIC_PERSONAL_NAME]Name:
+
+#VIEWPERSONALGR
+[Arbeitszeitmodell]Working Time Model
+[ID_POPUP_PERSGRP_ADD]Add Worker
+[ID_POPUP_PERSGRP_DEL]Delete Worker
+[ID_POPUP_PERSGRP_DELALL]Delete All Workers
+[IDC_PERSGRP_EIGENSCHAFTEN]Group Properties
+[IDC_PERSGRP_MITGLIEDER]Group Members
+[IDC_STATIC_OBJECTID]ID:
+[IDC_STATIC_PERSGRP_NAME]Name:
+[Kapazität]Capacity
+[Kosten]Costs
+[Mitarbeiter hinzufügen]Add Worker
+[Name]Name
+[Personalnummer]Worker ID
+[Qualifikation]Qualification
+
+#VIEWPERSONALQUALI
+[alle]all
+[Gruppen-Nr.]Group ID
+[ID_POPUP_QUALI_EDIT]Edit Qualification
+[ID_POPUP_QUALI_PERS0]Set Qualification in all Workers
+[ID_POPUP_QUALI_PERS1]Set Qualification in all Worker Groups
+[ID_POPUP_QUALI_RES]Set Qualification in all Resources
+[IDC_QUALIMATRIX_AKT]Update
+[IDC_RADIO_QUALI_PERSGRP]Worker Groups
+[IDC_RADIO_QUALI_PERSONAL]Workers
+[IDC_ST_QUALIFIKATION]Qualification Matrix
+[IDC_STATIC_QUALI_ANZEIGEN]Show Qualifications for:
+[jeder Mitarbeiter]Each Worker
+[jede Ressource]Each Work Center
+[Mitarbeiter]Worker
+[Personalgruppe]Worker Group
+[Personal-Nr.]Worker ID
+[Stammarbeitsplatz]Preferred Work Center
+
+#VIEWPRIORITAET
+[abs. Kosten]Abs. Costs
+[Bezeichnung]Name
+[ID_POPUP_PRIOKURVE_ADD]Add Lateness Costs
+[ID_POPUP_PRIOKURVE_DEL]Delete Lateness Costs
+[IDC_PRIO_PRIOKURVEN]Lateness Costs
+[IDC_STATIC_PRIO_NAME]Name:
+[IDC_STATIC_PRIO_NR]ID:
+[IDC_STATIC_PRIO_RANG]Value:
+[Intervall]Abs. Costs Interval [h]
+[rel. Kosten]Rel. Costs
+[Intervall rel]Rel. Costs Interval [h]
+[Verzug]Delay [h]
+
+#VIEWREPORT
+[Bitte wählen Sie eine Ressource aus]Please select a resource.
+[IDC_ST_HEADER]Report: 
+[IDC_STATIC_DATETIMEPICKEREND]End
+[IDC_STATIC_DATETIMEPICKERSTART]Start
+[IDC_STATIC_OPTIONINTERVALL]Interval
+[IDC_STATIC_OPTIONS]Options
+[IDC_STATIC_SUCHE_REPORT]Quick Search
+[IDC_STATIC_ZEITRAUM]Period
+[Soll für jedes ausgewählte Objekt eine neue Seite bedruckt werden?]Print a new page for every selected object?
+
+#VIEWREPORTCHART
+[IDC_ST_HEADER]Graphical Reports
+[IDC_STATIC_DATETIMEPICKEREND_CHART]End
+[IDC_STATIC_DATETIMEPICKERSTART_CHART]Start
+[IDC_STATIC_OPTIONINTERVALL_CHART]Interval
+[IDC_STATIC_OPTIONS_CHART]Options
+[IDC_STATIC_ZEITRAUM_CHART]Time Span
+[TooManyObjectsSelected]Too many objects were selected. Only the first 100 are displayed.
+
+#VIEWREPORTCHARTSTORAGE
+[IDC_ST_HEADER]Tray
+
+#VIEWRUESTMATRIX
+[ID_POPUP_ADD_OPTIMIZATIONGROUP]Add Optimization Group
+[ID_POPUP_DEL_OPTIMIZATIONGROUP]Delete Optimization Group
+[ID_POPUP_MODIFY_SETUPVALUES]Modify Setup Values
+[ID_POPUP_COPY_SETUPVALUES]Copy
+[ID_POPUP_PASTE_SETUPVALUES]Paste
+[IDC_RMATRIX_ZEITEN]Setup Effort (from row to column)
+[IDC_STATIC_MATRIX_ID]ID:
+[IDC_STATIC_MATRIX_NAME]Name:
+[IDC_STATIC_RMATRIX_ZEITEINHEIT]Time Unit:
+[Materialgruppe hinzufügen]Add Optimization Group
+[Question_Change_all]Use the values from the selected cell in the whole setup matrix?
+[Question_Change_row]Use the values from the selected cell in the whole row?
+[Question_Change_col]Use the values from the selected cell in the whole column?
+
+#DLGSETUPMATRIXELEMENT
+[Title]Adjust setup effort
+[Header_SingleEdit]from %1 to %2
+[Header_MultiEdit]%1 elements selected
+[SetupTime]Setup Time:
+[SetupCosts]Setup Costs (additional):
+[SetupComment]Comment:
+
+#VIEWSTL
+[Alternative]Alternative
+[Arbeitsplan]Routing
+[Bereitstellungszeit]Supply Time [%1]
+[Materialbezeichnung]Material Description
+[Einheit]Unit
+[Fertigungsversion]Production Version
+[Gehe zur Stücklistenvorlage]Go to Master-BOM
+[ID_POPUP_ELEMENT_ADD]Add Item
+[ID_POPUP_ELEMENT_DEL]Delete Item
+[IDC_ST_STLPOS]BOM Items
+[IDC_STATIC_MODELLSTL]Master
+[IDC_STATIC_NAME]Name:
+[IDC_STATIC_NR]ID:
+[Material]Material
+[Gültig ab]Valid from
+[Gültig bis]Valid until
+[Material, das verbraucht wird]Used Material
+[Menge]Quantity
+[Position]Item
+[Standard]Standard
+[Stückliste]BOM
+[Positionsbezeichnung]Description
+
+#VIEWSTLTEMP
+[IDC_ST_STL]Order-Related Bill Of Material
+
+#VIEWSUCHEDB
+[IDC_CHECK1]AND
+[IDC_SUCHE_ERGEBNISSE]Search Results
+[IDC_SUCHE_KRITERIEN]Search Criteria
+[Suche]Search
+[Columname_Custom]Number
+
+#VIEWWOCHENPLAN
+[Bezeichnung]Description
+[Ende]End
+[ID_POPUP_WOCHENPLAN_ADD_INTERVALL]Add Interval
+[ID_POPUP_WOCHENPLAN_DEL_INTERVALL]Delete Interval
+[IDC_BUTTON_HINTERGRUND]Background Color:
+[IDC_STATIC_BESCHREIBUNG]Name:
+[IDC_STATIC_NAME]ID:
+[IDC_WOCHENPLAN_TAGE]Day Intervals
+[Start]Start
+[Status]Status
+
+//added 07.02.2011 RU
+#DLGPROPERTYFAKOPFMAT
+[Einheit]Unit:
+
+// added 11.03.2011 WW
+#VIEWGANTTSTD
+[ID_POPUP_CHANGEUSERINFO]Change Note
+
+#DLGGANTTUSERINFO
+[IDC_ST_SUBHEADER]Change Note
+
+#VIEWGANTTSTD
+[ID_POPUP_GANTT_FA_SPERREN]Lock
+[ID_POPUP_GANTT_FA_BEENDEN]Finish
+[TOOLTIP_STOERUNG]Breakdown
+[TOOLTIP_WARTUNG]Maintenance
+[TOOLTIP_RUESTEN]Setup
+[TOOLTIP_FERTIGUNG]Production
+[DEMO]Demo
+
+// added 19.05.2011 RU
+#VIEWSTL
+[Dialogheader]Consistency Error
+[Errortext]Entries in BOM Items are incorrect\n\nAdvice:\n
+[Gruppe]Group
+[IDC_STATIC_STL_REVISION]Date of Revision:
+[Material x: kein Arbeitsplan]Material "%1": no routing
+[Abbruch in Zyklus]Break due to cycle
+
+#DLGLAGERRESERVIERUNG
+[Neue Lagerreservierung hinzufügen]Add Stock Quantity Posting
+[Reserviert für]Assigned to
+[SearchID]Choose ID
+[SearchUnit]Choose unit
+
+#DLGPROPERTYAPPOSITIONSTL
+[Alternative]Alternative
+
+#DLGPROPERTYFAKOPFBEZIEHUNGEN
+[Beziehungen]Relation
+[Nummer]Number
+[Typ]Type
+[Menge]Quantity
+[Materialeingang]Material Input
+[Materialausgang]Material Output
+[Sekundärauftrag]Secondary Production Order
+[Bestellung]Purchase Order
+[Lagerreservierung]Stock Reservation
+[Vorgang]Activity
+[Bedarf]Sales Order
+[Material]Material
+
+#DLGPROPERTYFAVORGANGVERBRAUCH
+[Fertigung]Production
+[Typ]Type
+[Nummer]Number
+[Menge]Quantity
+[Einheit]Unit
+[Mangel erlaubt]Influence on scheduling
+[Überlappung in %]Overlap in %%
+[benötigte Materialien]Required Materials
+[Materialbereitstellung durch]Material provided by
+[Fremdbezug]Purchase
+[Eigenfertigung]Inhouse Production
+[Sekundärvorgang]Activity
+[Bestellbestätigung vom]Purchase Order at
+[Bestellvorschlag für]Purchase Order Proposal for
+[Auftragsreservierung]Production Order Reservation
+[Bestellreservierung]Purchase Order Reservation
+[Lagerreservierung]Stock Reservation
+[Bestand anzeigen]Show Stock
+[Auftragsreservierung hinzufügen]Add Production Order Reservation
+[Bestellreservierung hinzufügen]Add Purchase Order Reservation
+[Lagerreservierung hinzufügen]Add Stock Reservation
+[In dieser Vorgangsposition wird kein Material benötigt]No material required in this process position
+[Eintrag löschen]Delete Entry
+[Fix]Fix
+
+#DLGPROPERTYMATERIALBESTAND
+[IDC_CHK_BESTAND_PRUEFEN]Check Stock:
+
+#DLGPROPERTYMATERIALLOSGROESSEN
+[IDC_STATIC_LOS_RUNDEN]Rounding Value:
+
+#DLGPROPERTYMODELLPARAMINHALTE
+[IDC_STATIC_PRIO]Stock Order Priority:
+[Priorität wählen]Choose Priority
+
+#VIEWBESTANDSBUCHUNGEN
+[Title]Stock
+[Vorgang]Activity
+[Bedarf]Sales Order
+[Materialnummer]Material ID:
+[Materialbezeichnung]Material Name:
+[Lagerreservierung]Stock Reservation
+[Material für Bedarf reservieren]Add Material Reservation for Sales Order
+[Material für FA-Vorgang reservieren]Add Material Reservation for Activity
+[Tooltip_Material]Go to Material
+
+#VIEWLIEFBESTELL
+[IDC_STATIC_BESTELLTERMIN]Order Date:
+[IDC_STATIC_MENGE_GELIEFERT]Delivered Quantity:
+[IDC_STATIC_MENGE_OFFEN]Open Quantity:
+[IDC_STATIC_STATUS]Status:
+[IDC_CHECK_BESTELLUNG_GESPERRT]Locked:
+[IDC_STATIC_MATERIALBEZIEHUNG]Material Output:
+[Nummer]Number
+[Typ]Type
+[Menge]Quantity
+[Vorgang]Activity
+[Bedarf]Sales Order
+
+#DLGPROPERTYFAKOPFBEZIEHUNGEN
+[Materialmangel]Lack of material
+
+#DLGPROPERTYFAVORGANGVERBRAUCH
+[Materialmangel]Lack of material
+
+#VIEWBESTANDSBUCHUNGEN
+[Neue Buchung hinzufügen]Add Stock Quantity Posting
+[Materialreservierung zuweisen]Assign Material Reservation
+[Materialreservierung löschen]Delete Material Reservation
+[Sie sind nicht berechtigt einen Bedarf zu editieren]Not enough rights to edit demand
+[Sie sind nicht berechtigt einen Fertigungsauftrag zu editieren]Not enough rights to edit production order
+
+#DLGPROPERTYMATERIALHERSTELLUNG
+[IDC_STATIC_MAXWARTEZEITMAT]Max. Waiting Period for Material:
+
+#VIEWOPTIMIERUNG
+[Planungsabbruch nach schwerem Fehler]Shut down Scheduling. Fatal Error while preparing Scheduling!
+
+#MENU
+[Personalplan nicht unterstuetzt]The Shift Schedule supports only Database-Mode and therefore can not be used now
+
+#DLGPROPERTYPERSONALKAPAZITAET
+[Datum]Date
+[Anzahl Mitglieder]Number of Members
+[IDC_STATIC_POOLKAPAZITAET]Variable Pool Capacity
+[Poolkapazitäten hinzufügen]Add Pool Capacities
+[Poolkapazität entfernen]Delete Pool Capacity
+[alle Poolkapazitäten entfernen]Delete all Pool Capacities
+
+#DLGPROPERTYFAKOPFBEZIEHUNGEN
+[unbekannter Linktyp]unknown linktype: 
+
+#DLGPROPERTYFHMMASCHINEN
+[Titel]Work Center
+[Maschine]Work Center
+[Bezeichnung]Name
+[Priorität]Priority Value
+[Rüstzeitfaktor]Set-up Factor in %%
+[Alle Maschinen sind erlaubt]All Work Centers are allowed
+[Maschine hinzufügen]Add Work Center
+[Maschine entfernen]Delete Work Center
+[alle Maschinen entfernen]Delete all Work Centers
+
+#DLGPROPERTYFHMWARTUNG
+[Titel]Maintenance
+[Maximale Produktionsleistung:]Max. Production Capacity:
+[Maximale Nutzungsdauer:]Max. Durability:
+[Betriebsstunden]Hours of Operation
+[Einheit:]Unit:
+[GotoEinheit]Switch to Unit
+[ChooseEinheit]Choose Unit
+
+#DLGPROPERTYMASCHINENFHM
+[Titel]Tools
+[Fertigungshilfsmittel]Tool
+[Bezeichnung]Name
+[Priorität]Priority Value
+[Rüstzeitfaktor]Set-up Factor in %%
+[IDC_STATIC_MASCHINEFHM_HINWEIS]Note: Changes are only made at Tools
+
+#DLGPROPERTYAPPOSITIONFHM
+[Gruppennummer (Alternative)]Group (Alternative)
+[WM_ADD_GROUP]Add Group Number (Alternative)
+[WM_DEL_GROUP]Delete Group Number (Alternative)
+
+#VIEWFHM
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+[IDC_STATIC_FHM_GESCHWFAKTORFERT]Speed Factor:
+[IDC_STATIC_FHM_RUESTZEIT]Setup Time:
+[IDC_CHECK_FHM_MASCHINENWECHSEL]Allow Work Center Change:
+[IDC_STATIC_PRT_PROZESS]Process:
+
+#VIEWGANTTSTD
+[Fixierter Start:]Fixed Start: 
+[Letzte Statusmeldung:]\nLast Status Message: 
+[Wartungstermin:]\nMaintenance Date: 
+[(fixiert)](fixed)
+[Fixierte Maschine:]\nFixed Work Center: 
+
+#DLGBDE
+[Titel]Sign-Off
+[Bezeichnung]Name
+[Typ]Type
+[Gruppe]Group
+[Belegung]Allocation [%%]
+[IDC_STATIC_BDE_AUFTRAG]Activity
+[IDC_STATIC_BDE_RES]Resources
+[IDC_STATIC_BDE_EINSTELLUNGEN]Properties
+[Maschine wechseln]Change Work Center
+[Maschine hinzufügen]Add Work Center
+[Personal hinzufügen]Add Worker
+[Personalgruppe hinzufügen]Add Worker Pool
+[FHM hinzufügen]Add Tool
+[FHM entfernen]Remove Tool
+[Personal entfernen]Remove Worker
+[Personalgruppe entfernen]Remove Worker Pool
+[Startzeit]Set starting time to actual system time
+[Endezeit]Set ending time to actual system time
+[ChooseFA]Choose Production Order
+[ChooseFAVorg]Choose Operation Activity
+
+// added 19.12.11 WW
+#VIEWDUALIS
+[Datenbank]Database: 
+[Externe Datenbank]Database extern: 
+
+#CSTDABOUTDLG
+[Datenbank]Database: 
+[Externe Datenbank]Database extern: 
+
+#GPDOCKLISTPAGE
+[Filter löschen]Delete Filter
+[FilterTip]Filter Configuration for Data List
+[Changelog]Data Modifications
+
+// added 10.02.12 WW
+#STDAPP
+[Export im Szenario nicht möglich]Export is not possible in scenario mode
+[Export im Ergebnis nicht möglich]Export is not possible in result 
+[Szenario speichern]Save scenario file?
+[Soll die Ist-Linie für das Szenario fixiert werden]Lock actual time for scenario?
+[Soll die fixierte Ist-Linie aus dem Szenario übernommen werden]Approve locked actual time from scenario?
+[Nutzerrecht zum Öffnen eines Szenarios fehlt]Scenario can not be opened.\nYou do not have necessary user rights.
+[Nutzerrecht zum Übernehmen eines Szenarios fehlt]Scenario can not be applied.\nYou do not have necessary user rights.
+
+// added 08.03.12 WW
+#DLGPROPERTYAPPOSITIONFHM
+[FHM-Nr.]Tool ID
+
+// added 14.03.12 WW
+#DLGKALENDER
+[IDC_STATIC_KALENDER_FILTER]Row Filter
+[ID_POPUP_KALENDER_DEL_ALL]Delete All Exceptions
+
+// added 23.03.12 WW
+#DLGPROPERTYAZM
+[Endet am]Ends at
+
+#STDAPP
+[Fehler beim Speichern des Szenarios]Save scenario failed
+
+// added 03.04.12 WW
+#VIEWGANTTSTD
+[ID_POPUP_GANTT_FA_FREIGEBEN]Approve
+
+// added 16.05.12 WW
+#VIEWFANEU
+[Auftrag analysieren]Analyze PO
+
+#DLGPROPERTYAPPOSITIONFHM
+[Ein FHM aus jeder Gruppe verwenden]use one tool from each group
+[Alle FHM einer Gruppe verwenden]use all tools from one group
+
+// added 29.06.12 WW
+#VIEWGANTTSTD
+[ID_POPUP_GANTT_FA_MENGE]Change Quantity
+[ID_POPUP_GANTT_FAVORGANG_MENGE]Change Quantity
+[ID_POPUP_GANTT_FAVORGANG_JOB]Change Job
+[ID_POPUP_GANTT_CHANGE_PARALLEL_JOB]Parallel
+[ID_POPUP_GANTT_CHANGE_SEQUENTIAL_JOB]Sequential
+[ID_POPUP_GANTT_CREATE_BDE]Add Sign-Off Message
+
+#DLGGANTTCHANGEMENGE
+[Manuelle Mengenanpassung]Manual Quantity Adjustment
+[Fertigungsauftragsvorgang]PO Process
+[Neue Bruttomenge]New Gross Quantity:
+[Die Mengen aller Vorgänge des Fertigungsauftrags werden angepasst]The quantity of all operations will be adjusted.\nThe net quantity is updated automatically.
+[Die Mengen der anderen Vorgänge des Fertigungsauftrages werden nicht angepasst]The quantity of other operations will not be ajusted.\nThe net quantity is updated automatically.
+
+#DLGGANTTCHANGEJOBID
+[Title]Manual Job Adjustment
+[Header_SingleEdit]Operation
+[Header_MultiEdit]Operations selected
+[Job_parallel]Job Parallel:
+[Job_sequentiell]Job Sequential:
+[Question_ClearJob]Clear job affiliation?
+[ExistingJob_Single]The entered job number already exists (operation will be added to the job).
+[ExistingJob_Multi]The entered job number already exists (operations will be added to the job).
+[DifferentJobs]The operations belong to different jobs.
+[Note]Note:
+[Job_interruptible]interruptible
+
+#CDLGGANTTFIXDURATION
+[Title]Fix Operation Duration
+[Fertigungsauftragsvorgang]PO Process
+[FixDauer]Fix Duration:
+
+#DLGGANTTPLANUNGMANUELL
+[Title]Manual planning
+[Header]Choose starting time and work center
+[Startzeit]Set starting time to actual system time
+[SearchMachine]Choose work center
+[STATIC_Start]Start
+[STATIC_Machine]Work Center
+
+// added 13.08.12 WW
+#VIEWMASCHINE
+[Zeige Maschine im Leitstand]Show Work Center in Gantt Chart
+
+#VIEWMASCHINENGR
+[Zeige Maschinengruppe im Leitstand]Show Work Center Group in Gantt Chart
+
+#VIEWPERSONAL
+[Zeige Personal im Leitstand]Show Worker in Gantt Chart
+
+#VIEWPERSONALGR
+[Zeige Personalgruppe im Leitstand]Show Worker Pool in Gantt Chart
+
+#VIEWFHM
+[Zeige Fertigungshilfsmittel im Leitstand]Show Tool in Gantt Chart
+
+#VIEWARTIKEL
+[Gehe zum Lagerbestand]Go to Stock
+
+#VIEWFANEU
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#DLGPROPERTYFAVORGANGALLGEMEIN
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWARBEITSPLAN
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#DLGPROPERTYAPVORGANGALLGEMEIN
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#DLGPROPERTYAPPOSITIONALLGEMEIN
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWGANTTSTD
+[IDC_STATIC_CUSTOM1]\nInformation 1: 
+[IDC_STATIC_CUSTOM2]\nInformation 2: 
+[IDC_STATIC_CUSTOM3]\nInformation 3: 
+
+// added 21.08.12 WW
+[IDC_STATIC_NAME]\nDescription: 
+
+// added 25.09.12 WW
+#DLGREPORTCONFIGCREATEFILTER
+[IDC_STATIC_HINWEIS_ZEITFORMAT]Note: Please specify the datetime format for filter value in this form: YYYYMMDD HH:MM:SS\nIndicating the exact time is optional
+
+// added 15.10.12 WW
+#DLGAUTORUN
+[Kontinuierliche Planung]Continuous Planning
+[IDOK]Exit
+[IDC_STATIC_AUTORUN_TIMEINTERVAL]Time Interval
+[IDC_STATIC_AUTORUN_PLANPARAM]Planning Parameter ID
+[Start]Start
+[Stopp]Stop
+[nicht gestartet]not started
+[sobald moeglich]as soon as possible
+[Warnung]The continuous planning can not be started unless there are not accepted results!
+
+#MENU
+[Kontinuierliche Planung]Continuous Planning
+
+#DLGPROPERTYAPVORGANGMASCHINEN
+[IDC_CHK_UNTERBRECHBAR]schedule with interruptions
+
+// added 24.10.12 WW
+#DLGWAITFORUNLOCK
+[Title]Please wait
+[MSG1]Access to the database is currently not possible,\nbecause it is exclusively locked for user '%1' (host: %2 - PID: %3).
+[Cancel]Cancel waiting
+
+#STDMAINFRAME
+[Fertigungsplan wurde aktualisiert]The production schedule has been updated.\nShould GANTTPLAN reimport the production schedule?
+
+// added 30.10.12 WW
+#DLGDELETEOBJECT
+[IDC_CHECK_DELETE_CONFIRM]Do not show this dialog again
+
+#DLGUPDATEOBJECT
+[IDC_CHECK_UPDATE_CONFIRM]Do not show this dialog again
+
+#MENU
+[Einstellungen]Options
+[Oberfläche]GUI
+[Speichern_manuell_bestätigen]Confirm Save Object
+[Löschen_manuell_bestätigen]Confirm Delete Object
+[Standardeinstellungen_wiederherstellen]Restore Default Settings
+
+// added 14.12.12
+#DLGPROPERTYREPORTCONFIGGENERAL
+[IDC_STATIC_OBJEKTVORAUSWAHL_DESC](Multiple choices can be separated by semicolon)
+
+// added 31.01.13
+#DLGMSG
+[IDC_BTN_COPYTOCLIPBOARD]Copy to Clipboard
+
+// added 18.02.13
+#DLGCREATEFA
+[Fertigungsauftrag erstellen]Create Production Order
+[Einstellungen]Properties
+[IDC_STATIC_OBJECTID]ID:
+[IDC_STATIC_DLGCREATEFA_MATERIAL]Material:
+[IDC_STATIC_DLGCREATEFA_PRODUCTIONVERSION]Production version:
+[IDC_STATIC_DLGCREATEFA_PLANUNGSTYP]Planning Type:
+[IDC_STATIC_DLGCREATEFA_PRIO]Priority:
+[IDC_STATIC_DLGCREATEFA_MENGE]Quantity:
+[IDC_STATIC_DLGCREATEFA_TERMIN]Due Date:
+[SearchPrio]Choose Priority
+[RemovePrio]Remove Priority
+[SearchMat]Choose Material
+[SearchProductionversion]Choose Production Version
+[Fertigungsversion_fehlt]There is no production version to produce the selected material!
+
+// added 18.03.13
+#VIEWGANTTSTD
+[ID_POPUP_GANTT_REMOVE_OTHER_FA]Remove other PO from view
+[ID_POPUP_GANTT_REMOVE_OTHER_RES]Remove other resources from view
+
+// added 28.02.13
+#VIEWOPTIMIERUNG
+[Ungedeckte Bedarfe]Sales Orders Incomplete
+
+// added 20.03.13
+#VIEWMASCHINE
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWMASCHINENGR
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWPERSONAL
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWPERSONALGR
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWSTL
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWAZM
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWRUESTMATRIX
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWQUALIFIKATIONEN
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWPRIORITAET
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#TOOLTIP
+[RESID_1913]Import Production Schedule
+[RESID_1914]Process Confirmations
+
+// added 23.05.13 WW
+#DLGPROPERTYMASCHINENLOSGROESSEN
+[Titel]Lot Sizes
+[IDC_STATIC_ERLAUBTE_LOSGROESSEN]Allowed Lot Sizes
+[IDC_STATIC_MIN_LOS]Minimum Lot Size:
+[IDC_STATIC_MAX_LOS]Maximum Lot Size:
+[IDC_STATIC_EINHEIT]Unit:
+[GotoEinheit]Go to Unit
+[ChooseEinheit]Choose Unit
+[RemoveEinheit]Remove Unit
+
+// added 13.06.2013
+#DLGCLOSESCENARIO
+[IDC_HEADER]End Scenario Mode
+[IDC_TEXT]What do you want to do with the data changes made in Scenario mode?
+[IDC_DROP_HEADER]Discard Scenario data
+[IDC_DROP_TEXT]Any changes made during Scenario mode will be discarded, and the system reverts to the original state before the Scenario mode was activated.
+[IDC_APPLY_HEADER]Approve Scenario data
+[IDC_APPLY_TEXT]All data modified in the scenario mode is approved, and permanently saved for future planning use.
+[IDC_SAVEFILE_HEADER]Save to Scenario file
+[IDC_SAVEFILE_TEXT]The scenario data will be saved to a file for further usage and the system reverts to the original state before the Scenario mode was activated.
+
+#GPDOCKMANUAL
+[beachten]respect
+[nicht beachten]ignore
+[alle beachten]respect all
+[keine beachten]respect nothing
+[individuell]individual
+[planen]plan
+[nicht planen]do not plan
+[ja]yes
+[nein]no
+[ShiftScope]Scope
+[ShiftScopeInfo]Selection of operations that can be influenced during manual planning. Depending on the selected type, the shifted operation has only an influence on the selected operation itself, on the whole production order or even on the entire production order network.
+[ShiftMode]Mode
+[ShiftModeInfo]Mode 'move if necessary' moves other operations from the selection only when necessary. Mode 'move equally' during shifting will keep the time intervals between the selected operations. Mode 'replan' allows you to adjust all selected operations to new circumstances.
+[nicht umplanen]do not change
+[verschieben falls nötig]move if neccessary
+[gleichmäßig verschieben]move equally
+[neu planen]replan
+[Vorgang]Operation
+[Fertigungsauftrag]Production order
+[Fertigungsauftragsnetz]Production order network
+[Restriktionen]Restrictions
+[Restriktionsverhalten]If you select 'respect all' the same restrictions as in automatic planning are used. If you select 'individual', you can disable chosen restrictions. The "ignore" mode deactivates all restrictions.
+[Auftragsbeziehungen]Order relations
+[Beziehung zwischen Aufträgen beachten]Respect relations between production orders
+[Vorgangsbeziehungen]Operation relations
+[Beziehung beachten]Respect the relation between orders
+[MinPuffer]Minimum Buffer
+[MinPufferInfo]Respect minimum buffer of Successor relation
+[MaxPuffer]Maximum Buffer
+[MaxPufferInfo]Respect maximum buffer of Successor relation
+[Maschine]Work Center
+[MaschineInfo]Respect restrictions regarding the actual work center
+[MaschArbeitszeitmodell]Working Time Model
+[MaschArbeitszeitmodellInfo]Respect working time model of actual work center (break, dysfunction, planned maintenance, ...)
+[MaschKapazität]Capacity
+[MaschKapazitätInfo]Respect capacity and types of parallel allocation
+[MaschAlternative Maschinen]Alternative work centers
+[MaschAlternative MaschinenInfo]Should the operation only be valid on work centers listed in the routing
+[MaschLinie]Line work centers
+[MaschLinieInfo]Respect line loyalty selection of alternative work centers
+[MaschLinieSequenz]Line sequence
+[MaschLinieSequenzInfo]Ensure uniform production order sequence within lines, if it is a sequential line
+[Personal]Workers
+[PersonalInfo]Plan workers
+[PersArbeitszeitmodell]Working Time Model
+[PersArbeitszeitmodellInfo]Respect Working Time Model of personal (break, dysfunction, planned maintenance, ...)
+[PersKapazität]Capacity
+[PersKapazitätInfo]Respect capacity
+[PersWork CenterQualification]Work Center qualification
+[PersWork CenterQualificationInfo]Respect work center qualification
+[PersActivityQualification]Activity qualification
+[PersActivityQualificationInfo]Respect activity qualification
+[FHM]Tools (prt)
+[FHMInfo]Plan tools
+[FHMArbeitszeitmodell]Working Time Model
+[FHMArbeitszeitmodellInfo]Respect working time model of tools (break, dysfunction, planned maintenance, ...)
+[FHMKapazität]Capacity
+[FHMKapazitätInfo]Respect capacity
+[MatMaterialmangel]Lack of material
+[MatMaterialmangelInfo]Respect general availability of material
+[MatLieferantenbestellungen]Purchase orders
+[MatLieferantenbestellungenInfo]Respect earliest start regarding purchase orders
+[MatBereitstellungszeit]Allocation time for stock withdrawal
+[MatBereitstellungszeitInfo]Respect earliest start regarding the allocation time for stock withdrawal
+[Jobbeziehungen]Job relations
+[JobbeziehungenInfo]Respect jobs (parallel & sequential)
+[Start]Earliest start
+[StartInfo]Respect earliest default start time 
+[FixierterStart]Fixed start
+[FixierterStartInfo]If you select "respect", operations with fixed start are not moved. The selected operation itself can always be moved.\nIf you select "ignore" operations with a fixed start time are only moved if necessary. The value for the fixed start time always remains unchanged.
+[Planning]Planning
+[PlanningInfo]Planning settings
+[Scheduling]Scheduling
+[SchedulingInfo]Respect restrictions about scheduling
+[ReservationPrt]Reservations
+[ReservationPrtInfo]Respect tool reservations
+[ReservationWorkCenter]Reservations
+[ReservationWorkCenterInfo]Respect work center reservations
+[ActualTime]Actual time
+[ActualTimeInfo]Respect actual time when scheduling
+
+#DLGSHORTCUTS
+[Category_Uncategorized]Uncategorized
+[Category_Scheduling]Scheduling
+[Category_DataObject]Data Object
+[Category_Ganttview]Gantt Chart
+[Category_View]View
+[Category_Scenario]Scenario
+[UseShortcuts]Activate shortcuts
+
+[Action]Action
+[KeyCombi]Key Combination
+[Title]Shortcuts
+[Header]Available Shortcuts
+
+// Category: Scheduling
+[GotoPlanningAndGo]Go to Automatic Scheduling and start
+[GotoPlanning]Go to Automatic Scheduling without starting
+[DiscardResult]Discard Result
+[DiscardAllResults]Discard all results
+[PrepareData]Prepare data
+[SynchronizeData]Synchronize data
+[ImportModel]Import Production Schedule
+[Export]Export
+[SwitchToModel]Switch to Model
+[DuplicateResult]Start Manual Planning in new Result
+[PrevResult]Previous Result
+[NextResult]Next Result
+[SwitchResult1]Switch to Result 1
+[SwitchResult2]Switch to Result 2
+[SwitchResult3]Switch to Result 3
+[SwitchResult4]Switch to Result 4
+[SwitchResult5]Switch to Result 5
+[SwitchResult6]Switch to Result 6
+[SwitchResult7]Switch to Result 7
+[SwitchResult8]Switch to Result 8
+[SwitchResult9]Switch to Result 9
+
+// Category: DataObject
+[SearchObject]Search Data Object
+[PrevObject]Previous Data Object
+[NextObject]Next Data Object
+[EditObject]Edit Data Object
+[SaveObject]Save Data Object
+[NewObject]New Data Object
+[CopyObject]Copy Data Object
+[DelDataObject]Delete Data Object
+[DefaultJump]Default Jump
+[DefaultAction]Default Action
+
+// Category: View
+[PrevView]Previous View in History
+[NextView]Next View in History
+[FocusCurrentViewInNavi]Focus current View in Navigation
+[Help]Show Help
+[HelpShortcuts]Show available Shortcuts
+[ShowNavi]Show/Hide Navigation
+[ShowDatalist]Show/Hide Datalist
+[RestoreDefaults]Restore Default Settings
+
+// Category: Ganttview
+[GotoGantt]Go to Gantt Chart
+[DefaultView]Select Default View
+[RescourceView]Select Resource View
+[POView]Select Production Order View
+[ShowWorkCenters]Turn Work Centers on/off
+[ShowWorkers]Turn Workers on/off
+[ShowTools]Turn Tools on/off
+[ShowChildPOs]Turn Secondary Production Orders on/off
+[ShowPlanningOrder]Show Schedule Order
+[ShowOperationRelations]Show Operation Relations
+[DrawSetupConstraintIntervals]Show Setup Constraint Time Intervals
+[DrawAcitvityAsOneBar]Show Activity as one Bar
+[ChangeTextAboveBars]Show Text above Operation Bars
+[ShowResourceRelations]Show Relations to Secondary Resources
+[HighlightPONet]Highlight Production Order Network
+[GotoActualTime]Go to actual time
+[EnableManualMode]Edit Mode
+[Up]Scroll up
+[Down]Scroll down
+[UpFast]Fast scroll up
+[DownFast]Fast scroll down
+[Right]Scroll right
+[Left]Scroll left
+[FarLeft]Scroll to begin of Scheduling Period
+[FarRight]Scroll to end of Scheduling Period
+[Fullscreen]Fullscreen
+[DeletePO]Unschedule Production Order (only in manual Mode)
+[ChangeDuration]Change duration of an Operation (only in manual Mode)
+[ShiftPO]Shift Operation (only in manual Mode)
+[ShowAllPanels]Show/Hide additional Windows
+[ShowInfoPanel]Show/Hide Window Information
+[ShowSettings]Show/Hide Window Preferences
+[ShowOrders]Show/Hide Window Orders
+[SplitOperation]Split Operation under Mouse Position (only in manual Mode)
+[ZoomOut]Scale down Time Resolution
+[ZoomIn]Scale up Time Resolution
+[IncLineHeight]Increase line height
+[DecLineHeight]Decrease line height
+
+// Category: Scenario
+[ApplyScenario]Apply Scenario
+[CloseScenario]Close Scenario
+[CreateScenario]Create Scenario
+[OpenScenario]Open Scenario
+[SaveScenario]Save Scenario
+
+[hold]hold
+[KEY_BACKSPACE]Backspace
+[KEY_SPACE]Spacebar
+
+#GPTOOLBARGANTT
+[ID_DOCK_INFO]Information
+[ID_DOCK_ORDERS]Orders
+[ID_DOCK_MANUAL]Preferences
+[IDC_GANTT_BUTTON_PANELS]Show/Hide additional Windows
+[Leitstandfilter]Show Quick Filter
+[Farbschema]Choose/Create Color Scheme
+[Nutzeransicht]Choose/Create View
+[Vollbildmodus]Start/Close Fullscreen
+[Tooltip_ManualMode]Edit Mode§HOTKEY§
+[Tooltip_ManualMode_Content]In the production schedule, changes are applied immediately, while in a result, all changes must be applied manually to the production schedule.
+[ManualMode_Shift]Shift [S]
+[ManualMode_ChangeDuration]Change Duration [D]
+
+#GPTOOLBARNAVI
+[HTMLHeader]Start Scenario Mode
+[HTMLText]Starts the Scenario Mode. In Scenario mode you can fetch your current data into a simulation. You can change data and parameters, without affecting/changing your real planning.
+
+#STDAPP
+[SzenarioUebernehmen]Save actual scenario data to GANTTPLAN?
+[SzenarioUebernahmeFehler]Saving actual scenario data to GANTTPLAN was finished with errors.
+[BDE abarbeiten und Plan aktualisieren]Use current Sign-offs and update Planning with this data?
+
+#STDMAINFRAME
+[Datenliste]Datalist
+[Navigation]Navigation
+[Aufträge]Orders
+[Einstellungen]Preferences
+[Information]Information
+[HTMLStartScenarioHeader]Start Scenario Mode
+[HTMLStartScenarioText]Starts the Scenario Mode. In Scenario mode you can fetch your current data into a simulation. You can change data and parameters, without affecting/changing your real planning.
+[HTMLEndScenarioHeader]End Scenario mode
+[HTMLEndScenarioText]Ends the Scenario Mode. In Scenario mode you can fetch your current data into a simulation. You can change data and parameters, without affecting/changing your real planning.
+[Ergebnisse verwerfen]Discard all other results?
+[RestoreDefaultSettingsText]Should %1 default settings be restored?\n\nThe changes take effect after a restart of %1%!
+[RestoreDefaultSettingsCaption]Restore default settings
+[Es wurden Datenänderungen festgestellt]Data changes have been identified.\n\nShould the production schedule be rescheduled?
+
+#DLGCHANGEPASSWORD
+[WINDOW]Change password
+[IDC_STATIC_OLDPW]Enter old password:
+[IDC_STATIC_NEWPW1]Enter new password:
+[IDC_STATIC_NEWPW2]Repeat new password:
+[IDC_CHK_SHOWPASSWORD]Show input in clear typing
+[IDC_STATIC_HEADER]Change password for user '%1'
+
+#DLGPROPERTYFAKOPFBEZIEHUNGEN
+[Prognosebedarf]Forecast Order
+
+#DLGREPORTCOLUMNTREE
+[IDC_STATIC_DLGREPORTCOLUMNTREE_FILTER]Filter:
+[Eigene_Bezeichnung]Individual Title:
+[Eigenschaften]Properties
+[Detaillevel]Level of Detail:
+[MessageBox_Clipboard_Success]Object path was copied to clipboard.
+[Tooltip_Header]object path for selected item
+[Tooltip_Clipboard]Click to copy path to clipboard
+
+#MENU
+[Note_Deleted_Invalid_Objects]Not all of the data could be applied. For more information, please check the log file
+
+#TOOLTIP
+[Ein Nutzer schreibt gerade ein neues Planergebnis in die Datenbank]A user is writing a new result in the database.\nPlease note that your changes may be in conflict with the new result!\n\nPlease wait...
+
+// added 11.06.14 WW
+#VIEWGANTTSTD
+[ID_POPUP_GANTT_MRP_EF]Create new production orders automatically
+[ID_POPUP_GANTT_MRP_FB]Create new purchaseorders automatically
+[ID_POPUP_GANTT_MRP_RELINK_EF]Re-assign inhouse-produced material automatically
+[ID_POPUP_GANTT_MRP_RELINK_FB]Re-assign purchased material automatically
+[ID_POPUP_GANTT_MRP_DELETE_LINKS_EF]Delete relations of inhouse-produced material
+[ID_POPUP_GANTT_MRP_DELETE_LINKS_FB]Delete relations of purchased material
+[ID_POPUP_GANTT_LOTSIZEOPT]Optimize lot sizes
+[Materialbedarf planen]Calculate Material Requirement
+
+#MENU
+[ChangePassword]Change password
+[Workerinformation]Worker information
+[RequestForInformation]My Event history
+[RequestForInformation_GLOBAL]Global Event history
+[Konfiguration_neu_lesen]Reload Configuration
+[TooltipReport]Ganttview tooltip
+[Protokoll]Protocols
+
+#DLGPRODUCTIONCONTROLLER
+[Header]Choose plant
+[COLUMN_PRODCONT]Production controller
+[COLUMN_SCHEDULE]Permission
+[IDC_STATIC_PLANT]Plant:
+[SubHeader]Set permission for following production controllers
+[Note]Permission to use for unknown or unassigned production controllers:
+[Optionen]Options
+[Tooltip_Optionen]Ways to change the permissions of all added production controllers
+[Berechtigung_ignorieren]Ignore all production controllers
+[Berechtigung_anonym]Set all production controllers to "anonymous"
+[Berechtigung_betrachten]Set all production controllers to "view" (if possible)
+[Berechtigung_planen]Set all production controllers to "schedule" (if possible)
+
+#DLGTESTVERSIONREMINDER
+[Title]Information
+[Header]Test-Licence
+[Static_Text]%1 is used with a test-licence. This type of licence is not made for productive work.
+[Button_OK]OK
+
+#DLGPRTALLOCATION
+[Titel]Change Allocation
+[Header]Allocation for Tool
+[Label_Belegung]Allocation:
+[Label_Info]Indication how much the Tool is utilized during the operation activity.
+
+#DLGCREATEVIEW
+[Titel]Create View
+[Header]Properties of View
+[Label_Name]Name:
+[Label_Kategorie]Category:
+[Label_Global]Allow usage for all users
+[Helptext_Kategorie]Category Name (optional)
+
+#VIEWWORKCENTERQUALIFICATIONMATRIX
+[Label_Anzeigeformat]Display Format
+[Label_Ansicht]View:
+[Label_Filter_Arbeitsplatz]Work Center Selection:
+[Label_Filter_Personal]Worker Selection:
+[Label_Userview_Laden]Loading...
+[Arbeitsplatz_hinzufügen]Add Work Center (Group)
+[Arbeitsplatz_auswählen]Choose Work Center (Group)
+[Alle_Arbeitsplätze_hinzufügen]Add all Work Centers/Work Center Groups
+[Personal_hinzufügen]Add Worker (Group)
+[Personal_auswählen]Choose Worker (Group)
+[Alles_Personal_hinzufügen]Add all Workers/Worker Groups
+[Spalte_nach_links_verschieben]Move selected column to the left
+[Spalte_nach_rechts_verschieben]Move selected column to the right
+[Sortierung_zuruecksetzen]Reset column sorting
+[Tooltip_View]Create/Select View
+[Tooltip_Print]Print current View
+[Quali_Beendet]expired
+[Quali_Begrenzt]limited
+[Quali_Startet]starts
+[Standardansicht]Default View
+[Ansicht_hinzufügen]New
+[Ansicht_bearbeiten]Edit
+[Ansicht_bearbeiten_2]Edit View
+[Ansicht_kopieren]Copy
+[Ansicht_kopieren_2]Copy View
+[Ansicht_löschen]Delete
+[Ansicht_löschen_Nachfrage]Do you really want to delete the view?
+[Format_ID]ID
+[Format_Name]Name
+[Format_IDundName]ID and Name
+[Leere_Ansicht]Select Resources to be displayed
+[Suche_Titel_Arbeitsplatz]Work Centers/Work Center Groups
+[Suche_Titel_Personal]Workers/Worker Groups
+[Suche_ID]ID
+[Suche_Type]Type
+[Suche_Name]Name
+[Suche_Info1]Information 1
+[Suche_Info2]Information 2
+[Suche_Info3]Information 3
+[Show]Show
+[Edit]Show/Edit
+[Copy]Copy
+[Paste]Paste
+[Delete]Delete
+[Entfernen]Remove
+[Alle_entfernen]Remove all
+[Alle_außer_diesem_entfernen]Remove all except this
+[Arbeitsplätze_ohne_Qualifikation]Add Work Centers, where Workers are not qualified
+[Arbeitsplätze_mit_Qualifikation]Add Work Centers, where Workers are qualified
+[Arbeitsplätze_mit_Rüsten]Add Work Centers, where Workers are qualified to setup
+[Arbeitsplätze_mit_Fertigen]Add Work Centers, where Workers are qualified to process
+[Arbeitsplätze_mit_Rüsten_und_Fertigen]Add Work Centers, where Workers are qualified to setup and process
+[Personal_ohne_Qualifikation]Add Workers, which are not qualified at this Work Center
+[Personal_mit_Qualifikation]Add Workers, which are qualified at this Work Center
+[Personal_mit_Rüsten]Add Workers, which are qualified to setup at this Work Center
+[Personal_mit_Fertigen]Add Workers, which are qualified to process at this Work Center
+[Personal_mit_Rüsten_und_Fertigen]Add Workers, which are qualified to setup and process at this Work Center
+[Abfrage_fixierte_Zeile]Should all shown Workers/Worker Groups get the dropped Work Center Qualification(s) on this Work Center/Work Center Group??\r\n\r\All existing Work Center Qualifications will be overwritten.
+[Abfrage_fixierte_Spalte]Do you want to give this Worker/Worker Group the dropped Work Center Qualification(s) on all shown Work Centers/Work Center Groups?\r\n\r\nAll existing Work Center Qualifications will be overwritten.
+[Abfrage_TopLeft]Do you really want to set the dropped Work Center Qualification(s) to all shown Workers/Worker Groups on all shown Work Centers/Work Center Groups?\r\n\r\nAll existing Work Center Qualifications will be overwritten.
+[Abfrage_Qualifikation_überschreiben]All existing Work Center Qualifications will be overwritten. Continue?
+[Abfrage_Qualifikation_löschen]Delete Work Center Qualification(s)?
+[Grid_Click_Personal]Click here to add Workers/Worker Groups
+[Grid_Click_Arbeitsplatz]Click here to add Work Centers/Work Center Groups
+
+#DLGMATRIXEDIT
+[Spalte_Bis]Until
+[Rüsten_hinzufügen]Add Qualification for Setup
+[Fertigen_hinzufügen]Add Qualification for Processing
+[Rüsten_Fertigen_hinzufügen]Add Qualification for Setup and Processing
+[Qualifikation_entfernen]Delete Work Center Qualification
+[IDC_QUALIMATRIXEDIT_ALLGEMEIN]Qualification Assignment
+[IDC_QUALIMATRIXEDIT_ZUORDNUNGEN]Work Center Qualification and Times
+[IDC_STATIC_MITARBEITER]Worker:
+[IDC_STATIC_NUMMER]ID:
+[IDC_STATIC_NUMMER2]ID:
+[IDC_STATIC_RESSOURCE]Work Center:
+[Spalte_Priorität]Priority Value
+[Spalte_Qualifikation]Work Center Qualification
+[Spalte_Von]From
+[WINDOWTEXT]Overview Work Center Qualification Assignment
+[Wollen Sie die Qualifikationszuordnungen der Ressource]Do you want to delete the Qualification Assignment in this Work Center 
+[Wollen Sie die Qualifikationszuordnungen von]Do you want to delete the Qualification Assignment of 
+[Qualifikationen_Eigene]Own Qualifications
+[Qualifikationen_Indirekte]Indirect Qualifications
+[Spalte_Personalgruppe]Worker Group
+[Spalte_Arbeitsplatzgruppe]Work Center Group
+[NoWorkCenterQualificationsWorkcenter]If no qualification has been assigned for a work center, then all workers are automatically qualified.
+[NoWorkCenterQualificationsGlobal]If no qualification has been assigned for any work center, then all worker are automatically qualified for all work centers.
+
+#DLGMATRIXEDITACTIVITY
+[Spalte_Bis]Until
+[Eigene_hinzufügen]Add Own
+[IDC_QUALIMATRIXEDIT_ALLGEMEIN]Qualification Assignment
+[IDC_QUALIMATRIXEDIT_ZUORDNUNGEN]Work Center Qualification and Times
+[IDC_STATIC_NUMMER]ID:
+[IDC_STATIC_QUALIFICATION]Activity Qualification:
+[Spalte_Priorität]Priority Value
+[Spalte_Von]From
+[WINDOWTEXT]Overview Work Center Qualification Assignment
+[Qualifikationen_Eigene]Own Qualifications
+[Qualifikationen_Indirekte]Indirect Qualifications
+[Spalte_Personalgruppe]Worker Group
+
+#VIEWACTIVITYQUALIFICATIONMATRIX
+[Label_Anzeigeformat]Display Format
+[Label_Ansicht]View:
+[Label_Filter_Vorgangsqualifikation]Activity Qualification Selection:
+[Label_Filter_Personal]Worker Selection:
+[Label_Userview_Laden]Loading...
+[Tooltip_Vorgangsqualifikation_hinzufügen]Add Activity Qualification
+[Tooltip_Vorgangsqualifikation_auswählen]Choose Activity Qualification
+[Tooltip_Alle_Vorgangsqualifikationen_hinzufügen]Add all Activity Qualifications
+[Tooltip_Personal_hinzufügen]Add Worker (Group)
+[Tooltip_Personal_auswählen]Choose Worker (Group)
+[Tooltip_Alles_Personal_hinzufügen]Add all Workers/Worker Groups
+[Tooltip_Spalte_nach_links_verschieben]Move selected column to the left
+[Tooltip_Spalte_nach_rechts_verschieben]Move selected column to the right
+[Tooltip_Sortierung_zuruecksetzen]Reset column sorting
+[Tooltip_View]Create/Select View
+[Tooltip_Print]Print current View
+[Standardansicht]Default View
+[Ansicht_hinzufügen]New
+[Ansicht_bearbeiten]Edit
+[Ansicht_bearbeiten_2]Edit View
+[Ansicht_kopieren]Copy
+[Ansicht_kopieren_2]Copy View
+[Ansicht_löschen]Delete
+[Ansicht_löschen_Nachfrage]Do you really want to delete the view?
+[Format_ID]ID
+[Format_Name]Name
+[Format_IDundName]ID and Name
+[Leere_Ansicht]Select Resources/Activity Qualifications to be displayed
+[Suche_Titel_Vorgangsqualifikation]Activity Qualification(s)
+[Suche_Titel_Personal]Workers/Worker Groups
+[Suche_ID]ID
+[Suche_Type]Type
+[Suche_Name]Name
+[Suche_Info1]Information 1
+[Suche_Info2]Information 2
+[Suche_Info3]Information 3
+[Add]Set Qualification  [Space]
+[Copy]Copy
+[Paste]Paste
+[Delete]Delete
+[Entfernen]Remove
+[Alle_entfernen]Remove all
+[Alle_außer_diesem_entfernen]Remove all except this
+[Neue_Vorgangsqualifikation]Create Activity Qualification
+[Vorgangsqualifikationen_mit_Qualifikation]Add Activity Qualification(s) assigned to Worker/Worker Group
+[Vorgangsqualifikationen_ohne_Qualifikation]Add Activity Qualification(s) not assigned to Worker/Worker Group
+[Personal_mit_Qualifikation]Add Workers/Worker Groups with Activity Qualification
+[Personal_ohne_Qualifikation]Add Workers/Worker Groups without Actvity Qualification
+[Abfrage_fixierte_Zeile]Do you want to assign this Activity Qualification to all shown Workers/Worker Groups?
+[Abfrage_fixierte_Spalte]Do you want to assign all shown Activity Qualifications to this Worker/Worker Group?
+[Abfrage_TopLeft]Do you want to set every shown Activity Qualification to all shown Workers/Worker Groups?
+[Vorgangsqualifikation_erstellen]Create Activity Qualification
+[Tooltip_Vorgangsqualifikation_erstellen]Create a new Activity Qualification that can be assigned to Workers
+[Grid_Click_Personal]Click here to add Workers/Worker Groups
+[Grid_Click_Vorgangsqualifikation]Click here to add Activity Qualifications
+[Quali_Beendet]expired
+[Quali_Begrenzt]limited
+[Quali_Startet]starts
+[Quali_Beendet]expired
+[Quali_Begrenzt]limited
+[Quali_Startet]starts
+
+#DLGCREATEACTIVITYQUALIFICATION
+[Titel]Create Activity Qualification
+[Header]New Activity Qualification
+[Name]Description:
+[Hinweis_NoWorker]Note: To save the Activity Qualification permanently, it has to be assigned to a Worker or Worker Group after creation.
+[Hinweis_Worker]Note: The Activity Qualification is assigned to Worker or Worker Group '%1'.
+
+#GRIDCTRL
+[Seite]Page
+[von]of
+
+#VIEWSHIFTSCHEDULE
+[Label_Anzeigeformat]Display Format
+[Label_Ansicht]View:
+[Label_Filter_Personal]Worker Selection:
+[Label_Filter_Arbeitsplatz]Work Center Selection:
+[Label_Filter_FHM]PRT Selection:
+[Label_Userview_Laden]Loading...
+[Tooltip_Personal_hinzufügen]Add Worker (Group)
+[Tooltip_Personal_auswählen]Choose Worker (Group)
+[Tooltip_Alles_Personal_hinzufügen]Add all Workers/Worker Groups
+[Tooltip_Arbeitsplatz_hinzufügen]Add Work Center (Group)
+[Tooltip_Arbeitsplatz_auswählen]Choose Work Center (Group)
+[Tooltip_Alle_Arbeisplatz_hinzufügen]Add all Work Center/Work Center Groups
+[Tooltip_FHM_hinzufügen]Add PRT
+[Tooltip_FHM_auswählen]Choose PRT
+[Tooltip_Alle_FHM_hinzufügen]Add all PRT
+[Tooltip_View]Create/Select View
+[Standardansicht]Default View
+[Ansicht_hinzufügen]New
+[Ansicht_bearbeiten]Edit
+[Ansicht_bearbeiten_2]Edit View
+[Ansicht_kopieren]Copy
+[Ansicht_kopieren_2]Copy View
+[Ansicht_löschen]Delete
+[Ansicht_löschen_Nachfrage]Do you really want to delete the view?
+[Format_ID]ID
+[Format_Name]Name
+[Format_IDundName]ID and Name
+[Leere_Ansicht]Select Resources to be displayed
+[Suche_Titel_Personal]Workers/Worker Groups
+[Suche_Titel_Arbeitsplatz]Work Centers/Work Center Groups
+[Suche_Titel_FHM]PRT
+[Suche_ID]ID
+[Suche_Type]Type
+[Suche_Name]Name
+[Suche_Info1]Information 1
+[Suche_Info2]Information 2
+[Suche_Info3]Information 3
+[Entfernen]Remove
+[Alle_entfernen]Remove all
+[Alle_außer_diesem_entfernen]Remove all except this
+[Tooltip_Prev_Week]Show previous week
+[Tooltip_Next_Week]Show next week
+[Tooltip_Print]Print Shift Schedule
+[Werkskalender_auswählen]Choose Global Calendar
+[Zellformat]Cell-Content
+[Anwesenheitszeit_anzeigen]Show attendance
+[Schichtmodellnummer_anzeigen]Show Shift Model ID
+[Sichtmodellname_anzeigen]Show Shift Model Name
+[Wochenplannummer_anzeigen]Show Shift ID
+[Wochenplanname_anzeigen]Show Shift Name
+[Sonderzeiten_anzeigen]Show exceptions
+[geplante_Sonderzeiten_anzeigen]Show planned exceptions
+[Sonderzeiten]Show Exceptions [Space]
+[Werkskalender]Show Global Calendar
+[Text_kürzen]Decrease line height [-]
+[Text_erweitern]Increase line height [+]
+[Goto_IstLinie]Go to actual time
+[Kalenderwoche]calendar week
+
+#CDLGPROPERTYUSERMANAGEMENTUSERPERMISSIONS
+[Title]User Permissions
+[Anlegen]Create
+[Ausführen]Process
+[Kategorie]Category
+[Lesen]Read
+[Löschen]Delete
+[Objekt-ID]Operation
+[Schreiben]Write
+[ID_POPUP_SWITCH_PERMISSION]Assign or remove permission [Space]
+
+#CDLGPROPERTYUSERMANAGEMENTPRODUCTIONCONTROLLER
+[Title]Production Controller
+[Note]Highest permission for all production controllers which do not have a highest permission assigned:
+[Fertigungssteuerer]Production Controller
+[Nutzerrecht]Highest Permission
+[GridbuttonAddNew]Add new Production Controller
+[GridbuttonAddExisting]Add existing Production Controller
+[ID]ID
+[Name]Name
+[PlantID]Plant
+[Fertigungssteuerer_wählen]Select Production Controller
+[Alle_löschen]Delete all entries?
+[Vererbte_nicht_löschbar]Derived Production Controller permissions cannnot be deleted!
+[ID_Exists]Permission for Production Controller '%1' already exists
+
+#CDlgPropertyUsermanagementUsertemplates
+[Title]User Template
+[UserTemplateName]User Template
+[Add]Add User Template
+
+#CDLGPLANANALYSE
+[Header]Plan-Analysis
+
+#VIEWARBEITSPLAN
+[Missing_userright]Because changing this routing, it is also necessary to adapt %1.\nYou do not have the necessary user right.\n\nSaving the routing is not impossible.
+[Disallowed_by_metadata]Because changing this routing, it is also necessary to adapt %1.\nThis is not possible due to the metadata.\n\nSaving the routing is not impossible.
+[ErrorText]The routing can not be saved!\n\nReason:\n%1
+
+#VIEWSTL
+[Missing_userright]Because changing this BOM, it is also necessary to adapt %1.\nYou do not have the necessary user right.\ncht!\n\nSaving the BOM is not impossible.
+[Disallowed_by_metadata]Because changing this BOM, it is also necessary to adapt %1.\nThis is not possible due to the metadata.\n\nSaving the BOM is not impossible.
+
+#DLGALTERNATIVERES
+[Titel]Add alternative Resources
+[Header1]Add alternative Resources to Userview
+[Header2]Resource Types to add
+[Ansicht_leeren]Clear existing Userview
+[Ansicht_auswählen]Choose own Userview:
+[Res_Arbeitsplätze]Work Center
+[Res_Personal]Worker
+[Res_FHM]PRT
+[Tooltip]Create Userview
+
+#CDLGQUESTIONMASTERCHANGED
+[Titel]
+[IDC_HEADER]Change Production Orders?
+[IDC_BTN_CHANGEPO_HEADER]Yes
+[IDC_BTN_CREATEORDERRELATED_HEADER]No
+[Text_Routing]The modified master routing is used by at least one production order.\nShould the changes in the routing affect these production orders?
+[Text_Bom]The modified master BOM is used by at least one production order.\nShould the changes in the BOM affect these production orders?
+[IDC_BTN_CHANGEPO_TEXT]Affected production orders will be adapted to changes in the routing/BOM.
+[IDC_BTN_CREATEORDERRELATED_TEXT]Affected production orders will get order-related routings/BOM's.
+[Betroffene_FA]Affected Production Orders
+
+#GPACTIVITYLABELMANAGER
+[Notes]Problems/Notes
+[ViolationChildOrderRelation]Violated Child Order Relation
+[ViolationParentOrderRelation]Violated Parent Order Relation
+[ViolationPrevOperationRelation]Violated Previous Operation Relation: 
+[ViolationNextOperationRelation]Violated Next Operation Relation: 
+[ViolationMaterialError]Shortage of Material
+[ViolationMaterialMissing]Missing Material Allocation
+[ViolationPurchaseOrder]Missing Purchase Order
+[ViolationEarliestStart]Violated Earliest Start
+[Userinfo]Note
+[PlanDeviation]Plan-Deviation
+[Order]Order:
+[Operation]Operation:
+[Start]Current Start:
+[End]Current End:
+[LatestEnd]Latest End:
+[ChildOrder]Child Order
+[ParentOrder]Primary Order
+[PrevOperation]Predecessor
+[PrevOperation_MaxPuffer]MaxBuffer-Relation to Predecessor
+[NextOperation]Successor
+[NextOperation_MaxPuffer]MaxBuffer-Relation to Successor
+[Material]Material:
+[PurchaseOrder]Purchase Order:
+[ArrivesAt]Availablity:
+[EarliestStart]Earliest Start:
+[BecauseOf]because of
+[LatestStart]Latest Start:
+[EarliestEnd]Earliest End:
+[StartToEarly] starts too early!
+[StartToLate] starts too late!
+[EndToEarly] ends too early!
+[EndToLate] ends too late!
+[TOOLTIP_SI_SOLLISTABWEICHUNG]Plan-Deviation!
+[TOOLTIP_SI_SOLL]Scheduled
+[TOOLTIP_SI_SOLLSTART] Start: 
+[TOOLTIP_SI_SOLLENDE]  End: 
+[TOOLTIP_SI_IST]Current
+[TOOLTIP_SI_ISTSTART] Start: 
+[TOOLTIP_SI_ISTENDE]  End: 
+[TOOLTIP_SI_ABW]Deviation
+[TOOLTIP_SI_ABWENDE] End: 
+
+#GPMESSAGEBOX
+[IDYES]&Yes
+[IDNO]&No
+[IDOK]OK
+[IDCANCEL]Cancel
+[IDRETRY]&Retry
+[IDIGNORE]&Ignore
+[IDABORT]&Abort
+[IDCONTINUE]&Continue
+[IDTRYAGAIN]&Try Again
+[IDINFO]Information
+
+#CGPVIEWROUTINGPAGEACTIVITYRESOURCERESERVATION
+[Title]Resource Reservations
+[WM_ADD_ELEMENT]Add reservation/release
+[action]Action
+[resource_type]Resource Type
+[resource_id]Resource ID (optional)
+[reservation_id]Reservation ID (optional)
+[Header]Resources to be reserved/released in this activity
+[ID_POPUP_ADD_RESERVATION]Add reservation/release
+[ID_POPUP_DEL_RESERVATION]Delete reservation/release
+[ID_POPUP_CHOOSE_RESOURCE]Choose %1
+[ID_POPUP_REMOVE_RESOURCE]Remove %1
+
+#DLGOBJECTVIEWER
+[Title]User Defined Fields
+[Check_ShowOnlyFilledProperties]Hide unfilled properties
+[Subobject]Subobject: 
+[Category]Category: 
+
+#GPPROPERTYGRIDPROPERTY
+[not_filled]not filled
+
+#DLGUDFOVERVIEW
+[Title]Overview
+[Header]Userdefined Properties
+[Label_Objecttype]Objecttype
+[Label_Configuration]Configuration
+[column_udf_id]ID
+[column_name]Name
+[column_info1]Info 1
+[column_info2]Info 2
+[column_info3]Info 3
+[column_category]Category
+[column_range]Range
+[column_datatype]Datatype
+[Add_CustomProperty]Add custom property
+[EditMode_NoCancel]Because You are in Edit Mode, the dialog can not be closed.
+[EmptyData]There are incomplete entries. ID and Datatype must always be filled.
+[ExistingID]Custom properties could not be applied, because ID '%1' is assigned several times.
+[QuestionPrefix]The IDs of the newly added user defined properties do not begin with '%1'. For compatibility reasons, it is recommended to start all IDs with this prefix.\nShould a prefix be added automatically?
+
+#DLGVISUALIZATION
+[Title_Routing]Routing-Visualization
+[Title_Productionorder]Production Order Visualization
+[Title_Net]Order-Net-Visualization
+[Header_Routing]Routing:
+[Header_Productionorder]Production Order:
+[Header_Net]Order-Net
+[Subheader]Selected Object
+[NoObjectSelected]No object selected
+[Close]Close
+[Tooltip_ZoomNormal]Reset Zoom
+[Tooltip_ZoomIn]Zoom In
+[Tooltip_ZoomOut]Zoom Out
+[Tooltip_Print]Print
+[Tooltip_Save]Save as image
+[Tooltip_ShowDetails]Show/Hide details for selected object
+[Tooltip_RotateGraph]Rotate clockwise
+[Tooltip_MatRelation_Ingoing]Selection of ingoing material relations to display
+[Tooltip_MatRelation_Outgoing]Selection of outgoing material relations to display
+[Tooltip_Ingoing_BomItems]Show/Hide ingoing bom items
+[Tooltip_PrevObject]Navigate back
+[Tooltip_NextObject]Navigate forward
+[Tooltip_NetShowProductionorder]Show Production Order
+[Tooltip_NetShowPurchaseorder]Show Purchase Order
+[Tooltip_NetShowStock]Show Stock
+[Tooltip_NetShowSalesorder]Show Sales Order
+[Tooltip_NetShowJobs]Show Job Links
+[MatRelation_Ingoing_Stock]Stock
+[MatRelation_Ingoing_Purchaseorder]Purchase Order
+[MatRelation_Ingoing_ChildPO]Production order
+[MatRelation_Outgoing_Salesorder]Sales Order
+[MatRelation_Outgoing_ParentPO]Production Order
+[NoInfoAvailable]No information available
+[Contextmenu_ShowProductionorder]Show order with operations
+[Contextmenu_ShowNet]Show order net
+[Contextmenu_ShowRouting]Show routing
+[Contextmenu_Net_ShowIngoing]Childs
+[Contextmenu_Net_ShowOutgoing]Parents
+[Contextmenu_Net_ShowLinked]Linked
+[Contextmenu_Net_Level_All]All
+[Contextmenu_Net_Details]Level of detail
+[Contextmenu_Operation_ShowIngoing]Childs
+[Contextmenu_Operation_ShowOutgoing]Parents
+[Message_Waiting]The graph will be created. This process may take awhile depending on datamodel and settings. Please wait a moment...
+[BOM]BOM
+[Keine]None
+
+#GRAPHPROCESSOR
+[Productionorder]Production Order
+[Stock]Stock removal
+[Purchaseorder]Purchase Order
+[Salesorder]Sales Order
+[Job Parallel]Job Parallel
+[Job Sequential]Job Sequential
+
+#DOCKORDERDLG
+[Direction_PrimaryToSecondary]Primary → Secondary
+[Direction_SecondaryToPrimary]Secondary → Primary
+[List]List
+[Hierarchy]Hierarchy
+[Filter_State]Filter production order status
+[ColumnSelection]Column selection
+[ColumnSelection_Header]Choose shown columns
+[RestoreSettings]Restore default settings
+[RestoreSettingsQuestion]Do you want to restore the default settings? All columns and settings will be reseted.
+[EmptyGroup]Drag column here to group
+[EmptyGrid]No items available
+[Tooltip_Middle]Schedule auto
+[Tooltip_Deallocate]Unschedule
+[Tooltip_Settings]Settings
+[Tooltip_Early]Schedule early
+[Tooltip_EarlyFrom]Schedule early from datetime
+[Tooltip_Late]Schedule late
+[Tooltip_Reload]Reload production orders
+[Tooltip_PlanAnalysis]Analyze production order
+[Tooltip_ShowIncomplete]Show only unscheduled orders
+[Tooltip_CreateLot]Create Lot
+[Tooltip_ReleaseLot]Delete Lot
+[ChooseDateTime_Title]Choose datetime
+[ChooseDateTimeEarly_Info]Select the date from which the order is to be scheduled as soon as possible.
+[ChooseDateTimeLate_Info]Select the date the order is to be completed.
+
+#DLGTOOLTIPREPORT
+[Title]Ganttview tooltips
+[Header]Configuration ganttview tooltips
+[DatenTyp]Type
+[ReportTyp]Selection
+[Benutzergebunden]Set usage for all users
+[Standard]Tooltip (default)
+[BuiltIn]Standard Report
+[UserDefined]Individual Report
+[Description]This dialog configures the tooltips in the ganttview.\nInstead of the standard tooltip a report can be chosen. The columns in the report define which properties are shown. The corresponding objecttype has to be chosen in report. The report color filters are used in the tooltip.
+
+#GPUSERINTERFACE
+[ProductioncontrollerNotePlural]• The production controllers [%1] are already used by user '%2' (%3)
+[ProductioncontrollerNoteSingular]• The production controller '%1' is already used by user '%2' (%3)
+
+#DLGPRODUCTIONCONTROLLERINUSE
+[IDC_HEADER]Production controllers already used
+[ProductioncontrollerQuestionReducePermissions]Selected production controllers are already in use.\n\nWhat do you want to do?
+[IDC_IGNORE_HEADER]Plan production controllers anyway.
+[IDC_IGNORE_TEXT]The production controllers that are already used will be selected for planning. The planning result is in conflict and should not be approved without consultation.
+[IDC_REDUCE_HEADER]Do not plan production controllers. (recommended)
+[IDC_REDUCE_TEXT]Production controllers are not selected for planning. Affected production orders will remain unchanged.
+
+#WIZARDCONTROLLER
+[Prev]< Back
+[Next]Next >
+[Finish]Finish
+[Cancel]Cancel
+[Help]Help
+
+#RESOURCEPICTURE
+[SelectImg]Select Image
+[RemoveImg]Remove Image
+
+#DLGASKCHANGEDEFAULTADMINPASSWORD
+[Title]Security Advise
+[Header]Change default password for user '%1'
+[Text]For greater security, changing the default password is highly recommended.
+[ChangeNow]Change now
+[Ignore]Not now
+[DontAskMeAgain]Do not show this dialog again
+
+#DLGGANTTMANUALSPLIT
+[Title]Split evenly
+[Header]Splitting of '%1'
+[Label]Amount of Split-Operations:
+
+#DLGGANTTMANUALSPLITFA
+[Title]Create lot
+[Header]Create lot of production order '%1'
+[IDC_CHECK_CREATEJOBLOT]Include production orders linked by job
+[IDC_ST_TEXT]Gross quantity of production order lot:
+[IDC_STATIC_TOTALQUANTITY]of %1 %2
+[IDC_STATIC_REMAINING]Remaining quantity in the original production order:
+[IDC_STATIC_FA]New production order ID:
+[IDC_STATIC_FA_JOB]Suffix for production order IDs and job IDs:
+[PIPE_NOT_ALLOWED]The character '|' is not allowed in production order ID.
+[PIPE_NOT_ALLOWED_JOB]The character '|' is not allowed in suffix for production order IDs and job IDs.
+[EMPTY_NOT_ALLOWED]Empty production order ID is not allowed.
+[EMPTY_NOT_ALLOWED_JOB]Empty suffix for production order IDs and job IDs is not allowed.
+[Hinweise]Comments
+[QUESTION_RELEASE_JOBLOT]Release Lot:\n\nDo you want to release all production order lots linked by jobs too?\nThis applies to orders with id: %1.\n\nYes: All linked production order lots are released.\nNo: Only this production order lot is released and removed from all jobs.\nCancel: The production order lot is not released.
+
+#DLGPROPERTYFHMKOSTEN
+[Title]Costs
+[CostRateProcessing]Cost rate Processing:
+[CostRateSetup]Cost rate Setup:
+
+#DLGOPTIMIZATIONGROUPSEQUENCE
+[Optimierungsgruppen_auswaehlen]Choose Optimization Groups
+[IDC_ST_HEADER]Arrange Setup Sequence
+[IDC_STATIC_DESCRIPTION]A Setup Sequence determines the desired order of optimization groups on the work center. A Setup Sequence is specified by arranging optimization groups. The value of Step Costs determines the setup costs per transition to the next sequence step.
+[IDC_STATIC_COMMENT]Comment:
+[IDC_STATIC_SEQUENCECOST]Step Costs:
+[IDC_BUTTON_COPYFROM]Copy from...
+[IDOK]OK
+[IDCANCEL]Cancel
+[->]→
+[GRIDCOLUMN_Position]Position
+[GRIDCOLUMN_Nummer]ID
+[GRIDCOLUMN_Name]Name
+[GRIDCOLUMN_Reihenfolge]Sequence
+[GRIDCOLUMN_Kosten]Costs
+[GRIDCOLUMN_Kommentar]Comment
+[Arbeitsplatz_auswählen]Choose Work Center
+[Abfrage_überschreiben]Do you want to overwrite the current sequence?
+
+#DLGPRODUCTMIX
+[Optimierungsgruppen_auswaehlen]Choose Optimization Groups
+[IDC_ST_HEADER]Product Mix
+[IDC_STATIC_DESCRIPTION]The product mix describes a mixed processing of products with different optimization groups on the work center. Suitable production orders are split or combined to form blocks of the specified sizes, which are then scheduled in the specified order, if possible.
+[IDC_STATIC_COMMENT]Comment:
+[IDC_BUTTON_COPYFROM]Copy from...
+[->]→
+[GRIDCOLUMN_Position]Position
+[GRIDCOLUMN_Id]Number
+[GRIDCOLUMN_Name]Name
+[GRIDCOLUMN_Min]Min.
+[GRIDCOLUMN_Max]Max.
+[GRIDCOLUMN_Opt]Opt.
+[GRIDCOLUMN_Reihenfolge]Product Mix
+[GRIDCOLUMN_Kommentar]Comment
+[Arbeitsplatz_auswählen]Choose Work Center
+[Abfrage_überschreiben]Do you want to overwrite the current sequence?
+
+#CONNECTIONISSUEBAR
+[ConnectionLost]Server connection lost. Attempting to reconnect...
+[ConnectionRestored]Server connection restored

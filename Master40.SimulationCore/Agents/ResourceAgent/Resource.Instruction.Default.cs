@@ -1,22 +1,17 @@
 ﻿using Akka.Actor;
 using AkkaSim.Definitions;
 using System;
-using System.Collections.Generic;
 using static FAgentInformations;
-using static FBuckets;
 using static FJobConfirmations;
 using static FOperations;
 using static FRequestProposalForCapabilityProviders;
-using static FRequestToRequeues;
 using static IConfirmations;
-using static IJobResults;
-using static IJobs;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent
 {
     public partial class Resource
     {
-        public class Instruction
+        public partial class Instruction
         {
             public class Default
             {

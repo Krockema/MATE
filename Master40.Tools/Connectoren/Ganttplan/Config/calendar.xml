@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects>
+    <object type="calendar">
+        <field name="calendar_id" datatype="STRING" value="Werkskalender" />
+        <field name="name" datatype="STRING" value="Werkskalender" />
+    </object>
+</objects>

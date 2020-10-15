@@ -18,7 +18,10 @@
                         <a class="nav-link active" id="home-tab" data-toggle="tab" href="#summary" role="tab" aria-controls="summary" aria-selected="true">Summary</a>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#simMessages" role="tab" aria-controls="simMessages" aria-selected="false">Messages</a>
+                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#simMessages" role="tab" aria-controls="simMessages" aria-selected="false">Sim Messages</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#ganttMessages" role="tab" aria-controls="ganttMessages" aria-selected="false">Gantt Messages</a>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
@@ -82,7 +85,26 @@
                     <div class="tab-pane fade" id="simMessages" role="tabpanel" aria-labelledby="simMessages-tab">
                         <!-- simulation messages start -->
                         
-                        <div id="" class="MessageDisplay" style="max-height: 600px; overflow: auto;"></div>
+                        <div id="simMsgDisplay" class="MessageDisplay" style="max-height: 600px; overflow: auto;"></div>
+                        <!-- simulation messages end -->
+                    </div>
+                    <div class="tab-pane fade" id="ganttMessages" role="tabpanel" aria-labelledby="ganttMessages-tab">
+                        <!-- simulation messages start -->
+                        
+                        <div id="ganttMsgDisplay" class="MessageDisplay" style="max-height: 600px; overflow: auto;">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">TimeStep</th>
+                                        <th scope="col">Write Confirmations</th>
+                                        <th scope="col">Gantt Plan Execution</th>
+                                        <th scope="col">Load Gantt Results</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ganttValueBody">
+                                </tbody>
+                            </table>
+                        </div>
                         <!-- simulation messages end -->
                     </div>
                 </div>
@@ -120,5 +142,15 @@
             + serialized[2].Value + "</td></tr></tbody>";
 
         $("#stockValueBody").replaceWith(tBody);
+    });
+
+    processingProxy.on("ganttListener", function (msg) {
+        var serialized = JSON.parse(msg);
+        $("#ganttValueBody").prepend("<tr>"
+            + "<td style='text-align: center'>" + serialized['TimeStep'] 
+            + "</td><td>" + serialized['Write Confirmations'] 
+            + "</td><td>" + serialized['Gantt Plan Execution'] 
+            + "</td><td>" + serialized['Load Gantt Results'] 
+            + "</td></tr>");
     });
 </script>

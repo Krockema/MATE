@@ -75,7 +75,6 @@ namespace Master40.DB.Data.Context
                 .HasForeignKey<WorkingStationParameterSet>(ws => ws.MachiningTimeId);
             modelBuilder.Entity<MachiningTimeParameterSet>()
                 .ToTable("MachiningTime");
-
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)

@@ -59,8 +59,7 @@ namespace Master40.XUnitTest.DataGenerator
                     ExtendedTransitionMatrix = true,
                     GeneralMachiningTimeParameterSet = individualMachiningTime ? null : new MachiningTimeParameterSet
                     {
-                        MeanMachiningTime = 15,
-                        VarianceMachiningTime = 5
+                        MeanMachiningTime = 15, VarianceMachiningTime = 5
                     },
                     WorkingStations = new List<WorkingStationParameterSet>()
                     {
@@ -185,10 +184,10 @@ namespace Master40.XUnitTest.DataGenerator
                 double? doubleNull = null;
                 approach.ProductStructureInput = new ProductStructureInput
                 {
-                    EndProductCount = !randomGeneratedInputValues ? 5 : rng.Next(9) + 2,
-                    DepthOfAssembly = !randomGeneratedInputValues ? 13 : rng.Next(10) + 1,
-                    ComplexityRatio = !randomGeneratedInputValues ? 1.7 : rng.NextDouble() + 1,
-                    ReutilisationRatio = !randomGeneratedInputValues ? 2.5 : rng.NextDouble() + 1,
+                    EndProductCount = !randomGeneratedInputValues ? 3 : rng.Next(9) + 2,
+                    DepthOfAssembly = !randomGeneratedInputValues ? 3 : rng.Next(10) + 1,
+                    ComplexityRatio = !randomGeneratedInputValues ? 2.0 : rng.NextDouble() + 1,
+                    ReutilisationRatio = !randomGeneratedInputValues ? 2.0 : rng.NextDouble() + 1,
                     MeanIncomingMaterialAmount = 1.7,
                     StdDevIncomingMaterialAmount = 0.9,
                     MeanWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 3.0,

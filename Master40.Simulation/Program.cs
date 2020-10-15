@@ -10,7 +10,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Master40.SimulationCore.Agents;
 using NLog;
-using BenchmarkDotNet.Running;
 
 namespace Master40.Simulation
 {

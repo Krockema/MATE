@@ -82,7 +82,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 SimulationNumber = agent.simulationNumber.Value,
                 IsFinal = isFinal,
                 IsKpi = true,
-                SimulationType = agent.simulationKind.Value
+                SimulationType = agent.simulationKind.Value,
+                ValueMin = 0,
+                ValueMax = 0
             };
             Kpis.Add(item: k);
         }

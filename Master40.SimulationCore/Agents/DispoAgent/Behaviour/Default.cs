@@ -7,6 +7,7 @@ using Master40.SimulationCore.Helper;
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
+using Master40.SimulationCore.Agents.ProductionAgent;
 using NLog;
 using NLog.Fluent;
 using static FAgentInformations;
@@ -18,6 +19,7 @@ using static Master40.SimulationCore.Agents.Guardian.Instruction;
 using static Master40.SimulationCore.Agents.StorageAgent.Storage.Instruction;
 using static Master40.SimulationCore.Agents.SupervisorAgent.Supervisor.Instruction;
 using static Master40.Tools.ExtensionMethods.Negate;
+using static Master40.SimulationCore.Agents.StorageAgent.Storage.Instruction.Default;
 
 namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 {
@@ -76,7 +78,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
             _fArticle = requestArticle;
             Agent.DebugMessage($"{_fArticle.Article.Name} {_fArticle.Key} is Requested to Produce.", CustomLogger.STOCK, LogLevel.Warn);
             // get related Storage Agent
-            Agent.Send(instruction: Directory.Instruction.RequestAgent
+            Agent.Send(instruction: Directory.Instruction.Default.RequestAgent
                                     .Create(discriminator: requestArticle.Article.Name
                                         , target: Agent.ActorPaths.StorageDirectory.Ref));
         }
@@ -87,7 +89,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 
             _fArticle = _fArticle.UpdateStorageAgent(s: hubInfo.Ref);
             // Create Request to Storage Agent 
-            Agent.Send(instruction: Storage.Instruction.RequestArticle.Create(message: _fArticle, target: hubInfo.Ref));
+            Agent.Send(instruction: Storage.Instruction.Default.RequestArticle.Create(message: _fArticle, target: hubInfo.Ref));
         }
 
         internal void ResponseFromStock(FStockReservation reservation)
@@ -228,6 +230,14 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                 msg: $"Could not run shutdown for {_fArticle.Article.Name} " +
                      $"(Key: {_fArticle.Key}, OrderId: {_fArticle.CustomerOrderId}) cause article is provided {_fArticle.IsProvided } and has childs left  {Agent.VirtualChildren.Count} "
                 , CustomLogger.DISPOPRODRELATION, LogLevel.Debug);
+        }
+        public override void OnChildAdd(IActorRef childRef)
+        {
+            var articleKey = _fArticle.Keys.ToArray()[fArticlesToProvide.Count];
+            var baseArticle = _fArticle.SetKey(articleKey);
+            fArticlesToProvide.Add(Agent.Context.Sender, articleKey);
+            Agent.Send(instruction: Production.Instruction.StartProduction.Create(message: baseArticle, target: Agent.Context.Sender));
+            Agent.DebugMessage(msg: $"Dispo<{baseArticle.Article.Name } (OrderId: { baseArticle.CustomerOrderId }) > ProductionStart has been sent for { baseArticle.Key }.");
         }
     }
 }

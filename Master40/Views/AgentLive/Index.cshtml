@@ -99,7 +99,7 @@
         } else if (msg == "ProcessingUpdate" || msg == "MrpProcessingComplete") {
             // do nothing
         } else {
-            $(".MessageDisplay").prepend(msg);
+            $("#simMsgDisplay").prepend(msg);
             //$(".MessageDisplayRunning").prepend(msg);
         }
     });
@@ -130,12 +130,6 @@
             + "<p><b>Running</b></p>"
             + "<p><b>&nbsp;</b></p>"
             + "</div>");
-
-
-
-        
-        
-
         $.get("AgentLive/RunAsync/" + simulationType + "/orderAmount/" + orderAmount + "/arivalRate/" + arivalRate + "/estimatedThroughputTime/" + estimatedThroughputTime);
     }
 
