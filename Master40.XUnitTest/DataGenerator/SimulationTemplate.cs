@@ -138,6 +138,7 @@ namespace Master40.XUnitTest.DataGenerator
                 dataGenSim.FinishedSuccessfully = sim.IsCompletedSuccessfully;
                 await Task.Run(() => 
                     dataGenCtx.SaveChanges());
+                System.Diagnostics.Debug.WriteLine("################################# Simulation has finished with number " + dataGenSim.Id);
                 Assert.True(condition: sim.IsCompleted);
             }
         }

@@ -15,6 +15,9 @@ namespace Master40.DataGenerator.Verification
                                         (double) (productStructure.NodesCounter - nodesOfLastAssemblyLevelCounter);
             var actualReutilizationRation = productStructure.Edges.Count /
                                             (double) (productStructure.NodesCounter - input.EndProductCount);
+
+            System.Diagnostics.Debug.WriteLine("################################# Generated product structure has a complexity ratio of " + actualComplexityRatio + " (input was " + input.ComplexityRatio + ")");
+            System.Diagnostics.Debug.WriteLine("################################# Generated product structure has a reutilization ratio of " + actualReutilizationRation + " (input was " + input.ReutilisationRatio + ")");
         }
 
     }

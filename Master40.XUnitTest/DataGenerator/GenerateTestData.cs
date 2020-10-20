@@ -18,23 +18,16 @@ namespace Master40.XUnitTest.DataGenerator
 {
     public class GenerateTestData
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
         private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true";
         private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
         private const string testGeneratorCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestGeneratorContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-
-        public GenerateTestData(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
 
         //Es gibt wohl eine Diskripanz zwischen Master40 und SYMTEP was Operationen und Stücklisten (BOM) angeht (Struktur und Zeitpunkt)
         [Fact]
         public void SetInput()
         {
             var success = true;
-            var iterations = 1;
+            var iterations = 10;
 
             for (var i = 0; i < iterations; i++)
             {
@@ -180,20 +173,20 @@ namespace Master40.XUnitTest.DataGenerator
                 //Nebenbedingung lautet, dass Fertigungstiefe mindestens 1 sein muss, es macht aber wenig Sinn, wenn sie gleich 1 ist, da es dann keine Fertigungen gibt
                 //-> Anpassung der Nebenbedingung: Fertigungstiefe muss mindestens 2 sein
                 //KG und MV nicht größer 5; FT nicht größer 20; Anzahl Endprodukte nicht größer 50
-                var randomGeneratedInputValues = false;
+                var randomGeneratedInputValues = true;
                 double? doubleNull = null;
                 approach.ProductStructureInput = new ProductStructureInput
                 {
-                    EndProductCount = !randomGeneratedInputValues ? 3 : rng.Next(9) + 2,
-                    DepthOfAssembly = !randomGeneratedInputValues ? 3 : rng.Next(10) + 1,
-                    ComplexityRatio = !randomGeneratedInputValues ? 2.0 : rng.NextDouble() + 1,
-                    ReutilisationRatio = !randomGeneratedInputValues ? 2.0 : rng.NextDouble() + 1,
+                    EndProductCount = !randomGeneratedInputValues ? 5 : rng.Next(9) + 2,
+                    DepthOfAssembly = !randomGeneratedInputValues ? 15 : rng.Next(10) + 1,
+                    ComplexityRatio = !randomGeneratedInputValues ? 1.7 : rng.NextDouble() + 1,
+                    ReutilisationRatio = !randomGeneratedInputValues ? 2.1 : rng.NextDouble() + 1,
                     MeanIncomingMaterialAmount = 1.7,
                     StdDevIncomingMaterialAmount = 0.9,
                     MeanWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 3.0,
                     VarianceWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 1.0
                 };
-                //_testOutputHelper.WriteLine(approach.ProductStructureInput.ToString());
+                //System.Diagnostics.Debug.WriteLine(approach.ProductStructureInput.ToString());
 
                 approach.BomInput = new BillOfMaterialInput
                 {
@@ -204,7 +197,7 @@ namespace Master40.XUnitTest.DataGenerator
                 generatorDbCtx.Approaches.AddRange(approach);
                 generatorDbCtx.SaveChanges();
 
-                _testOutputHelper.WriteLine("Generated test data have the approach id of " + approach.Id);
+                System.Diagnostics.Debug.WriteLine("################################# Generated test data have the approach id of " + approach.Id);
             }
 
             Assert.True(success);
@@ -213,18 +206,21 @@ namespace Master40.XUnitTest.DataGenerator
         [Fact]
         public void GenerateData() //Generierung für Simulation direkt im Testfall, wo Simulation durchgeführt wird
         {
-            var approachId = 14;
-            var generatorDbCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
-            var approach = ApproachRepository.GetApproachById(generatorDbCtx, approachId);
+            for (var i = 15; i < 25; i++)
+            {
+                var approachId = i;
+                var generatorDbCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
+                var approach = ApproachRepository.GetApproachById(generatorDbCtx, approachId);
 
-            /*var parameterSet = ParameterSet.Create(new object[] { Dbms.GetNewMasterDataBase(false, "Master40") });
-            var dataBase = parameterSet.GetOption<DataBase<ProductionDomainContext>>();*/
+                /*var parameterSet = ParameterSet.Create(new object[] { Dbms.GetNewMasterDataBase(false, "Master40") });
+                var dataBase = parameterSet.GetOption<DataBase<ProductionDomainContext>>();*/
 
-            var dbContext = MasterDBContext.GetContext(testCtxString);
-            var resultContext = ResultContext.GetContext(testResultCtxString);
+                var dbContext = MasterDBContext.GetContext(testCtxString);
+                var resultContext = ResultContext.GetContext(testResultCtxString);
 
-            var generator = new MainGenerator();
-            generator.StartGeneration(approach, dbContext, resultContext, true);
+                var generator = new MainGenerator();
+                generator.StartGeneration(approach, dbContext, resultContext, true);
+            }
             Assert.True(true);
 
         }
@@ -250,9 +246,9 @@ namespace Master40.XUnitTest.DataGenerator
             var lintMax = Int32.MaxValue;
             var longMax = Int64.MaxValue;
             var doubleMax = Double.MaxValue;
-            _testOutputHelper.WriteLine(lintMax.ToString());
-            _testOutputHelper.WriteLine(longMax.ToString());
-            _testOutputHelper.WriteLine(doubleMax.ToString());
+            System.Diagnostics.Debug.WriteLine(lintMax.ToString());
+            System.Diagnostics.Debug.WriteLine(longMax.ToString());
+            System.Diagnostics.Debug.WriteLine(doubleMax.ToString());
             var faculty = new Faculty();
             //var f1 = faculty.Calc(200);
             //var f2 = faculty.Calc(20);

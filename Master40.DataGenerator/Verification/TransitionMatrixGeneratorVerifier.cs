@@ -63,6 +63,8 @@ namespace Master40.DataGenerator.Verification
                 capabilities.ParentCapabilities.Count + 1);
             GeneratedOrganizationDegree = transitionMatrixGenerator.CalcOrganizationDegree(transitionMatrix.Pi,
                 capabilities.ParentCapabilities.Count + 1);
+
+            System.Diagnostics.Debug.WriteLine("################################# Generated work plans have an organization degree of " + ActualOrganizationDegree + " (transition matrix has " + GeneratedOrganizationDegree + ")");
         }
 
         public void VerifySimulatedData(MasterDBContext dbContext, DataGeneratorContext dbGeneratorCtx,
@@ -74,6 +76,9 @@ namespace Master40.DataGenerator.Verification
                 var approach = ApproachRepository.GetApproachById(dbGeneratorCtx, simulation.ApproachId);
                 if (approach.TransitionMatrixInput.ExtendedTransitionMatrix)
                 {
+                    var generator = new MainGenerator();
+                    generator.StartGeneration(approach, dbContext, dbResultCtx);
+
                     var articleCount =
                         ArticleRepository.GetArticleNamesAndCountForEachUsedArticleInSimulation(dbResultCtx, simNumber);
 
@@ -128,9 +133,6 @@ namespace Master40.DataGenerator.Verification
                         }
                     }
 
-                    var generator = new MainGenerator();
-                    generator.StartGeneration(approach, dbContext, dbResultCtx);
-
                     var transitionMatrixGenerator = new TransitionMatrixGenerator();
                     ActualOrganizationDegree = transitionMatrixGenerator.CalcOrganizationDegree(
                         actualTransitionMatrix.Pi,
@@ -138,6 +140,8 @@ namespace Master40.DataGenerator.Verification
                     GeneratedOrganizationDegree = transitionMatrixGenerator.CalcOrganizationDegree(
                         generator.TransitionMatrix.Pi,
                         capabilities.Count + 1);
+
+                    System.Diagnostics.Debug.WriteLine("################################# Executed work plans have an organization degree of " + ActualOrganizationDegree + " (transition matrix has " + GeneratedOrganizationDegree + "; input was " + approach.TransitionMatrixInput.DegreeOfOrganization + ")");
                 }
             }
         }
