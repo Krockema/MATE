@@ -7,6 +7,7 @@ open Akka.Actor
         ProductionOrderId: string
         OperationId: string
         ActivityId: int
+        Start: int64
         Duration: int64
         Name: string
         GanttPlanningInterval: int

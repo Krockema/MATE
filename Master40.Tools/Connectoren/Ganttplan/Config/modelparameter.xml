@@ -5,5 +5,8 @@
         <field name="actual_time" datatype="DATETIME" value="20200101 00:00:00"/>
         <field name="actual_time_from_system_time" datatype="INT" value="0"/>
         <field name="auto_calculate_periods" datatype="INT" value="1"/>      
+        <field name="time_buffer_salesorder" datatype="INT" value="0"/>
+        <field name="scheduling_status_ontime" datatype="INT" value="0" />
+        <field name="allow_overlap_activity_type_setup" datatype="INT" value="1" />
     </object>
 </objects>

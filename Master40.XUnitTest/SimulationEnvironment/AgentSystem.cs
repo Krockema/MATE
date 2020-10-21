@@ -45,7 +45,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Theory]
         //[InlineData(remoteMasterCtxString, remoteResultCtxString)] 
         //[InlineData(masterCtxString, masterResultCtxString)]
-        [InlineData(testCtxString, testResultCtxString, testGeneratorCtxString)]
+        [InlineData(masterCtxString, masterResultCtxString, testGeneratorCtxString)]
         public void ResetResultsDB(string connectionString, string resultConnectionString, string generatorConnectionString)
         {
             MasterDBContext masterCtx = MasterDBContext.GetContext(connectionString);
