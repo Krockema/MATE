@@ -40,7 +40,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         private const string hangfireCtxString = "Server=141.56.137.25;Database=Hangfire;Persist Security Info=False;User ID=SA;Password=123*Start#;MultipleActiveResultSets=true";
 
         // only for local usage
-        private const string GanttPlanCtxString = "SERVER=(localdb)\\MSSQLLocalDB;DATABASE=GanttPlanImportTestDB;Trusted_connection=Yes;UID=;PWD=;MultipleActiveResultSets=true";
+        private const string GanttPlanCtxString = "SERVER=(localdb)\\MSSQLLocalDB;DATABASE=DBGP;Trusted_connection=Yes;UID=;PWD=;MultipleActiveResultSets=true";
 
         private ProductionDomainContext _masterDBContext = ProductionDomainContext.GetContext(remoteMasterCtxString);
         private ResultContext _ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);

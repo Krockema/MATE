@@ -5,7 +5,7 @@ namespace Master40.Tools.Connectoren.Ganttplan
 {
     public class GanttPlanOptRunner
     {
-        private const string PATH_TO_GANTTOPTRUNNTER = "C:\\Program Files\\GANTTPLAN_V6\\GanttPlanOptRunner.exe";
+        private const string PATH_TO_GANTTOPTRUNNTER = "C:\\Program Files\\GANTTPLAN\\GanttPlanOptRunner.exe";
 
         public const string Init = "Init";
         /// <summary>
