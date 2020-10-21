@@ -18,9 +18,5 @@ namespace Master40.SimulationCore.Agents.JobAgent
             DebugMessage(msg: "I'm Alive: " + Context.Self.Path);
             this.Do(BasicInstruction.Initialize.Create(Self, JobAgent.Behaviour.Factory.Get(SimulationType.None, jobConfirmation)));
         }
-
-        protected override void OnChildAdd(IActorRef childRef)
-        {
-        }
     }
 }

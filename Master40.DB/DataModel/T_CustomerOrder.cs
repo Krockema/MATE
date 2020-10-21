@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Master40.DB.Nominal;
 using Master40.DB.Interfaces;
 using Newtonsoft.Json;
@@ -9,6 +10,7 @@ namespace Master40.DB.DataModel
     {
         public string Name { get; set; }
         public int DueTime { get; set; }
+        public DateTime DueDateTime { get; set; }
         public int CreationTime { get; set; }
         public int FinishingTime { get; set; }
         public int BusinessPartnerId { get; set; }

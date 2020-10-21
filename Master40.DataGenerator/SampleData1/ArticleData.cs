@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer.Tables;
 using Master40.DB.DataModel;

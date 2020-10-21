@@ -19,6 +19,7 @@ namespace Master40.SimulationCore.Helper.DistributionProvider
         private DiscreteUniform _duetime { get; set; }
         private ProductionDomainContext _productionDomainContext { get; }
 
+        //TODO Seperate generatr from Production Context.
         public OrderGenerator(Configuration simConfig, ProductionDomainContext productionDomainContext, List<int> productIds)
         {
             _seededRandom = new Random(Seed: simConfig.GetOption<Seed>().Value
@@ -39,6 +40,24 @@ namespace Master40.SimulationCore.Helper.DistributionProvider
                                                     , randomSource: _seededRandom);
         }
 
+        public OrderGenerator(Configuration simConfig,  List<int> productIds)
+        {
+            _seededRandom = new Random(Seed: simConfig.GetOption<Seed>().Value
+                //TODO: Do it better                    
+                //+ simConfig.GetOption<SimulationNumber>().Value
+            );
+            _exponential = new Exponential(rate: simConfig.GetOption<OrderArrivalRate>().Value
+                , randomSource: _seededRandom);
+            _productIds = productIds;
+
+            //get equal distribution from 0 to 1
+            _prodVariation = new DiscreteUniform(lower: 0, upper: _productIds.Count() - 1, randomSource: _seededRandom);
+
+            //get equal distribution for duetime
+            _duetime = new DiscreteUniform(lower: simConfig.GetOption<MinDeliveryTime>().Value
+                , upper: simConfig.GetOption<MaxDeliveryTime>().Value
+                , randomSource: _seededRandom);
+        }
 
 
         public T_CustomerOrder GetNewRandomOrder(long time)

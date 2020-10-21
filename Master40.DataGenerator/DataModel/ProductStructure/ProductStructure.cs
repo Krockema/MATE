@@ -6,11 +6,13 @@ namespace Master40.DataGenerator.DataModel.ProductStructure
     {
         public List<Dictionary<long, Node>> NodesPerLevel { get; set; }
         public List<Edge> Edges { get; set; }
+        public long NodesCounter { get; set; }
 
         public ProductStructure()
         {
             NodesPerLevel = new List<Dictionary<long, Node>>();
             Edges = new List<Edge>();
+            NodesCounter = 0;
         }
 
     }

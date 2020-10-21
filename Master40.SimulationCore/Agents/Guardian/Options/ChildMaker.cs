@@ -26,7 +26,6 @@ namespace Master40.SimulationCore.Agents.Guardian.Options
             return ctx.ActorOf(props: Dispo.Props(actorPaths: setup.ActorPaths, time: setup.Time, debug: setup.Debug, principal: setup.Principal), name: "DispoAgent(" + productionCount++ + ")");
         };
 
-
         public static Func<IUntypedActorContext, AgentSetup, IActorRef> ProductionCreator = (ctx, setup) =>
         {
             return ctx.ActorOf(props: Production.Props(actorPaths: setup.ActorPaths, time: setup.Time, debug: setup.Debug, principal: setup.Principal), name: "ProductionAgent(" + dispoCount++ + ")");

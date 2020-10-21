@@ -22,58 +22,59 @@ namespace Master40.DB.Data.Initializer.Tables
 
         internal void CreateModel(int sawResource, int drillResource, int assemblyResource, bool createTestModel = false)
         {
-           CreateResourceGroup(sawResource, _capability.CUTTING);
-           CreateResourceGroup(drillResource, _capability.DRILLING);
-           CreateResourceGroup(assemblyResource, _capability.ASSEMBLING);
-           // For Testing Purpose
-           if (createTestModel)
-           {
-               WaterJet();
-           }
+            CreateResourceGroup(sawResource, _capability.CUTTING);
+            CreateResourceGroup(drillResource, _capability.DRILLING);
+            CreateResourceGroup(assemblyResource, _capability.ASSEMBLING);
+            // For Testing Purpose
+            if (createTestModel)
+            {
+                WaterJet();
+            }
         }
-        
+
         private void CreateResourceGroup(int numberOfResources, M_ResourceCapability capability)
         {
             List<M_Resource> resourceGroup = new List<M_Resource>();
             for (int i = 1; i <= numberOfResources; i++)
             {
-                var resource = CreateNewResource(capability.Name, true, i);
+                var resource = CreateNewResource(capability.Name, true, false, i);
                 resourceGroup.Add(resource);
             }
             CapabilityToResourceDict.Add(capability.Name, resourceGroup);
         }
-        private M_Resource CreateNewResource(string resourceName, bool isPhysical, int? number = null)
+        private M_Resource CreateNewResource(string resourceName, bool isPhysical, bool isBiological, int? number = null, string groupName = null)
         {
-            return new M_Resource() { Name = resourceName + " " + number?.ToString(), Capacity = 1, IsPhysical = isPhysical };
+            return new M_Resource() { Name = resourceName + number?.ToString(), Capacity = 1, IsPhysical = isPhysical, IsBiological = isBiological, GroupName = groupName };
         }
-        
+
         internal void CreateResourceTools(int setupTimeCutting, int setupTimeDrilling, int setupTimeAssembling, int[] numberOfOperators, int numberOfWorkers, bool secondResource)
         {
             List<M_Resource> workers = new List<M_Resource>();
             for (int i = 1; i < 1 + numberOfWorkers; i++)
             {
-                workers.Add(CreateNewResource("Worker " + i, true)); 
+                workers.Add(CreateNewResource("Worker " + i, true, true, null, "Worker"));
             }
             CapabilityToResourceDict.Add($"Worker", workers);
-         
+
             List<M_Resource> drillingTools = new List<M_Resource>();
 
             // Add a second primary resource that is required for setup and processing
-            if (secondResource) {
+            if (secondResource)
+            {
                 foreach (var drillCapability in _capability.DRILLING.ChildResourceCapabilities)
                 {
-                    drillingTools.Add(CreateNewResource($"{drillCapability.Name}", true));
+                    drillingTools.Add(CreateNewResource($"{drillCapability.Name}", false, false));
                 }
                 CapabilityToResourceDict.Add($"Tool", drillingTools);
             }
 
-            CreateTools(_capability.CUTTING, setupTimeCutting, numberOfOperators[0], workers, new List<M_Resource>());
-            CreateTools(_capability.DRILLING, setupTimeDrilling, numberOfOperators[1], workers, drillingTools);
-            CreateTools(_capability.ASSEMBLING, setupTimeAssembling, numberOfOperators[2], workers, new List<M_Resource>());
+            CreateTools(_capability.CUTTING, setupTimeCutting, numberOfOperators[0], workers, new List<M_Resource>(), "OperatorZuschnitt");
+            CreateTools(_capability.DRILLING, setupTimeDrilling, numberOfOperators[1], workers, drillingTools, "OperatorBohrer");
+            CreateTools(_capability.ASSEMBLING, setupTimeAssembling, numberOfOperators[2], workers, new List<M_Resource>(), "OperatorMontage");
         }
 
-        
-        private void CreateTools(M_ResourceCapability capability, long setupTime, int numberOfOperators, List<M_Resource> workerToAssign, List<M_Resource> resourceToolsToAssign)
+
+        private void CreateTools(M_ResourceCapability capability, long setupTime, int numberOfOperators, List<M_Resource> workerToAssign, List<M_Resource> resourceToolsToAssign, String workergroup)
         {
             List<M_Resource> tools = new List<M_Resource>();
             List<M_ResourceSetup> setups = new List<M_ResourceSetup>();
@@ -82,9 +83,9 @@ namespace Master40.DB.Data.Initializer.Tables
 
             for (int i = 1; i < 1 + numberOfOperators; i++)
             {
-                operators.Add(CreateNewResource(capability.Name + " Operator " + i, true));
+                operators.Add(CreateNewResource(capability.Name + " Operator " + i, true, true, null, workergroup));
             }
-            
+
             foreach (var resource in CapabilityToResourceDict.Single(x => x.Key == capability.Name).Value)
             {
                 // With operators 
@@ -105,8 +106,14 @@ namespace Master40.DB.Data.Initializer.Tables
                                         Name = $"Provides {subCapability.Name} {resource.Name} {worker.Name}",
                                         ResourceCapabilityId = subCapability.Id,
                                     };
-                                    var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false);
-                                    tools.Add(tool);
+
+                                    var toolName = resource.Name + " " + subCapability.Name;
+                                    var tool = tools.SingleOrDefault(x => x.Name.Equals(toolName));
+                                    if (tool == null)
+                                    {
+                                        tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false, false);
+                                        tools.Add(tool);
+                                    }
 
                                     if (resourceToolsToAssign.Any())
                                     {
@@ -121,7 +128,9 @@ namespace Master40.DB.Data.Initializer.Tables
                                     capabilityProviders.Add(capabilityProvider);
                                 }
                             }
-                        } else { // no worker but setup
+                        }
+                        else
+                        { // no worker but setup
                             foreach (var subCapability in _capability.Capabilities
                                 .Single(x => x.Name == capability.Name)
                                 .ChildResourceCapabilities)
@@ -131,8 +140,14 @@ namespace Master40.DB.Data.Initializer.Tables
                                     Name = $"Provides {subCapability.Name} {resource.Name}",
                                     ResourceCapabilityId = subCapability.Id,
                                 };
-                                var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false);
-                                tools.Add(tool);
+
+                                var toolName = resource.Name + " " + subCapability.Name;
+                                var tool = tools.SingleOrDefault(x => x.Name.Equals(toolName));
+                                if (tool == null)
+                                {
+                                    tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false, false);
+                                    tools.Add(tool);
+                                }
 
                                 if (resourceToolsToAssign.Any())
                                 {
@@ -162,9 +177,14 @@ namespace Master40.DB.Data.Initializer.Tables
                                     ResourceCapabilityId = subCapability.Id,
                                 };
                                 // Tool
-                                var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", isPhysical: false);
-                                tools.Add(tool);
-                                
+                                var toolName = resource.Name + " " + subCapability.Name;
+                                var tool = tools.SingleOrDefault(x => x.Name.Equals(toolName));
+                                if (tool == null)
+                                {
+                                    tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false, false);
+                                    tools.Add(tool);
+                                }
+
                                 if (resourceToolsToAssign.Any())
                                 {
                                     setups.Add(CreatePhysicalToolResource(resourceToolsToAssign, subCapability, setups, capabilityProvider));
@@ -188,8 +208,13 @@ namespace Master40.DB.Data.Initializer.Tables
                                 Name = $"Provides {subCapability.Name} {resource.Name}",
                                 ResourceCapabilityId = subCapability.Id,
                             };
-                            var tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false);
-                            tools.Add(tool);
+                            var toolName = resource.Name + " " + subCapability.Name;
+                            var tool = tools.SingleOrDefault(x => x.Name.Equals(toolName));
+                            if (tool == null)
+                            {
+                                tool = CreateNewResource($"{resource.Name} {subCapability.Name}", false, false);
+                                tools.Add(tool);
+                            }
 
                             if (resourceToolsToAssign.Any())
                             {
@@ -213,7 +238,7 @@ namespace Master40.DB.Data.Initializer.Tables
             M_ResourceCapabilityProvider capabilityProvider)
         {
             var toolObject =
-                resourceToolsToAssign.Single(x => x.Name.Equals(subCapability.Name + " "));
+                resourceToolsToAssign.Single(x => x.Name.Equals(subCapability.Name));
             return CreateNewSetup(toolObject, capabilityProvider, true, true, 0);
         }
 
@@ -221,22 +246,25 @@ namespace Master40.DB.Data.Initializer.Tables
         {
             return new M_ResourceSetup
             {
-                ResourceCapabilityProviderId = capabilityProvider.Id, ResourceId = resource.Id,
-                Name = $"Setup {capabilityProvider.Name} {resource.Name}", UsedInProcess = usedInProcessing, UsedInSetup = usedInSetup,
+                ResourceCapabilityProviderId = capabilityProvider.Id,
+                ResourceId = resource.Id,
+                Name = $"Setup {capabilityProvider.Name} {resource.Name}",
+                UsedInProcess = usedInProcessing,
+                UsedInSetup = usedInSetup,
                 SetupTime = setupTime
             };
         }
         private void WaterJet()
         {
-            var waterJet = CreateNewResource("WaterJetCutter", true);
+            var waterJet = CreateNewResource("WaterJetCutter", true, false);
             List<M_ResourceCapabilityProvider> capabilityProviders = new List<M_ResourceCapabilityProvider>();
             List<M_ResourceSetup> setups = new List<M_ResourceSetup>();
             foreach (var capability in _capability.Capabilities
-                .Where(x => x.Name == _capability.CUTTING.Name 
+                .Where(x => x.Name == _capability.CUTTING.Name
                                           || x.Name == _capability.DRILLING.Name)
                 .Select(x => x.ChildResourceCapabilities))
             {
-                
+
                 foreach (var subCapability in capability)
                 {
                     var capabilityProvider = new M_ResourceCapabilityProvider()
@@ -250,9 +278,9 @@ namespace Master40.DB.Data.Initializer.Tables
             }
             CapabilityToSetupDict.Add($"{waterJet.Name} WaterJetCutter", setups);
             CapabilityProviderDict.Add($"{waterJet.Name} Resource", capabilityProviders);
-            CapabilityToResourceDict.Add($"{waterJet.Name} Resource", new List<M_Resource> {waterJet});
+            CapabilityToResourceDict.Add($"{waterJet.Name} Resource", new List<M_Resource> { waterJet });
         }
-       
+
         internal void InitSmall(MasterDBContext context)
         {
             CreateModel(1, 1, 1);
@@ -295,7 +323,7 @@ namespace Master40.DB.Data.Initializer.Tables
                 context.ResourceCapabilityProviders.AddRange(entities: item.Value);
             }
             context.SaveChanges();
-            
+
             foreach (var item in CapabilityToSetupDict)
             {
                 context.ResourceSetups.AddRange(entities: item.Value);

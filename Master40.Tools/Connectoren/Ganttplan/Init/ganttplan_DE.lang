@@ -1,0 +1,3498 @@
+﻿// Copyright © 2008-2020 DUALIS GmbH IT Solution - All Rights Reserved
+// StringTable für GANTTPLAN (deutsch)
+//
+// wichtige Hinweise:
+// ------------------------------------------------------------------------------
+// Struktur der StringTable: [KEY]value
+//
+// Bereiche können festgelegt werden, indem das # Zeichen dem Beginn der Zeile hinzugefügt wird
+//
+// %-Zeichen müssen immer so geschrieben werden: %%
+//
+// dynamische Strings werden so beschrieben: %1 bzw. %2 usw.
+//	Beispiel: "Hier steht der erste String: %1 gefolgt vom zweiten String %2.
+// ------------------------------------------------------------------------------
+
+#OBJECTTYPES
+[EXPORT]Export
+[IMPORT]Import
+[LEITSTAND]Leitstand
+[PERSONALPLAN]Schichtplan
+[PLANUNG]Automatische Planung
+[MANUAL_SCHEDULING]Manuelle Planung
+[MANUAL_SCHEDULING_LIVE]Manuelle Planung im Fertigungsplan
+[DISABLE_RESTRICTIONS]Restriktionen deaktivieren
+[APPLY_RESULT]Ergebnis übernehmen
+[SCENARIO_NEW]Szenario erstellen
+[SCENARIO_OPEN]Szenario laden
+[SCENARIO_SAVE]Szenario speichern
+[SCENARIO_APPLY]Szenario übernehmen
+[CHECK_SOFTWAREUPDATE]nach Updates suchen
+[EDITION_VIEWER]Viewer Edition
+[EDITION_SMART]Smart Edition
+[EDITION_OPTIMIZATION]Optimization Edition
+[PROTOCOL_GLOBALREQUEST]Globale Aktionshistorie
+[PROTOCOL_WORKERINFO]Personalauskunft
+[DEBUG_AND_TEST_MODE]Softwaretests durchführen
+[QUALIFIKATIONSMATRIX]Qualifikationen Arbeitsplatz
+[QUALIFIKATIONSMATRIX_ACTIVITY]Qualifikationen Vorgang
+[CUSTOMPROPERTIES]Nutzerdefinierte Eigenschaften
+[REPORTBOARD]Ablage
+[chart]Eigenes Diagramm
+[chart+]Eigene Diagramme
+[chart_colorfilter]Diagramm-Farbfilter
+[chart_colorfilter+]Diagramm-Farbfilter
+[chart_colorfilter_item]Diagramm-Farbfilterelement
+[chart_colorfilter_item+]Diagramm-Farbfilterelemente
+[chart_rowfilter]Diagramm-Zeilenfilter
+[chart_rowfilter+]Diagramm-Zeilenfilter
+[chart_rowfilter_item]Diagramm-Zeilenfilterelement
+[chart_rowfilter_item+]Diagramm-Zeilenfilterelemente
+[chart_series]Diagramm-Datenreihe
+[chart_series+]Diagramm-Datenreihen
+[chart_text]Diagramm-Text
+[chart_text+]Diagramm-Texte
+[chart_text_item]Diagramm-Textelement
+[chart_text_item+]Diagramm-Textelemente
+[defaultchart]Diagramm
+[defaultchart+]Diagramme
+[user]Nutzer
+[user+]Nutzer
+[user_permission]Nutzerberechtigung
+[user_permission+]Nutzerberechtigungen
+[user_productioncontroller]Nutzer-Fertigungssteuerer
+
+#OBJECTPROPERTIES
+[chart.client_id]Mandant
+[chart.chart_id]Diagrammnummer
+[chart.name]Bezeichnung
+[chart.all_in_one]Ansicht in einem gemeinsamen Diagramm
+[chart.argument_data_member_id]Bezugspunkt / X-Achse
+[chart.chart_type]Diagrammart
+[chart.color_palette_name]Bezeichnung
+[chart.custom_chart_title]Eigener Charttitel
+[chart.custom_xaxis_title]Eigener X-Achsentitel
+[chart.custom_yaxis_title]Eigener Y-Achsentitel
+[chart.header_as_argument]Verwende Kopf als Bezugswert
+[chart.report_id]Reportnummer
+[chart.report_type]Reportart
+[chart.show_labels]Zeige Labels
+[chart.show_legend]Zeige Legende
+[chart.rotated]Rotiere Diagramm
+[chart.user_id]Nutzer
+[chart.category]Kategorie
+[chart_colorfilter.client_id]Mandant
+[chart_colorfilter.chart_id]Diagrammnummer
+[chart_colorfilter.color]Vordefinierte Farbpalette
+[chart_colorfilter.filter_id]Filtername
+[chart_colorfilter.filter_operator]Elementkombination
+[chart_colorfilter.priority_value]Priorität des Farbfilters
+[chart_colorfilter.property_id]Spalte
+[chart_colorfilter_item.client_id]Mandant
+[chart_colorfilter_item.chart_id]Diagrammnummer
+[chart_colorfilter_item.filter_id]Filternummer
+[chart_colorfilter_item.index]Filterindex
+[chart_colorfilter_item.filter_matching_type]Filtertyp
+[chart_colorfilter_item.property_id]Spalte
+[chart_colorfilter_item.value]Wert
+[chart_rowfilter.client_id]Mandant
+[chart_rowfilter.chart_id]Diagrammnummer
+[chart_rowfilter.filter_id]Filternummer
+[chart_rowfilter.filter_operator]Elementkombination
+[chart_rowfilter.priority_value]Priorität des Zeilenfilters
+[chart_rowfilter_item.client_id]Mandant
+[chart_rowfilter_item.chart_id]Diagrammnummer
+[chart_rowfilter_item.filter_id]Filternummer
+[chart_rowfilter_item.index]Filterindex
+[chart_rowfilter_item.filter_matching_type]Filtertyp
+[chart_rowfilter_item.property_id]Spalte
+[chart_rowfilter_item.value]Wert
+[chart_series.client_id]Mandant
+[chart_series.chart_id]Diagrammnummer
+[chart_series.series_id]Datenreihe
+[chart_series.color]Farbe
+[chart_series.chart_type]Diagrammart
+[chart_series.report_column_name]Spaltenbezeichnung
+[chart_series.report_column_property_id]
+[chart_text.client_id]Mandant
+[chart_text.chart_id]Diagrammnummer
+[chart_text.text_id]Text
+[chart_text.text_type]Texttyp
+[chart_text_item.client_id]Mandant
+[chart_text_item.chart_id]Diagrammnummer
+[chart_text_item.text_id]Text
+[chart_text_item.property_id]Spalte
+[chart_text_item.property_name]Bezeichnung
+[chart_text_item.property_name_type]Titeltyp
+[user.client_id]Mandant
+[user.user_id]Nutzer
+[user.info1]Information 1
+[user.info2]Information 2
+[user.info3]Information 3
+[user.name]Bezeichnung des Systemnutzers
+[user.forename]Vorname
+[user.password]Passwort
+[user.status]Status
+[user.surname]Nachname
+[user_permission.client_id]Mandant
+[user_permission.objecttype_id]Objekttyp
+[user_permission.permissiontype]Nutzerrecht
+[user_permission.user_id]Nutzer
+[user_productioncontroller.client_id]Mandant
+[user_productioncontroller.user_id]Nutzer
+[user_productioncontroller.productioncontroller_id]Fertigungssteuerer
+[user_productioncontroller.permissiontype]Recht
+
+#OBJECTTYPE_CATEGORIES
+[Kategorie_Auswertung]Report
+[Kategorie_Basis]Basis
+[Kategorie_Stammdaten]Stammdaten
+[Kategorie_Bewegungsdaten]Bewegungsdaten
+[Kategorie_Planung]Planung
+[Kategorie_System]System
+[Kategorie_Editionen]Editionen
+
+#CSTDABOUTDLG
+[Datenbankversion_bekannt]Datenmodellversion: %1
+[Title]Über %1
+[Version_bekannt]Version: %1
+[Anwendung]Anwendung
+[Details]Details
+[Updates_suchen]nach Updates suchen
+[Lizenzinfo]Lizenz
+
+#DIALOGBARMODUS
+[IDC_BN_APPLY_RESULT]Ergebnis übernehmen
+
+#DLGBDE
+[Fertigungsauftrag]Fertigungsauftrag
+[IDC_STATIC_ENDE]Ende:
+[IDC_STATIC_FA]Fertigungsauftrag:
+[IDC_STATIC_FAVORG]Vorgangsaktivität:
+[IDC_STATIC_MENGE]Fortschritt:
+[IDC_STATIC_NAME]Buchungstext:
+[IDC_STATIC_RMZEITPUNKT]Rückmeldezeitpunkt:
+[IDC_STATIC_RMZEITPUNKT_HINWEIS]Es existieren neuere Meldungen (Rückmeldezeitpunkt anpassen?)
+[IDC_STATIC_START]Start:
+[IDC_STATIC_STATUS]Status:
+[Ressource]Ressource
+[Vorgänge]Vorgangsaktivität
+[StartEndeFehler]Der angegebene Endzeitpunkt liegt vor dem Startzeitpunkt!
+
+#DLGBESTANDSBUCHUNG
+[IDC_ST_SUBHEADER]Eigenschaften
+[IDC_STATIC_CUSTOM1]Information:
+[IDC_STATIC_MENGE]Menge:
+[IDC_STATIC_TERMIN]Zeitpunkt:
+[SearchUnit]Einheit wählen
+[Titel]Neue %1 hinzufügen
+
+#DLGWORKERINFORMATION
+[Title]Personendaten
+[Data]In %1-Datenbank vorhandene Daten
+[FileError]Fehler beim Export.
+[Search]Personal wählen
+[Worker]Suche nach Personalnummer:
+[Table]Tabellenname: gptbl_
+[Column]Spaltennamen:
+[Properties]Eigenschaften:
+[Objecttype]Objekttyp:
+[TTSearch]Suche aus verfügbarem Personal
+[TTExport]Daten exportieren und im Standardeditor öffnen
+
+#DLGCHANGELOG
+[Protokollierung]Protokollierung
+[Suchkriterien]Suchkriterien
+[Suchergebnisse]Suchergebnisse
+[Filter]Schnellfilter:
+[Filter_Helptext]Einzelne Werte mit Leerzeichen separieren, z.B.: "Wert1 Wert2"
+[Werte]Werte
+[Details]Details
+[Zeitraum]Zeitraum filtern:
+[GRIDCOLUMN_Aenderung]Aktion
+[GRIDCOLUMN_UserInfo]Nutzerinfo
+[GRIDCOLUMN_Objekt]Objekt
+[GRIDCOLUMN_Zeitpunkt]Zeitpunkt
+[nachher]nachher
+[vorher]vorher
+[0]Login
+[1]Programmstart
+[2]Programmende
+[4]Lizenzbetrachter geöffnet
+[6]Export
+[7]Autoplan Start
+[8]Ergebnis übernehmen
+[10]Objekt angelegt
+[11]Objekt geändert
+[12]Objekt gelöscht
+[20]Szenario gestartet
+[21]Szenario geöffnet
+[22]Szenario erstellt
+[23]Szenario übernommen
+[24]Szenario gespeichert
+[25]Szenario geschlossen
+[26]Szeanrio konvertiert
+[30]Externe Daten in DBGP übernehmen
+[31]Beendete Fertigungsaufträge gelöscht
+[32]Fertigungsaufträge ohne Parent gelöscht
+[33]Nicht verwendete Arbeitszeitmodelle und Kalender gelöscht
+[40]Personalinformationen Start
+[41]Personalinformationen abgefragt
+[42]Personalinformationen Export
+[45]Protokollierung Start
+[46]Synchronisierung DBConfig->DBGP
+[47]Synchronisierung DBConfig->DBGP (manuell gestartet)
+[1000]Debug Reduce Model
+[1001]Debug Reset Process Data
+
+#DLGCREATEUSERVIEW
+[IDC_STATIC_NAME]Name
+[WINDOWTEXT]Ansicht anlegen
+
+#DLGDELETEOBJECT
+[IDC_BTN_DELETE]Löschen
+[IDC_DLGDELETE_ALLGEMEIN]Objekte löschen
+[IDC_DLGDELETE_INFO]%1 löschen?
+[WINDOWTEXT]%1 löschen
+[Löschen fehlgeschlagen]Löschen fehlgeschlagen!
+
+#DLGEINHEITENUMRECHNUNG
+[Einheitenumrechnung hinzufuegen]Neue Einheitenumrechnung hinzufügen
+[UmrechnungFuer]Umrechnung für %1 %2
+[UmrechnungVorhanden]Eine Umrechnung der beiden Einheiten ist vorhanden bzw. kann berechnet werden
+
+#DLGFILTER
+[Filter-]Filter - 
+[Filterkriterien]Filterkriterien
+[IDC_CHECK1]UND
+[IDC_STATIC_MAXERG]max. Anzahl Suchergebnisse:
+
+#DLGKALENDER
+[Bezeichnung]Bezeichnung
+[Ende]Ende
+[ID_POPUP_KALENDER_ADD_AUSNAHME]Ausnahme hinzufügen
+[ID_POPUP_KALENDER_DEL_AUSNAHME]Ausnahme löschen
+[IDC_KALENDER_ALLGEMEIN]Allgemeine Kalenderdaten
+[IDC_KALENDER_AUSNAHMEN]Intervalle
+[IDC_STATIC_KALENDER_BESCHREIBUNG]Beschreibung:
+[IDC_STATIC_KALENDER_NAME]Kalender
+[Kalender bearbeiten]Kalender bearbeiten
+[Start]Start
+[Status]Status
+[Wiederholung]Wiederholung
+[Filter_zurücksetzen]Filter zurücksetzen
+[Label_Start]Start:
+[Label_Ende]Ende:
+[Label_Status]Status:
+[Label_Wiederholung]Wiederholung:
+[Label_Bezeichnung]Bezeichnung:
+
+#DLGLOGIN
+[Anmeldung erfolgreich]Anmeldung erfolgreich: Benutzer %1
+[Anmeldung nicht erfolgreich]Anmeldung nicht erfolgreich: Benutzer %1
+[Anmeldung fehlgeschlagen_Passwort]Anmeldung fehlgeschlagen.\r\nBitte überprüfen Sie das Passwort.
+[Anmeldung fehlgeschlagen_Username]Anmeldung fehlgeschlagen.\r\nBitte überprüfen Sie den Nutzernamen.
+[Anmeldung fehlgeschlagen_Authentifizierung]Anmeldung fehlgeschlagen.\r\nBitte überprüfen Sie den Typ der Authentifizierung.
+[Anmeldung fehlgeschlagen_UserTemplate]Anmeldung fehlgeschlagen.\r\nDer Benutzer ist eine Nutzervorlage und kann nicht angemeldet werden.
+[Meldung_keine_Edition]Der angemeldete Nutzer besitzt nicht das Recht %1 zu starten.
+[IDC_SHOWGANTT]Leitstand anzeigen
+[IDC_BUTTON1]Einloggen
+[IDC_BUTTON3]Start
+[IDC_BUTTON4]Lizenz
+[IDC_DLGLOGIN_ALLGEMEIN]Anmeldung
+[IDC_DLGLOGIN_OPTIONEN]Startoptionen
+[IDC_LOGIN_AUTO]Automatisch einloggen
+[IDC_SAVEPW]Passwort speichern?
+[IDC_STATIC_LOGIN_PASSWORT]Passwort:
+[IDC_STATIC_LOGIN_USER]Benutzername:
+[IDC_STATIC_AUTHENTICATION]Authentifizierung:
+[Title]%1 - Anmeldung
+[Viewer Edition]Viewer Edition
+[Smart Edition]Smart Edition
+[Optimization Edition]Optimization Edition
+[frei]frei
+[IDC_DLGLOGIN_INFO_PLANT]Werk und Fertigungssteuerer wählen
+[IDC_DLGLOGIN_INFO_PRODUCTIONCONTROLLER]Fertigungssteuerer wählen
+[Kein Fertigungssteuerer gewaehlt]Kein Fertigungssteuerer gewählt
+[Authentifizierung_GPNutzer]%1-Authentifizierung
+[Authentifizierung_Windows]Windows-Authentifizierung
+[Authentifizierung_UserTemplate]Nutzervorlage
+
+#DLGVERSIONUPDATEINFO
+[Release_verfuegbar_Header]Neue %1 Version verfügbar
+[Release_verfuegbar_Caption_Bug]Die Version %1 steht zum Download bereit!
+[Release_verfuegbar_Caption_Function]Die Version %1 steht zur Verfügung!\n\nFür weitere Informationen setzen Sie sich bitte mit Ihrem Kundenbetreuer in Verbindung.
+[RC_verfuegbar_Header]Neue %1 Beta-Version verfügbar
+[RC_verfuegbar_Caption_Bug]Die Beta-Version %1 steht zum Download bereit!
+[RC_verfuegbar_Caption_Function]Die Beta-Version %1 steht zur Verfügung!\n\nFür weitere Informationen setzen Sie sich bitte mit Ihrem Kundenbetreuer in Verbindung.
+[Button_Download]Download
+[Button_Kontakt]Kontakt
+[Button_keine_Erinnerung]Nein, Danke
+[Button_spaeter]Später erinnern
+[Changelog]Änderungen seit Version %1
+[BtnChangelog]Änderungen
+
+#DLGMSG
+[Ab Fehler]Ab Fehler
+[Ab Info]Ab Info
+[Ab Warnung]Ab Warnung
+[Ausgeblendet]Ausgeblendet
+[Baumansicht]Baumansicht
+[IDC_BN_DELFILE]Meldungen löschen
+[IDC_BTN_REFRESH]Aktualisieren
+[IDC_BTN_SWITCHTREEVIEW]Tabellenansicht
+[IDC_LBL_MSG_FILTER]Filter:
+[Tabellenansicht]Tabellenansicht
+[WINDOWTEXT]Aktuelle Systemmeldungen
+
+#DLGPROPERTYAPKOPFALLGEMEIN
+[Gehe zur Stückliste.]Gehe zur Stückliste
+[Gültig ab]Gültig ab
+[Gültig bis]Gültig bis
+[IDC_STATIC_EIGENSCHAFTEN]Eigenschaften
+[IDC_STATIC_STL]Stückliste:
+[productionversion]Fertigungsversion
+[Material]Material
+[Stückliste]Stückliste
+[Titel]Allgemein
+[SearchSTL]Wähle Stückliste
+[RemoveSTL]Lösche Stückliste aus Arbeitsplan
+
+#DLGPROPERTYAPKOPFAUSSCHUSS
+[ab]ab
+[Ausschuss in %]Ausschuss in %%
+[ID_POPUP_AUSSCHUSS_ADD]Ausschuss-Element hinzufügen
+[ID_POPUP_AUSSCHUSS_DEL]Ausschuss-Element löschen
+[Limit]Limit
+[Titel]Ausschuss
+
+#DLGPROPERTYAPPOSITIONALLGEMEIN
+[IDC_CHK_BDE]Rückmeldepflichtig:
+[IDC_STATIC_NAME]Bezeichnung:
+[IDC_STATIC_BASIS_TYP]Aktivitätstyp:
+[IDC_STATIC_BESCHREIBUNG]Beschreibung:
+[IDC_STATIC_ID]Aktivität:
+[Titel]Aktivität
+
+#DLGPROPERTYAPPOSITIONFHM
+[Fertigungshilfsmittel]Fertigungshilfsmittel
+[IDC_STATIC_BENOETIGTEFHM]Benötigte Fertigungshilfsmittel
+[Titel]Fertigungshilfsmittel
+[WM_ADD_ELEMENT]Fertigungshilfsmittel hinzufügen
+[WM_DEL_ELEMENT]Fertigungshilfsmittel löschen
+[WM_CHANGE_ALLOCATION]Belegung ändern
+
+#DLGPROPERTYAPPOSITIONMASCHINEN
+[IDC_CHECK_MAXPARALLEL]Maximale Parallelbelegung:
+[IDC_STATIC_MASCHBELFAKT]Arbeitsplatzbelegung:
+[IDC_CHECK_PROZESS]Prozess:
+[IDC_STATIC_MASCHINENFAKTOREN]Arbeitsplatzfaktoren
+[IDC_STATIC_MASCHINENMERKMALE]Arbeitsplatzmerkmale
+[Maschine]Arbeitsplatz
+[Maschine (Gruppe)]Arbeitsplatz (Gruppe)
+[Maschinengruppe]Arbeitsplatzgruppe
+[Titel]Arbeitsplätze
+[WM_ADD_MASCHINENFAKTOREN]Faktoren für Arbeitsplatz hinzufügen
+[WM_ADD_MASCHINENGRUPPENFAKTOREN]Faktoren für Arbeitsplatzgruppe hinzufügen
+[WM_DEL_MASCHINENFAKTOREN]Faktoren löschen
+[Zeit-Faktor]Zeit-Faktor
+[IDC_STATIC_POSITIONSUNTERBRECHUNG]Prozess:
+
+#DLGPROPERTYAPVORGANGPERSONAL
+[IDC_STATIC_BEDIENTYP]Personalbedarf:
+[Titel]Personal
+[Selektierung_nicht_moeglich]Änderung nicht möglich, da die Gruppe bereits in einer anderen Vorgangsaktivität existiert.
+[Gruppennummer_existiert_bereits]Diese Gruppe existiert bereits!
+[Gruppennummer_darf_nicht_leer_sein]Die Gruppe darf nicht leer sein!
+[Kleiner_Null_ungültig]Die Auslastung darf nicht kleiner als 0%% sein!
+[Eintrag_hinzufuegen]Personalbedarf hinzufügen
+[Eintrag_loeschen]Personalbedarf löschen
+[GroupID]Gruppe
+[WorkcenterID]Arbeitsplatz
+[ActivityType]Aktivitätstyp
+[ActivityqualificationID]Vorgangsqualifikation
+[ChangeWorkerType]Wechseltyp
+[WorkerRequirementCount]Anz. Personal
+[WorkerRequirementUtilization]Ausl. in %
+[Ruesten_Fertigen]Alle
+[Ruesten]Rüsten
+[Fertigen]Fertigen
+[Suche_Titel_Arbeitsplatz]Arbeitsplatz(gruppe) auswählen
+[Suche_ID]ID
+[Suche_Type]Typ
+[Suche_Name]Name
+[Wähle_Arbeitsplatz]Arbeitsplatz auswählen
+[Entferne_Arbeitsplatz]Arbeitsplatz zurücksetzen
+[Wähle_Vorgangsquali]Vorgangsqualifikation auswählen
+[Entferne_Vorgangsquali]Vorgangsqualifikation zurücksetzen
+
+#DLGPROPERTYAPPOSITIONSOLLZEITEN
+[IDC_STATIC_ME_UNABH_ZEIT]Mengenunabh. Bearbeitungszeit:
+[IDC_STATIC_ZEIT_PRO_EINHEIT]Bearbeitungszeit pro Einheit:
+[Titel]Sollzeiten
+
+#DLGPROPERTYAPPOSITIONSTL
+[Bereitstellungszeit]Bereitstellungszeit [h]
+[Bezeichnung]Bezeichnung
+[Einheit]Einheit
+[ID nicht in STL!]ID nicht in Stückliste!
+[Stückliste]Stückliste
+[Material]Material
+[Menge]Menge
+[Position]Position
+[Titel]Stückliste
+[WM_ADD_ELEMENT]Position hinzufügen
+[WM_DEL_ELEMENT]Position löschen
+[WM_USE_ELEMENT]Hier zuordnen
+[Suche_BomID]Stücklisten Nummer
+[Suche_BomItemID]Stücklisten-Position
+[Suche_MaterialID]Materialnummer
+[Suche_MaterialName]Materialbezeichnung
+[Alternative_Hinweis]Die angezeigten Positionen werden vom Standardvorgang übernommen
+[Stücklistenposition]Stücklistenpositionen:
+[Alle]Alle
+[Aus]Aus
+[Nicht_zugeordnet]Nicht zugeordnet
+[Ungültig_zugeordnet]Ungültig zugeordnet
+
+#DLGPROPERTYAPVORGANGALLGEMEIN
+[IDC_STATIC_ALTERNATIVE]Alternative:
+[IDC_STATIC_BESCHREIBUNG]Beschreibung:
+[IDC_STATIC_ID]Vorgang:
+[IDC_STATIC_MAXSPLIT]Max:
+[IDC_STATIC_MINSPLIT]Min:
+[IDC_STATIC_NAME]Bezeichnung:
+[IDC_STATIC_SPLIT]Splitnummer:
+[IDC_STATIC_TYP]Typ:
+[Titel]Vorgang
+[IDC_STATIC_AUTOSPLIT]Split:
+[IDC_STATIC_QRV]Rundungswert:
+[HELPTEXT_QRV]vom Material
+[Split_None]-
+[Split_Auto]Auto
+[Split_Max]Max
+
+#DLGPROPERTYAPVORGANGMASCHINEN
+[Delta]Delta
+[Gruppe]Gruppe
+[Maschine]Arbeitsplatz
+[Maschinen]Arbeitsplätze
+[Maschinengruppen]Arbeitsplatzgruppen
+[Bezeichnung]Bezeichnung
+[Titel]Arbeitsplätze
+[WM_ADD_MASCHINE]Arbeitsplatz hinzufügen
+[WM_ADD_MASCHINEN_GRUPPE]Arbeitsplatzgruppe hinzufügen
+[WM_DEL_ELEMENT]Element löschen
+[Losgröße_min]Minimale Losgröße
+[Losgröße_max]Maximale Losgröße
+
+#DLGPROPERTYAPVORGANGNACHFOLGER
+[max. Puffer]max. Puffer
+[min. Puffer]min. Puffer
+[Nachfolgerelationen]Nachfolgerelationen
+[Titel]Nachfolger
+[Überlappung]Überlappung
+[Überlappungswert]Überlappungswert
+[Vorgang]Vorgang
+[WM_ADD_ELEMENT]Element hinzufügen
+[WM_DEL_ELEMENT]Element löschen
+
+#DLGPROPERTYAPVORGANGOPTIMIERUNGSGRUPPEN
+[Auswahl]Auswahl
+[Optimierungsgruppe]Optimierungsgruppe
+[Merkmal]Merkmal
+[Titel]Optimierungsgruppen
+[Typ]Typ
+[Bearbeiten]Bearbeiten
+[Option_keine]keine
+[Option_von_Material]von Material übernehmen
+[Option_individuell]individuell
+
+#DLGPROPERTYAZM
+[Beginnt am]Beginnt am
+[Beginnt mit]Beginnt mit
+[Gehe zur Gruppe]Gehe zur Gruppe
+[ID_POPUP_AZMDLG_ADD]Schichtmodell hinzufügen
+[ID_POPUP_AZMDLG_DEL]Schichtmodell löschen
+[IDC_BUTTON_SONDERZEITEN]Eigener Kalender
+[IDC_INHERIT_VONGRUPPE]Übernahme von Gruppe:
+[IDC_STATIC_DATETIMEPICKER1]Ende:
+[nein]nein
+[Schichtmodell]Schichtmodell
+[Schichtmodell hinzufügen]Schichtmodell hinzufügen
+[Titel]Arbeitszeitmodell
+[Werkskalender]Globaler Kalender
+
+#DLGPROPERTYFAKOPFALLGEMEIN
+[Fertigstellungsdatum]Termin:
+[Freigegeben]Freigegeben
+[Frühester Start]Frühester Start:
+[Gehe zur Prioritaet]Gehe zu Priorität
+[Gesperrt]Gesperrt
+[Fertigungsversion fixiert]Fertigungsversion fixiert
+[Priorität]Priorität:
+[Titel]Allgemein
+[SearchPrio]Priorität wählen
+[RemovePrio]Priorität entfernen
+[IDC_STATIC_FAPLANUNGSTYP]Planungstyp:
+[IDC_CHK_AUTOUPDATE]Termin, Priorität, Planungstyp automatisch
+[IDC_STATIC_PC]Fertigungssteuerer:
+[Tooltip_Fertigungssteuerer]Fertigungssteuerer zuordnen
+[ProductioncontrollerFromMaterial]von Material übernehmen
+
+#DLGPROPERTYFAKOPFMAT
+[Gehe zum Material]Gehe zum Material
+[GotoEinheit]Gehe zur Einheit
+[Materialnummer]Material:
+[MengeBrutto]Bruttomenge:
+[MengeNetto]Nettomenge:
+[SearchUnit]Einheit wählen
+[Titel]Material
+[WertHerstellen]Wert Herstellung:
+[WertVerkauf]Wert Verkauf:
+
+#DLGPROPERTYFAKOPFPLANUNG
+[Endtermin]Geplantes Ende:
+[Fertigungsstatus]Status:
+[Planungsstatus]Planungsstatus:
+[Starttermin]Geplanter Start:
+[Titel]Planung
+
+#DLGPROPERTYFAVORGANGALLGEMEIN
+[Alternative]Alternative:
+[Bezeichnung]Bezeichnung:
+[Einheit]Einheit
+[Fertigungsmenge]Bruttomenge:
+[Nettomenge]Nettomenge:
+[JobParallelNr]Job Parallel:
+[JobSequentiellNr]Job Sequentiell:
+[JobSequentiellInterruptible]unterbrechbar
+[Positionsnummer]Aktivitätsnummer:
+[Splitnummer]Splitnummer:
+[Status]Status:
+[Titel]Allgemein
+[Typ]Typ:
+[Vorgangsnummer]Vorgangsnummer:
+[WertHerstellen]Wert Herstellung:
+[WertHerstellenKumuliert]Wert Herstell. kumuliert:
+[Notiz]Notiz:
+[Rüst-Information:]Rüst-Information:
+
+#DLGPROPERTYFAVORGANGDEBUG
+[Titel]Debug
+
+#DLGPROPERTYFACUSTOMINFO
+[Titel]benutzerdefinierte Informationen
+
+#DLGPROPERTYFAVORGANGGROBPLANUNG
+[Ende]Ende:
+[frühestens]Frühestens
+[IDC_STATIC_MITFREMDMAT]Grobplanung mit fremdbezogenem Material
+[IDC_STATIC_OHNEFREMDMAT]Grobplanung ohne fremdbezogenes Material
+[IDC_STATIC_OPT]Grobplanung während Optimierung
+[spätestens]Spätestens
+[Start]Start:
+[Titel]Grobplanung
+
+#DLGPROPERTYFAVORGANGVERBRAUCH
+[Bereit ab]Bereit ab
+[Beschreibung]Beschreibung
+[Material]Material
+[Puffer]Puffer
+[Titel]Verbrauch
+
+#DLGPROPERTYFAVORGANGRUECKMELDUNG
+[Ende]Ende
+[Gefertigt]Gefertigt
+[Ressource]Arbeitsplatz
+[Start]Start
+[Status]Status
+[Titel]Rückmeldung
+[Zeitpunkt]Zeitpunkt
+[GotoBDE]Gehe zu Rückmeldungen
+[ID_POPUP_ADD_BDE]Rückmeldung hinzufügen
+[ID_POPUP_CHG_BDE]Rückmeldung bearbeiten
+[ID_POPUP_DEL_BDE]Markierte Meldungen löschen
+
+#DLGPROPERTYFAVORGANGPLANAENDERUNG
+[Ende]Ende:
+[IDC_STATIC_PLANAENDERUNG_AKTUELL]Aktuell geplant
+[IDC_STATIC_PLANAENDERUNG_BISHER]Bisher geplant
+[IDC_STATIC_PLANAENDERUNG_INITIAL]Initial geplant
+[Start]Start:
+[Titel]Planänderungen
+
+#DLGPROPERTYFAVORGANGPLANUNG
+[Bearbeitungszeit]Bearbeitungszeit:
+[Bedienanteil]Bedienanteil:
+[Bereits fertiggestellt:]Bereits fertiggestellt:
+[Ende]Ende:
+[IDC_STATIC_ZEITEN]Zeiten
+[Start]Start:
+[Titel]Planung
+[IDC_STATIC_RESSOURCEN]Geplante Ressourcen
+[Name]Name
+[Nummer]Nummer
+[Rückmeldezeitpunkt:]Rückmeldezeitpunkt:
+[Status]Status:
+[PlanStatus]Planlevel:
+[Typ]Typ
+[Gruppe]Gruppe
+[Belegung]Belegung
+[HINT_BDE_VORHANDEN]Es liegen nicht verarbeitete Rückmeldungen vor...
+[Info]Info
+[Planintervalle]Intervall(e)
+[für]für
+[Einheit]Einheit
+
+#DLGPROPERTYFAVORGANGVORGABEN
+[IDC_STATIC_ZEITEN]Zeiten
+[fixierter Start]Fixierter Start:
+[frühestmöglicher Start]Frühester Start:
+[Titel]Vorgaben
+[IDC_STATIC_RESSOURCEN]Fixierte Ressourcen
+[Name]Name
+[Nummer]Nummer
+[Typ]Typ
+[Gruppe]Gruppe
+[ID_POPUP_ADD_FIX_MASCHINE]Arbeitsplatz hinzufügen
+[ID_POPUP_ADD_FIX_PERSONAL]Personal hinzufügen
+[ID_POPUP_ADD_FIX_PERSONALGRUPPE]Personalgruppe hinzufügen
+[ID_POPUP_ADD_FIX_FHM]FHM hinzufügen
+[ID_POPUP_CHG_FIX_MASCHINE]Arbeitsplatz ändern
+[ID_POPUP_DEL_FIX_RES]Fixierte Ressource entfernen
+[ID_POPUP_APPLY_PLANRES]Geplante Ressourcen
+[IDC_STATIC_VORGABEN_FIXDAUER]Fixierte Dauer:
+
+#DLGPROPERTYFHMKAPAZITAET
+[IDC_STATIC_MR5_KAPTYP]Kapazitätsprüfung:
+[IDC_STATIC_MR5_MAXKAP]Max. Belegung:
+[IDC_STATIC_PARALLELBELEGUNG]Parallele Belegung:
+[IDC_STATIC_SYNCHRONOUSSTART]Synchroner Start:
+[Titel]Kapazität
+
+#DLGPROPERTYGRUPPEN
+[Arbeitszeitmodell]Arbeitszeitmodell
+[erbt]erbt
+[Info]Info
+[Kapazität]Kapazität
+[Kosten]Kosten
+[Mitglied von]Mitglied von
+[Qualifikation]Qualifikationen
+[Titel]Gruppen
+
+#DLGPROPERTYMASCHINENKAPAZITAET
+[Gehe zur Gruppe, von der die Maschinenkapazität übernommen wird.]Gehe zur Gruppe, von der die Arbeitsplatzkapazität übernommen wird.
+[ID_POPUP_PAR_BEL_ADD]Typ hinzufügen
+[ID_POPUP_PAR_BEL_DEL]Typ entfernen
+[IDC_STATIC_EIGENSCHAFTEN]Eigenschaften
+[IDC_STATIC_MEHRSCHICHT]Mehrschichtbearbeitung:
+[IDC_STATIC_MR5_BELEGUNG]Parallel-Jobs erstellen:
+[IDC_STATIC_MR5_KAPTYP]Kapazitätsprüfung:
+[IDC_STATIC_MR5_MAXKAP]Max. Belegung:
+[IDC_VONGRUPPE]Übernahme von Gruppe:
+[nein]nein
+[ParallelBelegungsTypen]Parallelbelegungstypen
+[Titel]Kapazität
+[Typ]Parallelbelegungstypen
+[IDC_STATIC_ZWANGZEITINTERVALL]innerhalb:
+[IDC_STATIC_SYNCHRONOUSSTART]Synchroner Start:
+
+#DLGPROPERTYMASCHINENKOSTEN
+[Bearbeitung]Bearbeitung
+[Gehe zur Gruppe, von der die Maschinenkosten übernommen werden.]Gehe zur Gruppe, von der die Arbeitsplatzkosten übernommen werden.
+[GiltAb]Gilt ab
+[ID_POPUP_KOSTEN_ADD]Kosten hinzufügen
+[ID_POPUP_KOSTEN_DEL]Kosten löschen
+[IDC_STATIC_KOSTENSAETZE]Kostensätze
+[IDC_STATIC_STILLSTAND_DAUER]Stillstandskostenhorizont:
+[IDC_STATIC_TAGE]Tage
+[IDC_VONGRUPPE]Übernahme von Gruppe:
+[nein]nein
+[Rüsten]Rüsten
+[Stillstand]Stillstand
+[Titel]Kosten
+
+#DLGPROPERTYMASCHINENPARALLELBEDIENUNG
+[Bezeichnung]Bezeichnung
+[ID_POPUP_PAR_MASCH_ADD]Arbeitsplatz hinzufügen
+[ID_POPUP_PAR_MASCH_DEL]Arbeitsplatz entfernen
+[Maschine]Arbeitsplatz
+[ParallelMaschinen]ParallelArbeitsplätze
+[Titel]Parallelbedienung
+[ID_POPUP_ALLOW_ALL_MACHINES]Alle Arbeitsplätze parallel erlauben
+[ID_POPUP_DISALLOW_ALL_MACHINES]Keine Arbeitsplätze parallel erlauben
+[Keine Maschine ist parallel bedienbar]Kein Arbeitsplatz ist parallel bedienbar
+[Alle Maschinen sind parallel bedienbar]Alle Arbeitsplätze sind parallel bedienbar
+
+#DLGPROPERTYMASCHINENPERSONALBEDARF
+[IDC_STATIC_BEDIENBEDARF]Bearbeitung:
+[IDC_STATIC_PERSONALBEDARF]Personalbedarf
+[IDC_STATIC_PERSONALPLANEN]Personal planen:
+[IDC_STATIC_PERSONEN]Personen
+[Titel]Personal
+[Eintrag_hinzufuegen]Personalbedarf hinzufügen
+[Eintrag_loeschen]Personalbedarf löschen
+[GroupID]Gruppe
+[ActivityqualificationID]Vorgangsqualifikation
+[ActivityType]Aktivitätstyp
+[ChangeWorkerType]Wechseltyp
+[WorkerRequirementCount]Anz. Personal
+[WorkerRequirementUtilization]Ausl. in %
+[Ruesten_Fertigen]Alle
+[Ruesten]Rüsten
+[Fertigen]Fertigen
+[Gruppennummer_existiert_bereits]Diese Gruppe existiert bereits!
+[Gruppennummer_darf_nicht_leer_sein]Die Gruppe darf nicht leer sein!
+[Kleiner_Null_ungültig]Die Auslastung darf nicht kleiner als 0%% sein!
+[Wähle_Vorgangsquali]Vorgangsqualifikation auswählen
+[Entferne_Vorgangsquali]Vorgangsqualifikation zurücksetzen
+
+#DLGPROPERTYMASCHINENUMRUESTUNG
+[Auswahl der Rüstmatrix]Auswahl der Rüstmatrix
+[Eintrag für Rüstmatrix löschen]Eintrag für Rüstmatrix löschen
+[IDC_STATIC_DYNRUESTEN]Dynamische Rüstzeit
+[IDC_STATIC_RUESTOPTTYP]Rüstoptimierung
+[IDC_STATIC_RUESTTYP]Rüstoptimierungstyp:
+[IDC_STATIC_STATRUESTEN]Statische Rüstzeit
+[IDC_STATIC_UMRUESTMATRIX]Rüstmatrix:
+[IDC_STATIC_UMRUESTMATRIX_SEQ]Rüstsequenz:
+[IDC_STATIC_UMRUESTUNG]Standardwerte:
+[IDC_STATIC_UMRUESTZEIT]Zeit:
+[IDC_STATIC_UMRUESTKOSTEN]Zusatzkosten:
+[JumpMatrix]Gehe zur Rüstmatrix
+[Rüstmatrix hinzufügen]Rüstmatrix hinzufügen
+[Titel]Umrüstung
+[IDC_STATIC_RUESTZWANGTYP]Sequenz-Jobs erstellen für identische:
+[IDC_STATIC_ZWANGZEITINTERVALL]innerhalb:
+[IDC_STATIC_STATRUESTOPTKRITERIUM]Kriterium:
+[IDC_STATIC_STATRUESTOPTKRITERIUM_DESC]Statische Rüstzeit entfällt bei übereinstimmendem Kriterium.
+[Ruestzwang_Alle]Rüstkriterien (alle)
+[Ruestzwang_Statisch]statisches Rüstkriterium
+[Ruestzwang_Dynamisch]dynamisches Rüstkriterium
+[Ruestzwang_RelFHM]rüstrelevante FHM
+[Rüstsequenz]Rüstsequenz
+[->]→
+
+#DLGPROPERTYMATERIALBESTAND
+[IDC_CHK_BESTAND_BUCHEN]Bestandsabbuchung durchführen:
+[IDC_CHK_SICHERHEIT_PLAN]Sicherheitsbestand verplanbar:
+[IDC_STATIC_BESTANDSDATEN]Bestandsdaten
+[IDC_STATIC_SICHERHEITSBESTAND]Sicherheitsbestand:
+[Titel]Bestand
+
+#DLGPROPERTYMATERIALEIGENSCHAFTEN
+[BestehtAusAnzahl]Besteht aus Anzahl
+[BestehtAusEinheit]Besteht aus Einheit
+[Einheit]Einheit
+[ID_POPUP_ELEMENT_ADD]Neue Umrechnung hinzufügen
+[ID_POPUP_ELEMENT_DEL]Umrechnung löschen
+[IDC_STATIC_EINHEIT]Einheit:
+[IDC_STATIC_EINHEITUMRECHNUNG]Materialindividuelle Einheitenumrechnungen
+[IDC_STATIC_REFERENZWERTE]Referenzwerte
+[IDC_STATIC_WERT_BESCHAFFUNG]Wert Beschaffung:
+[IDC_STATIC_WERT_HERSTELLEN]Wert Herstellung:
+[IDC_STATIC_WERT_VERKAUF]Wert Verkauf:
+[Titel]Allgemein
+
+#DLGPROPERTYMATERIALHERSTELLUNG
+[Arbeitsplan]Arbeitsplan
+[Stückliste]Stückliste
+[Arbeitsplan waehlen]Arbeitsplan wählen
+[Stueckliste waehlen]Stückliste wählen
+[productionversion]Fertigungsversion
+[Gültig ab]Gültig ab
+[Gültig bis]Gültig bis
+[ID_POPUP_ELEMENT_ADD]Fertigungsversion hinzufügen
+[ID_POPUP_ELEMENT_DEL]Fertigungsversion löschen
+[ID_POPUP_AP_EDIT]Arbeitsplan ändern
+[ID_POPUP_STL_EDIT]Stückliste ändern
+[ID_POPUP_STL_DEL]Stückliste löschen
+[IDC_EIGENFERTIGUNG]Eigenfertigung
+[IDC_FREMDBEZUG]Fremdbezug
+[IDC_GEBTYP]Einheit
+[IDC_STATIC_AUSWAHL]Auswahl
+[IDC_STATIC_BESCH_MENGEABH]Mengenabh. Beschaffungsdauer:
+[IDC_STATIC_BESCH_MENGEUN]Mengenunabh. Beschaffungsdauer:
+[IDC_STATIC_EIGENFERTIGUNG]Eigenfertigung
+[IDC_STATIC_FREMDBEZUG]Fremdbezug
+[IDC_STATIC_STUNDEPRO]h /
+[Index]Index
+[Titel]Herstellung
+[AddBomQuestion]Soll auch eine Stückliste verwendet werden?
+
+#DLGPROPERTYMATERIALLOSGROESSEN
+[IDC_STATIC_MAX_LOS]Maximale Losgröße:
+[IDC_STATIC_MIN_LOS]Minimale Losgröße:
+[IDC_STATIC_OPT_LOS]Optimale Losgröße:
+[Titel]Losgrößen
+
+#DLGPROPERTYMATERIALOPTIMIERUNGSGRUPPEN
+[Titel]Optimierungsgruppen
+[Typ]Typ
+[Optimierungsgruppe]Optimierungsgruppe
+[Merkmal]Merkmal
+[Ändern]Hinzufügen/Bearbeiten
+[Löschen]Löschen
+
+#DLGPROPERTYMODELLPARAMDIVERSES
+[IDC_CHK_UEBERLAPPLIEGEN]Liegen-Aktivitäten dürfen überlappt werden
+[IDC_CHK_UEBERLAPPRUEST]Rüsten-Aktivität darf Vorgänger-Vorgang überlappen
+[IDC_STATIC_AUSWERTUNG]Auswertung
+[IDC_STATIC_FA_KRITISCH]FA gilt als pünktlich:
+[IDC_STATIC_FA_VERSPAETET]FA gilt als verspätet:
+[IDC_STATIC_PUFFERMATLIEF]Materiallieferung bis Verbrauch:
+[IDC_STATIC_SICHERHEITSZEIT]Planende bis Bedarfstermin:
+[IDC_STATIC_SICHERHEITSZEITEN]Sicherheitszeiten
+[IDC_STATIC_TAGENACH]Tage nach Termin
+[IDC_STATIC_TAGEVOR]Tage vor Termin
+[IDC_STATIC_UEBERLAPPUNG]Überlappung
+[Titel]Diverses
+
+#DLGPROPERTYMODELLPARAMINHALTE
+[IDC_CHK_AUTOBDESEKFA]Sekundäraufträge automatisch rückmelden
+[IDC_CHK_PLANFHM]Fertigungshilfsmittel planen
+[IDC_CHK_PLANPERS]Personal planen
+[IDC_STATIC_BDE]Rückmeldungen
+[IDC_STATIC_OPTIONEN]Optionen
+[IDC_STATIC_WASGEPLANT]Was wird geplant
+[Titel]Planungsinhalte
+
+#DLGPROPERTYMODELLPARAMKOSTEN
+[IDC_STATIC_ZIELFUNKTION]Zielfunktion:
+[IDC_STATIC_ZINSKAPITALBINDUNG]Zinssatz Kapitalbindung:
+[Titel]Kosten
+
+#DLGPROPERTYMODELLPARAMPERSONAL
+[IDC_BTN_MMB]Mehrmaschinenbedienung
+[IDC_STATIC_MEHRMASCHBED]Mehrmaschinenbedienung
+[IDC_STATIC_MEHRSCHICHTBEARB]Mehrschichtbearbeitung
+[IDC_STATIC_MINDAUERBEDIENANTEILMITPAUSEN]Minimale Dauer von Belegungsintervallen pro Mitarbeiter (nur durch Pause getrennt):
+[IDC_STATIC_MINDAUERMEHRSCHICHT]Minimale Dauer eines Vorgangs für Personalwechsel:
+[IDC_STATIC_PERSONAL]Allgemein
+[Titel]Personal
+
+#DLGPROPERTYMODELLPARAMZEITEN
+[IDC_STATIC_DATAFUTURE]Zeitspanne für Beachtung gegebener Daten:
+[IDC_STATIC_KAPAFUTURE]Zeitspanne für Kapazitätsplanung:
+[IDC_STATIC_KAPAPAST]Zeitspanne für Kapazitätsprüfung:
+[IDC_STATIC_VERGANGENHEIT]Vergangenheit
+[IDC_STATIC_ZUKUNFT]Zukunft
+[Titel]Planungszeiten
+
+#DLGPROPERTYOPTIMIERUNGOPTIMIERUNG
+[Optimierung_Start]Start
+[Optimierung_Stop]Stopp
+[Optimierung_Abbruch]Wird angehalten
+[IDC_CHECK_ISTLINIESYSTEMZEIT]Aktuelle Systemzeit verwenden
+[IDC_CHECK_PZRDZRAUTO]Berechne Planungszeiten
+[IDC_STATIC_ANZERGEBNIS]Ergebnisse:
+[IDC_STATIC_ANZOPTLAUF]Optimierungsläufe:
+[IDC_STATIC_DZRENDE]Daten bis:
+[IDC_STATIC_ISTLINIE]Istlinie:
+[IDC_STATIC_OPT]Optimierung
+[IDC_STATIC_PLANUNGSZEITEN]Planungszeiten
+[IDC_STATIC_PZRENDE]Planung bis:
+[IDC_STATIC_PZRSTART]Planung von:
+[IDC_STATIC_STABILERZEITRAUM]Stabiler Zeitraum:
+[IDC_THREADCHECK]Thread-Optimierung:
+[Titel]Planung
+[App_beschäftigt]Die Optimierung kann nicht gestartet werden, da die Anwendung beschäftigt ist.\n\nBitte versuchen Sie es erneut, sobald alle aktuellen Aufgaben abgeschlossen sind.
+
+#DLGPROPERTYOPTIMIERUNGOPTIMIERUNGSTYPEN
+[IDC_CHECK_ANFRAGEN]Anfragen einplanen
+[IDC_CHECK_ANFRAGEN_ALAP]Zusatzanfragen mit Termin einplanen
+[IDC_CHECK_ANFRAGEN_ASAP]Zusatzanfragen ohne Termin einplanen
+[IDC_CHECK_FERTIGUNGSAUFTRAEGE]Fertigungsaufträge einplanen
+[IDC_STATIC_OPTTYPEN]Planungstypen
+[IDC_STATIC_PLANUNGSART]Planungsart
+[Titel]Planungstypen
+
+#DLGPROPERTYOPTIMIERUNGPLANUNGSSTRATEGIE
+[Titel]Planungsstrategie
+[IDC_BTN_RUECKWAERTS]Engpassterminierung (Vorwärts-, Rückwärtsterminiert)
+[IDC_BTN_VORWAERTS]Vorwärtsterminiert
+[IDC_STATIC_TERMINIERUNGSART]Terminierungsart
+[IDC_STATIC_DLZOPT]DLZ optimieren:
+[IDC_STATIC_FERTIGUNGSOPT]Fertigungsaufwand optimieren:
+[IDC_STATIC_KAPAZITAETSOPT]Kapazitätsauslastung optimieren:
+[IDC_STATIC_KAPITALBIND]Kapitalbindung optimieren:
+[IDC_STATIC_PERSONALOPT]Personalaufwand optimieren:
+[IDC_STATIC_RUESTOPT]Rüstaufwand optimieren:
+[IDC_STATIC_TERMINOPT]Termintreue optimieren:
+[IDC_STATIC_ZIELKRIT]Zielkriterien
+
+#DLGPROPERTYOPTIMIERUNGMRP
+[Titel]MRP
+[Group_MRP]Materialbedarfsplanung
+[Group_Lotsize]Losgrößenoptimierung
+[Note_ExistingRelations]Vorhandene Beziehungen bleiben erhalten und werden von der Planung beachtet
+[CheckInhouseProduction]Eigenfertigung prüfen
+[CheckPurchase]Fremdbezug prüfen
+[CreateInhouseProduction]Fertigungsaufträge erstellen
+[CreatePurchase]Bestellvorschläge erstellen
+[RelinkProductionorders]flexible Auftragsbeziehungen
+[RelinkPurchaseorders]flexible Bestellreservierungen
+[RelinkStockreservations]flexible Lagerreservierungen
+[LotSizeOptimization]Losgrößen optimieren
+
+#DLGPROPERTYPERSONALKAPAZITAET
+[Gehe zur Gruppe, von der die Personalkapazität übernommen wird.]Gehe zur Gruppe, von der die Personalkapazität übernommen wird.
+[IDC_LABEL_MAXBELEGUNG]Max. Belegung:
+[IDC_LABEL_POOL]Personalpool:
+[IDC_STATIC_PRUEFUNG]Kapazitätsprüfung:
+[IDC_VONGRUPPE]Übernahme von Gruppe:
+[nein]nein
+[Titel]Kapazität
+
+#DLGPROPERTYPERSONALKOSTEN
+[Gehe zur Gruppe, von der die Peronalkosten übernommen werden.]Gehe zur Gruppe, von der die Peronalkosten übernommen werden.
+[IDC_STATIC_BEDIENZUSCHLAG]Bedienzeitzuschlag:
+[IDC_STATIC_RUESTZUSCHLAG]Rüstzeitzuschlag:
+[IDC_STATIC_STUNDENSATZ]Stundensatz:
+[IDC_VONGRUPPE]Übernahme von Gruppe:
+[nein]nein
+[Titel]Kosten
+[Hinweis]Hinweis
+[Zeitzuschläge werden nur beachtet...]Zeitzuschläge werden nur beachtet, wenn genau eine Person über die gesamte Dauer verplant wird (kein Wechsel in Aktivität erlaubt).
+
+#DLGPROPERTYREPORTCHARTCONFIGADVANCED
+[IDC_CHECK_CUSTOMAXISXTITLE]Eigener X-Achsentitel
+[IDC_CHECK_ROTATED]Rotiere Diagramm
+[IDC_CHECK_SHOWLABELS]Zeige Labels
+[IDC_CHECK_SHOWLEGEND]Zeige Legende
+[IDC_CHECK_USECUSTOMAXISYTITLE]Eigener Y-Achsentitel
+[IDC_CHECK_USECUSTOMTITLE]Eigener Charttitel
+[IDC_STATIC_ADVANCEDDISPLAYOPTIONS]Erweiterte Anzeigeoptionen
+[IDC_STATIC_CONTENT_COLUMN]Inhalt aus Spalte:
+[IDC_STATIC_OWNTEXT]Eigener Text:
+[IDC_STATIC_TITLES]Bezeichnungen und Tooltips
+[IDC_STATIC_TOOLTIPLIST]Tooltipinhalt
+[Titel]Erweiterte Einstellungen
+
+#DLGPROPERTYREPORTCHARTCONFIGDATA
+[Datenspalte_entfernen]Datenspalte entfernen
+[Datenspalte_hinzufuegen]Datenspalte hinzufügen
+[Farbauswahl_entfernen]Farbauswahl entfernen
+[GRIDCOLUMN_Datenpunkt]Datenpunkt
+[GRIDCOLUMN_Datenreihe]Datenreihe
+[GRIDCOLUMN_Farbe]Farbe
+[GRIDCOLUMN_Farbe_angezeigt]Gewählte Farbe
+[GRIDCOLUMN_Farbe_waehlen]Farbe wählen (optional)
+[GRIDCOLUMN_ViewType]Diagrammart wählen (optional)
+[IDC_CHECK_ALLINONE]Ansicht in einem gemeinsamen Diagramm
+[IDC_CHECK_HEADERASARGUMENT]Verwende Kopf als Bezugswert
+[IDC_CHECK_USECUSTOMPALETTE]Verwende eigene Farben
+[IDC_STATIC_ARGUMENTDATAMEMBER]Bezugspunkt / X-Achse:
+[IDC_STATIC_COLUMNS]Allgemeine Einstellungen
+[IDC_STATIC_DEFINEDPALETTE]Vordefinierte Farbpalette:
+[IDC_STATIC_PALETTE]Farbpalette
+[IDC_STATIC_SERIES]Datenreihen
+[IDC_STATIC_SERIES_ALTERNATIVE]Datenpunkte
+[IDC_STATIC_VIEWTYPE]Diagrammart:
+[Titel]Daten
+
+#DLGPROPERTYREPORTCHARTCONFIGFILTER
+[Titel]Filter
+
+#DLGPROPERTYREPORTCHARTCONFIGGENERAL
+[IDC_STATIC_REPORTNAME]Bezeichnung:
+[IDC_STATIC_REPORTNUMMER]Diagrammnummer:
+[IDC_STATIC_REPORTKATEGORIE]Kategorie:
+[IDC_STATIC_TABREPORT]Tabellarischer Report:
+[Titel]Allgemeine Einstellungen
+[IDC_CHECK_GLOBAL]Für alle Nutzer freigeben
+
+#DLGPROPERTYREPORTCONFIGBASE
+[Spalte_auswählen]Spalte auswählen:
+[Spalten_auswählen]Spalten auswählen:
+
+#DLGPROPERTYREPORTCONFIGCOLUMNS
+[GRIDCOLUMN_Bezeichnung]Eigene Bezeichnung
+[GRIDCOLUMN_ID]Spalte
+[GRIDCOLUMN_Verknüpfung]Verknüpfung
+[IDC_CHECK_REPORTAUFSTEIGENDSORTIEREN]aufsteigend sortieren
+[IDC_ST_REPORTASSISTENT_SEITE2]Reportassistent - Schritt 2: Spalteneinstellungen
+[IDC_STATIC_FIXESPALTEN]Anzahl fixer Spalten:
+[IDC_STATIC_SORTIERSPALTE]Initiale Sortierspalte:
+[Alle Spalten entfernen]Alle Spalten entfernen
+[ReportSpalten]Report-Spalten
+[Initiale_Sortierspalte]Initiale Sortierspalte
+[Spalten_auswaehlen]Spalten auswählen
+[Spalten_loeschen]Spalten löschen
+[Spalte_loeschen]Spalte löschen
+[Formel_hinzufuegen]Formel hinzufügen
+[Formel_bearbeiten]Formel/Zeitspanne bearbeiten
+[Nachfrage_Spalten_loeschen]Möchten Sie diese Spalten wirklich löschen (unter den ausgewählten Spalten befindet sich mindestens eine Formelspalte bzw. Zeitspanne)?
+[Nachfrage_Formel_loeschen]Möchten Sie diese Formelspalte wirklich löschen?
+[Zeitspanne_hinzufuegen]Zeitspanne hinzufügen
+
+#DLGREPORTCREATEFORMEL
+[Formelspalte]Formelspalte
+[Formelspalte_erstellen]Formelspalte erstellen
+[Formelspalte_bearbeiten]Formelspalte bearbeiten
+[Operatoren]Operatoren
+[Funktionen]Funktionen
+[Eigener_Spaltenname]Eigener Spaltenname:
+[Formel]Formel
+[Variable_fuer_Formel]Variable für Formel
+[zugewiesene_Eigenschaft]Zugewiesene Eigenschaft
+[Variable_hinzufuegen]Variable hinzufügen
+[Spalte_auswaehlen]Spalte auswählen
+[Variable_loeschen]Variable löschen
+[Variable_vergeben]Variablenname bereits vergeben!
+[Variable_ungueltig]Kein gültiger Variablenname!
+[Fehler]Fehler
+[Formel_ausblenden]Formel-Spalte nicht anzeigen (in Filtern trotzdem verwendbar)
+[Formelfilter]Formel
+[Formelfilter_erstellen]Formelfilter erstellen
+[Formelfilter_bearbeten]Formelfilter bearbeiten
+
+#DLGREPORTCREATEDATECOLUMN
+[Zeitspanne]Zeitspanne
+[Zeitspanne_erstellen]Zeitspanne berechnen
+[Zeitspanne_bearbeiten]Zeitspanne bearbeiten
+[Eigener_Spaltenname]Eigener Spaltenname:
+[Infotext]Hinweis: Die Zeitspanne bildet sich aus der Differenz zweier Datumsspalten. Die berechnete Zeitspanne wird im angegeben Zeitformat angezeigt (Sekunden, Minuten, Stunden, etc...).
+[Zeitformat]Differenz in:
+[Datumsspalte1]Datumsspalte 1:
+[Var_Datumsspalte1]Datumsspalte1
+[Datumsspalte2]Datumsspalte 2:
+[Var_Datumsspalte2]Datumsspalte2
+[Formel_ausblenden]Formel-Spalte nicht anzeigen (in Filtern trotzdem verwendbar)
+[Uhrzeit]Uhrzeit
+
+#DLGPROPERTYREPORTCONFICOLORGFILTER
+[Farbfilter_entfernen]Farbfilter entfernen
+[Farbfilter_hinzufügen]Farbfilter hinzufügen
+[Farbfilter_modifizieren]Farbfilter modifizieren
+[Farbfilter_duplizieren]Farbfilter duplizieren
+[GRIDCOLUMN_ID]Filter
+[GRIDCOLUMN_Kurzfassung]Kurzfassung
+[IDC_ST_REPORTASSISTENT_SEITE4]Reportassistent - Schritt 4: Farbfiltereinstellungen
+[FarbfilterSpalte]Spalte für Farbfilter
+// Fuer Charts-Wizard
+[IDC_STATIC_FARBILTER]Farbfilter
+
+#DLGPROPERTYREPORTCONFIGROWFILTER
+[IDC_ST_REPORTASSISTENT_SEITE5]Reportassistent - Schritt 5: Zeilenfiltereinstellungen
+[GRIDCOLUMN_ID]Filter
+[GRIDCOLUMN_Kurzfassung]Kurzfassung
+[Zeilenfilter_entfernen]Zeilenfilter entfernen
+[Zeilenfilter_hinzufügen]Zeilenfilter hinzufügen
+[Zeilenfilter_modifizieren]Zeilenfilter modifizieren
+[Zeilenfilter_duplizieren]Zeilenfilter duplizieren
+// Fuer Charts-Wizard
+[IDC_STATIC_ZEILENFILTER]Zeilenfilter
+
+#DLGPROPERTYREPORTCONFIGGENERAL
+[IDC_ST_REPORTASSISTENT_SEITE1]Reportassistent - Schritt 1: allgemeine Einstellungen
+[IDC_STATIC_OBJEKTVORAUSWAHL]Objektvorauswahl:
+[IDC_STATIC_REPORTART]Reportart:
+[IDC_STATIC_REPORTNAME]Bezeichnung:
+[IDC_STATIC_REPORTNUMMER]Reportnummer:
+[IDC_STATIC_REPORTKATEGORIE]Kategorie:
+[IDC_CHECK_GLOBAL]Für alle Nutzer freigeben
+[AddObjekttype]Objekttypen hinzufügen
+[ObjectType]Gewählte Objekttypen
+[IDC_CHECK_DIRECTSHOW]Report sofort anzeigen
+
+#DLGPROPERTYREPORTCONFIGOPTION
+[IDC_ST_REPORTASSISTENT_SEITE3]Reportassistent - Schritt 3: Optionsauswahl
+[IDC_STATIC_DATUMENDE]Spalte für Ende:
+[IDC_STATIC_DATUMFILTER]Einstellungen für Zeitraumfilter
+[IDC_STATIC_DATUMSSPALTE]Spalte mit Datumsinformation:
+[IDC_STATIC_DATUMSTART]Spalte für Start:
+[IDC_STATIC_OBJEKTAUSWAHL]Objektauswahl ermöglichen
+[IDC_STATIC_TAGESWECHSELFREIZEILE]Freizeile bei Tageswechsel einfügen
+[IDC_STATIC_ZEILENMARKIERUNG]Zeilenmarkierung wechseln
+[IDC_STATIC_ZEILENMARKIERUNGSPALTE]bei Änderung in:
+[IDC_STATIC_GRUPPIERUNG_LABEL]nach Wert in Spalte:
+[IDC_STATIC_GRUPPIERUNG_GROUPBOX]Gruppierung
+[IDC_STATIC_PRINTOPTION]Druckeinstellungen
+[IDC_CHECK_REPORTSEITENUMBRUCH]Seitenumbruch beim Drucken mehrerer Objekte
+[Startspalte]Spalte für Startdatum
+[EndeSpalte]Spalte für Endedatum
+[TageswechselSpalte]Spalte für Tageswechsel
+[ZeilenmarkierungSpalte]Spalte für Zeilenmarkierung
+[Gruppierungsspalte]Spalte für Gruppierung
+
+#DLGREPORT_ROWFILTER_SELECTION
+[GRIDCOLUMN_ID]Filter
+[GRIDCOLUMN_Kurzfassung]Kurzfassung
+[GRIDCOLUMN_Objekt_verwenden]Aktiv
+[IDC_STATIC_ZEILENFILTER]vorhandene Zeilenfilter
+[Zeilenfilterauswahl]Zeilenfilterauswahl
+
+#DLGREPORTCHARTCONFIG
+[IDC_ST_REPORTCHARTASSISTENT]Diagramm-Assistent
+
+#DLGREPORTCHARTCONFIGCREATEFILTER
+[IDC_BUTTON_FARBE]Datenpunktfarbe
+
+#DLGREPORTCONFIG
+[IDC_ST_REPORTASSISTENT]Reportassistent
+
+#DLGREPORTCONFIGCREATEFILTER
+[Filterelement_entfernen]Filter entfernen
+[Filterelement_hinzufügen]Filter hinzufügen
+[Formelelement_hinzufügen]Formel hinzufügen
+[Zeitspannenelement_hinzufügen]Zeitspanne hinzufügen
+[GRIDCOLUMN_Filtertyp]Filtertyp
+[GRIDCOLUMN_gross/klein]groß/klein beachten
+[GRIDCOLUMN_Spalte]Eigenschaft
+[GRIDCOLUMN_Wert]Wert
+[IDC_BUTTON_HINTERGRUND]Hintergrundfarbe
+[IDC_BUTTON_SCHRIFT]Schriftfarbe
+[IDC_CHECK_FULLCOL]komplette Spalte
+[IDC_CHECK_FULLROW]komplette Zeile
+[IDC_RADIO_LINKAND]UND
+[IDC_RADIO_LINKOR]ODER
+[IDC_STATIC_ELEMENTVERKNUEPFUNG]Filterkombination:
+[IDC_STATIC_FILTEREIGENSCHAFTEN]Filtereigenschaften
+[IDC_STATIC_FILTERELEMENTE]Filterelemente
+[IDC_STATIC_FILTERNAME]Filtername:
+[IDC_STATIC_GROUPFARBEN]Farben
+[IDC_STATIC_GROUPFARBOPTION]Färbeoptionen
+[IDC_STATIC_MAXANZAHL]max. Anzahl:
+[neuen_Filter_anlegen]neuen Filter anlegen
+[einzufaerbende_Zelle]einzufärbende Zelle:
+[Filterspalte_festlegen]Filtereigenschaft festlegen
+[Spalte_auswählen]Eigenschaft auswählen:
+
+#DLGGANTTFILTER
+[Filterelement_entfernen]Filter entfernen
+[Filterelement_alle_entfernen]alle Filter entfernen
+[Filterelement_hinzufügen]Filter hinzufügen
+[GRIDCOLUMN_Filtertyp]Filtertyp
+[GRIDCOLUMN_Spalte]Eigenschaft
+[GRIDCOLUMN_Aktiv]Aktiv
+[GRIDCOLUMN_Wert]Wert
+[IDC_RADIO_LINKAND]UND
+[IDC_RADIO_LINKOR]ODER
+[IDC_STATIC_GANTTFILTER]Schnellfilter Leitstand
+[IDC_STATIC_ELEMENTVERKNUEPFUNG]Filterkombination:
+[Filterspalte_festlegen]Filtereigenschaft festlegen
+[Spalte_auswählen]Eigenschaft auswählen:
+[Formelelement_hinzufügen]Formel hinzufügen
+[Zeitspannenelement_hinzufügen]Zeitspanne hinzufügen
+
+#DLGGANTTSCHEDULEORDER
+[Title]Planreihenfolge
+[Tooltip_previous]Vorheriger Vorgang
+[Tooltip_next]Nächster Vorgang
+[Tooltip_play]Abspielen
+[Tooltip_pause]Anhalten
+[Tooltip_toggle_label_mode]Labels umschalten
+[Tooltip_close]Schließen
+
+#DLGCOLORSCHEME
+[Title_Filterdialog]Filter für Farbschema
+[Title]Eigenes Farbschema
+[Header1]Eigenschaften festlegen
+[Header2]Welche Farbe soll verwendet werden, wenn keiner der eigenen Filter zutrifft?
+[Name]Name:
+[Kategorie]Kategorie:
+[Grid_Kurzfassung]Kurzfassung
+[Grid_Farbe]Farbe
+[Grid_PlusButton]eigene Farbe hinzufügen
+[Filter_entfernen]Filter entfernen
+[alle_Filter_entfernen]alle Filter entfernen
+[Info1]Hinweis: Der erste zutreffende Filter legt die zu verwendende Farbe für den Balken des Vorgangs fest.
+[Radiobutton_Zufallsfarbe_anhand_Eigenschaft]Zufallsfarbe anhand Eigenschaft:
+[Radiobutton_Farbschema]Farbe laut Farbschema:
+[Radiobutton_Standardfarbe]Eigene Farbe:
+[ColumnTree_Title]Filterspalte festlegen
+[ColumnTree_Header]Spalte auswählen:
+[Global]Für alle Nutzer freigeben
+
+#DLGUPDATEOBJECT
+[IDC_CANCEL]Verwerfen
+[IDC_DLGUPDATE_ALLGEMEIN]Änderungen übernehmen
+[IDC_UPDATE]Übernehmen
+[WINDOWTEXT]%1 ändern
+[wurde geändert]'%1' wurde geändert.\r\nSollen die Änderungen übernommen werden?
+
+#GPFORMVIEWEX
+[Diese Identnummer darf nicht vergeben werden oder ist bereits vergeben!]Diese Identnummer darf nicht vergeben werden oder ist bereits vergeben!
+
+#GPEDITBOX
+[Cut]Ausschneiden
+[Copy]Kopieren
+[Paste]Einfügen
+[SelectAll]Alles markieren
+[Undo]Rückgängig
+[Redo]Wiederholen
+
+#MENU
+[&Hilfe]Hilfe
+[&Daten]Datei
+[Ablage]Ablage
+[Ansicht]Ansicht
+[Auswertung]Reports
+[Nutzerverwaltung]Nutzerverwaltung
+[Bewegungsdaten]Bewegungsdaten
+[DeleteOldProcessOrders]Beendete Fertigungsaufträge löschen (Status Beendet)
+[DeleteProcessOrdersNoParents]Nicht benötigte Fertigungsaufträge löschen (kein Bedarf zugeordnet)
+[Dualis]DUALIS
+[GANTTPLANData]%1 Daten
+[Grafisch]Grafisch
+[EigeneGrafisch]Eigene Grafisch
+[Optimierung]Automatische Planung
+[Planung]Planung
+[Planungsdaten]Planungsdaten
+[Qualifikationen]Qualifikationen
+[Werkskalender]Werkskalender
+[Buchungen]Lagerbestand
+[Reports]Reports
+[ResetProcessData]Bewegungsdaten zurücksetzen
+[SZENARIO]Szenariomodus
+[RESID_32935]Szenariomodus starten
+[RESID_32841]Szenariodatei öffnen...
+[RESID_32840]Szenariodatei speichern
+[RESID_32930]Szenariodatei speichern unter...
+[RESID_32942]Szenario übernehmen
+[RESID_32931]Szenariomodus beenden
+[RESID_32916]Datenliste
+[RESID_32918]Navigation
+[RESID_32919]Startansicht anzeigen
+[RESID_32926]Beenden und Nutzer abmelden
+[RESID_32928]Beenden
+[RESID_57664]Über...
+[RESID_32985]Hilfe anzeigen
+[RESID_32983]Tastaturkürzel
+[Rückmeldungen aus Fertigungsauftragssicht]Rückmeldungen aus Fertigungsauftragssicht
+[Rückmeldungen aus Maschinensicht]Rückmeldungen aus Arbeitsplatzsicht
+[Stammdaten]Stammdaten
+[Tabellarisch]Tabellarisch
+[EigeneTabellarisch]Eigene Tabellarisch
+[XML Konfiguration neu lesen]XML Konfiguration neu lesen
+[Zugriffsrechte]Zugriffsrechte
+[Extra]Extras
+[Import]Import
+[PrepareData]Daten vorbereiten
+[SynchronizeData]Daten synchronisieren
+[ImportModel]Fertigungsplan neu importieren
+[Export]Export
+[ExportPlan]Fertigungsplan exportieren
+[SyncExternalData]Externe Daten in %1 übernehmen
+[Sicherung der externen Daten mit Fehlern abgeschlossen]Sicherung der externen Daten mit Fehlern abgeschlossen
+[UDF_Overview]Objektverwaltung
+[RESID_32984]Drittanbieter-Software
+[Nachrichten]Aktuelle Systemmeldungen
+
+#REPORTCHARTCONTEXTMENU
+[ID_POPUPREPORTCHART_ADDTOSTORAGE]Zur Ablage hinzufügen
+[ID_POPUPREPORTCHART_ALLINONE]Gesamtansicht
+[ID_POPUPREPORTCHART_COLORSCHEME]Farbschema
+[ID_POPUPREPORTCHART_DEL]Löschen
+[ID_POPUPREPORTCHART_DOWN]Nach unten
+[ID_POPUPREPORTCHART_LARGER]Vergrößern
+[ID_POPUPREPORTCHART_RESET]Zurücksetzen
+[ID_POPUPREPORTCHART_ROTATED]Rotieren
+[ID_POPUPREPORTCHART_SETTINGS]Einstellungen
+[ID_POPUPREPORTCHART_SHOWLABELS]Zeige Labels
+[ID_POPUPREPORTCHART_SHOWLEGEND]Zeige Legende
+[ID_POPUPREPORTCHART_SMALLER]Verkleinern
+[ID_POPUPREPORTCHART_UP]Nach oben
+[ID_POPUPREPORTCHART_VIEWTYPE]Diagrammart
+[ID_POPUPREPORT_RESTORE_INITAL_ROWSORT]Zeilensortierung zurücksetzen
+[ID_POPUPREPORT_RESTORE_INITAL_COLUMNSORT]Spaltensortierung zurücksetzen
+[ID_POPUPREPORT_RESTORE_INITAL_COLUMWIDTH]Spalten verteilen
+
+#REPORTCHARTDEFAULTS
+[ID_AUSLASTUNG]Auslastung
+[ID_BESTANDSVERLAUF]Bestände Verlauf
+[ID_ENGPAESSE]Engpässe
+[ID_ENGPASSUEBERSICHT]Engpässe Übersicht
+[ID_ERGEBNISINFOFA]Ergebnisinfo FA
+[ID_ERGEBNISINFOKOSTEN]Ergebnisinfo Kosten
+[ID_KAPITALBINDUNG]Kapitalbindung
+
+#REPORTCHARTTEXT
+[Datum]Datum
+
+#REPORTCHARTVIEWTYPES
+[Area]Fläche
+[Area3D]Fläche 3D
+[Bar]Balken
+[Bar3D]Balken 3D
+[Doughnut]Ring
+[Doughnut3D]Ring 3D
+[Funnel]Trichter
+[Funnel3D]Trichter 3D
+[Line]Linie
+[Line3D]Linie 3D
+[ManhattanBar]Balken 3D Manhattan
+[Pie]Kreis
+[Pie3D]Kreis 3D
+[Point]Punkt
+[Spline]Kurve
+[Spline3D]Kurve 3D
+[SplineArea]Fläche geglättet
+[SplineArea3D]Fläche 3D geglättet
+[StackedArea]Fläche gestapelt
+[StackedArea3D]Fläche 3D gestapelt
+[StackedBar]Balken gestapelt
+[StackedBar3D]Balken 3D gestapelt
+[StackedSplineArea]Fläche gestapelt, geglättet
+[StackedSplineArea3D]Fläche 3D gestapelt, geglättet
+[StepLine]Treppe
+[StepLine3D]Treppe 3D
+
+#STATUSBAR
+[Partnerlizenz]Partnerlizenz für %1
+[Mittelwert]Mittelwert
+[Anzahl]Anzahl
+[Summe]Summe
+[Minimum]Min
+[Maximum]Max
+[Median]Median
+[Modus]Modus
+
+#STDAPP
+[Abbruch nach schwerwiegendem Fehler!]Abbruch nach schwerwiegendem Fehler!\nAnwendung wird geschlossen.
+[Bitte geben Sie ein gültiges Arbeitsverzeichnis an!]Bitte geben Sie ein gültiges Arbeitsverzeichnis an!
+[Datenbank-Export durchführen?]Export durchführen?\n
+[dbupdate failed]Automatische Aktualisierung fehlgeschlagen!
+[Die definierte SQL Ausführung hat einen Fehler gemeldet.]Die definierte SQL Ausführung hat einen Fehler gemeldet.
+[Einstellungen konnten nicht gespeichert werden.]Einstellungen konnten nicht gespeichert werden.\n
+[Es konnte keine Datenbank-Verbindung hergestellt werden.]Es konnte keine Datenbank-Verbindung hergestellt werden.\n\nBitte überprüfen Sie den ConnectionString zur Datenbank und stellen Sie sicher, dass der Nutzer das "CONNECT"-Recht besitzt.
+[Berechtigungsfehler]Die Datenbank-Verbindung konnte hergestellt werden, aber der Nutzer hat nicht alle benötigten Berechtigungen.\n\nDie folgenden Berechtigungen fehlen:\n%1\n\nDie Anwendung muss geschlossen werden!
+[Export fehlgeschlagen!]Export fehlgeschlagen!
+[Export gestartet]Export gestartet
+[Export beendet]Export beendet
+[ReloadOrders]Auftragsdaten nachladen?\n
+[Fertigungsplan neu berechnen?]Fertigungsplan neu berechnen?
+[GANTTPLAN-Datenbank wird nicht unterstützt]Die vorhandene Version der %1-Datenbank ist veraltet.\n\nVorhandene Version: %2\nBenötigte Version: %3\n\nSoll die Datenbank aktualisiert werden?\n\nAchtung: Dieser Vorgang kann nicht rückgängig gemacht werden! Update nur mit gesicherter Datenbank durchführen!
+[GANTTPLAN-Datenbank zu neu]Die vorhandene Version der %1-Datenbank wird nicht unterstützt.\n\nAktuelle Version: %2\nBenötigte Version: %3\n\nAktualisieren Sie Ihr %4!
+[no update right]Die vorhandene Version der %1-Datenbank ist veraltet.\n\nVorhandene Version: %2\nBenötigte Version: %3\n\nSie haben nicht das Recht die Datenbank zu aktualisieren. Bitte wenden Sie sich an Ihren Administrator.
+[startconfig]Konfiguration starten?
+[TaskNotPossibleWhileBusy]Aktion nicht möglich, so lange %1 die aktuelle Aufgabe ausführt!
+[TaskNotPossibleWhileResults]Alle ungespeicherten Ergebnisse verwerfen?
+[Szenarien]Szenarien
+[AlleDateien]Alle Dateien
+[UndefinedError]Aktion fehlerhaft!
+[Konfiguration_neu_lesen_Hinweis]Einige Einstellungen werden erst nach einem Neustart wirksam. 
+[Scenario_Wrong_Databaseversion]Das gewählte Szenario basiert auf einer älteren Datenmodell-Version (%1).\n\nDas Szenario muss auf die aktuelle Datenmodell-Version %2 konvertiert werden. Nach der Konvertierung kann das neue Szenario gespeichert werden, die Originaldatei bleibt unverändert.\n\nWollen Sie das Szenario konvertieren und anschließend öffnen?\n\nHinweis: Dieser Vorgang ist nicht abbrechbar und kann je nach Dateigröße und Datenmodell mehrere Minuten in Anspruch nehmen!
+[Scenario_Wrong_Databaseversion_Apply]Das gewählte Szenario basiert auf einer anderen Datenmodell-Version und kann daher nicht geöffnet und direkt übernommen werden.
+[Scenario_Newer_Databaseversion]Das gewählte Szenario basiert auf einer neueren Datenmodell-Version und kann daher nicht geöffnet werden.
+[Splashscreen_UserCommands]Benutzerdefinierte Anweisungen durchführen...
+[Splashscreen_Synchronisation]Datenbank synchronisieren...
+[Splashscreen_Init]Initialisierung läuft...
+[Splashscreen_GUIInitialization]Benutzeroberfläche initialisieren...
+[All rights reserved]Alle Rechte vorbehalten.
+
+#STDMAINFRAME
+[DropResult]Ergebnis verwerfen?
+[DropAllResult]Alle Ergebnisse verwerfen?
+[Ergebnis wirklich übernehmen?]Ergebnis wirklich übernehmen?\nAlle weiteren Ergebnisse werden verworfen!
+[Serververbindung_fehlgeschlagen]Es konnte keine Verbindung zum Update-Server hergestellt werden!
+[Serverantwort_fehlerhaft]Keine Prüfung möglich!\n\nKeine oder fehlerhafte Antwort vom Update-Server.
+[Version_aktuell]Ihre Version befindet sich auf dem aktuellsten Stand!
+[WAITMESSAGE_Generell]Bitte warten
+[WAITMESSAGE_IMPORT_MODEL]Fertigungsplan wird importiert...
+[WAITMESSAGE_SYNC]Daten werden synchronisiert...
+[WAITMESSAGE_READ_SCENARIO]Szenario wird geöffnet...
+[WAITMESSAGE_READ_SCENARIO_SAVE_SCENARIO]Szenario wird gespeichert...
+[WAITMESSAGE_APPLY_SCENARIO]Szenario wird übernommen...
+[WAITMESSAGE_APPLY_CURRENT_RESULT]Ergebnis wird übernommen...
+[WAITMESSAGE_APPLY_CURRENT_BDE]Rückmeldungen werden verarbeitet...
+[WAITMESSAGE_CREATE_SCENARIO]Szenario-Modus wird gestartet...
+[WAITMESSAGE_CONVERT_SCENARIO]Szenario wird konvertiert...
+[WAITMESSAGE_CLOSE_SCENARIO]Szenario-Modus wird beendet...
+[WAITMESSAGE_OPTIMIZE]Optimierung läuft...
+[WAITMESSAGE_RELOAD_ORDERS]Auftragsdaten werden aktualisiert...
+[WAITMESSAGE_EXPORT]Export wird durchgeführt...
+[WAITMESSAGE_BACKUP_EXTERNALDATA]Externe Daten werden übernommen...
+[WAITMESSAGE_PREPARE_DATA]Importdaten werden vorbereitet...
+
+#TOOLTIP
+[Aktuell gesperrt von]\r\nAktuell gesperrt von Nutzer: %1 (%2)
+[Ausführen]Ausführen
+[Der Datensatz ist nicht gesperrt.]Der Datensatz ist nicht gesperrt.
+[Der Datensatz kann nicht bearbeitet werden]Der Datensatz kann nicht bearbeitet werden.
+[Der Datensatz wurde zum Schreiben gesperrt.]Der Datensatz wurde zum Schreiben gesperrt.
+[Gesperrt durch Ergebnis]Der Datensatz kann im Ergebnis nicht bearbeitet werden.
+[PC_fehlt]Fertigungssteuererberechtigung fehlt
+[Durch Metadaten blockiert]Durch Metadaten gesperrt
+[Synchronisiertes Objekt]Synchronisiertes Objekt
+[Fehlende Objektberechtigung]Fehlende Nutzerberechtigung
+[Bearbeiten_fehlt]Bearbeiten
+[Erstellen_fehlt]Anlegen
+[Loeschen_fehlt]Löschen
+[erlaubt]erlaubt
+[Erstellen]Erstellen
+[Lesen]Lesen
+[Löschen]Löschen
+[nicht erlaubt]nicht erlaubt
+[Mode changed]Die beim Login gewählten Modi wurden geändert.
+[Mode reduced]Auf Grund eingeschränkter Berechtigungen konnten nicht alle Modi aus dem Szenario übernommen werden.
+[Mode reverted]Die beim Login gewählten Modi wurden wiederhergestellt.
+[Im Szenario eingestellte Fertigungssteuererberechtigungen werden nicht beachtet]Im Szenario eingestellte Fertigungssteuererberechtigungen werden nicht beachtet
+[Nutzer:]Nutzer:
+[StartAutomaticPlanning]Automatische Planung starten§HOTKEY§
+[StopAutomaticPlanning]Automatische Planung stoppen
+[StartManualPlanning]Manuelle Planung in neuem Ergebnis starten§HOTKEY§
+[SelectedPlanningParameter]Ausgewählte Planparameter
+[RESID_107]Zeige Systemmeldungen
+[RESID_108]Zeige Datenänderungen
+[RESID_1207]Fertigungshilfsmittel ein-/ausblenden
+[RESID_1215]Mitarbeiter ein-/ausblenden
+[RESID_3124]Vorheriger Datensatz
+[RESID_3126]Datensatz speichern
+[RESID_3130]Datensatz kopieren
+[RESID_3129]Neuer Datensatz
+[RESID_3125]Nächster Datensatz
+[RESID_1395]zeitliche Auflösung vergrößern
+[RESID_1396]zeitliche Auflösung verkleinern
+[RESID_1397]zur Ist-Linie springen
+[RESID_3127]Datensatz bearbeiten
+[RESID_1420]Arbeitsplätze ein-/ausblenden
+[RESID_1424]Ressourcenansicht anzeigen
+[RESID_1492]Ansicht speichern
+[RESID_1515]Fertigungsauftrag im Leitstand anzeigen
+[RESID_3121]Erweiterte Suche
+[RESID_1634]Das aktuell gewählte Ergebnis als Fertigungsplan übernehmen
+[RESID_181]Auftragsansicht anzeigen
+[RESID_2337]Als Datei speichern
+[RESID_2339]Hinzufügen
+[RESID_2340]Alle auswählen
+[RESID_2348]Auswählen
+[RESID_2342]Drucken
+[RESID_2345]In Excel öffnen
+[RESID_2436]Zeilenfilter ein-/ausblenden
+[RESID_2596]Alle Objekte löschen
+[RESID_2597]Ansicht vergrößern
+[RESID_2598]Ansicht verkleinern
+[RESID_3128]Änderungen verwerfen
+[RESID_32775]Zurück
+[RESID_32776]Vorwärts
+[RESID_32777]Das aktuell gewählte Ergebnis verwerfen
+[RESID_32778]Alle Ergebnisse verwerfen
+[RESID_3131]Datensatz löschen
+[RESID_3132]vorgenommene Datenänderungen
+[RESID_1912]Livemodus: Tatsächlichen Fortschritt visualisieren
+[Schreiben]Schreiben
+[RESID_2844]Drucken
+[RESID_14]Datensatz-Änderungen anzeigen
+[RESID_3133]Nutzerdefinierte Eigenschaften anzeigen
+[RESID_32780]Leitstand
+
+#VIEWACCESSCTRL
+[IDC_ST_NUTZER_ALLGEMEIN]Nutzerdaten
+[IDC_ST_NUTZER_RECHTE]Rechte des Nutzers
+[IDC_STATIC_LOGIN]Benutzername:
+[IDC_STATIC_NACHNAME]Nachname:
+[IDC_STATIC_PASSWORT]Passwort:
+[IDC_STATIC_STATUS]Authentifizierung:
+[IDC_STATIC_VORNAME]Vorname:
+[Authentifizierung_GPNutzer]%1-Authentifizierung
+[Authentifizierung_Windows]Windows-Authentifizierung
+[Authentifizierung_UserTemplate]Nutzervorlage
+[Helptext_Windows]Domäne\Nutzername
+[Helptext_GP]Nutzername
+
+#VIEWARBEITSPLAN
+[Alternativ]Alternativ
+[Gehe zur Arbeitsplanvorlage]Gehe zur Arbeitsplanvorlage
+[IDC_APKOPF_EIGENSCHAFTEN]Eigenschaften
+[IDC_APKOPF_VORGAENGE]Vorgänge
+[IDC_STATIC_MODELLAP]Vorlage
+[IDC_STATIC_NAME]Bezeichnung:
+[IDC_STATIC_OBJECTID]Nummer:
+[Neue Position anlegen]Neue Aktivität anlegen
+[Neuen Vorgang anlegen]Neuen Vorgang anlegen
+[ALTERNATIVE_OPERATION_PREFIX]Alternativen
+[AND]+
+[ADD_EMPTY_OPERATION]Leeren Vorgang hinzufügen
+[ADD_EMPTY_ALTERNATIVE_OPERATION]Leeren alternativen Vorgang hinzufügen
+[ADD_OPERATION_WITH_POSITION]Vorgang mit %1 hinzufügen
+[andere Kombinationen]Andere Kombinationen...
+[ADD_POSITION]%1 %2 hinzufügen
+[vorne]vorne
+[hinten]hinten
+[Neue Alternative]Neue Alternative
+[Position löschen]Aktivität löschen
+[Standard]Standard
+[Vorgang löschen]Vorgang löschen
+[Alle_ausklappen]Alle Vorgänge öffnen
+[Alle_einklappen]Alle Vorgänge schließen
+[RoutingVisualization]Arbeitsplan visualisieren
+[IDC_CHK_UEBERLAPPUNG]Überlappung erlauben:
+[IDC_STATIC_GESPERRT]Gesperrt:
+
+#VIEWARBEITSPLANTEMP
+[IDC_ST_APKOPF]Auftragsbezogener Arbeitsplan
+
+#VIEWARTIKEL
+[IDC_MATERIAL_EIGENSCHAFTEN]Eigenschaften
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+[IDC_STATIC_NAME]Bezeichnung:
+[IDC_STATIC_OBJECTID]Nummer:
+[IDC_STATIC_PC]Fertigungssteuerer:
+[Tooltip_Fertigungssteuerer]Fertigungssteuerer zuordnen
+[Fertigungsversion Fehler]Objekt kann nicht gespeichert werden, da die Fertigungsversionsnummern nicht eindeutig sind!
+
+#VIEWAZM
+[Beschreibung]Beschreibung
+[ID_POPUP_SM_ADD]Wochenplan hinzufügen
+[ID_POPUP_SM_DEL]Wochenplan löschen
+[ID_POPUP_SM_GOTO]Wochenplan anzeigen...
+[IDC_SCHICHTMODELLE_WP]Enthaltene Wochenpläne
+[IDC_STATIC_BESCHREIBUNG]Beschreibung:
+[IDC_STATIC_NAME]Nummer:
+[Index]Index
+[verschiebt den ausgewählten Wochenplan um eine Position nach oben]verschiebt den ausgewählten Wochenplan um eine Aktivität nach oben
+[verschiebt den ausgewählten Wochenplan um eine Position nach unten]verschiebt den ausgewählten Wochenplan um eine Aktivität nach unten
+[Wochenplan]Wochenplan
+[Wochenpläne]Wochenpläne
+[unbekannter Wochenplan]unbekannter Wochenplan
+
+#VIEWBDE
+[BDE Meldung bearbeiten]Rückmeldung bearbeiten
+[BDE Meldung hinzufügen]Rückmeldung hinzufügen
+[Beendete Vorgänge anzeigen]Beendete Vorgänge anzeigen
+[Bemerkung]Bemerkung
+[Ende]Ende
+[Fertigungsauftrag]FA
+[Gefertigt]Gefertigt
+[IDC_ST_SUBHEADER]Vorhandene Arbeitsfortschrittsmeldungen
+[IDC_ST_SUBHEADER2]Geplante Vorgänge
+[Letzte Rückmeldung]Zeitpunkt
+[Markierte Meldungen löschen]Markierte Meldungen löschen
+[Material]Material
+[Materialname]Materialname
+[Nur zurückzumeldende Vorgänge anzeigen]Nur zurückzumeldende Vorgänge anzeigen
+[Ressource]Arbeitsplatz
+[Ressourcentyp]Arbeitsplatzbezeichnung
+[Start]Start
+[Status]Status
+[Vorgangsbezeichnung]Vorgangsname
+[VorgangsID]Vorgang
+[Zeige alle geplanten Vorgänge des Fertigungsauftrags]Zeige geplante Vorgänge dieses Fertigungsauftrags
+[Zeige alle geplanten Vorgänge für die Ressource]Zeige geplante Vorgänge dieser Ressource
+[Tooltip_FA]Gehe zu Fertigungsauftrag
+[Tooltip_Arbeitsplatz]Gehe zu Arbeitsplatz
+[FAID]FA-Nummer:
+[FABezeichnung]FA-Bezeichnung:
+[ArbeitsplatzID]Arbeitsplatznummer:
+[ArbeitsplatzBezeichnung]Arbeitsplatzbezeichnung:
+
+#VIEWBEDARF
+[Aufträge]Zugeordnete Fertigungsaufträge
+[GotoEinheit]Gehe zu Einheit
+[GotoMat]Gehe zu Material
+[GotoPrio]Gehe zu Priorität
+[IDC_ST_SUBHEADER]Eigenschaften
+[IDC_STATIC_BEDARFSTYP]Bedarfstyp:
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+[IDC_STATIC_EINHEIT]Einheit:
+[IDC_STATIC_MAT]Material:
+[IDC_STATIC_MENGE]Menge:
+[IDC_STATIC_NAME]Bezeichnung:
+[IDC_STATIC_OBJECTID]Nummer:
+[IDC_STATIC_PLANUNGSTYP]Planungstyp:
+[IDC_STATIC_PRIO]Priorität:
+[IDC_STATIC_STATUS]Status:
+[IDC_STATIC_TERMIN]Termin:
+[IDC_STATIC_WERT]Wert / Einheit:
+[SearchMat]Material wählen
+[SearchPrio]Priorität wählen
+[SearchUnit]Einheit wählen
+[RemovePrio]Priorität entfernen
+[IDC_STATIC_MENGE_GELIEFERT]Gelieferte Menge:
+[IDC_STATIC_MENGE_OFFEN]Offene Menge:
+[IDC_CHECK_BEDARF_GESPERRT]Gesperrt:
+[IDC_STATIC_MATERIALBEZIEHUNG]Materialeingang
+[IDC_STATIC_PC]Fertigungssteuerer:
+[Typ]Typ
+[Nummer]Nummer
+[Menge]Menge
+[Einheit]Einheit
+[Bereit ab]Bereit ab
+[Puffer]Puffer
+[Fix]Fix
+[Fertigungsauftrag]Fertigungsauftrag
+[Bestellbestätigung vom]Bestellbestätigung vom
+[Bestellvorschlag für]Bestellvorschlag für
+[Lagerreservierung]Lagerreservierung
+[Auftragsreservierung hinzufügen]Auftragsreservierung hinzufügen
+[Bestellreservierung hinzufügen]Bestellreservierung hinzufügen
+[Lagerreservierung hinzufügen]Lagerreservierung hinzufügen
+[Eintrag löschen]Eintrag löschen
+[GotoGantt]Zeige alle untergeordneten Aufträge im Leitstand
+[prognostizierter Bedarf]prognostizierter Bedarf (%1)
+[Sekundaerbedarf]Sekundärbedarf
+[Materialmangel]Materialmangel
+[Tooltip_Visualization]Bedarf grafisch darstellen
+[Tooltip_Fertigungssteuerer]Fertigungssteuerer zuordnen
+[ProductioncontrollerFromMaterial]von Material übernehmen
+
+#VIEWBESTANDSBUCHUNGEN
+[COL_AENDERUNG]Änderung
+[COL_AUSLOESER]Nutzer
+[COL_BESTAND]Bestand
+[COL_BUCHUNGSTYP]Buchungstyp
+[COL_DATUM]Zeitpunkt
+[COL_INFORMATION]Information
+[ID_POPUP_BOOKING_ADD_ABS]Bestandsmeldung hinzufügen
+[ID_POPUP_BOOKING_ADD_REL]Bestandsänderung hinzufügen
+[ID_POPUP_BOOKING_DEL]Markierte Buchungen löschen
+[ID_POPUP_SHOW_LAST_BOOKINGS]Nur letzte Buchungen anzeigen
+[IDC_ST_SUBHEADER]Vorhandene Bestandsbuchungen
+[IDC_ST_SUBHEADER2]Geplante Bestandsänderungen
+[Nutzer]Nutzer
+[Umrechung in Referenzeinheit nicht möglich]Umrechung in Referenzeinheit %1 des Materials %2 nicht möglich
+[Tooltip_Visualization]Lagerentnahmen grafisch darstellen
+
+#VIEWDUALIS
+[Edition]Edition: %1
+[Datenbankversion_bekannt]Datenmodellversion: %1
+[Geladenes Zusatzmodul]Geladenes Zusatzmodul: %1
+[Lizenz]Lizenz: %1
+[Lizenzablaufdatum]Lizenzablaufdatum: %1
+[Partnerlizenz]Partnerlizenz: %1
+[User]Nutzer: %1
+[Version_bekannt]Programmversion: %1
+[LastSync]Letzte Synchronisierung: %1
+
+#VIEWEINHEIT
+[BestehtAusAnzahl]Besteht aus Anzahl
+[BestehtAusEinheit]Besteht aus Einheit
+[direkte Umrechnungen in andere Einheiten]Direkte Umrechnungen in andere Einheiten
+[Einheit_Grid]Einheit
+[ID_POPUP_ELEMENT_ADD]Neue Umrechnung hinzufügen
+[ID_POPUP_ELEMENT_DEL]Markierte Umrechnungen löschen
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+[IDC_STATIC_NAME]Beschreibung:
+[Konsistenzfehler]Konsistenzfehler: "%1" ungleich "%2"
+[Nummer]Abkürzung:
+[weitere indirekte Umrechnungen über andere Einheiten]Weitere indirekte Umrechnungen über andere Einheiten
+
+#VIEWFANEU
+[alternative Vorgänge]alternative Vorgänge
+[Arbeitsplan]Arbeitsplan:
+[Bezeichnung]Bezeichnung:
+[Gehe zum Arbeitsplan]Gehe zum Arbeitsplan
+[Gehe zur Stückliste]Gehe zur Stückliste
+[Nummer]Nummer:
+[Puffer]Puffer: 
+[Split]Split: 
+[Stueckliste]Stückliste:
+[Fertigungsversion]Fertigungsversion:
+[Verzug]Verzug: 
+[Vorgänge]Vorgänge
+[Zeige Auftrag im Leitstand]Zeige Auftrag im Leitstand
+[SearchProductionversion]Wähle Fertigungsversion
+[CreateOrderRelatedRouting]Erzeuge auftragsbezogenen Arbeitsplan
+[CreateOrderRelatedBom]Erzeuge auftragsbezogenen Stückliste
+[Tooltip_Visualize_Operations]Vorgänge grafisch darstellen
+[Tooltip_Visualize_Net]Auftragsnetz grafisch darstellen
+[Choose_productionversion]Fertigungsversion
+
+#VIEWFHM
+[IDC_ST_SUBHEADER]Eigenschaften
+[IDC_STATIC_NAME]Bezeichnung:
+[IDC_STATIC_OBJECTID]Nummer:
+
+#VIEWGANTTSTD
+[Änderungen in der Ansicht speichern]Änderungen in der eigenen Leitstands-Ansicht "%1" speichern?
+[Ansicht wirklich löschen]Möchten Sie die Ansicht "%1" wirklich löschen?
+[Artikel]Material: 
+[Artikel:]\nMaterial: 
+[Auftrag]Auftrag: 
+[Bedarf]Bedarf: 
+[AZMGruppe]\nAZMGruppe: 
+[Bedarfs-Nr]Bedarfs-Nr:
+[Belegungsfaktor:] Belegungsfaktor: 
+[Bestellmenge:]\nBestellmenge: 
+[Bestellnr]Bestellnr.: 
+[Der Name der Ansicht ist unzulässig oder es existiert bereits eine Ansicht mit diesem Namen.]Der Name der Ansicht ist unzulässig oder es existiert bereits eine Ansicht mit diesem Namen.
+[Die Standardansicht kann nicht geändert werden.]Die Standardansicht kann nicht geändert werden.
+[Die Standardansicht kann nicht gelöscht werden.]Die Standardansicht kann nicht gelöscht werden.
+[Ende:]Ende: 
+[Reservierungen]Reservierungen:
+[prozentfertig]fertig
+[Frühester Start:]Frühester Start: 
+[gelieferte Menge:]\ngelieferte Menge: 
+[ID_POPUP_ADD_FA]Fertigungsaufträge
+[ID_POPUP_ADD_SALESORDER]Fertigungsaufträge (von Bedarfen)
+[ID_POPUP_ADD_FHM]Fertigungshilfsmittel hinzufügen
+[ID_POPUP_ADD_MASCHINE]Arbeitsplatz hinzufügen
+[ID_POPUP_ADD_MASCHINEGRP]Arbeitsplatzgruppen hinzufügen
+[ID_POPUP_ADD_PERSONAL]Personal hinzufügen
+[ID_POPUP_ADD_PERSONALGRP]Personalgruppen hinzufügen
+[ID_QUESTION_GANTT_ALLE_AUSPLANEN]Alle FA ausplanen?
+[ID_POPUP_GANTT_FA_AUSPLANEN]Ausplanen
+[ID_POPUP_GANTT_FA_EINPLANEN_FRUEH]Früh einplanen
+[ID_POPUP_GANTT_FA_EINPLANEN_OPT]Automatisch einplanen
+[ID_POPUP_GANTT_FA_EINPLANEN_SPAET]Spät einplanen
+[ID_POPUPFA_GOTO]Gehe zu Fertigungsauftrag
+[ID_POPUP_ADD_FA_LINKED_ADD]%1 hinzufügen
+[ID_POPUP_ADD_FA_LINKED]Verknüpfter Fertigungsauftrag
+[ID_POPUP_ADD_FA_DIRECT_LINKED]Alle direkt verknüpften Fertigungsaufträge
+[ID_POPUP_ADD_FA_DIRECT_PARENTS]Alle direkt übergeordneten Fertigungsaufträge
+[ID_POPUP_ADD_FA_DIRECT_CHILDREN]Alle direkt untergeordneten Fertigungsaufträge
+[ID_POPUP_ADD_FA_ALL_LINKED]Alle verknüpften Fertigungsaufträge
+[ID_POPUP_ADD_FA_ALL_PARENTS]Alle übergeordneten Fertigungsaufträge
+[ID_POPUP_ADD_FA_ALL_CHILDREN]Alle untergeordneten Fertigungsaufträge
+[ID_POPUPFA_REMOVE]FA aus Ansicht entfernen
+[ID_POPUPRES_AUSLASTUNG]Zeige Auslastung
+[ID_POPUPRES_BOTTLENECK]Zeige Engpässe
+[ID_POPUPRES_DOWN]Nach unten verschieben
+[ID_POPUP_GANTT_COLLAPSE_NODES]Alle Knoten einklappen
+[ID_POPUP_GANTT_EXPAND_NODES]Alle Knoten ausklappen
+[ID_POPUP_GANTT_SHOW_UNUSED_RES]Ungenutze Ressourcen ausblenden
+[ID_POPUPRES_GOTO]Gehe zu Ressource
+[ID_POPUPRES_REMOVE]Ressource aus Ansicht entfernen
+[ID_POPUPRES_RESVIEW]In Ressourcenansicht anzeigen
+[ID_POPUPRES_UP]Nach oben verschieben
+[ID_POPUPVORG_FA]In Auftragsansicht anzeigen
+[ID_POPUP_GANTT_ALTERNRES_VIEW]Zeige alternative Ressourcen
+[ID_POPUP_GANTT_VISUALIZE_NET]Zeige Auftragsnetz-Visualisierung
+[ID_POPUP_GANTT_VISUALIZE_ORDER]Zeige Auftrags-Visualisierung
+[ID_POPUP_GANTT_EDIT_CALENDAR]Kalender bearbeiten
+[ID_POPUP_GANTT_CREATE_LOT]Auftragslos erstellen
+[ID_POPUP_GANTT_RELEASE_LOT]Auftragslos auflösen
+[ID_POPUP_GANTT_MANUAL_SET_PRODUCTIONVERSION]Fertigungsversion festlegen
+[ID_POPUP_GANTT_MANUAL_SWITCH_PRODUCTIONVERSION_FIXATION]Fertigungsversion fixieren
+[KapGruppe]\nKapGruppe: 
+[Status]\nStatus: 
+[JobParallel]Job Parallel:
+[JobSequential]Job Sequentiell:
+[Materialgruppe]\nOptimierungsgruppe: 
+[Menge]Menge: 
+[Menge:]\nMenge: 
+[Mitarbeiter]Mitarbeiter: 
+[Planende] Geplantes Ende: 
+[Priorität]Priorität:
+[Prioritätswert]Prioritätswert:
+[Produktionsendtermin]Termin: 
+[Ressource:]Arbeitsplatz: 
+[Rückmeldung:]Rückmeldung: 
+[spätester Bestelltermin]\nspätester Bestelltermin: 
+[Standardansicht]Standardansicht
+[Start:]\nStart: 
+[Termin]\nTermin: 
+[Liefertermin]\nLiefertermin: 
+[Typ]\nTyp: 
+[Vorgang]Vorgang: 
+[Farbschema_hinzufügen]Neu
+[Farbschema_kopieren]Kopieren
+[Farbschema_bearbeiten]Bearbeiten
+[Farbschema_löschen]Löschen
+[Nutzeransicht_hinzufügen]Neu
+[Ansicht_bearbeiten]Bearbeiten
+[Ansicht_bearbeiten_2]Ansicht bearbeiten
+[Ansicht_kopieren]Kopieren
+[Ansicht_kopieren_2]Ansicht kopieren
+[Nutzeransicht_löschen]Löschen
+[Fertigungshilfsmittel:]Fertigungshilfsmittel: 
+[ID_POPUP_PLANANALYSE]Zeige Plananalyse
+[zu Ansicht hinzufügen]Zu Ansicht hinzufügen
+[aus Ansicht entfernen]Aus Ansicht entfernen
+[Ansicht leeren]Ansicht leeren
+[ID_POPUP_GANTT_PLANUNG_MANUELL_VORGEBEN]Planung vorgeben
+[ID_POPUP_GANTT_SPLIT_MANUAL_MOUSE]Hier splitten
+[ID_POPUP_GANTT_SPLIT_MANUAL_EVEN]Gleichmäßig splitten
+[ID_POPUP_GANTT_UPDATE_BDE]Rückmeldungen aktualisieren
+[ID_POPUP_GANTT_AUTOPLAN_OPT]Automatisch planen (alle Restriktionen beachten)
+[ID_POPUP_GANTT_AUTOPLAN_STABLE]Planung korrigieren (alle Restriktionen beachten)
+[ID_POPUP_GANTT_AUTOPLAN_STABLE_EARLY]Lücken schließen (alle Restriktionen beachten)
+[ID_POPUP_GANTT_RESULT_ADD]Ergebnis duplizieren
+[ID_POPUP_GANTT_RESULT_DROP]Ergebnis verwerfen
+[ID_POPUP_GANTT_RESULT_DROPOTHERS]Andere Ergebnisse verwerfen
+[ID_POPUP_GANTT_RESULT_DROPALL]Alle Ergebnisse verwerfen
+[Plan bearbeiten]Ergebnis bearbeiten
+[Fertigungsauftrag bearbeiten]Fertigungsauftrag bearbeiten
+[Fertigungsaufträge bearbeiten]Fertigungsaufträge bearbeiten
+[Vorgang bearbeiten]Vorgang bearbeiten
+[Vorgänge bearbeiten]Vorgänge bearbeiten
+[Vorgang_fixieren]Fixieren
+[Start_Fixierung_umschalten]Start fixieren
+[Start_Fixierung_setzen]Start fixieren
+[Start_Fixierung_aufheben]Startfixierung aufheben
+[Dauer_Fixierung_umschalten]Dauer fixieren
+[Dauer_Fixierung_setzen]Dauer fixieren
+[Dauer_Fixierung_aufheben]Dauerfixierung aufheben
+[Ressourcen_Fixierung_umschalten]Ressource(n) fixieren
+[Ressourcen_Fixierung_setzen]Alle Ressourcen fixieren
+[Ressourcen_Fixierung_aufheben]Alle Ressourcen-Fixierungen aufheben
+[Arbeitsplätze_Fixierung_setzen]Alle Arbeitsplätze fixieren
+[Arbeitsplätze_Fixierung_aufheben]Alle Arbeitsplatz-Fixierungen aufheben
+[Personal_Fixierung_setzen]Alles Personal fixieren
+[Personal_Fixierung_aufheben]Alle Personal-Fixierungen aufheben
+[FHM_Fixierung_setzen]Alle FHM fixieren
+[FHM_Fixierung_aufheben]Alle FHM-Fixierungen aufheben
+[Tooltip_Fixierungen]Fixierungen:
+[Tooltip_FixierterStart]Start:
+[Tooltip_FixierteDauer]Dauer:
+[Tooltip_FixierteRessourcen]Ressourcen:
+[Tooltip_Debug]Debug
+[Tooltip_CustomInfo]benutzerdefinierte Informationen
+[Tooltip_NextMaintenance]Anstehende Wartung am
+[EditUserview]Ansicht bearbeiten
+[CopyUserview]Ansicht kopieren
+[Ansicht_wirklich_leeren]Möchten Sie die Ansicht wirklich leeren?
+[Ressource_wirklich_entfernen]Möchten Sie die Ressource "%1" wirklich aus der Ansicht entfernen?
+[Liegen]Liegen:
+[Puffer]Puffer:
+
+#VIEWLIEFBESTELL
+[GotoEinheit]Gehe zu Einheit
+[GotoMat]Gehe zu Material
+[IDC_ST_SUBHEADER]Eigenschaften
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+[IDC_STATIC_EINHEIT]Einheit:
+[IDC_STATIC_LIEFBESTTYP]Bestelltyp:
+[IDC_STATIC_MAT]Material:
+[IDC_STATIC_MENGE]Menge:
+[IDC_STATIC_NAME]Bezeichnung:
+[IDC_STATIC_OBJECTID]Nummer:
+[IDC_STATIC_TERMIN]Liefertermin:
+[IDC_STATIC_PC]Fertigungssteuerer:
+[SearchEinheit]Einheit
+[SearchMat]Material
+[Tooltip_Visualization]Lieferantenbestellung grafisch darstellen
+[Tooltip_Fertigungssteuerer]Fertigungssteuerer zuordnen
+[ProductioncontrollerFromMaterial]von Material übernehmen
+
+#VIEWMASCHINE
+[IDC_MASCHINE_EIGENSCHAFTEN]Eigenschaften
+[IDC_STATIC_MASCHINE_AUSLASTUNG]Geschwindigkeitsfaktor:
+[IDC_STATIC_MASCHINE_NAME]Bezeichnung:
+[IDC_STATIC_MASCHINE_PROZESS]Prozessressource:
+[IDC_STATIC_OBJECTID]Nummer:
+[IDC_STATIC_STABILER_ZEITRAUM]Stabiler Zeitraum:
+
+#VIEWMASCHINENGR
+[Arbeitszeitmodell]Arbeitszeitmodell
+[Bezeichnung]Bezeichnung
+[ID_POPUP_MASCHGRP_ADD]Arbeitsplatz hinzufügen
+[ID_POPUP_MASCHGRP_DEL]Arbeitsplatz löschen
+[ID_POPUP_MASCHGRP_DELALL]Alle Arbeitsplätze löschen
+[IDC_MASCHGRP_EIGENSCHAFTEN]Gruppeneigenschaften
+[IDC_MASCHGRP_MITGLIEDER]Gruppenmitglieder
+[IDC_STATIC_MASCHGRP_NAME]Bezeichnung:
+[IDC_STATIC_OBJECTID]Nummer:
+[Kapazität]Kapazität
+[Kosten]Kosten
+[Maschine hinzufügen]Arbeitsplatz hinzufügen
+[Maschinennummer]Arbeitsplatznummer
+[Linientyp]Linientyp:
+[synchronized]Getaktet:
+[Message_Linie]Die Gruppe kann nicht zu einer Linie werden, da folgende Maschinen bereits in anderen Linien verwendet werden:
+[Message]in Linie
+[Message_Arbeitsplatz_in_Linie]Folgende Arbeitsplätze können nicht hinzugefügt werden, da diese bereits in anderen Linien verwendet werden:
+[Productmix]Produktmix
+
+#VIEWMATERIALGR
+[IDC_STATIC_MATGR_ID]Nummer:
+[IDC_STATIC_MATGR_MAXABWEICHUNG]Maximale Abweichung:
+[IDC_STATIC_MATGR_NAME]Bezeichnung:
+[Zuordnungen]Zugeordnete Objekte
+[Materialien]Materialien
+[Arbeitspläne]Arbeitspläne
+[Material_ID]Material
+[Material_Bezeichnung]Bezeichnung
+[Arbeitsplan_ID]Arbeitsplan
+[Arbeitsplan_Bezeichnung]Arbeitsplanbezeichnung
+[Vorgang_ID]Vorgang
+[Vorgang_Bezeichnung]Vorgangsbezeichnung
+[Statisch_Rüsten]Statisch
+[Dynamisch_Rüsten]Dynamisch
+[Parallel_Rüsten]Parallel
+
+#VIEWOPTIMIERUNG
+[Abbruch der Planung nach schwerwiegendem Fehler im Optimierungslauf!]Abbruch der Planung nach schwerwiegendem Fehler im Planungslauf!
+[Abbruch nach schwerwiegendem Fehler beim Beenden der Planung!]Abbruch nach schwerwiegendem Fehler beim Beenden der Planung!
+[Anzahl FA]- Anzahl FA:
+[DLZ in d]DLZ in Tagen
+[FA OK.]FA ok
+[FA Terminkritisch]FA pünktlich
+[FA Terminverzug]FA verspätet
+[FA unvollständig]FA unvollständig
+[Fertigung]Wert Fertigung
+[Gesamtkosten]Wert Gesamt
+[IDC_OPTIMIERUNG_EIGENSCHAFTEN]Eigenschaften
+[IDC_ST_OPTIMIERUNG]Automatische Planung
+[IDC_STATIC_OBJECTID]Planparameter:
+[Kapitalbindung]Wert Kapitalbindung
+[Modell-Import fehlgeschlagen!]Modell-Import fehlgeschlagen!
+[Opt.-Lauf]Lauf
+[Optimierungslauf]Optimierungsläufe
+[Optimierung läuft]Automatische Planung läuft (%1/%2)
+[Optimierung wird beendet]Automatische Planung wird beendet
+[Personal]Wert Personal
+[Rüsten]Wert Rüsten
+[Stillstand]Wert Stillstand
+[Verspätung]Wert Verspätung
+[Zielfkt.]Wert Zielfunktion
+[Bisher nicht übernommene Ergebisse werden verworfen]Bisher nicht übernommene Ergebnisse werden verworfen. Weiter?\n
+
+#VIEWPERSONAL
+[IDC_PERSONAL_EIGENSCHAFTEN]Eigenschaften
+[IDC_STATIC_OBJECTID]Nummer:
+[IDC_STATIC_PERSONAL_NAME]Name:
+
+#VIEWPERSONALGR
+[Arbeitszeitmodell]Arbeitszeitmodell
+[ID_POPUP_PERSGRP_ADD]Mitarbeiter hinzufügen
+[ID_POPUP_PERSGRP_DEL]Mitarbeiter löschen
+[ID_POPUP_PERSGRP_DELALL]Alle Mitarbeiter löschen
+[IDC_PERSGRP_EIGENSCHAFTEN]Gruppeneigenschaften
+[IDC_PERSGRP_MITGLIEDER]Gruppenmitglieder
+[IDC_STATIC_OBJECTID]Nummer:
+[IDC_STATIC_PERSGRP_NAME]Name:
+[Kapazität]Kapazität
+[Kosten]Kosten
+[Mitarbeiter hinzufügen]Mitarbeiter hinzufügen
+[Name]Name
+[Personalnummer]Personalnummer
+[Qualifikation]Qualifikation
+
+#VIEWPERSONALQUALI
+[alle]alle
+[Gruppen-Nr.]Gruppen-Nr.
+[ID_POPUP_QUALI_EDIT]Qualifikation bearbeiten
+[ID_POPUP_QUALI_PERS0]Qualifikation in allen Mitarbeitern setzen
+[ID_POPUP_QUALI_PERS1]Qualifikation in allen Personalgruppen setzen
+[ID_POPUP_QUALI_RES]Qualifikation in allen Ressourcen setzen
+[IDC_QUALIMATRIX_AKT]Aktualisieren
+[IDC_RADIO_QUALI_PERSGRP]Personalgruppen
+[IDC_RADIO_QUALI_PERSONAL]Mitarbeiter
+[IDC_ST_QUALIFIKATION]Qualifikationsmatrix
+[IDC_STATIC_QUALI_ANZEIGEN]Qualifikationen anzeigen für:
+[jeder Mitarbeiter]jeder Mitarbeiter
+[jede Ressource]jede Ressource
+[Mitarbeiter]Mitarbeiter
+[Personalgruppe]Personalgruppe
+[Personal-Nr.]Personal-Nr.
+[Stammarbeitsplatz]Stammarbeitsplatz
+
+#VIEWPRIORITAET
+[abs. Kosten]abs. Kosten
+[Bezeichnung]Bezeichnung
+[ID_POPUP_PRIOKURVE_ADD]Verspätungskosten hinzufügen
+[ID_POPUP_PRIOKURVE_DEL]Verspätungskosten löschen
+[IDC_PRIO_PRIOKURVEN]Verspätungskosten
+[IDC_STATIC_PRIO_NAME]Name:
+[IDC_STATIC_PRIO_NR]Nummer:
+[IDC_STATIC_PRIO_RANG]Prioritätswert:
+[Intervall]abs. Kosten Intervall [h]
+[rel. Kosten]rel. Kosten
+[Intervall rel]rel. Kosten Intervall [h]
+[Verzug]Verzug [h]
+
+#VIEWREPORT
+[Bitte wählen Sie eine Ressource aus]Bitte wählen Sie eine Ressource aus.
+[IDC_ST_HEADER]Tabellarische Auswertungen 
+[IDC_STATIC_DATETIMEPICKEREND]Ende
+[IDC_STATIC_DATETIMEPICKERSTART]Start
+[IDC_STATIC_OPTIONINTERVALL]Intervall
+[IDC_STATIC_OPTIONS]Optionen
+[IDC_STATIC_SUCHE_REPORT]Schnellsuche
+[IDC_STATIC_ZEITRAUM]Zeitraum
+[Soll für jedes ausgewählte Objekt eine neue Seite bedruckt werden?]Soll für jedes ausgewählte Objekt eine neue Seite bedruckt werden?
+
+#VIEWREPORTCHART
+[IDC_ST_HEADER]Grafische Auswertungen
+[IDC_STATIC_DATETIMEPICKEREND_CHART]Ende
+[IDC_STATIC_DATETIMEPICKERSTART_CHART]Start
+[IDC_STATIC_OPTIONINTERVALL_CHART]Intervall
+[IDC_STATIC_OPTIONS_CHART]Optionen
+[IDC_STATIC_ZEITRAUM_CHART]Zeitraum
+[TooManyObjectsSelected]Es wurden zu viele Objekte ausgewählt. Nur die ersten 100 werden angezeigt.
+
+#VIEWREPORTCHARTSTORAGE
+[IDC_ST_HEADER]Ablage
+
+#VIEWRUESTMATRIX
+[ID_POPUP_ADD_OPTIMIZATIONGROUP]Optimierungsgruppe hinzufügen
+[ID_POPUP_DEL_OPTIMIZATIONGROUP]Optimierungsgruppe löschen
+[ID_POPUP_MODIFY_SETUPVALUES]Umrüstwerte anpassen
+[ID_POPUP_COPY_SETUPVALUES]Kopieren
+[ID_POPUP_PASTE_SETUPVALUES]Einfügen
+[IDC_RMATRIX_ZEITEN]Rüstaufwand (von Zeile nach Spalte)
+[IDC_STATIC_MATRIX_ID]Nummer:
+[IDC_STATIC_MATRIX_NAME]Bezeichnung:
+[IDC_STATIC_RMATRIX_ZEITEINHEIT]Zeiteinheit:
+[Materialgruppe hinzufügen]Optimierungsgruppe hinzufügen
+[Question_Change_all]Sollen die Werte der selektierten Zelle in der gesamten Rüstmatrix verwendet werden?
+[Question_Change_row]Sollen die Werte der selektierten Zelle in der gesamten Zeile verwendet werden?
+[Question_Change_col]Sollen die Werte der selektierten Zelle in der gesamten Spalte verwendet werden?
+
+#DLGSETUPMATRIXELEMENT
+[Title]Rüstaufwand anpassen
+[Header_SingleEdit]von %1 nach %2
+[Header_MultiEdit]%1 Elemente ausgewählt
+[SetupTime]Rüstzeit:
+[SetupCosts]Rüstkosten (zusätzlich):
+[SetupComment]Kommentar:
+
+#VIEWSTL
+[Alternative]Alternative
+[Arbeitsplan]Arbeitsplan
+[Bereitstellungszeit]Bereitstellungszeit [%1]
+[Materialbezeichnung]Materialbezeichnung
+[Einheit]Einheit
+[Fertigungsversion]Fertigungsversion
+[Gehe zur Stücklistenvorlage]Gehe zur Stücklistenvorlage
+[ID_POPUP_ELEMENT_ADD]Position hinzufügen
+[ID_POPUP_ELEMENT_DEL]Position löschen
+[IDC_ST_STLPOS]Stücklistenpositionen
+[IDC_STATIC_MODELLSTL]Vorlage:
+[IDC_STATIC_NAME]Bezeichnung:
+[IDC_STATIC_NR]Nummer:
+[Material]Material
+[Gültig ab]Gültig ab
+[Gültig bis]Gültig bis
+[Material, das verbraucht wird]Material, das verbraucht wird
+[Menge]Menge
+[Position]Position
+[Positionsbezeichnung]Bezeichnung
+[Standard]Standard
+[Stückliste]Stückliste
+
+#VIEWSTLTEMP
+[IDC_ST_STL]Auftragsbezogene Stückliste
+
+#VIEWSUCHEDB
+[IDC_CHECK1]UND
+[IDC_SUCHE_ERGEBNISSE]Suchergebnisse
+[IDC_SUCHE_KRITERIEN]Suchkriterien
+[Suche]Suche
+[Columname_Custom]Nummer
+
+#VIEWWOCHENPLAN
+[Bezeichnung]Bezeichnung
+[Ende]Ende
+[ID_POPUP_WOCHENPLAN_ADD_INTERVALL]Intervall hinzufügen
+[ID_POPUP_WOCHENPLAN_DEL_INTERVALL]Intervall löschen
+[IDC_BUTTON_HINTERGRUND]Hintergrundfarbe:
+[IDC_STATIC_BESCHREIBUNG]Beschreibung:
+[IDC_STATIC_NAME]Nummer:
+[IDC_WOCHENPLAN_TAGE]Tagesintervalle
+[Start]Start
+[Status]Status
+
+//added 07.02.2011 RU
+#DLGPROPERTYFAKOPFMAT
+[Einheit]Einheit:
+
+// added 11.03.2011 WW
+#VIEWGANTTSTD
+[ID_POPUP_CHANGEUSERINFO]Notiz bearbeiten
+
+#DLGGANTTUSERINFO
+[IDC_ST_SUBHEADER]Notiz bearbeiten
+
+#VIEWGANTTSTD
+[ID_POPUP_GANTT_FA_SPERREN]Sperren
+[ID_POPUP_GANTT_FA_BEENDEN]Beenden
+[TOOLTIP_STOERUNG]Störung
+[TOOLTIP_WARTUNG]Wartung
+[TOOLTIP_RUESTEN]Rüsten
+[TOOLTIP_FERTIGUNG]Fertigung
+[DEMO]Demo
+
+// added 19.05.2011 RU
+#VIEWSTL
+[Dialogheader]Konsistenzfehler
+[Errortext]Die Eingaben bei den Stücklistenposition sind nicht korrekt!\n\nHinweis:\n
+[Gruppe]Gruppe
+[IDC_STATIC_STL_REVISION]Datum der Revision:
+[Material x: kein Arbeitsplan]Material "%1": kein Arbeitsplan
+[Abbruch in Zyklus]Abbruch in Zyklus
+
+#DLGLAGERRESERVIERUNG
+[Neue Lagerreservierung hinzufügen]Neue Lagerreservierung hinzufügen
+[Reserviert für]Reserviert für
+[SearchID]Wähle ID
+[SearchUnit]Wähle Einheit
+
+#DLGPROPERTYAPPOSITIONSTL
+[Alternative]Alternative
+
+#DLGPROPERTYFAKOPFBEZIEHUNGEN
+[Beziehungen]Beziehungen
+[Nummer]Nummer
+[Typ]Typ
+[Menge]Menge
+[Materialeingang]Eingehend/Untergeordnet
+[Materialausgang]Ausgehend/Übergeordnet
+[Sekundärauftrag]Sekundärauftrag
+[Bestellung]Bestellung
+[Lagerreservierung]Lagerreservierung
+[Vorgang]Vorgang
+[Bedarf]Bedarf
+[Material]Material
+
+#DLGPROPERTYFAVORGANGVERBRAUCH
+[Fertigung]Fertigung
+[Typ]Typ
+[Nummer]Nummer
+[Menge]Menge
+[Einheit]Einheit
+[Mangel erlaubt]Planungsrelevant
+[Überlappung in %]Überlappung in %%
+[benötigte Materialien]Benötigte Materialien
+[Materialbereitstellung durch]Materialbereitstellung durch
+[Fremdbezug]Fremdbezug
+[Eigenfertigung]Eigenfertigung
+[Sekundärvorgang]Sekundärauftragsvorgang
+[Bestellbestätigung vom]Bestellbestätigung vom
+[Bestellvorschlag für]Bestellvorschlag für
+[Auftragsreservierung]Auftragsreservierung
+[Bestellreservierung]Bestellreservierung
+[Lagerreservierung]Lagerreservierung
+[Bestand anzeigen]Bestand anzeigen
+[Auftragsreservierung hinzufügen]Auftragsreservierung hinzufügen
+[Bestellreservierung hinzufügen]Bestellreservierung hinzufügen
+[Lagerreservierung hinzufügen]Lagerreservierung hinzufügen
+[In dieser Vorgangsposition wird kein Material benötigt]In dieser Vorgangsaktivität wird kein Material benötigt
+[Eintrag löschen]Eintrag löschen
+[Fix]Fix
+
+#DLGPROPERTYMATERIALBESTAND
+[IDC_CHK_BESTAND_PRUEFEN]Bestandsprüfung durchführen:
+
+#DLGPROPERTYMATERIALLOSGROESSEN
+[IDC_STATIC_LOS_RUNDEN]Rundungswert:
+
+#DLGPROPERTYMODELLPARAMINHALTE
+[IDC_STATIC_PRIO]Priorität für Lageraufträge:
+[Priorität wählen]Priorität wählen
+
+#VIEWBESTANDSBUCHUNGEN
+[Title]Lagerbestand
+[Vorgang]Vorgang
+[Bedarf]Bedarf
+[Materialnummer]Materialnummer:
+[Materialbezeichnung]Materialbezeichnung:
+[Lagerreservierung]Lagerreservierung
+[Material für Bedarf reservieren]Material für Bedarf reservieren
+[Material für FA-Vorgang reservieren]Material für FA-Vorgang reservieren
+[Tooltip_Material]Gehe zu Material
+
+#VIEWLIEFBESTELL
+[IDC_STATIC_BESTELLTERMIN]Bestelltermin:
+[IDC_STATIC_MENGE_GELIEFERT]Gelieferte Menge:
+[IDC_STATIC_MENGE_OFFEN]Offene Menge:
+[IDC_STATIC_STATUS]Status:
+[IDC_CHECK_BESTELLUNG_GESPERRT]Gesperrt:
+[IDC_STATIC_MATERIALBEZIEHUNG]Materialausgang
+[Nummer]Nummer
+[Typ]Typ
+[Menge]Menge
+[Vorgang]Vorgang
+[Bedarf]Bedarf
+
+#DLGPROPERTYFAKOPFBEZIEHUNGEN
+[Materialmangel]Materialmangel
+
+#DLGPROPERTYFAVORGANGVERBRAUCH
+[Materialmangel]Materialmangel
+
+#VIEWBESTANDSBUCHUNGEN
+[Neue Buchung hinzufügen]Neue Buchung hinzufügen
+[Materialreservierung zuweisen]Materialreservierung zuweisen
+[Materialreservierung löschen]Materialreservierung löschen
+[Sie sind nicht berechtigt einen Bedarf zu editieren]Sie sind nicht berechtigt einen Bedarf zu editieren
+[Sie sind nicht berechtigt einen Fertigungsauftrag zu editieren]Sie sind nicht berechtigt einen Fertigungsauftrag zu editieren
+
+#DLGPROPERTYMATERIALHERSTELLUNG
+[IDC_STATIC_MAXWARTEZEITMAT]Maximale Wartezeit auf Material:
+
+#VIEWOPTIMIERUNG
+[Planungsabbruch nach schwerem Fehler]Abbruch der Planung nach schwerwiegendem Fehler während vorbereitender Planung
+
+#MENU
+[Personalplan nicht unterstuetzt]Der Schichtplan unterstützt nur den Datenbankmodus und kann daher jetzt nicht verwendet werden
+
+#DLGPROPERTYPERSONALKAPAZITAET
+[Datum]Datum
+[Anzahl Mitglieder]Anzahl Mitglieder
+[IDC_STATIC_POOLKAPAZITAET]Variable Poolkapazität
+[Poolkapazitäten hinzufügen]Poolkapazitäten hinzufügen
+[Poolkapazität entfernen]Poolkapazität entfernen
+[alle Poolkapazitäten entfernen]alle Poolkapazitäten entfernen
+
+#DLGPROPERTYFAKOPFBEZIEHUNGEN
+[unbekannter Linktyp]unbekannter Linktyp: 
+
+#DLGPROPERTYFHMMASCHINEN
+[Titel]Arbeitsplätze
+[Maschine]Arbeitsplatz
+[Bezeichnung]Bezeichnung
+[Priorität]Prioritätswert
+[Rüstzeitfaktor]Rüstzeitfaktor in %%
+[Alle Maschinen sind erlaubt]Alle Arbeitsplätze sind erlaubt
+[Maschine hinzufügen]Arbeitsplatz hinzufügen
+[Maschine entfernen]Arbeitsplatz entfernen
+[alle Maschinen entfernen]alle Arbeitsplätze entfernen
+
+#DLGPROPERTYFHMWARTUNG
+[Titel]Wartung
+[Maximale Produktionsleistung:]Maximale Produktionsleistung:
+[Maximale Nutzungsdauer:]Maximale Nutzungsdauer:
+[Betriebsstunden]Betriebsstunden
+[Einheit:]Einheit:
+[GotoEinheit]Gehe zu Einheit
+[ChooseEinheit]Einheit wählen
+
+#DLGPROPERTYMASCHINENFHM
+[Titel]Fertigungshilfsmittel
+[Fertigungshilfsmittel]Fertigungshilfsmittel
+[Bezeichnung]Bezeichnung
+[Priorität]Prioritätswert
+[Rüstzeitfaktor]Rüstzeitfaktor in %%
+[IDC_STATIC_MASCHINEFHM_HINWEIS]Hinweis: Änderungen werden am Fertigungshilfsmittel vorgenommen.
+
+#DLGPROPERTYAPPOSITIONFHM
+[Gruppennummer (Alternative)]Gruppe (Alternative)
+[WM_ADD_GROUP]Gruppe (Alternative) hinzufügen
+[WM_DEL_GROUP]Gruppe (Alternative) entfernen
+
+#VIEWFHM
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+[IDC_STATIC_FHM_GESCHWFAKTORFERT]Geschwindigkeitsfaktor:
+[IDC_STATIC_FHM_RUESTZEIT]Rüstzeit:
+[IDC_CHECK_FHM_MASCHINENWECHSEL]Arbeitsplatzwechsel:
+[IDC_STATIC_PRT_PROZESS]Prozessressource:
+
+#VIEWGANTTSTD
+[Fixierter Start:]Fixierter Start: 
+[Letzte Statusmeldung:]\nLetzte Statusmeldung: 
+[Wartungstermin:]\nWartungstermin: 
+[(fixiert)](fixiert)
+[Fixierte Maschine:]\nFixierter Arbeitsplatz: 
+
+#DLGBDE
+[Titel]Rückmeldung
+[Bezeichnung]Bezeichnung
+[Typ]Typ
+[Gruppe]Gruppe
+[Belegung]Belegung [%%]
+[IDC_STATIC_BDE_AUFTRAG]Vorgang
+[IDC_STATIC_BDE_RES]Ressourcen
+[IDC_STATIC_BDE_EINSTELLUNGEN]Eigenschaften
+[Maschine wechseln]Arbeitsplatz wechseln
+[Maschine hinzufügen]Arbeitsplatz hinzufügen
+[Personal hinzufügen]Personal hinzufügen
+[Personalgruppe hinzufügen]Personalgruppe hinzufügen
+[FHM hinzufügen]Fertigungshilfsmittel hinzufügen
+[FHM entfernen]Fertigungshilfsmittel entfernen
+[Personal entfernen]Personal entfernen
+[Personalgruppe entfernen]Personalgruppe entfernen
+[Startzeit]Startzeit auf aktuelle Systemzeit setzen
+[Endezeit]Endezeit auf aktuelle Systemzeit setzen
+[ChooseFA]Wähle Fertigungsauftrag
+[ChooseFAVorg]Wähle Vorgangsaktivität
+
+// added 19.12.11 WW
+#VIEWDUALIS
+[Datenbank]Datenbank: 
+[Externe Datenbank]Externe Datenbank: 
+
+#CSTDABOUTDLG
+[Datenbank]Datenbank: 
+[Externe Datenbank]Externe Datenbank: 
+
+#GPDOCKLISTPAGE
+[Filter löschen]Filter löschen
+[FilterTip]Filter-Konfiguration für Datenliste
+[Changelog]Vorgenommene Datenänderungen
+
+// added 10.02.12 WW
+#STDAPP
+[Export im Szenario nicht möglich]Export ist im Szenariomodus nicht möglich
+[Export im Ergebnis nicht möglich]Export im Ergebnis nicht möglich
+[Szenario speichern]Szenariodatei speichern?
+[Soll die Ist-Linie für das Szenario fixiert werden]Soll die Ist-Linie für das Szenario fixiert werden?
+[Soll die fixierte Ist-Linie aus dem Szenario übernommen werden]Soll die fixierte Ist-Linie aus dem Szenario übernommen werden?
+[Nutzerrecht zum Öffnen eines Szenarios fehlt]Szenario kann nicht geöffnet werden.\nSie besitzen nicht das erforderliche Nutzerrecht.
+[Nutzerrecht zum Übernehmen eines Szenarios fehlt]Szenario kann nicht übernommen werden.\nSie besitzen nicht das erforderliche Nutzerrecht.
+
+// added 08.03.12 WW
+#DLGPROPERTYAPPOSITIONFHM
+[FHM-Nr.]FHM-Nr.
+
+// added 14.03.12 WW
+#DLGKALENDER
+[IDC_STATIC_KALENDER_FILTER]Zeilenfilter
+[ID_POPUP_KALENDER_DEL_ALL]Alle Ausnahmen löschen
+
+// added 23.03.12 WW
+#DLGPROPERTYAZM
+[Endet am]Endet am
+
+#STDAPP
+[Fehler beim Speichern des Szenarios]Fehler beim Speichern des Szenarios
+
+// added 03.04.12 WW
+#VIEWGANTTSTD
+[ID_POPUP_GANTT_FA_FREIGEBEN]Freigeben
+
+// added 16.05.12 WW
+#VIEWFANEU
+[Auftrag analysieren]Analysiere den Auftrag um mögliche Ursachen für Verspätung und Unplanbarkeit zu ermitteln
+
+#DLGPROPERTYAPPOSITIONFHM
+[Ein FHM aus jeder Gruppe verwenden]ein FHM aus jeder Gruppe verwenden
+[Alle FHM einer Gruppe verwenden]alle FHM einer Gruppe verwenden
+
+// added 29.06.12 WW
+#VIEWGANTTSTD
+[ID_POPUP_GANTT_FA_MENGE]Menge ändern
+[ID_POPUP_GANTT_FAVORGANG_MENGE]Menge ändern
+[ID_POPUP_GANTT_FAVORGANG_JOB]Job ändern
+[ID_POPUP_GANTT_CHANGE_PARALLEL_JOB]Parallel
+[ID_POPUP_GANTT_CHANGE_SEQUENTIAL_JOB]Sequentiell
+[ID_POPUP_GANTT_CREATE_BDE]Rückmelden
+
+#DLGGANTTCHANGEMENGE
+[Manuelle Mengenanpassung]Manuelle Mengenanpassung
+[Fertigungsauftragsvorgang]Fertigungsauftragsvorgang
+[Neue Bruttomenge]Neue Bruttomenge:
+[Die Mengen aller Vorgänge des Fertigungsauftrags werden angepasst]Die Mengen aller Vorgänge des Fertigungsauftrags werden angepasst.\nDie Nettomenge wird automatisch aktualisiert.
+[Die Mengen der anderen Vorgänge des Fertigungsauftrages werden nicht angepasst]Die Mengen der anderen Vorgänge des Fertigungsauftrages werden nicht angepasst.\nDie Nettomenge wird automatisch aktualisiert.
+
+#DLGGANTTCHANGEJOBID
+[Title]Manuelle Job-Anpassung
+[Header_SingleEdit]Vorgang
+[Header_MultiEdit]Vorgänge selektiert
+[Job_parallel]Jobnummer Parallel:
+[Job_sequentiell]Jobnummer Sequentiell:
+[Question_ClearJob]Job-Zugehörigkeit aufheben?
+[ExistingJob_Single]Die eingetragene Jobnummer existiert bereits (Vorgang wird dem Job hinzugefügt).
+[ExistingJob_Multi]Die eingetragene Jobnummer existiert bereits (Vorgänge werden dem Job hinzugefügt).
+[DifferentJobs]Die Vorgänge gehören zu unterschiedlichen Jobs.
+[Note]Hinweis:
+[Job_interruptible]unterbrechbar
+
+#CDLGGANTTFIXDURATION
+[Title]Vorgangsdauer fixieren
+[Fertigungsauftragsvorgang]Fertigungsauftragsvorgang
+[FixDauer]Fixierte Dauer:
+
+#DLGGANTTPLANUNGMANUELL
+[Title]Planung manuell vorgeben
+[Header]Startzeit und Arbeitsplatz auswählen
+[Startzeit]Startzeit auf aktuelle Systemzeit setzen
+[SearchMachine]Wähle Arbeitsplatz
+[STATIC_Start]Start
+[STATIC_Machine]Arbeitsplatz
+
+// added 13.08.12 WW
+#VIEWMASCHINE
+[Zeige Maschine im Leitstand]Zeige Arbeitsplatz im Leitstand
+
+#VIEWMASCHINENGR
+[Zeige Maschinengruppe im Leitstand]Zeige Arbeitsplatzgruppe im Leitstand
+
+#VIEWPERSONAL
+[Zeige Personal im Leitstand]Zeige Personal im Leitstand
+
+#VIEWPERSONALGR
+[Zeige Personalgruppe im Leitstand]Zeige Personalgruppe im Leitstand
+
+#VIEWFHM
+[Zeige Fertigungshilfsmittel im Leitstand]Zeige Fertigungshilfsmittel im Leitstand
+
+#VIEWARTIKEL
+[Gehe zum Lagerbestand]Gehe zum Lagerbestand
+
+#VIEWFANEU
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#DLGPROPERTYFAVORGANGALLGEMEIN
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWARBEITSPLAN
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#DLGPROPERTYAPVORGANGALLGEMEIN
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#DLGPROPERTYAPPOSITIONALLGEMEIN
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWGANTTSTD
+[IDC_STATIC_CUSTOM1]\nInformation 1: 
+[IDC_STATIC_CUSTOM2]\nInformation 2: 
+[IDC_STATIC_CUSTOM3]\nInformation 3: 
+
+// added 21.08.12 WW
+[IDC_STATIC_NAME]\nBezeichnung: 
+
+// added 25.09.12 WW
+#DLGREPORTCONFIGCREATEFILTER
+[IDC_STATIC_HINWEIS_ZEITFORMAT]Hinweis: Falls Filterwert Datum/Zeit, bitte in dieser Form angeben: YYYYMMDD HH:MM:SS\nDie Angabe der Uhrzeit ist optional
+
+// added 15.10.12 WW
+#DLGAUTORUN
+[Kontinuierliche Planung]Kontinuierliche Planung
+[IDOK]Beenden
+[IDC_STATIC_AUTORUN_TIMEINTERVAL]Zeitintervall
+[IDC_STATIC_AUTORUN_PLANPARAM]Planparametersatz
+[Start]Start
+[Stopp]Stopp
+[nicht gestartet]nicht gestartet
+[sobald moeglich]sobald möglich
+[Warnung]Die kontinuierliche Planung kann nicht gestartet werden solange nicht übernommene Ergebnisse existieren!
+
+#MENU
+[Kontinuierliche Planung]Kontinuierliche Planung
+
+#DLGPROPERTYAPVORGANGMASCHINEN
+[IDC_CHK_UNTERBRECHBAR]mit Unterbrechungen planen
+
+// added 24.10.12 WW
+#DLGWAITFORUNLOCK
+[Title]Bitte warten
+[MSG1]Der Zugriff auf die Datenbank ist aktuell nicht möglich,\nda diese für Nutzer '%1' (Host: %2 - PID: %3) exklusiv gesperrt ist.
+[Cancel]Warten abbrechen
+
+#STDMAINFRAME
+[Fertigungsplan wurde aktualisiert]Der Fertigungsplan wurde aktualisiert.\nSoll der Fertigungsplan neu eingelesen werden?
+
+// added 30.10.12 WW
+#DLGDELETEOBJECT
+[IDC_CHECK_DELETE_CONFIRM]Diesen Dialog nicht mehr anzeigen
+
+#DLGUPDATEOBJECT
+[IDC_CHECK_UPDATE_CONFIRM]Diesen Dialog nicht mehr anzeigen
+
+#MENU
+[Einstellungen]Einstellungen
+[Oberfläche]Oberfläche
+[Speichern_manuell_bestätigen]Speichern manuell bestätigen
+[Löschen_manuell_bestätigen]Löschen manuell bestätigen
+[Standardeinstellungen_wiederherstellen]Standardeinstellungen wiederherstellen
+
+// added 14.12.12
+#DLGPROPERTYREPORTCONFIGGENERAL
+[IDC_STATIC_OBJEKTVORAUSWAHL_DESC](Mehrfachauswahl durch Semikolon trennen)
+
+// added 31.01.13
+#DLGMSG
+[IDC_BTN_COPYTOCLIPBOARD]in Zwischenablage
+
+// added 18.02.13
+#DLGCREATEFA
+[Fertigungsauftrag erstellen]Fertigungsauftrag erstellen
+[Einstellungen]Einstellungen
+[IDC_STATIC_OBJECTID]Nummer:
+[IDC_STATIC_DLGCREATEFA_MATERIAL]Material:
+[IDC_STATIC_DLGCREATEFA_PRODUCTIONVERSION]Fertigungsversion:
+[IDC_STATIC_DLGCREATEFA_PLANUNGSTYP]Planungstyp:
+[IDC_STATIC_DLGCREATEFA_PRIO]Priorität:
+[IDC_STATIC_DLGCREATEFA_MENGE]Menge:
+[IDC_STATIC_DLGCREATEFA_TERMIN]Termin:
+[SearchPrio]Priorität wählen
+[RemovePrio]Priorität entfernen
+[SearchMat]Material wählen
+[SearchProductionversion]Fertigungsversion wählen
+[Fertigungsversion_fehlt]Es existiert keine Fertigungsversion mit dem das ausgewählte Material hergestellt werden kann!
+
+// added 18.03.13
+#VIEWGANTTSTD
+[ID_POPUP_GANTT_REMOVE_OTHER_FA]Andere FA aus Ansicht entfernen
+[ID_POPUP_GANTT_REMOVE_OTHER_RES]Andere Ressourcen aus Ansicht entfernen
+
+// added 28.02.13
+#VIEWOPTIMIERUNG
+[Ungedeckte Bedarfe]Bedarfe unvollständig
+
+// added 20.03.13
+#VIEWMASCHINE
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWMASCHINENGR
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWPERSONAL
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWPERSONALGR
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWSTL
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWAZM
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWRUESTMATRIX
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWQUALIFIKATIONEN
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#VIEWPRIORITAET
+[IDC_STATIC_CUSTOM1]Information 1:
+[IDC_STATIC_CUSTOM2]Information 2:
+[IDC_STATIC_CUSTOM3]Information 3:
+
+#TOOLTIP
+[RESID_1913]Fertigungsplan neu importieren
+[RESID_1914]Rückmeldungen verarbeiten
+
+// added 23.05.13 WW
+#DLGPROPERTYMASCHINENLOSGROESSEN
+[Titel]Losgrößen
+[IDC_STATIC_ERLAUBTE_LOSGROESSEN]Erlaubte Losgrößen
+[IDC_STATIC_MIN_LOS]Minimale Losgröße:
+[IDC_STATIC_MAX_LOS]Maximale Losgröße:
+[IDC_STATIC_EINHEIT]Einheit:
+[GotoEinheit]Gehe zu Einheit
+[ChooseEinheit]Einheit auswählen
+[RemoveEinheit]Einheit entfernen
+
+// added 13.06.2013
+#DLGCLOSESCENARIO
+[IDC_HEADER]Szenariomodus beenden
+[IDC_TEXT]Was soll mit den im Szenariomodus erfassten Daten geschehen?
+[IDC_DROP_HEADER]Verwerfen der Szenario-Daten
+[IDC_DROP_TEXT]Die im Szenariomodus erfassten Daten werden verworfen. Arbeiten Sie weiter, als hätten Sie die Daten nie geändert.
+[IDC_APPLY_HEADER]Übernehmen der Szenario-Daten
+[IDC_APPLY_TEXT]Die im Szenariomodus erfassten Daten werden dauerhaft übernommen und für die weitere Bearbeitung und Planung verwendet.
+[IDC_SAVEFILE_HEADER]Speichern als Szenariodatei
+[IDC_SAVEFILE_TEXT]Die im Szenariomodus erfassten Daten werden für die spätere Verwendung als Datei gespeichert. Vorerst arbeiten Sie weiter, als hätten Sie die Daten nie geändert.
+
+#GPDOCKMANUAL
+[beachten]beachten
+[nicht beachten]nicht beachten
+[alle beachten]alle beachten
+[keine beachten]keine beachten
+[individuell]individuell
+[planen]planen
+[nicht planen]nicht planen
+[ja]ja
+[nein]nein
+[ShiftScope]Auswahl
+[ShiftScopeInfo]Auswahl der während des manuellen Schiebens beeinflussbaren Vorgänge. Je nach eingestellten Typ hat das Schieben eines Vorgangs nur Einfluss auf den ausgewählten Vorgang selbst, auf den ganzen Auftrag oder sogar auf das komplette Auftragsnetz. 
+[ShiftMode]Modus
+[ShiftModeInfo]Modus 'verschieben falls nötig' verschiebt andere Vorgänge aus der Auswahlmenge erst dann, wenn dies notwendig wird. Modus 'gleichmäßig verschieben' versucht während des Schiebens die zeitlichen Abstände zwischen den Vorgängen aus der Auswahlmenge beizubehalten. Modus 'neu planen' erlaubt die Anpassung aller Vorgänge aus der Auswahlmenge an neue Gegebenheiten.
+[nicht umplanen]nicht umplanen
+[verschieben falls nötig]verschieben falls nötig
+[gleichmäßig verschieben]gleichmäßig verschieben
+[neu planen]neu planen
+[Vorgang]Vorgang
+[Fertigungsauftrag]Auftrag
+[Fertigungsauftragsnetz]Auftragsnetz
+[Restriktionen]Restriktionen
+[Restriktionsverhalten]Bei Auswahl 'alle beachten' gelten die gleichen Restriktionen wie bei der automatischen Planung. Bei Auswahl 'individuell' können gezielt Restriktionen deaktiviert werden. Die Auswahl "nicht beachten" deaktiviert alle Restriktionen.
+[Auftragsbeziehungen]Auftragsbeziehungen
+[Beziehung zwischen Aufträgen beachten]Beziehung zwischen Fertigungsaufträgen beachten
+[Vorgangsbeziehungen]Vorgangsbeziehungen
+[Beziehung beachten]Beziehung zwischen Vorgängen beachten
+[MinPuffer]Minimaler Puffer
+[MinPufferInfo]Minimalen Puffer der Nachfolgebeziehung beachten
+[MaxPuffer]Maximalen Puffer
+[MaxPufferInfo]Maximalen Puffer der Nachfolgebeziehung beachten
+[Maschine]Arbeitsplatz
+[MaschineInfo]Arbeitsplatzrestriktionen beachten
+[MaschArbeitszeitmodell]Arbeitszeitmodell
+[MaschArbeitszeitmodellInfo]Arbeitszeitmodell des Arbeitsplatzes (Pause, Störung, Wartung, ...) beachten
+[MaschKapazität]Kapazität
+[MaschKapazitätInfo]Kapazität und parallele Belegung beachten
+[MaschAlternative Maschinen]Alternative Arbeitsplätze
+[MaschAlternative MaschinenInfo]Darf der Vorgang nur auf den im Arbeitsplan angegebenen Arbeitsplätzen eingeplant werden
+[MaschLinie]Linienarbeitsplätze
+[MaschLinieInfo]Linientreue Auswahl der alternativen Arbeitsplätze beachten
+[MaschLinieSequenz]Linienreihenfolge
+[MaschLinieSequenzInfo]Einheitliche Auftragsreihenfolge innerhalb von Linien sicherstellen, falls vom Linientyp verlangt (Überholverbot in Linien)
+[Personal]Personal
+[PersonalInfo]Personal planen
+[PersArbeitszeitmodell]Arbeitszeitmodell
+[PersArbeitszeitmodellInfo]Arbeitszeitmodell vom Personal (Pause, Störung, Wartung, ...) beachten
+[PersKapazität]Kapazität
+[PersKapazitätInfo]Kapazität beachten
+[PersWorkcenterQualification]Arbeitsplatzqualifikationen
+[PersWorkcenterQualificationInfo]Arbeitsplatzqualifikationen beachten
+[PersActivityQualification]Vorgangsqualifikationen
+[PersActivityQualificationInfo]Vorgangsqualifikationen beachten
+[FHM]Fertigungshilfsmittel
+[FHMInfo]Fertigungshilfsmittel planen
+[FHMArbeitszeitmodell]Arbeitszeitmodell
+[FHMArbeitszeitmodellInfo]Arbeitszeitmodell der FHM (Pause, Störung, Wartung, ...) beachten
+[FHMKapazität]Kapazität
+[FHMKapazitätInfo]Kapazität beachten
+[MatMaterialmangel]Materialmangel
+[MatMaterialmangelInfo]generelle Materialverfügbarkeit beachten
+[MatLieferantenbestellungen]Lieferantenbestellungen
+[MatLieferantenbestellungenInfo]Frühester Start auf Grund von zugeordneten Lieferantenbestellungen beachten
+[MatBereitstellungszeit]Bereitstellungszeit aus Lager
+[MatBereitstellungszeitInfo]Frühester Start auf Grund der Bereitstellungszeit aus dem Lager beachten
+[Jobbeziehungen]Jobbeziehungen
+[JobbeziehungenInfo]Jobs (parallel & sequentiell) beachten
+[Start]Frühester Start
+[StartInfo]Manuell vorgegebenen frühesten Start beachten
+[FixierterStart]Fixierter Start
+[FixierterStartInfo]Bei "beachten" werden fixierte Vorgänge nicht umgeplant. Der Schiebevorgang selbst kann jedoch immer verschoben werden.\nBei "nicht beachten" werden Vorgänge mit fixierter Startzeit nur dann verschoben, falls dies nötig ist. Der eingestellte Wert für die fixierte Startzeit bleibt immer unverändert.
+[Planning]Planung
+[PlanningInfo]Planungseinstellungen
+[Scheduling]Terminierung
+[SchedulingInfo]Restriktionen bzgl. Terminierung beachten
+[ReservationPrt]Reservierungen
+[ReservationPrtInfo]Fertigungshilfsmittel-Reservierungen beachten
+[ReservationWorkcenter]Reservierungen
+[ReservationWorkcenterInfo]Arbeitsplatz-Reservierungen beachten
+[ActualTime]Istlinie
+[ActualTimeInfo]Aktuelle Istlinie bei der Ermittlung des frühesten Vorgangsstarts beachten
+
+#DLGSHORTCUTS
+[Category_Uncategorized]Ohne Kategorie
+[Category_Scheduling]Planung
+[Category_DataObject]Datensatz
+[Category_Ganttview]Leitstand
+[Category_View]Ansicht
+[Category_Scenario]Szenario
+[Action]Aktion
+[KeyCombi]Tastenkombination
+[Title]Tastaturkürzel
+[Header]Verfügbare Tastaturkürzel
+[UseShortcuts]Shortcuts aktivieren
+
+// Category: Scheduling
+[GotoPlanningAndGo]Zur automatischen Planung gehen und starten
+[GotoPlanning]Zur automatischen Planung gehen ohne starten
+[DiscardResult]Ergebnis verwerfen
+[DiscardAllResults]Alle Ergebnisse verwerfen
+[PrepareData]Daten vorbereiten
+[SynchronizeData]Daten synchronisieren
+[ImportModel]Fertigungsplan neu importieren
+[Export]Exportieren
+[SwitchToModel]Zum Fertigungsplan wechseln
+[DuplicateResult]Manuelle Planung in neuem Ergebnis starten
+[PrevResult]Vorheriges Ergebnis
+[NextResult]Nächstes Ergebnis
+[SwitchResult1]Zu Ergebnis 1 wechseln
+[SwitchResult2]Zu Ergebnis 2 wechseln
+[SwitchResult3]Zu Ergebnis 3 wechseln
+[SwitchResult4]Zu Ergebnis 4 wechseln
+[SwitchResult5]Zu Ergebnis 5 wechseln
+[SwitchResult6]Zu Ergebnis 6 wechseln
+[SwitchResult7]Zu Ergebnis 7 wechseln
+[SwitchResult8]Zu Ergebnis 8 wechseln
+[SwitchResult9]Zu Ergebnis 9 wechseln
+
+// Category: DataObject
+[SearchObject]Datensatz suchen
+[PrevObject]Vorheriger Datensatz
+[NextObject]Nächster Datensatz
+[EditObject]Datensatz editieren
+[SaveObject]Datensatz speichern
+[NewObject]Neuer Datensatz
+[CopyObject]Datensatz kopieren
+[DelDataObject]Datensatz löschen
+[DefaultJump]Standardsprung der aktuellen Ansicht
+[DefaultAction]Standardaktion
+
+// Category: View
+[PrevView]Vorherige Ansicht
+[NextView]Nächste Ansicht
+[FocusCurrentViewInNavi]Markiere aktuelle Ansicht im Navigationsfenster
+[Help]Hilfe anzeigen
+[HelpShortcuts]Tastaturkürzel anzeigen
+[ShowNavi]Navigation ein-/ausblenden
+[ShowDatalist]Datenliste ein-/ausblenden
+[RestoreDefaults]Standardeinstellungen wiederherstellen
+
+// Category: Ganttview
+[GotoGantt]Springe zum Leitstand
+[DefaultView]Standardansicht auswählen
+[RescourceView]Ressourcenansicht auswählen
+[POView]Auftragsansicht auswählen
+[ShowWorkcenters]Arbeitsplätze ein-/ausblenden
+[ShowWorkers]Mitarbeiter ein-/ausblenden
+[ShowTools]Fertigungshilfsmittel ein-/ausblenden
+[ShowChildPOs]Sekundäraufträge ein-/ausblenden
+[ShowPlanningOrder]Planreihenfolge anzeigen
+[ShowOperationRelations]Vorgangsbeziehungen anzeigen
+[DrawSetupConstraintIntervals]Intervalle für Rüstoptimierungszwang anzeigen
+[DrawAcitvityAsOneBar]Durchgehende Vorgangsbalken anzeigen
+[ChangeTextAboveBars]Vorgangsbezeichnung über Vorgangsbalken anzeigen
+[ShowResourceRelations]Beziehungen zu Sekundärressourcen anzeigen
+[HighlightPONet]Auftragsnetz hervorheben
+[GotoActualTime]Zur Ist-Linie springen
+[EnableManualMode]Bearbeitungsmodus
+[Up]Hoch scrollen
+[Down]Runter scrollen
+[UpFast]Schnell hoch scrollen
+[DownFast]Schnell runter scrollen
+[Left]Nach links scrollen
+[Right]Nach rechts scrollen
+[FarLeft]Zum Beginn des Planungszeitraums scrollen
+[FarRight]Zum Ende des Planungszeitraums scrollen
+[Fullscreen]Vollbild
+[DeletePO]Fertigungsauftrag ausplanen (nur im manuellen Modus)
+[ChangeDuration]Dauer eines Vorgangs ändern (nur im manuellen Modus)
+[ShiftPO]Vorgang verschieben (nur im manuellen Modus)
+[ShowAllPanels]Ein-/Ausblenden weiterer Fenster
+[ShowInfoPanel]Fenster Informationen ein-/ausblenden
+[ShowSettings]Fenster Einstellungen ein-/ausblenden
+[ShowOrders]Fenster Aufträge ein-/ausblenden
+[SplitOperation]Vorgang unter Mausposition splitten (nur im manuellen Modus)
+[ZoomOut]Zeitliche Auflösung verkleinern
+[ZoomIn]Zeitliche Auflösung vergrößern
+[IncLineHeight]Zeilenhöhe vergrößern
+[DecLineHeight]Zeilenhöhe verkleinern
+
+// Category: Scenario
+[ApplyScenario]Szenario übernehmen
+[CloseScenario]Szenario schließen
+[CreateScenario]Szenario erstellen
+[OpenScenario]Szenario öffnen
+[SaveScenario]Szenario speichern
+
+[hold]halten
+[KEY_BACKSPACE]Rückstelltaste
+[KEY_SPACE]Leertaste
+
+
+#GPTOOLBARGANTT
+[ID_DOCK_INFO]Information
+[ID_DOCK_ORDERS]Aufträge
+[ID_DOCK_MANUAL]manuelle Planungseinstellungen
+[IDC_GANTT_BUTTON_PANELS]Ein/Ausblenden weiterer Fenster
+[Leitstandfilter]Zeige Schnellfilter
+[Farbschema]Farbschema auswählen/erstellen
+[Nutzeransicht]Ansicht auswählen/erstellen
+[Vollbildmodus]Vollbildmodus starten/beenden
+[Tooltip_ManualMode]Bearbeitungsmodus§HOTKEY§
+[Tooltip_ManualMode_Content]Im Fertigungsplan werden einzelne Änderungen sofort übernommen, während in einem Ergebnis die Übernahme aller Änderungen in den Fertigungsplan manuell vorgenommen werden muss.
+[ManualMode_Shift]Verschieben [S]
+[ManualMode_ChangeDuration]Dauer ändern [D]
+
+#GPTOOLBARNAVI
+[HTMLHeader]Szenariomodus starten
+[HTMLText]Startet den Szenariomodus. Mit dem Szenariomodus können Sie ihre aktuelle Planung in eine Simulation übernehmen. Sie können Daten und Parameter ändern, ohne dass ihre reale Planung verändert wird.
+
+#STDAPP
+[SzenarioUebernehmen]Übernehmen der Szenario-Daten?
+[SzenarioUebernahmeFehler]Die Übernahme der Szenariodaten wurde mit Fehlern abgeschlossen.
+[BDE abarbeiten und Plan aktualisieren]Aktuelle Rückmeldungen verarbeiten und Fertigungsplan aktualisiert übernehmen?
+
+#STDMAINFRAME
+[Datenliste]Datenliste
+[Navigation]Navigation
+[Aufträge]Aufträge
+[Einstellungen]Einstellungen
+[Information]Information
+[HTMLStartScenarioHeader]Szenariomodus starten
+[HTMLStartScenarioText]Startet den Szenariomodus. Mit dem Szenariomodus können Sie ihre aktuelle Planung in eine Simulation übernehmen. Sie können Daten und Parameter ändern, ohne dass ihre reale Planung verändert wird.
+[HTMLEndScenarioHeader]Szenariomodus beenden
+[HTMLEndScenarioText]Beendet den Szenariomodus. Mit dem Szenariomodus können Sie ihre aktuelle Planung in eine Simulation übernehmen. Sie können Daten und Parameter ändern, ohne dass ihre reale Planung verändert wird.
+[Ergebnisse verwerfen]Alle anderen Ergebnisse verwerfen?
+[RestoreDefaultSettingsText]Sollen die %1 Standardeinstellungen wiederhergestellt werden?\n\nDie Änderungen werden erst nach einem Neustart von %1 wirksam!
+[RestoreDefaultSettingsCaption]Standardeinstellungen wiederherstellen
+[Es wurden Datenänderungen festgestellt]Es wurden Datenänderungen festgestellt.\n\nSoll der Fertigungsplan neu importiert werden?
+
+#DLGCHANGEPASSWORD
+[WINDOW]Passwort ändern
+[IDC_STATIC_OLDPW]altes Passwort eingeben:
+[IDC_STATIC_NEWPW1]neues Passwort eingeben:
+[IDC_STATIC_NEWPW2]neues Passwort wiederholen:
+[IDC_CHK_SHOWPASSWORD]Eingabe im Klartext anzeigen
+[IDC_STATIC_HEADER]Passwort von Benutzer '%1' ändern
+
+#DLGPROPERTYFAKOPFBEZIEHUNGEN
+[Prognosebedarf]Prognosebedarf
+
+#DLGREPORTCOLUMNTREE
+[IDC_STATIC_DLGREPORTCOLUMNTREE_FILTER]Filter:
+[Eigene_Bezeichnung]Eigene Bezeichnung:
+[Eigenschaften]Eigenschaften
+[Detaillevel]Detailstufe:
+[MessageBox_Clipboard_Success]Objektpfad wurde in die Zwischenablage kopiert.
+[Tooltip_Header]Objektpfad zum selektierten Feld
+[Tooltip_Clipboard]Klicken, um Pfad in die Zwischenablage zu kopieren
+
+#MENU
+[Note_Deleted_Invalid_Objects]Es konnten nicht alle Daten übernommen werden\n\nGenauere Informationen entnehmen Sie bitte der Log-Datei
+
+#TOOLTIP
+[Ein Nutzer schreibt gerade ein neues Planergebnis in die Datenbank]Ein Nutzer schreibt gerade ein neues Planergebnis in die Datenbank.\nBitte beachten Sie, dass Ihre Änderungen evtl. in Konflikt mit dem neuen Ergebnis stehen!\n\nBitte warten...
+
+// added 11.06.14 WW
+#VIEWGANTTSTD
+[ID_POPUP_GANTT_MRP_EF]Neue Fertigungsaufträge automatisch erstellen
+[ID_POPUP_GANTT_MRP_FB]Neue Lieferantenbestellungen automatisch erstellen
+[ID_POPUP_GANTT_MRP_RELINK_EF]Eigengefertigtes Material automatisch neu zuweisen
+[ID_POPUP_GANTT_MRP_RELINK_FB]Fremdbezogenes Material automatisch neu zuweisen
+[ID_POPUP_GANTT_MRP_DELETE_LINKS_EF]Beziehungen von eigengefertigtem Material löschen
+[ID_POPUP_GANTT_MRP_DELETE_LINKS_FB]Beziehungen von fremdbezogenem Material löschen
+[ID_POPUP_GANTT_LOTSIZEOPT]Losgrößenoptimierung durchführen
+[Materialbedarf planen]Materialbedarf planen
+
+#MENU
+[ChangePassword]Passwort ändern
+[Workerinformation]Auskunft Personendaten
+[RequestForInformation]Meine Aktionshistorie
+[RequestForInformation_GLOBAL]Globale Aktionshistorie
+[Konfiguration_neu_lesen]Konfiguration neu lesen
+[TooltipReport]Leitstands-Tooltips
+[Protokoll]Protokolle
+
+#DLGPRODUCTIONCONTROLLER
+[Header]Werk wählen
+[COLUMN_PRODCONT]Fertigungssteuerer
+[COLUMN_SCHEDULE]Berechtigung
+[IDC_STATIC_PLANT]Werk:
+[SubHeader]Berechtigung für folgende Fertigungssteuerer festlegen
+[Note]Zu verwendende Berechtigung bei unbekannten bzw. nicht zugewiesenen Fertigungssteuerer:
+[Optionen]Berechtigungen
+[Tooltip_Optionen]Möglichkeiten, die Berechtigung aller Fertigungssteuerer zu ändern
+[Berechtigung_ignorieren]Alle Fertigungssteuerer ignorieren
+[Berechtigung_anonym]Alle Berechtigungen auf "anonym"
+[Berechtigung_betrachten]Alle Berechtigungen auf "betrachten" (sofern möglich)
+[Berechtigung_planen]Alle Berechtigungen auf "planen" (sofern möglich)
+
+#DLGTESTVERSIONREMINDER
+[Title]Hinweis
+[Header]Testlizenz
+[Static_Text]%1 wird mit einer Testlizenz ausgeführt. Diese ist nicht für den Produktiveinsatz gedacht.
+[Button_OK]OK
+
+#DLGPRTALLOCATION
+[Titel]Belegung anpassen
+[Header]Belegung für FHM
+[Label_Belegung]Belegung:
+[Label_Info]Angabe, zu wieviel Prozent das FHM bei der Bearbeitung des Arbeitsgangs ausgelastet wird.
+
+#DLGCREATEVIEW
+[Titel]Neue Ansicht anlegen
+[Header]Eigenschaften der Ansicht
+[Label_Name]Name:
+[Label_Kategorie]Kategorie:
+[Label_Global]Für alle Nutzer freigeben
+[Helptext_Kategorie]Kategoriename (optional)
+
+#VIEWWORKCENTERQUALIFICATIONMATRIX
+[Label_Anzeigeformat]Anzeige-Format
+[Label_Ansicht]Ansicht:
+[Label_Filter_Arbeitsplatz]Arbeitsplatzauswahl:
+[Label_Filter_Personal]Personalauswahl:
+[Label_Userview_Laden]Lade...
+[Arbeitsplatz_hinzufügen]Arbeisplatz(gruppe) hinzufügen
+[Arbeitsplatz_auswählen]Arbeitsplatz(gruppe) auswählen
+[Alle_Arbeitsplätze_hinzufügen]Alle Arbeisplätze/Arbeisplatzgruppen hinzufügen
+[Personal_hinzufügen]Personal(gruppe) hinzufügen
+[Personal_auswählen]Personal(gruppe) auswählen
+[Alles_Personal_hinzufügen]Alle Mitarbeiter/Personalgruppen hinzufügen
+[Spalte_nach_links_verschieben]Ausgewählte Spalte nach links verschieben
+[Spalte_nach_rechts_verschieben]Ausgewählte Spalte nach rechts verschieben
+[Sortierung_zuruecksetzen]Spaltensortierung zurücksetzen
+[Tooltip_View]Ansicht auswählen/erstellen
+[Tooltip_Print]Aktuelle Ansicht drucken
+[Quali_Beendet]beendet
+[Quali_Begrenzt]begrenzt
+[Quali_Startet]startet
+[Standardansicht]Standardansicht
+[Ansicht_hinzufügen]Neu
+[Ansicht_bearbeiten]Bearbeiten
+[Ansicht_bearbeiten_2]Ansicht bearbeiten
+[Ansicht_kopieren]Kopieren
+[Ansicht_kopieren_2]Ansicht kopieren
+[Ansicht_löschen]Löschen
+[Ansicht_löschen_Nachfrage]Möchten Sie die Ansicht wirklich löschen?
+[Format_ID]ID
+[Format_Name]Name
+[Format_IDundName]ID und Name
+[Leere_Ansicht]Anzuzeigende Ressourcen auswählen
+[Suche_Titel_Arbeitsplatz]Arbeitsplätze/Arbeitsplatzgruppen
+[Suche_Titel_Personal]Personal/Personalgruppen
+[Suche_ID]ID
+[Suche_Type]Typ
+[Suche_Name]Name
+[Suche_Info1]Information 1
+[Suche_Info2]Information 2
+[Suche_Info3]Information 3
+[Show]Anzeigen
+[Edit]Anzeigen/Bearbeiten
+[Copy]Kopieren
+[Paste]Einfügen
+[Delete]Löschen
+[Entfernen]Entfernen
+[Alle_entfernen]Alle entfernen
+[Alle_außer_diesem_entfernen]Alle außer diesem entfernen
+[Arbeitsplätze_ohne_Qualifikation]Arbeitsplätze hinzufügen, auf dem das Personal nicht qualifiziert ist
+[Arbeitsplätze_mit_Qualifikation]Arbeitsplätze hinzufügen, auf dem das Personal qualifiziert ist
+[Arbeitsplätze_mit_Rüsten]Arbeitsplätze hinzufügen, auf dem das Personal rüsten kann
+[Arbeitsplätze_mit_Fertigen]Arbeitsplätze hinzufügen, auf dem das Personal fertigen kann
+[Arbeitsplätze_mit_Rüsten_und_Fertigen]Arbeitsplätze hinzufügen, auf dem das Personal rüsten und fertigen kann
+[Personal_ohne_Qualifikation]Personal hinzufügen, das auf diesem Arbeitsplatz nicht qualifiziert ist
+[Personal_mit_Qualifikation]Personal hinzufügen, das auf diesem Arbeitsplatz qualifiziert ist
+[Personal_mit_Rüsten]Personal hinzufügen, das auf diesem Arbeitsplatz rüsten kann
+[Personal_mit_Fertigen]Personal hinzufügen, das auf diesem Arbeitsplatz fertigen kann
+[Personal_mit_Rüsten_und_Fertigen]Personal hinzufügen, das auf diesem Arbeitsplatz rüsten und fertigen kann
+[Abfrage_fixierte_Zeile]Möchten Sie alle angezeigten Mitarbeiter/Personalgruppen mit dieser Qualifikation für den Arbeitsplatz bzw. die Arbeitsplatzgruppe ausstatten?\r\n\r\nBestehende Qualifikationen werden dabei überschrieben.
+[Abfrage_fixierte_Spalte]Möchten Sie das Personal an jedem angezeigten Arbeitsplatz/jeder angezeigten Arbeitsplatzgruppe mit dieser Qualifikation ausstatten?\r\n\r\nBestehende Qualifikationen werden dabei überschrieben.
+[Abfrage_TopLeft]Möchten Sie diese Arbeitsplatz-Qualifikation(en) auf alle angezeigten Elemente übertragen?\r\n\r\nBestehende Qualifikationen werden dabei überschrieben.
+[Abfrage_Qualifikation_überschreiben]Alle vorhandenen Arbeitsplatz-Qualifikationen werden überschrieben. Möchten Sie fortfahren?
+[Abfrage_Qualifikation_löschen]Arbeitsplatz-Qualifikation(en) löschen?
+[Grid_Click_Personal]Hier klicken, um Mitarbeiter/Personalgruppen hinzuzufügen
+[Grid_Click_Arbeitsplatz]Hier klicken, um Arbeitsplätze/Arbeitsplatzgruppen hinzuzufügen
+
+#DLGMATRIXEDIT
+[Spalte_Bis]Bis
+[Rüsten_hinzufügen]Rüsten hinzufügen
+[Fertigen_hinzufügen]Fertigen hinzufügen
+[Rüsten_Fertigen_hinzufügen]Rüsten und Fertigen hinzufügen
+[Qualifikation_entfernen]Arbeitsplatz-Qualifikation löschen
+[IDC_QUALIMATRIXEDIT_ALLGEMEIN]Qualifikationszuordnung
+[IDC_QUALIMATRIXEDIT_ZUORDNUNGEN]Arbeitsplatz-Qualifikationen und Zeiten
+[IDC_STATIC_MITARBEITER]Mitarbeiter:
+[IDC_STATIC_NUMMER]Nummer:
+[IDC_STATIC_NUMMER2]Nummer:
+[IDC_STATIC_RESSOURCE]Arbeitsplatz:
+[Spalte_Priorität]Prioritätswert
+[Spalte_Qualifikation]Qualifikation
+[Spalte_Von]Von
+[WINDOWTEXT]Übersicht Arbeitsplatz-Qualifikationen
+[Wollen Sie die Qualifikationszuordnungen der Ressource]Wollen Sie die Qualifikationszuordnungen der Ressource 
+[Wollen Sie die Qualifikationszuordnungen von]Wollen Sie die Qualifikationszuordnungen von
+[Qualifikationen_Eigene]Eigene Qualifikationen
+[Qualifikationen_Indirekte]Indirekte Qualifikationen
+[Spalte_Personalgruppe]Personalgruppe
+[Spalte_Arbeitsplatzgruppe]Arbeitsplatzgruppe
+[NoWorkcenterQualificationsWorkcenter]Wenn es für den Arbeisplatz keine qualifizierte Mitarbeiter gibt, dann sind automatisch alle Mitarbeiter für den Arbeisplatz qualifiziert.
+[NoWorkcenterQualificationsGlobal]Wenn es für keinen Arbeisplatz qualifizierte Mitarbeiter gibt, dann sind automatisch alle Mitarbeiter für alle Arbeisplätze qualifiziert.
+
+#DLGMATRIXEDITACTIVITY
+[Spalte_Bis]Bis
+[Eigene_hinzufügen]Eigene hinzufügen
+[IDC_QUALIMATRIXEDIT_ALLGEMEIN]Qualifikationszuordnung
+[IDC_STATIC_MITARBEITER]Mitarbeiter:
+[IDC_STATIC_NUMMER]Nummer:
+[IDC_STATIC_QUALIFICATION]Vorgangsqualifikation:
+[Spalte_Priorität]Prioritätswert
+[Spalte_Von]Von
+[WINDOWTEXT]Übersicht Vorgangs-Qualifikationen
+[Qualifikationen_Eigene]Eigene Qualifikationen
+[Qualifikationen_Indirekte]Indirekte Qualifikationen
+[Spalte_Personalgruppe]Personalgruppe
+
+#VIEWACTIVITYQUALIFICATIONMATRIX
+[Label_Anzeigeformat]Anzeige-Format
+[Label_Ansicht]Ansicht:
+[Label_Filter_Vorgangsqualifikation]Auswahl Vorgangsqualifikation(en):
+[Label_Filter_Personal]Personalauswahl:
+[Label_Userview_Laden]Lade...
+[Tooltip_Vorgangsqualifikation_hinzufügen]Vorgangsqualifikation hinzufügen
+[Tooltip_Vorgangsqualifikation_auswählen]Vorgangsqualifikation auswählen
+[Tooltip_Alle_Vorgangsqualifikationen_hinzufügen]Alle Vorgangsqualifikationen hinzufügen
+[Tooltip_Personal_hinzufügen]Personal(gruppe) hinzufügen
+[Tooltip_Personal_auswählen]Personal(gruppe) auswählen
+[Tooltip_Alles_Personal_hinzufügen]Alle Mitarbeiter/Personalgruppen hinzufügen
+[Tooltip_Spalte_nach_links_verschieben]Ausgewählte Spalte nach links verschieben
+[Tooltip_Spalte_nach_rechts_verschieben]Ausgewählte Spalte nach rechts verschieben
+[Tooltip_Sortierung_zuruecksetzen]Spaltensortierung zurücksetzen
+[Tooltip_View]Ansicht auswählen/erstellen
+[Tooltip_Print]Aktuelle Ansicht drucken
+[Standardansicht]Standardansicht
+[Ansicht_hinzufügen]Neu
+[Ansicht_bearbeiten]Bearbeiten
+[Ansicht_bearbeiten_2]Ansicht bearbeiten
+[Ansicht_kopieren]Kopieren
+[Ansicht_kopieren_2]Ansicht kopieren
+[Ansicht_löschen]Löschen
+[Ansicht_löschen_Nachfrage]Möchten Sie die Ansicht wirklich löschen?
+[Format_ID]ID
+[Format_Name]Name
+[Format_IDundName]ID und Name
+[Leere_Ansicht]Anzuzeigende Ressourcen/Vorgangsqualifikationen auswählen
+[Suche_Titel_Vorgangsqualifikation]Vorgangsqualifikation(en)
+[Suche_Titel_Personal]Personal/Personalgruppen
+[Suche_ID]ID
+[Suche_Type]Typ
+[Suche_Name]Name
+[Suche_Info1]Information 1
+[Suche_Info2]Information 2
+[Suche_Info3]Information 3
+[Add]Qualifikation zuordnen [Leertaste]
+[Copy]Kopieren
+[Paste]Einfügen
+[Delete]Löschen
+[Entfernen]Entfernen
+[Alle_entfernen]Alle entfernen
+[Alle_außer_diesem_entfernen]Alle außer diesem entfernen
+[Neue_Vorgangsqualifikation]Neue Vorgangsqualifikation erstellen
+[Vorgangsqualifikationen_mit_Qualifikation]Vorgangsqualifikation(en) hinzufügen, die das Personal besitzt
+[Vorgangsqualifikationen_ohne_Qualifikation]Vorgangsqualifikation(en) hinzufügen, die das Personal nicht besitzt
+[Personal_mit_Qualifikation]Personal hinzufügen, das diese Vorgangsqualifikation besitzt
+[Personal_ohne_Qualifikation]Personal hinzufügen, das diese Vorgangsqualifikation nicht besitzt
+[Abfrage_fixierte_Zeile]Möchten Sie alle angezeigten Mitarbeiter/Personalgruppen mit dieser Vorgangsqualifikation ausstatten?
+[Abfrage_fixierte_Spalte]Möchten Sie den Mitarbeiter/die Personalgruppe mit allen angezeigten Vorgangsqualifikationen austatten?
+[Abfrage_TopLeft]Möchten Sie diese Vorgangsqualifikation auf alle angezeigten Elemente übertragen?
+[Vorgangsqualifikation_erstellen]Vorgangsqualifikation erstellen
+[Tooltip_Vorgangsqualifikation_erstellen]Erstellen einer neuen Vorgangsqualifikation
+[Grid_Click_Personal]Hier klicken, um Mitarbeiter/Personalgruppen hinzuzufügen
+[Grid_Click_Vorgangsqualifikation]Hier klicken, um Vorgangsqualifikation(en) hinzuzufügen
+[Quali_Beendet]beendet
+[Quali_Begrenzt]begrenzt
+[Quali_Startet]startet
+
+#DLGCREATEACTIVITYQUALIFICATION
+[Titel]Vorgangsqualifikation erstellen
+[Header]Neue Vorgangsqualifikation
+[Name]Bezeichnung:
+[Hinweis_NoWorker]Hinweis: Damit die Vorgangsqualifikation permanent erhalten bleibt, muss sie anschließend Personal bzw. einer Personalgruppe zugewiesen werden.
+[Hinweis_Worker]Hinweis: Die Vorgangsqualifikation wird dem Personal bzw. der Personalgruppe '%1' zugewiesen.
+
+#GRIDCTRL
+[Seite]Seite
+[von]von
+
+#VIEWSHIFTSCHEDULE
+[Label_Anzeigeformat]Anzeige-Format
+[Label_Ansicht]Ansicht:
+[Label_Filter_Personal]Personalauswahl:
+[Label_Filter_Arbeitsplatz]Arbeitsplatzauswahl:
+[Label_Filter_FHM]FHM-Auswahl:
+[Label_Userview_Laden]Lade...
+[Tooltip_Personal_hinzufügen]Personal(gruppe) hinzufügen
+[Tooltip_Personal_auswählen]Personal(gruppe) auswählen
+[Tooltip_Alles_Personal_hinzufügen]Alle Mitarbeiter/Personalgruppen hinzufügen
+[Tooltip_Arbeitsplatz_hinzufügen]Arbeitsplatz(gruppe) hinzufügen
+[Tooltip_Arbeitsplatz_auswählen]Arbeitsplatz(gruppe) auswählen
+[Tooltip_Alle_Arbeisplatz_hinzufügen]Alle Arbeitsplätze/Arbeitsplatzgruppen hinzufügen
+[Tooltip_FHM_hinzufügen]Fertigungshilfsmittel hinzufügen
+[Tooltip_FHM_auswählen]Fertigungshilfsmittel auswählen
+[Tooltip_Alle_FHM_hinzufügen]Alle Fertigungshilfsmittel hinzufügen
+[Tooltip_View]Ansicht auswählen/erstellen
+[Standardansicht]Standardansicht
+[Ansicht_hinzufügen]Neu
+[Ansicht_bearbeiten]Bearbeiten
+[Ansicht_bearbeiten_2]Ansicht bearbeiten
+[Ansicht_kopieren]Kopieren
+[Ansicht_kopieren_2]Ansicht kopieren
+[Ansicht_löschen]Löschen
+[Ansicht_löschen_Nachfrage]Möchten Sie die Ansicht wirklich löschen?
+[Format_ID]ID
+[Format_Name]Name
+[Format_IDundName]ID und Name
+[Leere_Ansicht]Anzuzeigende Ressourcen auswählen
+[Suche_Titel_Personal]Personal/Personalgruppen
+[Suche_Titel_Arbeitsplatz]Arbeitsplatz/Arbeitsplatzgruppe
+[Suche_Titel_FHM]Fertigungshilfsmittel
+[Suche_ID]ID
+[Suche_Type]Typ
+[Suche_Name]Name
+[Suche_Info1]Information 1
+[Suche_Info2]Information 2
+[Suche_Info3]Information 3
+[Entfernen]Entfernen
+[Alle_entfernen]Alle entfernen
+[Alle_außer_diesem_entfernen]Alle außer diesem entfernen
+[Tooltip_Prev_Week]Vorherige Woche anzeigen
+[Tooltip_Next_Week]Nächste Woche anzeigen
+[Tooltip_Print]Schichtplan in aktueller Ansicht drucken
+[Werkskalender_auswählen]Werkskalender auswählen
+[Zellformat]Zellinhalt
+[Anwesenheitszeit_anzeigen]Anwesenheitszeit anzeigen
+[Schichtmodellnummer_anzeigen]Schichtmodellnummer anzeigen
+[Sichtmodellname_anzeigen]Schichtmodellname anzeigen
+[Wochenplannummer_anzeigen]Wochenplannummer anzeigen
+[Wochenplanname_anzeigen]Wochenplanname anzeigen
+[Sonderzeiten_anzeigen]Sonderzeiten anzeigen
+[geplante_Sonderzeiten_anzeigen]Geplante Sonderzeiten anzeigen
+[Sonderzeiten]Sonderzeiten anzeigen [Leertaste]
+[Werkskalender]Globalen Kalender anzeigen
+[Text_kürzen]Zeilenhöhe verkleinern [-]
+[Text_erweitern]Zeilenhöhe vergrößern [+]
+[Goto_IstLinie]Gehe zu Ist-Linie
+[Kalenderwoche]Kalenderwoche
+
+#CDLGPROPERTYUSERMANAGEMENTUSERPERMISSIONS
+[Title]Nutzerrechte
+[Anlegen]Anlegen
+[Ausführen]Ausführen
+[Kategorie]Kategorie
+[Lesen]Lesen
+[Löschen]Löschen
+[Objekt-ID]Aktion
+[Schreiben]Schreiben
+[ID_POPUP_SWITCH_PERMISSION]Nutzerrecht vergeben bzw. entfernen [Leertaste]
+
+#CDLGPROPERTYUSERMANAGEMENTPRODUCTIONCONTROLLER
+[Title]Fertigungssteuerer
+[Note]Höchste Berechtigung für alle Fertigungssteuerer, für die keine eigene höchste Berechtigung zugeordnet ist:
+[Fertigungssteuerer]Fertigungssteuerer
+[Nutzerrecht]Höchste Berechtigung
+[GridbuttonAddNew]Neuen Fertigungssteuerer hinzufügen
+[GridbuttonAddExisting]Vorhandenen Fertigungssteuerer hinzufügen
+[ID]Nummer
+[Name]Name
+[PlantID]Werk
+[Fertigungssteuerer_wählen]Fertigungssteuerer wählen
+[Alle_löschen]Alle Einträge löschen?
+[Vererbte_nicht_löschbar]Vererbte Fertigungssteuerer-Berechtigungen können nicht gelöscht werden!
+[ID_Exists]Die Berechtigung für Fertigungssteuerer '%1' existiert bereits
+
+#CDlgPropertyUsermanagementUsertemplates
+[Title]Nutzervorlagen
+[UserTemplateName]Nutzervorlage
+[Add]Nutzervorlage hinzufügen
+
+#CDLGPLANANALYSE
+[Header]Plananalyse
+
+#VIEWARBEITSPLAN
+[Missing_userright]Die Änderung des Arbeitsplans bedarf einer Anpassung der %1.\nSie besitzen dafür nicht das nötige Nutzerrecht!\n\nSpeichern des Arbeitsplans nicht möglich.
+[Disallowed_by_metadata]Die Änderung des Arbeitsplans bedarf einer Anpassung der %1.\nAufgrund der Metadaten ist dies nicht möglich.\n\nSpeichern des Arbeitsplans nicht möglich.
+[ErrorText]Der Arbeitsplan kann nicht gespeichert werden!\n\nGrund:\n%1
+
+#VIEWSTL
+[Missing_userright]Die Änderung der Stückliste bedarf einer Anpassung der %1.\nSie besitzen dafür nicht das nötige Nutzerrecht!\n\nSpeichern der Stückliste nicht möglich.
+[Disallowed_by_metadata]Die Änderung des Stückliste bedarf einer Anpassung der %1.\nAufgrund der Metadaten ist dies nicht möglich.\n\nSpeichern der Stückliste nicht möglich.
+
+#DLGALTERNATIVERES
+[Titel]Alternative Ressouren hinzufügen
+[Header1]Alternative Ressourcen einer eigenen Ansicht hinzufügen
+[Header2]Welche Ressourcentypen sollen hinzugefügt werden?
+[Ansicht_leeren]bestehende Ressourcen entfernen
+[Ansicht_auswählen]Eigene Ansicht auswählen:
+[Res_Arbeitsplätze]Arbeitsplätze
+[Res_Personal]Personal
+[Res_FHM]Fertigungshilfsmittel
+[Tooltip]Eigene Ansicht erstellen
+
+#CDLGQUESTIONMASTERCHANGED
+[Titel]
+[IDC_HEADER]Fertigungsaufträge ändern?
+[IDC_BTN_CHANGEPO_HEADER]Ja
+[IDC_BTN_CREATEORDERRELATED_HEADER]Nein
+[Text_Routing]Der geänderte Vorlage-Arbeitsplan wird von mindestens einem freigegebenen Fertigungsauftrag verwendet.\n\nSoll die Änderung des Arbeitsplans Auswirkungen auf diese Fertigungsaufträge haben?
+[Text_Bom]Die geänderte Vorlage-Stückliste wird von mindestens einem freigegebenen Fertigungsauftrag verwendet.\n\nSoll die Änderung der Stückliste Auswirkungen auf diese Fertigungsaufträge haben?
+[IDC_BTN_CHANGEPO_TEXT]Die betroffenen Fertigungsaufträge werden an die Änderungen des/der Arbeitsplans/Stückliste angepasst.
+[IDC_BTN_CREATEORDERRELATED_TEXT]Für die betroffenen Fertigungsaufträge werden auftragsbezogene Arbeitspläne/Stücklisten erstellt.
+[Betroffene_FA]Betroffene Fertigungsaufträge
+
+#GPACTIVITYLABELMANAGER
+[Notes]Probleme/Hinweise
+[ViolationChildOrderRelation]Eingehende Auftragsbeziehung verletzt
+[ViolationParentOrderRelation]Ausgehende Auftragsbeziehung verletzt
+[ViolationPrevOperationRelation]Eingehende Vorgangsbeziehung verletzt: 
+[ViolationNextOperationRelation]Ausgehende Vorgangsbeziehung verletzt: 
+[ViolationMaterialError]Materialmangel
+[ViolationMaterialMissing]Fehlende Materialzuweisung
+[ViolationPurchaseOrder]Fehlende Lieferantenbestellung
+[ViolationEarliestStart]Frühester Start verletzt
+[Userinfo]Notiz
+[PlanDeviation]Planabweichung
+[Order]Auftrag:
+[Operation]Vorgang:
+[Start]Aktueller Start:
+[End]Aktuelles Ende:
+[LatestEnd]Spätestes Ende:
+[ChildOrder]Sekundärauftrag
+[ParentOrder]Primärauftrag
+[PrevOperation]Vorgänger-Vorgang
+[PrevOperation_MaxPuffer]MaxPuffer-Beziehung zu Vorgänger-Vorgang
+[NextOperation]Nachfolge-Vorgang
+[NextOperation_MaxPuffer]MaxPuffer-Beziehung zu Nachfolge-Vorgang
+[Material]Material:
+[PurchaseOrder]Bestellung:
+[ArrivesAt]Bereit ab:
+[EarliestStart]Frühester Start:
+[BecauseOf]aufgrund
+[LatestStart]Spätester Start:
+[EarliestEnd]Frühestes Ende:
+[StartToEarly] startet zu früh!
+[StartToLate] startet zu spät!
+[EndToEarly] endet zu früh!
+[EndToLate] endet zu spät!
+[TOOLTIP_SI_SOLLISTABWEICHUNG]Plan-Abweichung!
+[TOOLTIP_SI_SOLL]Soll
+[TOOLTIP_SI_SOLLSTART] Start: 
+[TOOLTIP_SI_SOLLENDE]  Ende: 
+[TOOLTIP_SI_IST]Ist
+[TOOLTIP_SI_ISTSTART] Start: 
+[TOOLTIP_SI_ISTENDE]  Ende: 
+[TOOLTIP_SI_ABW]Abweichung
+[TOOLTIP_SI_ABWENDE] Ende: 
+
+#GPMESSAGEBOX
+[IDYES]&Ja
+[IDNO]&Nein
+[IDOK]OK
+[IDCANCEL]Abbrechen
+[IDRETRY]Wieder&holen
+[IDIGNORE]&Ignorieren
+[IDABORT]A&bbrechen
+[IDCONTINUE]&Weiter
+[IDTRYAGAIN]Wie&derholen
+[IDINFO]Information
+
+#CGPVIEWROUTINGPAGEACTIVITYRESOURCERESERVATION
+[Title]Ressourcen-Reservierungen
+[WM_ADD_ELEMENT]Reservierung/Freigabe hinzufügen
+[action]Aktion
+[resource_type]Ressourcentyp
+[resource_id]Ressourcennummer (optional)
+[reservation_id]Reservierungsnummer (optional)
+[Header]In dieser Aktivität zu reservierende/freizugebende Ressourcen
+[ID_POPUP_ADD_RESERVATION]Reservierung/Freigabe hinzufügen
+[ID_POPUP_DEL_RESERVATION]Reservierung/Freigabe löschen
+[ID_POPUP_CHOOSE_RESOURCE]Wähle %1
+[ID_POPUP_REMOVE_RESOURCE]Entferne %1
+
+#DLGOBJECTVIEWER
+[Title]Nutzerdefinierte Eigenschaften
+[Check_ShowOnlyFilledProperties]ungefüllte Eigenschaften ausblenden
+[Subobject]Subobjekt: 
+[Category]Kategorie: 
+
+#GPPROPERTYGRIDPROPERTY
+[not_filled]nicht gefüllt
+
+#DLGUDFOVERVIEW
+[Title]Übersicht
+[Header]Nutzerdefinierte Eigenschaften
+[Label_Objecttype]Objekttyp
+[Label_Configuration]Konfiguration
+[column_udf_id]ID
+[column_name]Name
+[column_info1]Info 1
+[column_info2]Info 2
+[column_info3]Info 3
+[column_category]Kategorie
+[column_range]Wertebereich
+[column_datatype]Datentyp
+[Add_CustomProperty]Nutzerdefinierte Eigenschaft hinzufügen
+[EditMode_NoCancel]Sie befinden sich noch im Bearbeitungsmodus, daher kann der Dialog nicht geschlossen werden.
+[EmptyData]Es existieren unvollständige Einträge. ID und Datentyp müssen immer gefüllt sein.
+[ExistingID]Die nutzerdefinierten Eigenschaften können nicht übernommen werden, da die ID '%1' mehrfach vergeben ist.
+[QuestionPrefix]Die IDs der neu hinzugefügten nutzerdefinierten Eigenschaften beginnen nicht mit '%1'. Aus Kompatibilitätsgründen wird empfohlen, alle IDs mit diesem Präfix beginnen zu lassen.\n\nSoll automatisch der Präfix eingefügt werden?
+
+#DLGVISUALIZATION
+[Title_Routing]Arbeitsplan-Visualisierung
+[Title_Productionorder]Fertigungsauftrag-Visualisierung
+[Title_Net]Auftragsnetz-Visualisierung
+[Header_Routing]Arbeitsplan:
+[Header_Productionorder]Fertigungsauftrag:
+[Header_Net]Auftragsnetz:
+[Subheader]Selektiertes Objekt
+[NoObjectSelected]Kein Objekt selektiert
+[Close]Schließen
+[Tooltip_ZoomNormal]Zoom zurücksetzen
+[Tooltip_ZoomIn]Hereinzoomen
+[Tooltip_ZoomOut]Herauszoomen
+[Tooltip_Print]Drucken
+[Tooltip_Save]Als Bild oder Vektorgrafik speichern
+[Tooltip_ShowDetails]Details zum selektierten Objekt ein-/ausblenden
+[Tooltip_RotateGraph]Im Uhrzeigersinn drehen
+[Tooltip_MatRelation_Ingoing]Auswahl der anzuzeigenden eingehenden Materialbeziehungen
+[Tooltip_MatRelation_Outgoing]Auswahl der anzuzeigenden ausgehenden Materialbeziehungen
+[Tooltip_Ingoing_BomItems]Eingehende Stücklistenpositionen ein-/ausblenden
+[Tooltip_PrevObject]Rückwärts navigieren
+[Tooltip_NextObject]Vorwärts navigieren
+[Tooltip_NetShowProductionorder]Fertigungsaufträge anzeigen
+[Tooltip_NetShowPurchaseorder]Bestellungen anzeigen
+[Tooltip_NetShowStock]Lagerentnahmen anzeigen
+[Tooltip_NetShowSalesorder]Kundenbedarfe anzeigen
+[Tooltip_NetShowJobs]Jobverknüpfungen anzeigen
+[MatRelation_Ingoing_Stock]Lagerentnahmen
+[MatRelation_Ingoing_Purchaseorder]Bestelleingänge
+[MatRelation_Ingoing_ChildPO]Fertigungsaufträge
+[MatRelation_Outgoing_Salesorder]Bedarfe
+[MatRelation_Outgoing_ParentPO]Fertigungsaufträge
+[NoInfoAvailable]Keine Informationen verfügbar
+[Contextmenu_ShowProductionorder]Zeige Auftrag auf Vorgangsebene
+[Contextmenu_ShowNet]Zeige Auftragsnetz
+[Contextmenu_ShowRouting]Zeige Arbeitsplan
+[Contextmenu_Net_ShowIngoing]Untergeordnet
+[Contextmenu_Net_ShowOutgoing]Übergeordnet
+[Contextmenu_Net_ShowLinked]Verknüpft
+[Contextmenu_Net_Level_All]Unbegrenzt
+[Contextmenu_Net_Details]Detaillevel
+[Contextmenu_Operation_ShowIngoing]Untergeordnet
+[Contextmenu_Operation_ShowOutgoing]Übergeordnet
+[Message_Waiting]Der Graph wird erstellt. Dieser Vorgang kann je nach Datenmodell und getätigten Einstellungen eine Weile dauern. Bitte haben Sie einen Augenblick Geduld...
+[BOM]Stückliste
+[Keine]Keine
+
+#GRAPHPROCESSOR
+[Productionorder]Fertigungsauftrag
+[Stock]Lagerentnahme
+[Purchaseorder]Bestellung
+[Salesorder]Bedarf
+[Job Parallel]Job Parallel
+[Job Sequential]Job Sequentiell
+
+#DOCKORDERDLG
+[Direction_PrimaryToSecondary]Primär → Sekundär
+[Direction_SecondaryToPrimary]Sekundär → Primär
+[List]Liste
+[Hierarchy]Hierarchie
+[Filter_State]Filter Fertigungsauftrag-Status
+[ColumnSelection]Spaltenauswahl
+[ColumnSelection_Header]Anzuzeigende Spalten auswählen
+[RestoreSettings]Standardeinstellungen wiederherstellen
+[RestoreSettingsQuestion]Möchten Sie die Standardeinstellungen wiederherstellen? Alle Spalten und Einstellungen werden zurückgesetzt.
+[EmptyGroup]Spalte zum Gruppieren per Drag&Drop hineinziehen
+[EmptyGrid]Keine Elemente vorhanden
+[Tooltip_Middle]Automatisch einplanen
+[Tooltip_Deallocate]Ausplanen
+[Tooltip_Settings]Einstellungen
+[Tooltip_Early]Früh einplanen
+[Tooltip_EarlyFrom]Früh einplanen ab Zeitpunkt 
+[Tooltip_Late]Spät einplanen
+[Tooltip_Reload]Aufträge nachladen
+[Tooltip_PlanAnalysis]Auftrag analysieren
+[Tooltip_ShowIncomplete]Nur ungeplante Aufträge anzeigen
+[Tooltip_CreateLot]Auftragslos erstellen
+[Tooltip_ReleaseLot]Auftragslos auflösen
+[ChooseDateTime_Title]Zeitpunkt auswählen
+[ChooseDateTimeEarly_Info]Zeitpunkt auswählen, ab dem der Auftrag so früh wie möglich eingeplant werden soll.
+[ChooseDateTimeLate_Info]Zeitpunkt auswählen, bis zu welchem der Auftrag spätestens fertiggestellt werden soll.
+
+#DLGTOOLTIPREPORT
+[Title]Leitstands-Tooltips
+[Header]Konfiguration Leitstands-Tooltips
+[DatenTyp]Typ
+[ReportTyp]Auswahl
+[Benutzergebunden]Für alle Nutzer festlegen
+[Standard]Tooltip (standard)
+[BuiltIn]Standardreport
+[UserDefined]Eigener Report
+[Description]Mit diesem Dialog kann die Anzeige von Tooltips im Leitstand konfiguriert werden.\nAnstelle des Standard-Tooltips kann ein Report ausgewählt werden. Im Report wird über dessen Spalten festgelegt, welche Eigenschaften der Tooltip anzeigt. Der Report muss den entsprechenden Objekttyp zur Auswahl anbieten. Die Farbfilter der Reports werden auch im Tooltip beachtet.
+
+#GPUSERINTERFACE
+[ProductioncontrollerNotePlural]• Die Fertigungssteuerer [%1] werden aktuell von '%2' (%3) verwendet
+[ProductioncontrollerNoteSingular]• Der Fertigungssteuerer '%1' wird aktuell von '%2' (%3) verwendet
+
+#DLGPRODUCTIONCONTROLLERINUSE
+[IDC_HEADER]Fertigungssteuerer bereits verwendet
+[ProductioncontrollerQuestionReducePermissions]Zur Planung ausgewählte Fertigungssteuerer werden bereits verwendet.\n\nMöchten Sie:
+[IDC_IGNORE_HEADER]Fertigungssteuerer trotzdem planen
+[IDC_IGNORE_TEXT]Die verwendeten Fertigungssteuerer werden trotzdem zur Planung ausgewählt. Das Planungsergebnis steht in Konflikt und sollte nicht ohne Absprache übernommen werden.
+[IDC_REDUCE_HEADER]Fertigungssteuerer nicht planen (empfohlen)
+[IDC_REDUCE_TEXT]Die verwendeten Fertigungssteuerer werden nicht zur Planung ausgewählt. Betroffene Fertigungsaufträge bleiben unverändert.
+
+#WIZARDCONTROLLER
+[Prev]< Zurück
+[Next]Weiter >
+[Finish]Fertig stellen
+[Cancel]Abbrechen
+[Help]Hilfe
+
+#RESOURCEPICTURE
+[SelectImg]Bild auswählen
+[RemoveImg]Bild entfernen
+
+#DLGASKCHANGEDEFAULTADMINPASSWORD
+[Title]Sicherheitshinweis
+[Header]Standard-Passwort für Nutzer '%1' ändern
+[Text]Aus Sicherheitsgründen wird empfohlen, das Standard-Passwort zu ändern.
+[ChangeNow]Jetzt ändern
+[Ignore]Nicht jetzt
+[DontAskMeAgain]Diesen Dialog nicht mehr anzeigen
+
+#DLGGANTTMANUALSPLIT
+[Title]Gleichmäßig splitten
+[Header]Splitten von '%1'
+[Label]Anzahl Split-Vorgänge:
+
+#DLGGANTTMANUALSPLITFA
+[Title]Auftragslos erstellen
+[Header]Auftragslos des Auftrags '%1' erstellen 
+[IDC_CHECK_CREATEJOBLOT]Über Job verknüpfte Aufträge einbeziehen
+[IDC_ST_TEXT]Bruttomenge des Auftragsloses:
+[IDC_STATIC_TOTALQUANTITY]von %1 %2
+[IDC_STATIC_REMAINING]Im Auftrag verbleibende Bruttomenge:
+[IDC_STATIC_FA]Neue Fertigungsauftragsnummer:
+[IDC_STATIC_FA_JOB]Suffix für Fertigungsauftragsnummern und Job-IDs:
+[PIPE_NOT_ALLOWED]Das Zeichen '|' ist nicht erlaubt in einer Fertigungsauftragsnummer.
+[PIPE_NOT_ALLOWED_JOB]Das Zeichen '|' ist nicht erlaubt im Suffix für Fertigungsauftragsnummern und Job-IDs.
+[EMPTY_NOT_ALLOWED]Leere Fertigungsauftragsnummer ist nicht erlaubt.
+[EMPTY_NOT_ALLOWED_JOB]Leeres Suffix für Fertigungsauftragsnummern und Job-IDs ist nicht erlaubt.
+[Hinweise]Hinweise
+[QUESTION_RELEASE_JOBLOT]Auftragslos auflösen:\n\nSollen über Jobs verknüpfte Auftragslose ebenfalls aufgelöst werden?\nDies betrifft die Auftragslose: %1.\n\nJa: Alle verknüpften Auftragslose werden aufgelöst.\nNein: Nur dieses Auftragslos wird aufgelöst und aus allen Jobs entfernt.\nAbbrechen: Das Auftragslos wird nicht aufgelöst.
+
+#DLGPROPERTYFHMKOSTEN
+[Title]Kosten
+[CostRateProcessing]Stundensatz Bearbeitung:
+[CostRateSetup]Stundensatz Rüsten:
+
+#DLGOPTIMIZATIONGROUPSEQUENCE
+[Optimierungsgruppen_auswaehlen]Optimierungsgruppe auswählen
+[IDC_ST_HEADER]Rüstsequenz festlegen
+[IDC_STATIC_DESCRIPTION]Mithilfe einer Rüstsequenz wird die gewünschte Abfolge von Optimierungsgruppen auf dem Arbeitsplatz festgelegt. Die Angabe der Rüstsequenz erfolgt durch Anordnung der Optimierungsgruppen. Der Wert Schrittkosten bestimmt die Rüstkosten pro Übergang zur nächsten Position der Rüstsequenz.
+[IDC_STATIC_COMMENT]Kommentar:
+[IDC_STATIC_SEQUENCECOST]Schrittkosten:
+[IDC_BUTTON_COPYFROM]Kopieren von...
+[IDOK]OK
+[IDCANCEL]Abbrechen
+[->]→
+[GRIDCOLUMN_Position]Position
+[GRIDCOLUMN_Nummer]Nummer
+[GRIDCOLUMN_Name]Bezeichnung
+[GRIDCOLUMN_Reihenfolge]Reihenfolge
+[GRIDCOLUMN_Kosten]Kosten
+[GRIDCOLUMN_Kommentar]Kommentar
+[Arbeitsplatz_auswählen]Arbeitsplatz auswählen
+[Abfrage_überschreiben]Möchten Sie die aktuelle Reihenfolge überschreiben?
+
+#DLGPRODUCTMIX
+[Optimierungsgruppen_auswaehlen]Optimierungsgruppe auswählen
+[IDC_ST_HEADER]Produktmix
+[IDC_STATIC_DESCRIPTION]Der Produktmix beschreibt eine durchmischte Fertigung von Produkten verschiedener Optimierungsgruppen auf dem Arbeitsplatz. Dazu werden aus geeigneten Aufträgen durch Splitten und Zusammenfassen Blöcke der vorgegebenen Größen gebildet, die möglichst in der angegebenen Abfolge eingeplant werden.
+[IDC_STATIC_COMMENT]Kommentar:
+[IDC_BUTTON_COPYFROM]Kopieren von...
+[->]→
+[GRIDCOLUMN_Position]Position
+[GRIDCOLUMN_Id]Nummer
+[GRIDCOLUMN_Name]Bezeichnung
+[GRIDCOLUMN_Min]Min.
+[GRIDCOLUMN_Max]Max.
+[GRIDCOLUMN_Opt]Opt.
+[GRIDCOLUMN_Reihenfolge]Produktmix
+[GRIDCOLUMN_Kommentar]Kommentar
+[Arbeitsplatz_auswählen]Arbeitsplatz auswählen
+[Abfrage_überschreiben]Möchten Sie die aktuelle Reihenfolge überschreiben?
+
+#CONNECTIONISSUEBAR
+[ConnectionLost]Verbindung zum Server verloren. Versuche neu zu verbinden...
+[ConnectionRestored]Verbindung wiederhergestellt

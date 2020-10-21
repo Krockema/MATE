@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Master40.DB.Data.Context;
+﻿using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
 
 namespace Master40.DataGenerator.SampleData1

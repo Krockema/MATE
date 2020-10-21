@@ -10,6 +10,7 @@ using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Actor;
 using NLog;
 using static FAgentInformations;
 using static FArticleProviders;
@@ -88,7 +89,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                                                , productionRef: Agent.Context.Self
                                                        ,amount: 1);
 
-            Agent.Send(instruction: Storage.Instruction.ResponseFromProduction.Create(message: productionResponse, target: _articleToProduce.StorageAgent));
+            Agent.Send(instruction: Storage.Instruction.Default.ResponseFromProduction.Create(message: productionResponse, target: _articleToProduce.StorageAgent));
 
             if (_articleToProduce.IsHeadDemand)
             {
@@ -244,7 +245,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             var resourceCapabilities = operations.Select(selector: x => x.ResourceCapability.Name).Distinct().ToList();
             foreach (var resourceCapabilityName in resourceCapabilities)
             {
-                agent.Send(instruction: Directory.Instruction
+                agent.Send(instruction: Directory.Instruction.Default
                     .RequestAgent
                     .Create(discriminator: resourceCapabilityName
                         , target: agent.ActorPaths.HubDirectory.Ref));
@@ -277,17 +278,13 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                 lastDue = fJob.BackwardStart - operation.AverageTransitionDuration;
                 OperationManager.AddOperation(fJob);
 
+                System.Diagnostics.Debug.WriteLine($"CREATE OPERATION WITH DURATION {operation.Duration}");
                 // send update to collector
-                var pub = new FCreateSimulationJob(job: fJob
-                    , jobType: JobType.OPERATION
-                    , customerOrderId: fArticle.CustomerOrderId.ToString()
-                    , isHeadDemand: fArticle.IsHeadDemand
-                    , fArticleKey : fArticle.Key
-                    , fArticleName: fArticle.Article.Name
-                    , productionAgent: this.Agent.Name
-                    , articleType: fArticle.Article.ArticleType.Name
-                    , start: fJob.Start
-                    , end: fJob.End);
+                var pub = MessageFactory.ToSimulationJob(fJob
+                        , jobType: JobType.OPERATION
+                        , fArticle: fArticle
+                        , productionAgent: this.Agent.Name
+                    );
                 Agent.Context.System.EventStream.Publish(@event: pub);
             }
 
@@ -352,6 +349,16 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             OperationManager.UpdateOperations(operations: operationList);
             Agent.Send(instruction: BasicInstruction.JobForwardEnd.Create(message: earliestStart,
                 target: Agent.VirtualParent));
+        }
+
+        public override void OnChildAdd(IActorRef childRef)
+        {
+            var articleToRequest = OperationManager.Set(provider: childRef);
+            Agent.Send(instruction: Dispo.Instruction.RequestArticle.Create(message: articleToRequest, target: childRef));
+            Agent.DebugMessage(
+                msg: $"Dispo child Agent for {articleToRequest.Article.Name} added " +
+                     $"(Key: {articleToRequest.Key}, OrderId: {articleToRequest.CustomerOrderId})"
+                , CustomLogger.DISPOPRODRELATION, LogLevel.Debug);
         }
     }
 }

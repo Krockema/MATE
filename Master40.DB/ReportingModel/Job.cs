@@ -33,7 +33,8 @@ namespace Master40.DB.ReportingModel
         public string FArticleKey { get; set; }
         [NotMapped]
         public string ArticleType { get; set; }
-
+        [NotMapped]
+        public string Mapping { get => CapabilityName; }
 
     }
 }

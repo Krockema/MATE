@@ -1,17 +1,21 @@
 ﻿using Akka.Actor;
 using Master40.DB.DataModel;
+using Master40.DB.Nominal;
 using Master40.FunctionConverter;
 using Master40.SimulationCore.Types;
 using Microsoft.FSharp.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using Master40.DB.Data.Helper;
+using Master40.DB.GanttPlanModel;
 using static FArticles;
 using static FBuckets;
+using static FCreateSimulationJobs;
 using static FOperations;
 using static FStartConditions;
 using static FStockProviders;
+using static FUpdateSimulationJobs;
 using static IJobs;
 
 namespace Master40.SimulationCore.Helper
@@ -160,6 +164,55 @@ namespace Master40.SimulationCore.Helper
             );
             return article.CreateProductionKeys.SetPrimaryKey;
         }
+
+        public static FCreateSimulationJob ToSimulationJob(this FOperation fOperation, string jobType, FArticle fArticle, string productionAgent)
+        {
+            var simulationJob = new FCreateSimulationJob(
+                key: fOperation.Key.ToString()
+                , dueTime: fOperation.DueTime
+                , articleName: fOperation.Operation.Article.Name
+                , operationName: fOperation.Operation.Name
+                , operationHierarchyNumber: fOperation.Operation.HierarchyNumber
+                , operationDuration: fOperation.Operation.Duration
+                , requiredCapabilityName: fOperation.Operation.ResourceCapability.Name
+                , jobType: jobType.ToString()
+                , customerOrderId: fArticle.CustomerOrderId.ToString()
+                , isHeadDemand: fArticle.IsHeadDemand
+                , fArticleKey: fArticle.Key
+                , fArticleName: fArticle.Article.Name
+                , productionAgent: productionAgent
+                , articleType: fArticle.Article.ArticleType.Name
+                , start: fOperation.Start
+                , end: fOperation.End
+            );
+
+            return simulationJob;
+        }
+
+        public static FCreateSimulationJob ToSimulationJob(this GptblProductionorderOperationActivity activity, long start, long duration, string requiredCapabilityName)
+        {
+            var simulationJob = new FCreateSimulationJob(
+                key: activity.GetKey
+                , dueTime: activity.InfoDateLatestEndMaterial.Value.ToSimulationTime()
+                , articleName: activity.Productionorder.MaterialId
+                , operationName: activity.Name
+                , operationHierarchyNumber: Int32.Parse(activity.OperationId)
+                , operationDuration: duration
+                , requiredCapabilityName: requiredCapabilityName
+                , jobType: activity.ActivityId.Equals(2) ? JobType.SETUP : JobType.OPERATION
+                , customerOrderId: string.Empty
+                , isHeadDemand: false
+                , fArticleKey: Guid.Empty
+                , fArticleName: string.Empty
+                , productionAgent: string.Empty
+                , articleType: string.Empty
+                , start: start
+                , end: start + duration
+            );
+
+            return simulationJob;
+        }
+
     }
 
 

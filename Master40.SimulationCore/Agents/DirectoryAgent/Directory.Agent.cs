@@ -15,9 +15,5 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent
         {
 
         }
-        protected override void OnChildAdd(IActorRef childRef)
-        {
-
-        }
     }
 }

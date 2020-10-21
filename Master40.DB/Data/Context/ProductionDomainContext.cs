@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Master40.DB.Data.Helper;
 
 namespace Master40.DB.Data.Context
 {
@@ -17,6 +18,12 @@ namespace Master40.DB.Data.Context
             return new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
                 .UseSqlServer(connectionString: connectionString)
                 .Options);
+        }
+
+        public void ClearCustomerOrders()
+        {
+            this.Database.ExecuteSqlRaw("Delete from T_CustomerOrderPart");
+            this.Database.ExecuteSqlRaw("Delete from T_CustomerOrder");
         }
 
         public T_CustomerOrder OrderById(int id)
@@ -74,17 +81,19 @@ namespace Master40.DB.Data.Context
 
         /// <summary>
         /// To Try with DB Context
+        /// FOR THE GANTTPLAN!!!111
         /// </summary>
         /// <param name="articleId"></param>
         /// <param name="amount"></param>
         /// <param name="creationTime"></param>
         /// <param name="dueTime"></param>
         /// <returns></returns>
-        public T_CustomerOrder CreateNewOrder(int articleId, int amount, long creationTime, long dueTime)
+        public T_CustomerOrder CreateNewOrder(int orderid, int orderpartid, int articleId, int amount, long creationTime, long dueTime)
         {
             var olist = new List<T_CustomerOrderPart>();
             olist.Add(item: new T_CustomerOrderPart
             {
+                Id = orderpartid,
                 ArticleId = articleId,
                 IsPlanned = false,
                 Quantity = amount,
@@ -93,6 +102,7 @@ namespace Master40.DB.Data.Context
             var bp = BusinessPartners.First(predicate: x => x.Debitor);
             var order = new T_CustomerOrder()
             {
+                Id = orderid,
                 BusinessPartnerId = bp.Id,
                 DueTime = (int)dueTime,
                 CreationTime = (int)creationTime,
@@ -101,6 +111,30 @@ namespace Master40.DB.Data.Context
             };
 
             this.CustomerOrders.Add(entity: order);
+            return order;
+        }
+
+        public T_CustomerOrder CreateNewOrder(int articleId, int amount, long creationTime, long dueTime)
+        {
+            var olist = new List<T_CustomerOrderPart>();
+            var orderPart = new T_CustomerOrderPart
+            {
+                ArticleId = articleId,
+                IsPlanned = false,
+                Quantity = amount,
+            };
+            olist.Add(item: orderPart);
+
+            var bp = BusinessPartners.First(predicate: x => x.Debitor);
+            var order = new T_CustomerOrder()
+            {
+                BusinessPartnerId = bp.Id,
+                DueTime = (int)dueTime,
+                CreationTime = (int)creationTime,
+                DueDateTime = dueTime.ToDateTime(),
+                Name = Articles.Single(predicate: x => x.Id == articleId).Name,
+                CustomerOrderParts = olist
+            };
             return order;
         }
 

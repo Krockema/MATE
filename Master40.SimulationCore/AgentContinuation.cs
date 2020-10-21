@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Akka.Actor;
 using AkkaSim;
 using AkkaSim.Logging;
+using Master40.Tools.Connectoren.Ganttplan;
 using NLog;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
@@ -43,6 +44,7 @@ namespace Master40.SimulationCore
                         
             }
             Task.WaitAll(tasks.ToArray());
+            
         }
 
         public override void SimulationIsTerminating(Simulation sim)
