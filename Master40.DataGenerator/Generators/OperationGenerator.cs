@@ -37,14 +37,25 @@ namespace Master40.DataGenerator.Generators
                     var lastOperationReached = false;
                     var operationCount = 0;
                     var correction = inputTransitionMatrix.ExtendedTransitionMatrix ? 1 : 0;
+
+
+                   
+
                     do
                     {
+                        int duration;
+                        do
+                        {
+                            duration = _machiningTimeDistributions[currentWorkingMachine].Sample();
+                        } while (duration == 0);
+                        
+
                         hierarchyNumber += 10;
                         var operation = new M_Operation
                         {
                             ArticleId = article.Article.Id,
                             Name = "Operation " + (operationCount + 1) +  " for [" + article.Article.Name + "]",
-                            Duration = _machiningTimeDistributions[currentWorkingMachine].Sample(),
+                            Duration = duration,
                             ResourceCapabilityId = tools[currentWorkingMachine].GetNext().Id,
                             HierarchyNumber = hierarchyNumber
                         };
