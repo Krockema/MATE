@@ -27,6 +27,7 @@ namespace Master40.DB.Data.Context
         public DbSet<SimulationOrder> SimulationOrders { get; set; }
         public DbSet<Kpi> Kpis { get; set; }
         public DbSet<StockExchange> StockExchanges { get; set; }
+        public DbSet<SimulationConfig> SimulationConfigs { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -45,6 +46,8 @@ namespace Master40.DB.Data.Context
                 .WithMany(navigationExpression: p => p.ChildItems)
                 .HasForeignKey(foreignKeyExpression: pt => pt.ChildItemId)
                 .OnDelete(deleteBehavior: DeleteBehavior.Restrict);
+            modelBuilder.Entity<SimulationConfig>()
+                .ToTable("SimulationConfig");
         }
     }
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper.Types;
 using Master40.DB.Data.Initializer.Tables;

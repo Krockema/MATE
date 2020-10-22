@@ -1,4 +1,5 @@
-﻿using Akka.TestKit.Xunit;
+﻿using System;
+using Akka.TestKit.Xunit;
 using AkkaSim.Logging;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;

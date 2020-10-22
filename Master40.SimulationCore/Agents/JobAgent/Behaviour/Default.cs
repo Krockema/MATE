@@ -186,6 +186,11 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
         private void BucketIsFixed()
         {
+            if (_resourceDistinctResourceStates.Values.All(x => x.CurrentState <= JobState.RevokeStarted))
+            {
+                Agent.DebugMessage($"Bucket Is Fixed canceled", CustomLogger.JOBSTATE, LogLevel.Warn);
+                return;
+            }
             Agent.DebugMessage($"{_jobConfirmation.Job.Name} has been set fix", CustomLogger.JOB, LogLevel.Warn);
             _resourceSetupStates.ForEach(x =>
             {
