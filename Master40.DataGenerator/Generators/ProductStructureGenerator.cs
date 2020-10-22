@@ -5,6 +5,7 @@ using Master40.DataGenerator.DataModel.ProductStructure;
 using Master40.DataGenerator.Util;
 using Master40.DB.Data.Initializer.Tables;
 using Master40.DB.DataModel;
+using Master40.DB.GeneratorModel;
 using MathNet.Numerics.Distributions;
 
 namespace Master40.DataGenerator.Generators
@@ -12,15 +13,14 @@ namespace Master40.DataGenerator.Generators
     public class ProductStructureGenerator
     {
         // Wie könnte man Testen, ob der Algorithmus dem aus SYMTEP enspricht (keine Fehler enthält)
-        public ProductStructure GenerateProductStructure(InputParameterSet inputParameters,
+        public ProductStructure GenerateProductStructure(ProductStructureInput inputParameters,
             MasterTableArticleType articleTypes, MasterTableUnit units, M_Unit[] unitCol, XRandom rng)
         {
             var productStructure = new ProductStructure();
             var availableNodes = new List<HashSet<long>>();
-            var nodesCounter = GenerateParts(inputParameters, productStructure, availableNodes,
-                articleTypes, units, unitCol, rng);
+            GenerateParts(inputParameters, productStructure, availableNodes, articleTypes, units, unitCol, rng);
 
-            GenerateEdges(inputParameters, productStructure, rng, availableNodes, nodesCounter);
+            GenerateEdges(inputParameters, productStructure, rng, availableNodes);
 
             DeterminationOfEdgeWeights(inputParameters, productStructure, rng);
 
@@ -68,30 +68,27 @@ namespace Master40.DataGenerator.Generators
             return pk;
         }
 
-        private long GenerateParts(InputParameterSet inputParameters, ProductStructure productStructure,
+        private void GenerateParts(ProductStructureInput inputParameters, ProductStructure productStructure,
             List<HashSet<long>> availableNodes, MasterTableArticleType articleTypes, MasterTableUnit units,
             M_Unit[] unitCol, XRandom rng)
         {
-            long nodesCounter = 0;
-            bool sampleWorkPlanLength = !double.IsNaN(inputParameters.MeanWorkPlanLength) &&
-                                        !double.IsNaN(inputParameters.VarianceWorkPlanLength);
+            bool sampleWorkPlanLength = inputParameters.MeanWorkPlanLength != null &&
+                                        inputParameters.VarianceWorkPlanLength != null;
             TruncatedDiscreteNormal truncatedDiscreteNormalDistribution = null;
             if (sampleWorkPlanLength)
             {
                 truncatedDiscreteNormalDistribution = new TruncatedDiscreteNormal(1, null,
-                    Normal.WithMeanVariance(inputParameters.MeanWorkPlanLength,
-                        inputParameters.VarianceWorkPlanLength, rng.GetRng()));
+                    Normal.WithMeanVariance((double) inputParameters.MeanWorkPlanLength,
+                        (double) inputParameters.VarianceWorkPlanLength, rng.GetRng()));
             }
             for (var i = 1; i <= inputParameters.DepthOfAssembly; i++)
             {
-                nodesCounter += GeneratePartsForEachLevel(inputParameters, productStructure, availableNodes,
+                productStructure.NodesCounter += GeneratePartsForEachLevel(inputParameters, productStructure, availableNodes,
                     articleTypes, units, unitCol, rng, i, sampleWorkPlanLength, truncatedDiscreteNormalDistribution);
             }
-
-            return nodesCounter;
         }
 
-        private static long GeneratePartsForEachLevel(InputParameterSet inputParameters,
+        private static long GeneratePartsForEachLevel(ProductStructureInput inputParameters,
             ProductStructure productStructure, List<HashSet<long>> availableNodes, MasterTableArticleType articleTypes,
             MasterTableUnit units, M_Unit[] unitCol, XRandom rng, int i, bool sampleWorkPlanLength,
             TruncatedDiscreteNormal truncatedDiscreteNormalDistribution)
@@ -141,7 +138,7 @@ namespace Master40.DataGenerator.Generators
             return nodeCount;
         }
 
-        private static M_Unit GeneratePartsForCurrentLevel(InputParameterSet inputParameters, M_Unit[] unitCol,
+        private static M_Unit GeneratePartsForCurrentLevel(ProductStructureInput inputParameters, M_Unit[] unitCol,
             XRandom rng, int i, bool sampleWorkPlanLength, TruncatedDiscreteNormal truncatedDiscreteNormalDistribution,
             HashSet<long> availableNodesOnThisLevel, long j, M_Unit unit, M_ArticleType articleType, bool toPurchase,
             bool toBuild, Dictionary<long, Node> nodesCurrentLevel)
@@ -178,14 +175,14 @@ namespace Master40.DataGenerator.Generators
             return unit;
         }
 
-        private void GenerateEdges(InputParameterSet inputParameters, ProductStructure productStructure, XRandom rng,
-            List<HashSet<long>> availableNodes, long nodesCounter)
+        private void GenerateEdges(ProductStructureInput inputParameters, ProductStructure productStructure, XRandom rng,
+            List<HashSet<long>> availableNodes)
         {
             var nodesOfLastAssemblyLevelCounter =
                 productStructure.NodesPerLevel[inputParameters.DepthOfAssembly - 1].LongCount();
             var edgeCount = Convert.ToInt64(Math.Round(Math.Max(
-                inputParameters.ReutilisationRatio * (nodesCounter - inputParameters.EndProductCount),
-                inputParameters.ComplexityRatio * (nodesCounter - nodesOfLastAssemblyLevelCounter))));
+                inputParameters.ReutilisationRatio * (productStructure.NodesCounter - inputParameters.EndProductCount),
+                inputParameters.ComplexityRatio * (productStructure.NodesCounter - nodesOfLastAssemblyLevelCounter))));
             var pkPerI = GetSetOfCumulatedProbabilitiesPk1(inputParameters.DepthOfAssembly);
             if (inputParameters.ReutilisationRatio < inputParameters.ComplexityRatio)
             {
@@ -197,10 +194,10 @@ namespace Master40.DataGenerator.Generators
             }
 
             //scheinbar können hierbei Multikanten entstehen. ist das in Erzeugnisstruktur erlaubt? -> stellt kein Problem dar
-            GenerateSecondSetOfEdges(inputParameters, productStructure, rng, nodesCounter, edgeCount, pkPerI);
+            GenerateSecondSetOfEdges(inputParameters, productStructure, rng, edgeCount, pkPerI);
         }
 
-        private void GenerateFirstSetOfEdgesForConvergingMaterialFlow(InputParameterSet inputParameters, XRandom rng,
+        private void GenerateFirstSetOfEdgesForConvergingMaterialFlow(ProductStructureInput inputParameters, XRandom rng,
             Dictionary<int, List<KeyValuePair<int, double>>> pkPerI, List<HashSet<long>> availableNodes,
             ProductStructure productStructure)
         {
@@ -252,7 +249,7 @@ namespace Master40.DataGenerator.Generators
             }
         }
 
-        private void GenerateFirstSetOfEdgesForDivergingMaterialFlow(InputParameterSet inputParameters,
+        private void GenerateFirstSetOfEdgesForDivergingMaterialFlow(ProductStructureInput inputParameters,
             ProductStructure productStructure, XRandom rng, List<HashSet<long>> availableNodes)
         {
             for (var i = inputParameters.DepthOfAssembly; i >= 2; i--)
@@ -304,10 +301,10 @@ namespace Master40.DataGenerator.Generators
             }
         }
 
-        private static void GenerateSecondSetOfEdges(InputParameterSet inputParameters, ProductStructure productStructure,
-            XRandom rng, long nodesCounter, long edgeCount, Dictionary<int, List<KeyValuePair<int, double>>> pkPerI)
+        private static void GenerateSecondSetOfEdges(ProductStructureInput inputParameters, ProductStructure productStructure,
+            XRandom rng, long edgeCount, Dictionary<int, List<KeyValuePair<int, double>>> pkPerI)
         {
-            var possibleStartNodes = nodesCounter - inputParameters.EndProductCount;
+            var possibleStartNodes = productStructure.NodesCounter - inputParameters.EndProductCount;
             for (var j = productStructure.Edges.LongCount() + 1; j <= edgeCount; j++)
             {
                 var startNodePos = rng.NextLong(possibleStartNodes) + 1;
@@ -349,7 +346,7 @@ namespace Master40.DataGenerator.Generators
             }
         }
 
-        private static void DeterminationOfEdgeWeights(InputParameterSet inputParameters, ProductStructure productStructure, XRandom rng)
+        private static void DeterminationOfEdgeWeights(ProductStructureInput inputParameters, ProductStructure productStructure, XRandom rng)
         {
             var logNormalDistribution = LogNormal.WithMeanVariance(inputParameters.MeanIncomingMaterialAmount,
                 Math.Pow(inputParameters.StdDevIncomingMaterialAmount, 2), rng.GetRng());
