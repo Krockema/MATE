@@ -150,7 +150,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             var queuingScopes = GetScopesFor(requiredTimeForJob: requiredDuration, 
                                                 jobProposal.Job, 
                                                 //jobProposal.CapabilityId,
-                                                resourceCapabilityProvider.Id,
+                                                resourceCapabilityProvider.ResourceCapabilityId,
                                                 usedForSetupAndProcess, 
                                                 currentTime, 
                                                 resourceBlockedUntil, 

@@ -10,7 +10,6 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         public CapabilityProviderInUse()
         {
             ResourceCapabilityProvider = null;
-            SetupPhase = false;
         }
         /// <summary>
         /// Start the SetupPhase with the tool and make a flag for currently in setupPhase
@@ -19,15 +18,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types
         /// <returns></returns>
         public bool Mount(M_ResourceCapabilityProvider resourceCapabilityProvider)
         {
-            if (SetupPhase != false) return false;
             ResourceCapabilityProvider = resourceCapabilityProvider;
             return true;
-        }
-
-        public int SetupId()
-        {
-            if (ResourceCapabilityProvider == null) return -1;
-            return ResourceCapabilityProvider.Id;
         }
     }
 }
