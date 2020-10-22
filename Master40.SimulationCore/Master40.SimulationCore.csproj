@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>8.0</LangVersion>
-	  <Platforms>AnyCPU;x64</Platforms>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />
@@ -11,7 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="AkkaSim" Version="0.5.2" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="3.7.0" />
   </ItemGroup>
 
   <ItemGroup>
