@@ -8,5 +8,6 @@
         <field name="time_buffer_salesorder" datatype="INT" value="0"/>
         <field name="scheduling_status_ontime" datatype="INT" value="0" />
         <field name="allow_overlap_activity_type_setup" datatype="INT" value="1" />
+        <field name="capacity_period_past" datatype="INT" value="0"/>
     </object>
 </objects>
