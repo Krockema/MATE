@@ -186,11 +186,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
         private void BucketIsFixed()
         {
-            if (_resourceDistinctResourceStates.Values.All(x => x.CurrentState <= JobState.RevokeStarted))
-            {
-                Agent.DebugMessage($"Bucket Is Fixed canceled", CustomLogger.JOBSTATE, LogLevel.Warn);
-                return;
-            }
+            
             Agent.DebugMessage($"{_jobConfirmation.Job.Name} has been set fix", CustomLogger.JOB, LogLevel.Warn);
             _resourceSetupStates.ForEach(x =>
             {
@@ -244,6 +240,12 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
         private void RequestSetupStart(IActorRef sender)
         {
+            if (_resourceSetupStates.Values.All(x => x.CurrentState <= JobState.RevokeStarted))
+            {
+                Agent.DebugMessage($"RequestSetupStart canceled", CustomLogger.JOBSTATE, LogLevel.Warn);
+                return;
+            }
+
             var requestingResource = _resourceSetupStates.Single(x => x.Key.Equals(sender));
             requestingResource.Value.CurrentState = JobState.SetupReady;
             Agent.DebugMessage($"RequestSetupStart: Change _resourceSetupStates for {requestingResource.Key.Path.Name} to {requestingResource.Value.CurrentState}", CustomLogger.JOBSTATE, LogLevel.Warn);
@@ -307,6 +309,12 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         /// </summary>
         private void RequestProcessingStart(IActorRef sender)
         {
+            if (_resourceProcessingStates.Values.All(x => x.CurrentState <= JobState.RevokeStarted))
+            {
+                Agent.DebugMessage($"RequestProcessingStart cancled", CustomLogger.JOBSTATE, LogLevel.Warn);
+                return;
+            }
+
             //TODO trigger with JobState ?! --> parameter JobState entscheidet darüber, für welche Phasen angefragt werden soll? -- Konsistenz? 
             var (key, value) = _resourceProcessingStates.SingleOrDefault(x => x.Key.Equals(sender));
             if(value == null) return;
