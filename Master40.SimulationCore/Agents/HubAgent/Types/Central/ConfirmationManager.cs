@@ -76,7 +76,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             confirmation.QuantityFinishedUnitId = "%";
             confirmation.LastModified = currentTime.ToNullableDateTime();
 
-            _confirmations.Add(confirmation);
+          _confirmations.Add(confirmation);
         }
 
         public void AddResourceConfirmation(GptblProductionorderOperationActivityResource resource, string confirmationId)

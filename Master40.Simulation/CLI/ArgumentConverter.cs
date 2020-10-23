@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Master40.DB.Data.Context;
+using Master40.DB.ReportingModel;
+using Master40.SimulationCore.Environment;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Akka.Util.Internal;
-using Master40.DB.Data.Context;
-using Master40.DB.ReportingModel;
-using Microsoft.EntityFrameworkCore;
 
 namespace Master40.Simulation.CLI
 {
@@ -27,7 +27,7 @@ namespace Master40.Simulation.CLI
 
         public static SimulationCore.Environment.Configuration ConfigurationConverter(ResultContext resultCtx, int id)
         {
-            var validCommands =  Commands.GetAllValidCommands;
+            var validCommands = Commands.GetAllValidCommands;
             var config = new SimulationCore.Environment.Configuration();
             ICommand command = validCommands.Single(x => x.ArgLong == "SimulationId");
             command.Action(config, id.ToString());
@@ -38,7 +38,7 @@ namespace Master40.Simulation.CLI
 
             if (id != 1)
             {
-                configurationItems = AddDefaultItems(resultCtx, configurationItems);    
+                configurationItems = AddDefaultItems(resultCtx, configurationItems);
             }
 
             foreach (var item in configurationItems)
@@ -70,6 +70,22 @@ namespace Master40.Simulation.CLI
 
             configurationItems.AddRange(configurationSpecificItems);
             return configurationItems;
+        }
+
+        public static void ConvertBackAndSave(ResultContext resultCtx, Configuration config, int simulationNumber)
+        {
+            var configs = new List<SimulationConfig>();
+            foreach (var item in config)
+            {
+                configs.Add(new SimulationConfig()
+                {
+                    Property = item.Key.Name,
+                    PropertyValue = ((dynamic)item.Value).Value.ToString(),
+                    SimulationNumber = simulationNumber
+                });
+            }
+            resultCtx.SimulationConfigs.AddRange(configs);
+            resultCtx.SaveChanges();
         }
     }
 }

@@ -1,9 +1,7 @@
 ﻿using System;
-using Master40.DataGenerator.DataModel.TransitionMatrix;
+using Master40.DataGenerator.DataModel;
 using Master40.DataGenerator.Util;
-using Master40.DB.Data.Context;
 using Master40.DB.GeneratorModel;
-using TransitionMatrix = Master40.DataGenerator.DataModel.TransitionMatrix.TransitionMatrix;
 
 namespace Master40.DataGenerator.Generators
 {
@@ -22,13 +20,12 @@ namespace Master40.DataGenerator.Generators
 
         private double _organizationDegreeC;
 
-        public TransitionMatrix GenerateTransitionMatrix(InputParameterSet inputParameters,
-            DataModel.ProductStructure.InputParameterSet inputProductStructure, XRandom rng,
-            DataGeneratorContext generatorCtx, InputParameter approach)
+        public TransitionMatrix GenerateTransitionMatrix(TransitionMatrixInput inputParameters,
+            ProductStructureInput inputProductStructure, XRandom rng)
         {
             var jCorrector = 0;
-            var matrixSize = inputParameters.WorkingStations.Length;
-            if (inputParameters.WithStartAndEnd)
+            var matrixSize = inputParameters.WorkingStations.Count;
+            if (inputParameters.ExtendedTransitionMatrix)
             {
                 matrixSize += 1;
                 jCorrector = 1;
@@ -46,11 +43,10 @@ namespace Master40.DataGenerator.Generators
             {
                 Pi = _piA
             };
-            SaveToDB(transitionMatrix, generatorCtx, matrixSize, approach);
             return transitionMatrix;
         }
 
-        private void InitializePiA(InputParameterSet inputParameters, XRandom rng, int matrixSize, int jCorrector)
+        private void InitializePiA(TransitionMatrixInput inputParameters, XRandom rng, int matrixSize, int jCorrector)
         {
             var faculty = new Faculty();
             for (var i = 0; i < matrixSize; i++)
@@ -76,10 +72,10 @@ namespace Master40.DataGenerator.Generators
             _organizationDegreeA = CalcOrganizationDegree(_piA, matrixSize);
         }
 
-        private double InitializePiACalcCellValue(InputParameterSet inputParameters, int i, int j, int matrixSize, Faculty faculty, XRandom rng, int jCorrector)
+        private double InitializePiACalcCellValue(TransitionMatrixInput inputParameters, int i, int j, int matrixSize, Faculty faculty, XRandom rng, int jCorrector)
         {
             var noiseFactor = 1 + 0.2 * (rng.NextDouble() - 0.5);
-            if (inputParameters.WithStartAndEnd && i == 0 && j + 1 == matrixSize)
+            if (inputParameters.ExtendedTransitionMatrix && i == 0 && j + 1 == matrixSize)
             {
                 return 0.0;
             }
@@ -90,7 +86,7 @@ namespace Master40.DataGenerator.Generators
             return Math.Pow(inputParameters.Lambda, i - (j + jCorrector) - 1) / (2 * faculty.Calc(i - (j + jCorrector) - 1)) * noiseFactor;
         }
 
-        private void InitializePiB(InputParameterSet inputParameters, DataModel.ProductStructure.InputParameterSet inputProductStructure, int matrixSize, int jCorrector)
+        private void InitializePiB(TransitionMatrixInput inputParameters, ProductStructureInput inputProductStructure, int matrixSize, int jCorrector)
         {
             if (_organizationDegreeA > inputParameters.DegreeOfOrganization)
             {
@@ -137,7 +133,7 @@ namespace Master40.DataGenerator.Generators
             }
         }
 
-        private void Bisection(InputParameterSet inputParameters, int matrixSize)
+        private void Bisection(TransitionMatrixInput inputParameters, int matrixSize)
         {
             
             _piC = new double[matrixSize, matrixSize];
@@ -147,18 +143,18 @@ namespace Master40.DataGenerator.Generators
                 for (var j = 0; j < matrixSize; j++)
                 {
                     var cellValue = 0.5 * (_piA[i, j] + _piB[i, j]);
-                    if (inputParameters.WithStartAndEnd && i == 0 && j + 1 == matrixSize)
+                    if (inputParameters.ExtendedTransitionMatrix && i == 0 && j + 1 == matrixSize)
                     {
                         cellValue = 0.0;
                     }
                     _piC[i, j] = cellValue;
-                    if (i == 0 && inputParameters.WithStartAndEnd)
+                    if (i == 0 && inputParameters.ExtendedTransitionMatrix)
                     {
                         lineSum += cellValue;
                     }
                 }
 
-                if (i == 0 && inputParameters.WithStartAndEnd)
+                if (i == 0 && inputParameters.ExtendedTransitionMatrix)
                 {
                     for (var j = 0; j < matrixSize; j++)
                     {
@@ -192,26 +188,6 @@ namespace Master40.DataGenerator.Generators
                 sum += Math.Pow(cell - reciprocalOfPiSize, 2);
             }
             return 1.0 / (matrixSize - 1) * sum;
-        }
-
-        private void SaveToDB(TransitionMatrix matrix, DataGeneratorContext ctx, int matrixSize, InputParameter approach)
-        {
-            for (var i = 0; i < matrixSize; i++)
-            {
-                for (var j = 0; j < matrixSize; j++)
-                {
-                    var entry = new Master40.DB.GeneratorModel.TransitionMatrix()
-                    {
-                        ApproachId = approach.Id,
-                        TransitionFrom = j,
-                        TransitionTo = i,
-                        Probability = matrix.Pi[i, j]
-                    };
-                    ctx.TransitionMatrices.AddRange(entry);
-                }
-            }
-
-            ctx.SaveChanges();
         }
 
     }

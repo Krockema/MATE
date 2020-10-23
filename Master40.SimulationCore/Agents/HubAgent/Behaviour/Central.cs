@@ -370,7 +370,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             _confirmationManager.AddConfirmations(activity, GanttConfirmationState.Started, Agent.CurrentTime, Agent.CurrentTime);
 
-
             //Capability
             
 
@@ -425,7 +424,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (_activityManager.ActivityIsFinished(activity.GetKey))
             {
                 //Check if productionorder finished
-
                 _confirmationManager.AddConfirmations(activity, GanttConfirmationState.Finished, Agent.CurrentTime, fActivity.Start);
 
                 ProductionOrderFinishCheck(activity);

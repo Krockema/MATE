@@ -1,4 +1,4 @@
-﻿namespace Master40.DataGenerator.DataModel.TransitionMatrix
+﻿namespace Master40.DataGenerator.DataModel
 {
     public class TransitionMatrix
     {

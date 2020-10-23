@@ -24,7 +24,7 @@
     <Compile Include="Message\FThroughPutTimers.fs" />
     <Compile Include="Message\FUpdateStartCondition.fs" />
     <Compile Include="Message\FArticleProviders.fs" />
-    <Compile Include="Message\FPosponed.fs" />
+    <Compile Include="Message\FPostponed.fs" />
     <Compile Include="Message\FProposal.fs" />
     <Compile Include="Message\FResourceType.fs" />
     <Compile Include="Message\FStartConditions.fs" />

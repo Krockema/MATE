@@ -41,6 +41,7 @@ namespace Master40.XUnitTest.DataGenerator
                 if (order.CreationTime > 10080)
                     break;
                 dataBase.DbContext.CustomerOrders.Add(order);
+              
             }
 
             dataBase.DbContext.SaveChanges();

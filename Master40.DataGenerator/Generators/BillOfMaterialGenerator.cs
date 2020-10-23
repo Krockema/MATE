@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using Master40.DataGenerator.DataModel;
 using Master40.DataGenerator.DataModel.ProductStructure;
-using Master40.DataGenerator.DataModel.TransitionMatrix;
 using Master40.DataGenerator.Util;
 using Master40.DB.Data.Initializer.Tables;
 using Master40.DB.DataModel;
-using InputParameterSet = Master40.DataGenerator.DataModel.BillOfMaterial.InputParameterSet;
+using Master40.DB.GeneratorModel;
 
 namespace Master40.DataGenerator.Generators
 {
     public class BillOfMaterialGenerator
     {
 
-        public void GenerateBillOfMaterial(InputParameterSet inputParameters, List<Dictionary<long, Node>> nodesPerLevel, TransitionMatrix transitionMatrix, MasterTableUnit units, XRandom rng)
+        public void GenerateBillOfMaterial(BillOfMaterialInput inputParameters, List<Dictionary<long, Node>> nodesPerLevel, TransitionMatrix transitionMatrix, MasterTableUnit units, XRandom rng)
         {
             for (var k = 0; k < nodesPerLevel.Count - 1; k++)
             {
