@@ -4,6 +4,7 @@ using System.Linq;
 using Master40.DB.Nominal;
 using System;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
 using Master40.Tools.ExtensionMethods;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
@@ -38,10 +39,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             _confirmationsResources.Clear();
         }
 
-        public void AddConfirmations(GptblProductionorderOperationActivity activity, GanttConfirmationState confirmationType)
+        public void AddConfirmations(GptblProductionorderOperationActivity activity, GanttConfirmationState confirmationType, long currentTime, long activityStart)
         {
             var confirmationId = Guid.NewGuid().ToString();
-            AddConfirmation(activity, confirmationType, confirmationId);
+            AddConfirmation(activity, confirmationType, confirmationId, currentTime, activityStart);
             // only finish !?
             /*if (confirmationType.NotEqual(GanttState.Finished))
                 return;
@@ -52,7 +53,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             }
         }
 
-        public void AddConfirmation(GptblProductionorderOperationActivity activity, GanttConfirmationState confirmationType, string confirmationId)
+        public void AddConfirmation(GptblProductionorderOperationActivity activity, GanttConfirmationState confirmationType, string confirmationId, long currentTime, long activityStart)
         {
             var confirmation = new GptblConfirmation();
 
@@ -62,10 +63,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             confirmation.Info2 = string.Empty;
             confirmation.Info3 = string.Empty;
             confirmation.Name = activity.Name;
-            confirmation.ActivityEnd = activity.DateEnd; //confirmationType == GanttConfirmationState.Finished ? activity.DateEnd : null; 
-            confirmation.ActivityStart = activity.DateStart;
+            confirmation.ActivityEnd = confirmationType == GanttConfirmationState.Finished ? currentTime.ToNullableDateTime() : null; 
+            confirmation.ActivityStart = confirmationType == GanttConfirmationState.Finished ? activityStart.ToNullableDateTime() : currentTime.ToNullableDateTime();
             confirmation.ConfirmationType = (int)confirmationType;
-            confirmation.ConfirmationDate = activity.DateStart;
+            confirmation.ConfirmationDate = currentTime.ToNullableDateTime();
             confirmation.ProductionorderActivityId = activity.ActivityId;
             confirmation.ProductionorderId = activity.ProductionorderId;
             confirmation.ProductionorderOperationId = activity.OperationId;
@@ -73,9 +74,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Central
             confirmation.ProductionorderAlternativeId = string.Empty;
             confirmation.QuantityFinished = confirmationType == GanttConfirmationState.Finished ? 100 : 0;
             confirmation.QuantityFinishedUnitId = "%";
-            confirmation.LastModified = activity.DateStart;
+            confirmation.LastModified = currentTime.ToNullableDateTime();
 
-            _confirmations.Add(confirmation);
+          _confirmations.Add(confirmation);
         }
 
         public void AddResourceConfirmation(GptblProductionorderOperationActivityResource resource, string confirmationId)

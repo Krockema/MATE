@@ -11,6 +11,7 @@ using Master40.DataGenerator.Repository;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using LogLevel = NLog.LogLevel;
+using Master40.SimulationCore.Helper;
 
 namespace Master40.XUnitTest.DataGenerator
 {
@@ -28,7 +29,7 @@ namespace Master40.XUnitTest.DataGenerator
             // Simulation run 1
             yield return new object[]  
             {
-                8       // approach id (test data generator input parameter set id)
+                1     // approach id (test data generator input parameter set id)
                 , 500    // order Quantity
                 , 240   // max bucket size
                 , 100  // throughput time

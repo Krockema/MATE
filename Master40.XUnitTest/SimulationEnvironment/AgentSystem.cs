@@ -1,5 +1,4 @@
-﻿using System;
-using Akka.TestKit.Xunit;
+﻿using Akka.TestKit.Xunit;
 using AkkaSim.Logging;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Initializer;
@@ -46,7 +45,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Theory]
         //[InlineData(remoteMasterCtxString, remoteResultCtxString)] 
         //[InlineData(masterCtxString, masterResultCtxString)]
-        [InlineData(testCtxString, testResultCtxString, testGeneratorCtxString)]
+        [InlineData(masterCtxString, testResultCtxString, testGeneratorCtxString)]
         public void ResetResultsDB(string connectionString, string resultConnectionString, string generatorConnectionString)
         {
             MasterDBContext masterCtx = MasterDBContext.GetContext(connectionString);
@@ -152,7 +151,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.INITIALIZE, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOB, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.ENQUEUE, LogLevel.Warn, LogLevel.Warn);
-            //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.JOBSTATE, LogLevel.Warn, LogLevel.Warn);
+            //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.JOBSTATE, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace, LogLevel.Trace);
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
 
@@ -175,12 +174,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new KpiTimeSpan(1440));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 10)); 
+            simConfig.ReplaceOption(new OrderQuantity(value: 150)); 
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
             simConfig.ReplaceOption(new SettlingStart(value: 0));
-            simConfig.ReplaceOption(new SimulationEnd(value: 2880));
+            simConfig.ReplaceOption(new SimulationEnd(value: 10080));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));

@@ -22,6 +22,13 @@ namespace Master40.DB.Data.Helper
             return (new DateTime(year: 2020, month: 1, day: 1)).AddMinutes(value: x);
         }
 
+        public static DateTime? ToNullableDateTime(this long x)
+        {
+            // return new DateTime(1970, 1, 1).Add(TimeSpan.FromMilliseconds(x));
+            return (new DateTime(year: 2020, month: 1, day: 1)).AddMinutes(value: x);
+
+        }
+
         public static void WriteCSV<T>(this IEnumerable<T> items, string path)
         {
             Type itemType = typeof(T);

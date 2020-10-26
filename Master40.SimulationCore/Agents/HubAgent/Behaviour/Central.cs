@@ -121,7 +121,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             timeStamps.Add("Write Confirmations", lastStep);
 
             System.Diagnostics.Debug.WriteLine("Start GanttPlan");
-            GanttPlanOptRunner.RunOptAndExport("Continuous");
+            GanttPlanOptRunner.RunOptAndExport("Continuous"); //changed to Init - merged configs
             System.Diagnostics.Debug.WriteLine("Finish GanttPlan");
 
             lastStep = stopwatch.ElapsedMilliseconds - lastStep;
@@ -208,6 +208,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                     , interval.ProductionorderId
                     , interval.OperationId
                     , interval.ActivityId
+                    , Agent.CurrentTime
                     , interval.ConvertedDateTo - interval.ConvertedDateFrom
                     , interval.ProductionorderOperationActivityResource.ProductionorderOperationActivity.Name
                     , _planManager.PlanVersion
@@ -367,8 +368,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             WithdrawalMaterial(activity);
 
-            _confirmationManager.AddConfirmations(activity, GanttConfirmationState.Started);
-
+            _confirmationManager.AddConfirmations(activity, GanttConfirmationState.Started, Agent.CurrentTime, Agent.CurrentTime);
 
             //Capability
             
@@ -385,6 +385,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                                                           ,operationId:featureActivity.OperationId
                                                     ,activityId:featureActivity.ActivityId
                                                     , activityType: featureActivity.ActivityType
+                                                    , start: Agent.CurrentTime
                                                     , duration: randomizedDuration
                                                     , name:featureActivity.Name
                                                     , ganttPlanningInterval:featureActivity.GanttPlanningInterval
@@ -423,8 +424,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             if (_activityManager.ActivityIsFinished(activity.GetKey))
             {
                 //Check if productionorder finished
-
-                _confirmationManager.AddConfirmations(activity, GanttConfirmationState.Finished);
+                _confirmationManager.AddConfirmations(activity, GanttConfirmationState.Finished, Agent.CurrentTime, fActivity.Start);
 
                 ProductionOrderFinishCheck(activity);
             }

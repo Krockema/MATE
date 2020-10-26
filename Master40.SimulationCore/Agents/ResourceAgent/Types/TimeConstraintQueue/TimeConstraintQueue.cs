@@ -109,9 +109,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                                              && x.Value.ScopeConfirmation.GetScopeStart() < jobConfirmation.ScopeConfirmation.GetScopeEnd()) 
                                             || (x.Value.ScopeConfirmation.GetScopeEnd() > jobConfirmation.ScopeConfirmation.GetScopeStart()
                                              && x.Value.ScopeConfirmation.GetScopeEnd() <= jobConfirmation.ScopeConfirmation.GetScopeEnd())
-                                            || (x.Key >= jobConfirmation.ScopeConfirmation.GetScopeStart()
-                                               && x.Value.ScopeConfirmation.GetScopeStart() >= jobConfirmation.ScopeConfirmation.GetScopeEnd() // neu
-                                            && x.Value.Job.Priority(currentTime) >= jobConfirmation.Job.Priority(currentTime)))
+                                            || (x.Value.ScopeConfirmation.GetScopeStart() < jobConfirmation.ScopeConfirmation.GetScopeEnd() 
+                                             && jobConfirmation.ScopeConfirmation.GetScopeStart() < x.Value.ScopeConfirmation.GetScopeEnd()                                                )
+                                            && x.Value.Job.Priority(currentTime) >= jobConfirmation.Job.Priority(currentTime))
                                             .Select(x => x.Value).ToHashSet();
 
             return toRequeue;
@@ -283,7 +283,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 
             var pre = allWithHigherPriority.OrderByDescending(x => x.Key)
                                            .FirstOrDefault(x => x.Key <= confirmation.ScopeConfirmation.GetScopeStart());
-            var post = allWithHigherPriority.FirstOrDefault(x => x.Key > confirmation.ScopeConfirmation.GetScopeEnd());
+            var post = allWithHigherPriority.FirstOrDefault(x => x.Key >= confirmation.ScopeConfirmation.GetScopeEnd());
             
             // check if setup is missing on "inProcessing" item
             if (pre.Value == null)
@@ -310,7 +310,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
 
             //fitStart = pre.Value.ScopeConfirmation.GetScopeEnd() <= confirmation.ScopeConfirmation.GetScopeStart();
             if (post.Value != null)
-                  fitEnd = post.Key > confirmation.ScopeConfirmation.GetScopeEnd();
+                  fitEnd = post.Key >= confirmation.ScopeConfirmation.GetScopeEnd();
 
             return fitStart && fitEnd;
         }

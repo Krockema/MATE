@@ -21,7 +21,7 @@ namespace Master40.XUnitTest.DataGenerator
         public void CreateOrders()
         {
             long currentTime = 0;
-            int orderCount = 5;
+            int orderCount = 100;
 
             var dataBase = Dbms.GetNewMasterDataBase(dbName: "Master40");
 
@@ -38,12 +38,10 @@ namespace Master40.XUnitTest.DataGenerator
             {
                 var order = _orderGenerator.GetNewRandomOrder(time: currentTime);
                 currentTime = order.CreationTime;
-
-                dataBase.DbContext.CustomerOrders.Add(order);
-
                 if (order.CreationTime > 10080)
                     break;
-
+                dataBase.DbContext.CustomerOrders.Add(order);
+              
             }
 
             dataBase.DbContext.SaveChanges();

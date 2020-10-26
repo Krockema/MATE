@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects>
+    <object type="priority">
+        <field name="priority_id" datatype="STRING" value="1" />
+        <field name="name" datatype="STRING" value="MainPrio"/>
+        <field name="priority_value" datatype="INT" value="1"/>
+        <object type="priority_latenesscost">
+            <field name="priority_id" datatype="STRING" value="1" />
+            <field name="start" datatype="INT" value="0" />
+            <field name="name" datatype="STRING" value="MainPrio latness cost" />
+            <field name="costs_absolute" datatype="FLOAT" value="1.0" /> 
+            <field name="costs_absolute_interval" datatype="INT" value="60" />
+        </object>
+    </object>
+</objects>

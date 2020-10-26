@@ -40,7 +40,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         private const string hangfireCtxString = "Server=141.56.137.25;Database=Hangfire;Persist Security Info=False;User ID=SA;Password=123*Start#;MultipleActiveResultSets=true";
 
         // only for local usage
-        private const string GanttPlanCtxString = "SERVER=(localdb)\\MSSQLLocalDB;DATABASE=GanttPlanImportTestDB;Trusted_connection=Yes;UID=;PWD=;MultipleActiveResultSets=true";
+        private const string GanttPlanCtxString = "SERVER=(localdb)\\MSSQLLocalDB;DATABASE=DBGP;Trusted_connection=Yes;UID=;PWD=;MultipleActiveResultSets=true";
 
         private ProductionDomainContext _masterDBContext = ProductionDomainContext.GetContext(remoteMasterCtxString);
         private ResultContext _ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);
@@ -129,13 +129,13 @@ namespace Master40.XUnitTest.SimulationEnvironment
             var simConfig = ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
             // update customized Items
             simConfig.AddOption(new DBConnectionString(masterResultCtxString));
-            simConfig.ReplaceOption(new KpiTimeSpan(480));
+            simConfig.ReplaceOption(new KpiTimeSpan(240));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new SimulationKind(value: simtulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 1500));
+            simConfig.ReplaceOption(new OrderQuantity(value: 141));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
-            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
+            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
             simConfig.ReplaceOption(new Seed(value: seed));
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
             simConfig.ReplaceOption(new SimulationEnd(value: 10080));

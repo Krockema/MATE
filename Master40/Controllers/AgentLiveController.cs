@@ -24,7 +24,7 @@ namespace Master40.Controllers
         private readonly ProductionDomainContext _context;
         private readonly ResultContext _resultCtx;
         private readonly IMessageHub _messageHub;
-        private const string GanttPlanCtxString = "SERVER=(localdb)\\MSSQLLocalDB;DATABASE=GanttPlanImportTestDB;Trusted_connection=Yes;UID=;PWD=;MultipleActiveResultSets=true";
+        private const string GanttPlanCtxString = "SERVER=(localdb)\\MSSQLLocalDB;DATABASE=DBGP;Trusted_connection=Yes;UID=;PWD=;MultipleActiveResultSets=true";
 
         public AgentLiveController(AgentCore agentSimulator, ProductionDomainContext context, ResultContext resultCtx, IMessageHub messageHub)
         {

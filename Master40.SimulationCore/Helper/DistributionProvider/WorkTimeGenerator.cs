@@ -32,6 +32,9 @@ namespace Master40.SimulationCore.Helper.DistributionProvider
         /// <returns></returns>
         public long GetRandomWorkTime(long duration)
         {
+            if (_distribution.Sigma == 0)
+                return duration;
+
             long newDuration;
             while (true)
             {
