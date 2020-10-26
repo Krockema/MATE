@@ -20,5 +20,6 @@ namespace Master40.DB.DataModel
         public int ResourceCapabilityId { get; set; }
         public M_ResourceCapability ResourceCapability { get; set; }
         public ICollection<M_ArticleBom> ArticleBoms { get; set; }
+        public ICollection<M_Characteristic> Characteristics { get; set; }
     }
 }
