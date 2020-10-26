@@ -182,6 +182,8 @@ namespace Master40.SimulationCore.Helper
                 , fArticleName: fArticle.Article.Name
                 , productionAgent: productionAgent
                 , articleType: fArticle.Article.ArticleType.Name
+                , jobName: fOperation.Bucket
+                , capabilityProvider: string.Empty
                 , start: fOperation.Start
                 , end: fOperation.End
             );
@@ -206,6 +208,8 @@ namespace Master40.SimulationCore.Helper
                 , fArticleName: string.Empty
                 , productionAgent: string.Empty
                 , articleType: string.Empty
+                , jobName: activity.Name
+                , capabilityProvider: string.Empty
                 , start: start
                 , end: start + duration
             );

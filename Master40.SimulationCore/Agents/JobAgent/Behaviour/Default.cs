@@ -428,7 +428,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
         private void UpdateOperationKpi()
         {
-            ResultStreamFactory.PublishJob(Agent, _currentOperation, _currentOperation.Operation.RandomizedDuration, _jobConfirmation.CapabilityProvider, _jobConfirmation.Job.Name);
+            ResultStreamFactory.PublishJob(Agent, _currentOperation, _currentOperation.Operation.RandomizedDuration, _jobConfirmation.CapabilityProvider, _jobConfirmation.Job.Bucket);
         }
 
 
@@ -442,7 +442,8 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             ResultStreamFactory.PublishJob(agent: Agent
                 , job: _currentOperation
                 , duration: _currentOperation.Operation.RandomizedDuration
-                , capabilityProvider: _jobConfirmation.CapabilityProvider);
+                , capabilityProvider: _jobConfirmation.CapabilityProvider
+                , bucketName: _jobConfirmation.Job.Bucket);
 
             var fOperationResult = new FOperationResult(key: _currentOperation.Key
                 , creationTime: 0
