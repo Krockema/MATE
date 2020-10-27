@@ -187,6 +187,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
             simConfig.ReplaceOption(new MinDeliveryTime(1920));
             simConfig.ReplaceOption(new MaxDeliveryTime(2880));
+            simConfig.ReplaceOption(new CreateQualityData(true));
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 

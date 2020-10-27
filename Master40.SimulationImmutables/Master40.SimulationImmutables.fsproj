@@ -45,6 +45,7 @@
     <Compile Include="Message\FUpdateStockValues.fs" />
     <Compile Include="Message\FStockReservation.fs" />
     <Compile Include="Message\FSetEstimatedThroughputTimes.fs" />
+    <Compile Include="Message\FMeasurementInformations.fs" />
     <Compile Include="Message\FBreakDown.fs" />
     <Compile Include="Message\FCapabilityProviderDefinitions.fs" />
     <Compile Include="Message\FResourceHubInformation.fs" />

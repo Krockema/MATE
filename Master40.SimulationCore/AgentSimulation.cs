@@ -49,6 +49,7 @@ namespace Master40.SimulationCore
         public IActorRef StorageCollector { get; private set; }
         public IActorRef ContractCollector { get; private set; }
         public IActorRef ResourceCollector { get; private set; }
+        public IActorRef MeasurementCollector { get; private set; }
         public AgentStateManager StateManager { get; private set; }
         /// <summary>
         /// Prepare Simulation Environment
@@ -79,6 +80,9 @@ namespace Master40.SimulationCore
 
                 // Create Guardians and Inject Childcreators
                 GenerateGuardians();
+
+                //Create Measurment Agent if required
+                CreateMeasurementComponents(configuration: configuration);
 
                 // Create Supervisor Agent
                 CreateSupervisor(configuration: configuration);
@@ -286,6 +290,30 @@ namespace Master40.SimulationCore
                                                             .Where(x => capabilityProviderIds.Contains(x.Id));
             
             return capabilitesForResource.ToList();
+        }
+
+        private void CreateMeasurementComponents(Configuration configuration)
+        {
+            if (!configuration.GetOption<CreateQualityData>().Value
+                && configuration.GetOption<SimulationKind>().Value != _simulationType) return;
+
+            ActorPaths.SetMeasurementAgent(measurementActorRef: _simulation.ActorSystem
+                .ActorOf(props: Agents.ResourceAgent.Resource.Props(
+                        actorPaths: ActorPaths,
+                        resource: null,
+                        time: 0,
+                        debug: _debugAgents,
+                        principal: ActorRefs.Nobody,
+                        measurementActorRef: ActorRefs.Nobody),
+                    name: "Measure"));
+
+            _simulation.SimulationContext.Tell(message:
+                BasicInstruction.Initialize.Create(target: ActorPaths.MeasurementAgent.Ref,
+                    message: Agents.ResourceAgent.Behaviour.Measurement.Get(configuration.GetOption<Seed>())));
+
+            MeasurementCollector = _simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsMeasurements.Get()
+                , msgHub: _messageHub, configuration: configuration, time: 0, debug: _debugAgents
+                , streamTypes: CollectorAnalyticsMeasurements.GetStreamTypes()), name: "MeasurementCollector");
         }
     }
 }

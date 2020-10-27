@@ -17,5 +17,7 @@ namespace Master40.DB.DataModel
         {
             return Name;
         }
+        public double Quantile { get; set; }
+        public int NumberOfUses { get; set; }
     }
 }

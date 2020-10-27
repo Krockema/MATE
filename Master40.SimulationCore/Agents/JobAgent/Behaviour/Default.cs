@@ -10,10 +10,12 @@ using System.Linq;
 using static FBuckets;
 using static FJobConfirmations;
 using static FJobResourceConfirmations;
+using static FMeasurementInformations;
 using static FOperationResults;
 using static FOperations;
 using static FProcessingSlots;
 using static FSetupSlots;
+using static FUpdateSimulationJobs;
 using static IConfirmations;
 using static IJobs;
 using LogLevel = NLog.LogLevel;
@@ -393,6 +395,9 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
             UpdateOperationKpi();
 
+            // Create Measurement and set it to MeasurementAgent
+            CreateMeasurement();
+
             Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: _currentOperation.Key, target: _currentOperation.ProductionAgent));
 
             Agent.DebugMessage(msg: $"Starting Job {_currentOperation.Operation.Name}  Key: {_currentOperation.Key} new duration is {_currentOperation.Operation.RandomizedDuration} " +
@@ -454,6 +459,19 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 , capabilityProvider: _jobConfirmation.CapabilityProvider.Name);
 
             Agent.Send(BasicInstruction.FinishJob.Create(fOperationResult, _currentOperation.ProductionAgent));
+        }
+        internal void CreateMeasurement()
+        {
+            var msg = Resource.Instruction.Default.
+                CreateMeasurements.Create(message: new FMeasurementInformation(
+                        job: _currentOperation
+                        , resource: _jobConfirmation.CapabilityProvider.Name
+                        , quantile: _jobConfirmation.CapabilityProvider.ResourceSetups.First().Resource.Quantile
+                        , tool: _currentOperation.Operation.ResourceCapability.Name // TODO: Create a posibility to get tool from CapabilityProvider
+                        , capabilityProviderId: _jobConfirmation.CapabilityProvider.Id
+                        , _currentOperation.Bucket),
+                    target: Agent.ActorPaths.MeasurementAgent.Ref);
+            Agent.Send(msg);
         }
         #endregion
 
