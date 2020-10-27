@@ -29,13 +29,15 @@ namespace Master40.XUnitTest.DataGenerator
             // Simulation run 1
             yield return new object[]  
             {
-                1     // approach id (test data generator input parameter set id)
-                , 500    // order Quantity
+                4       // approach id (test data generator input parameter set id)
+                , 14    // order Quantity
                 , 240   // max bucket size
-                , 100  // throughput time
+                , 350   // throughput time
                 , 3464  // Random seed
-                , 1  // arrival rate
-                , 10000  // simulation end
+                , 0.003125  // arrival rate
+                , 2880  // simulation end
+                , 300   // min delivery time
+                , 400   // max delivery time
             };
             // Simulation run 2
             /*yield return new object[]
@@ -47,6 +49,8 @@ namespace Master40.XUnitTest.DataGenerator
                 , 1337  // Random seed
                 , 0.02  // arrival rate
                 , 2880  // simulation end
+                , 300   // min delivery time
+                , 400   // max delivery time
             };*/
         }
 
@@ -70,7 +74,9 @@ namespace Master40.XUnitTest.DataGenerator
                                         , long throughput
                                         , int seed
                                         , double arrivalRate
-                                        , long simulationEnd)
+                                        , long simulationEnd
+                                        , int minDeliveryTime
+                                        , int maxDeliveryTime)
         {
             ResultContext ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);
             ProductionDomainContext masterCtx = ProductionDomainContext.GetContext(testCtxString);
@@ -123,8 +129,8 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.0));
             // anpassen der Lieferzeiten anhand der Erwarteten Durchlaufzeit. 
-            simConfig.ReplaceOption(new MinDeliveryTime(80)); 
-            simConfig.ReplaceOption(new MaxDeliveryTime(150));
+            simConfig.ReplaceOption(new MinDeliveryTime(value: minDeliveryTime));
+            simConfig.ReplaceOption(new MaxDeliveryTime(value: maxDeliveryTime));
 
             await Task.Run(() => 
                 ArgumentConverter.ConvertBackAndSave(ctxResult, simConfig, dataGenSim.Id));
