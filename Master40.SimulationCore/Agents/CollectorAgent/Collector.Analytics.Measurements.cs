@@ -1,19 +1,14 @@
 ﻿using AkkaSim;
 using Master40.DB.Data.Context;
 using Master40.DB.ReportingModel;
+using Master40.SimulationCore.Agents.ResourceAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using Master40.SimulationCore.Environment.Options;
 using Master40.SimulationCore.Types;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using Master40.PiWebApi;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
-//using Mater40.PiWebApi;
-//using Zeiss.IMT.PiWeb.Api.Common.Data;
-using System.Threading.Tasks;
-using Master40.DB.DataModel;
-using Master40.SimulationCore.Agents.ResourceAgent;
-using static FMeasurementInformations;
 
 namespace Master40.SimulationCore.Agents.CollectorAgent
 {
@@ -63,7 +58,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 measure.SimulationType = Collector.simulationKind.Value;
                 simulationMeasurement.Add(measure);
                 
-                //ZeissConnector.TransferMeasurementsToPiWeb(measure);
+                ZeissConnector.TransferMeasurementsToPiWeb(measure);
             }
         }
 
