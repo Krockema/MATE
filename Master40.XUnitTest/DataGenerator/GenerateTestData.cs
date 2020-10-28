@@ -31,7 +31,7 @@ namespace Master40.XUnitTest.DataGenerator
 
             for (var i = 0; i < iterations; i++)
             {
-                var usePresetSeed = true;
+                var usePresetSeed = false;
                 var rng = new Random();
                 int seed = usePresetSeed ? 2083793265 : rng.Next();
 
@@ -49,7 +49,7 @@ namespace Master40.XUnitTest.DataGenerator
                     DegreeOfOrganization = 0.13,
                     Lambda = 1.3,
                     InfiniteTools = true,
-                    ExtendedTransitionMatrix = true,
+                    ExtendedTransitionMatrix = false,
                     GeneralMachiningTimeParameterSet = individualMachiningTime ? null : new MachiningTimeParameterSet
                     {
                         MeanMachiningTime = 15,
@@ -178,14 +178,14 @@ namespace Master40.XUnitTest.DataGenerator
                 double? doubleNull = null;
                 approach.ProductStructureInput = new ProductStructureInput
                 {
-                    EndProductCount = !randomGeneratedInputValues ? 1000 : rng.Next(9) + 2,
-                    DepthOfAssembly = !randomGeneratedInputValues ? 2 : rng.Next(10) + 1,
-                    ComplexityRatio = !randomGeneratedInputValues ? 1.0 : rng.NextDouble() + 1,
-                    ReutilisationRatio = !randomGeneratedInputValues ? 1.0 : rng.NextDouble() + 1,
-                    MeanIncomingMaterialAmount = 1,
-                    StdDevIncomingMaterialAmount = 0.01,
-                    MeanWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 3.0,
-                    VarianceWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 1.0
+                    EndProductCount = !randomGeneratedInputValues ? 1 : rng.Next(9) + 2,
+                    DepthOfAssembly = !randomGeneratedInputValues ? 8 : rng.Next(10) + 1,
+                    ComplexityRatio = !randomGeneratedInputValues ? 1.6 : rng.NextDouble() + 1,
+                    ReutilisationRatio = !randomGeneratedInputValues ? 1 : rng.NextDouble() + 1,
+                    MeanIncomingMaterialAmount = 2.5,
+                    StdDevIncomingMaterialAmount = 0.0,
+                    MeanWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 10,
+                    VarianceWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 0
                 };
                 //_testOutputHelper.WriteLine(approach.ProductStructureInput.ToString());
 
@@ -207,8 +207,8 @@ namespace Master40.XUnitTest.DataGenerator
         [Fact]
         public void GenerateData() //Generierung für Simulation direkt im Testfall, wo Simulation durchgeführt wird
         {
-            var approachRangeStart = 4;
-            var approachRangeEnd = 4;
+            var approachRangeStart = 50;
+            var approachRangeEnd = 50;
             for (var i = approachRangeStart; i < approachRangeEnd + 1; i++)
             {
                 var approachId = i;

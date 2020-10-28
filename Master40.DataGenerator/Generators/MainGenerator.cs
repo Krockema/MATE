@@ -75,22 +75,25 @@ namespace Master40.DataGenerator.Generators
                     transitionMatrixGeneratorVerifier.VerifyGeneratedData(TransitionMatrix,
                         productStructure.NodesPerLevel, resourceCapabilities);
                 }
-            }
 
-            //##### TEMP
-            var incomingEdgeCount = 0;
-            foreach (var level in productStructure.NodesPerLevel)
-            {
-                foreach (var node in level)
+                var capacityDemandVerifier = new CapacityDemandVerifier(0.0);
+                capacityDemandVerifier.Verify(productStructure);
+
+                //##### TEMP
+                var incomingEdgeCount = 0;
+                foreach (var level in productStructure.NodesPerLevel)
                 {
-                    incomingEdgeCount += node.Value.IncomingEdges.Count;
+                    foreach (var node in level)
+                    {
+                        incomingEdgeCount += node.Value.IncomingEdges.Count;
+                    }
                 }
+
+                var actualCR = incomingEdgeCount / (1.0 * (productStructure.NodesCounter - productStructure.NodesPerLevel[^1].LongCount()));
+
+                System.Diagnostics.Debug.WriteLine("################################# eingesteller KG: " + approach.ProductStructureInput.ComplexityRatio + "; eigentlicher KG: " + actualCR);
+                //##### TEMP END
             }
-
-            var actualCR = incomingEdgeCount / (1.0 * (productStructure.NodesCounter - productStructure.NodesPerLevel[^1].Count));
-
-            System.Diagnostics.Debug.WriteLine("################################# eingesteller KG: " + approach.ProductStructureInput.ComplexityRatio + "; eigentlicher KG: " + actualCR);
-            //##### TEMP END
         }
     }
 }
