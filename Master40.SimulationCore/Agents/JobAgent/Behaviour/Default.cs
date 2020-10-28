@@ -7,6 +7,7 @@ using Master40.SimulationCore.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.SimulationCore.Environment.Options;
 using static FBuckets;
 using static FJobConfirmations;
 using static FJobResourceConfirmations;
@@ -462,6 +463,8 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
         }
         internal void CreateMeasurement()
         {
+            if (!_currentOperation.Operation.Characteristics.Any()) return;
+
             var msg = Resource.Instruction.Default.
                 CreateMeasurements.Create(message: new FMeasurementInformation(
                         job: _currentOperation

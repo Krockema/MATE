@@ -11,7 +11,7 @@ namespace Master40.DB.Data.Initializer
 {
     public static class MasterDBInitializerTruck
     {
-        public static void DbInitialize(MasterDBContext context, ModelSize resourceModelSize, ModelSize setupModelSize, ModelSize operatorsModelSize, int numberOfWorkersForProcessing, bool secondResource, bool distributeSetupsExponentially = false)
+        public static void DbInitialize(MasterDBContext context, ModelSize resourceModelSize, ModelSize setupModelSize, ModelSize operatorsModelSize, int numberOfWorkersForProcessing, bool secondResource, bool createMeasurements, bool distributeSetupsExponentially = false)
         {
             context.Database.EnsureCreated();
 
@@ -64,12 +64,15 @@ namespace Master40.DB.Data.Initializer
             context.SaveChanges();
 
             // Extension for QUality Assurance
-            var characteristics = new MasterTableCharacteristic(articleTable, operations);
-            characteristics.Init(context);
-            var valueTypes = new MasterTableValueType();
-            valueTypes.Init(context);
-            var attributes = new MasterTableAttribute();
-            attributes.Init(context, characteristics, valueTypes);
+            if (createMeasurements)
+            {
+                var characteristics = new MasterTableCharacteristic(articleTable, operations);
+                characteristics.Init(context);
+                var valueTypes = new MasterTableValueType();
+                valueTypes.Init(context);
+                var attributes = new MasterTableAttribute();
+                attributes.Init(context, characteristics, valueTypes);
+            }
         }
     }
 }

@@ -75,7 +75,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value))
                 {
-                    ctx.SaveChanges();
                     ctx.SimulationMeasurements.AddRange(entities: simulationMeasurement);
                     ctx.SaveChanges();
                     ctx.Dispose();

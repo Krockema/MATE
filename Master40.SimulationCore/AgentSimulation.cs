@@ -101,6 +101,7 @@ namespace Master40.SimulationCore
                                                                          , this.JobCollector
                                                                          , this.ContractCollector
                                                                          , this.ResourceCollector
+                                                                         , this.MeasurementCollector
                                                                      }
                                                     , SimulationConfig.Inbox);
 
@@ -294,9 +295,6 @@ namespace Master40.SimulationCore
 
         private void CreateMeasurementComponents(Configuration configuration)
         {
-            if (!configuration.GetOption<CreateQualityData>().Value
-                && configuration.GetOption<SimulationKind>().Value != _simulationType) return;
-
             ActorPaths.SetMeasurementAgent(measurementActorRef: _simulation.ActorSystem
                 .ActorOf(props: Agents.ResourceAgent.Resource.Props(
                         actorPaths: ActorPaths,
