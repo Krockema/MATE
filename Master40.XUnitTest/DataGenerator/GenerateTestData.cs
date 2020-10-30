@@ -49,7 +49,7 @@ namespace Master40.XUnitTest.DataGenerator
                     DegreeOfOrganization = 0.13,
                     Lambda = 1.3,
                     InfiniteTools = true,
-                    ExtendedTransitionMatrix = true,
+                    ExtendedTransitionMatrix = false,
                     GeneralMachiningTimeParameterSet = individualMachiningTime ? null : new MachiningTimeParameterSet
                     {
                         MeanMachiningTime = 15,

@@ -7,6 +7,7 @@ namespace Master40.DataGenerator.DataModel
     {
         public M_Operation MOperation { get; set; }
         public List<M_ArticleBom> Bom { get; set; } = new List<M_ArticleBom>();
+        public int SetupTimeOfCapability { get; set; }
 
     }
 }
