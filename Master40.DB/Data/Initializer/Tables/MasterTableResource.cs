@@ -44,7 +44,15 @@ namespace Master40.DB.Data.Initializer.Tables
         }
         private M_Resource CreateNewResource(string resourceName, bool isPhysical, bool isBiological, int? number = null, string groupName = null)
         {
-            return new M_Resource() { Name = resourceName + number?.ToString(), Capacity = 1, IsPhysical = isPhysical, IsBiological = isBiological, GroupName = groupName };
+            return new M_Resource() { 
+                Name = resourceName + number?.ToString(),
+                Capacity = 1,
+                IsPhysical = isPhysical,
+                IsBiological = isBiological,
+                GroupName = groupName,
+                Quantile = 0.975, //TODO: ATTENTION!!!
+                NumberOfUses = 0
+            };
         }
 
         internal void CreateResourceTools(int setupTimeCutting, int setupTimeDrilling, int setupTimeAssembling, int[] numberOfOperators, int numberOfWorkers, bool secondResource)

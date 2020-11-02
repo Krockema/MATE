@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Zeiss.PiWeb.Api.Rest" Version="6.0.0" />
+    <PackageReference Include="Zeiss.PiWeb.Api.Rest.Dtos" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
   </ItemGroup>
 

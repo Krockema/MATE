@@ -1,9 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <LangVersion>8.0</LangVersion>
-	  <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,8 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Master40.SimulationCore\Master40.SimulationCore.csproj" />
-    <ProjectReference Include="..\Zpp\Zpp.csproj" />
+    <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
+    <ProjectReference Include="..\Master40.Tools\Master40.Tools.csproj" />
   </ItemGroup>
 
 </Project>

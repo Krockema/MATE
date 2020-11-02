@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.Helper;
 using Master40.DB.GanttPlanModel;
+using Master40.DB.ReportingModel;
 using static FArticles;
 using static FBuckets;
 using static FCreateSimulationJobs;
@@ -17,6 +18,7 @@ using static FStartConditions;
 using static FStockProviders;
 using static FUpdateSimulationJobs;
 using static IJobs;
+using static FMeasurementInformations;
 
 namespace Master40.SimulationCore.Helper
 {
@@ -38,7 +40,8 @@ namespace Master40.SimulationCore.Helper
                                             , IActorRef productionAgent
                                             , bool firstOperation
                                             , long currentTime
-                                            , long remainingWork)
+                                            , long remainingWork
+                                            , Guid articleKey)
         {
             var prioRule = Extension.CreateFunc(
                     // Lamda zur Func.
@@ -65,7 +68,8 @@ namespace Master40.SimulationCore.Helper
                                 , productionAgent: productionAgent
                                 , operation: m_operation
                                 , requiredCapability: m_operation.ResourceCapability
-                                , bucket: String.Empty);
+                                , bucket: String.Empty
+                                , articleKey: articleKey);
         }
 
         public static FBucket ToBucketScopeItem(this FOperation operation, IActorRef hubAgent, long time, long maxBucketSize)
@@ -182,6 +186,8 @@ namespace Master40.SimulationCore.Helper
                 , fArticleName: fArticle.Article.Name
                 , productionAgent: productionAgent
                 , articleType: fArticle.Article.ArticleType.Name
+                , jobName: fOperation.Bucket
+                , capabilityProvider: string.Empty
                 , start: fOperation.Start
                 , end: fOperation.End
             );
@@ -206,11 +212,29 @@ namespace Master40.SimulationCore.Helper
                 , fArticleName: string.Empty
                 , productionAgent: string.Empty
                 , articleType: string.Empty
+                , jobName: activity.Name
+                , capabilityProvider: string.Empty
                 , start: start
                 , end: start + duration
             );
 
             return simulationJob;
+        }
+
+        public static SimulationMeasurement CreateMeasurement(FOperation job, M_Characteristic characteristic, M_Attribute attribute, FMeasurementInformation fMeasurementInformation)
+        {
+            return new SimulationMeasurement
+            {
+                JobId = job.Key,
+                ArticleKey = job.ArticleKey,
+                JobName = job.Operation.Name,
+                ArticleName = job.Operation.Article.Name,
+                CharacteristicName = characteristic.Name,
+                ResourceTool = fMeasurementInformation.Tool,
+                Resource = fMeasurementInformation.Resource,
+                TargetValue = attribute.Value,
+                AttributeName = attribute.Name
+            };
         }
 
     }

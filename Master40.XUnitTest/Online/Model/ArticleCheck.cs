@@ -17,7 +17,7 @@ namespace Master40.XUnitTest.Online.Model
         {
             DataBase = Dbms.GetNewMasterDataBase();
             MasterDBInitializerTruck.DbInitialize(context: DataBase.DbContext, resourceModelSize: ModelSize.Medium,
-                setupModelSize: ModelSize.Medium, ModelSize.Small, 3, false);
+                setupModelSize: ModelSize.Medium, ModelSize.Small, 3, false, false);
         }
 
         [Fact]

@@ -7,13 +7,16 @@ using Master40.SimulationCore.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.SimulationCore.Environment.Options;
 using static FBuckets;
 using static FJobConfirmations;
 using static FJobResourceConfirmations;
+using static FMeasurementInformations;
 using static FOperationResults;
 using static FOperations;
 using static FProcessingSlots;
 using static FSetupSlots;
+using static FUpdateSimulationJobs;
 using static IConfirmations;
 using static IJobs;
 using LogLevel = NLog.LogLevel;
@@ -393,6 +396,9 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
             UpdateOperationKpi();
 
+            // Create Measurement and set it to MeasurementAgent
+            CreateMeasurement();
+
             Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: _currentOperation.Key, target: _currentOperation.ProductionAgent));
 
             Agent.DebugMessage(msg: $"Starting Job {_currentOperation.Operation.Name}  Key: {_currentOperation.Key} new duration is {_currentOperation.Operation.RandomizedDuration} " +
@@ -428,7 +434,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
         private void UpdateOperationKpi()
         {
-            ResultStreamFactory.PublishJob(Agent, _currentOperation, _currentOperation.Operation.RandomizedDuration, _jobConfirmation.CapabilityProvider, _jobConfirmation.Job.Name);
+            ResultStreamFactory.PublishJob(Agent, _currentOperation, _currentOperation.Operation.RandomizedDuration, _jobConfirmation.CapabilityProvider, _jobConfirmation.Job.Bucket);
         }
 
 
@@ -442,7 +448,8 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             ResultStreamFactory.PublishJob(agent: Agent
                 , job: _currentOperation
                 , duration: _currentOperation.Operation.RandomizedDuration
-                , capabilityProvider: _jobConfirmation.CapabilityProvider);
+                , capabilityProvider: _jobConfirmation.CapabilityProvider
+                , bucketName: _jobConfirmation.Job.Bucket);
 
             var fOperationResult = new FOperationResult(key: _currentOperation.Key
                 , creationTime: 0
@@ -453,6 +460,21 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 , capabilityProvider: _jobConfirmation.CapabilityProvider.Name);
 
             Agent.Send(BasicInstruction.FinishJob.Create(fOperationResult, _currentOperation.ProductionAgent));
+        }
+        internal void CreateMeasurement()
+        {
+            if (!_currentOperation.Operation.Characteristics.Any()) return;
+
+            var msg = Resource.Instruction.Default.
+                CreateMeasurements.Create(message: new FMeasurementInformation(
+                        job: _currentOperation
+                        , resource: _jobConfirmation.CapabilityProvider.Name
+                        , quantile: _jobConfirmation.CapabilityProvider.ResourceSetups.First().Resource.Quantile
+                        , tool: _currentOperation.Operation.ResourceCapability.Name // TODO: Create a posibility to get tool from CapabilityProvider
+                        , capabilityProviderId: _jobConfirmation.CapabilityProvider.Id
+                        , _currentOperation.Bucket),
+                    target: Agent.ActorPaths.MeasurementAgent.Ref);
+            Agent.Send(msg);
         }
         #endregion
 

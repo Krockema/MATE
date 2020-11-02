@@ -43,10 +43,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Zeiss.PiWeb.Api.Rest" Version="6.0.0" />
+    <PackageReference Include="Zeiss.PiWeb.Api.Rest.Dtos" Version="6.0.0" />
   </ItemGroup>
 
 	<ItemGroup>
     <ProjectReference Include="..\Master40.DataGenerator\Master40.DataGenerator.csproj" />
+    <ProjectReference Include="..\Master40.PiWebApi\Master40.PiWebApi.csproj" />
     <ProjectReference Include="..\Master40.SimulationMrp\Master40.SimulationMrp.csproj" />
     <ProjectReference Include="..\Master40\Master40.csproj" />
   </ItemGroup>

@@ -15,6 +15,8 @@ open System
         fArticleKey : Guid
         ProductionAgent : string
         fArticleName: string
+        JobName : string
+        CapabilityProvider : string
         Start : int64
         End : int64
     }

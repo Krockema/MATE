@@ -28,6 +28,7 @@ namespace Master40.DB.Data.Context
         public DbSet<Kpi> Kpis { get; set; }
         public DbSet<StockExchange> StockExchanges { get; set; }
         public DbSet<SimulationConfig> SimulationConfigs { get; set; }
+        public DbSet<SimulationMeasurement> SimulationMeasurements { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

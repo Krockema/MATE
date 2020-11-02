@@ -22,6 +22,7 @@ open IJobs
           mutable StartConditions : FStartCondition
           Priority : int64 -> double
           ProductionAgent : IActorRef
+          ArticleKey : Guid
           mutable HubAgent : IActorRef
           mutable IsFinished : bool 
           Operation : M_Operation

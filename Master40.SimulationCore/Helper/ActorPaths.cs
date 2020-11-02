@@ -14,6 +14,7 @@ namespace Master40.SimulationCore.Helper
         public ActorMetaData SimulationContext { get; }
         public IActorRef SystemMailBox { get; }
         public Dictionary<GuardianType, IActorRef> Guardians { get; }
+        public ActorMetaData MeasurementAgent { get; private set; }
         /// <summary>
         /// Static helper class used to define paths to fixed-name actors
         /// (helps eliminate errors when using <see cref="ActorSelection"/>)
@@ -28,6 +29,10 @@ namespace Master40.SimulationCore.Helper
         public void SetSupervisorAgent(IActorRef systemAgent)
         {
             SystemAgent = new ActorMetaData(name: "SupervisorAgent", actorRef: systemAgent);
+        }
+        public void SetMeasurementAgent(IActorRef measurementActorRef)
+        {
+            MeasurementAgent = new ActorMetaData(name: "MeasurementAgent", actorRef: measurementActorRef);
         }
 
         public void SetHubDirectoryAgent(IActorRef hubAgent)

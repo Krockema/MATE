@@ -18,17 +18,17 @@ namespace Master40.SimulationCore.Helper
 
         public static void PublishJob(Agent agent, IJob job, long duration, M_ResourceCapabilityProvider capabilityProvider)
         {
-            PublishJob(agent, job, duration, capabilityProvider, String.Empty);
+            PublishJob(agent, job, duration, capabilityProvider, job.Name);
         }
 
-        public static void PublishJob(Agent agent, IJob job, long duration, M_ResourceCapabilityProvider capabilityProvider, string bucket)
+        public static void PublishJob(Agent agent, IJob job, long duration, M_ResourceCapabilityProvider capabilityProvider, string bucketName)
         {
             var pub = new FUpdateSimulationJob(job: job
                 , duration: duration
                 , start: agent.CurrentTime
-                , capabilityProvider: agent.Name
+                , capabilityProvider: capabilityProvider.Name
                 , jobType: JobType.OPERATION
-                , bucket: bucket
+                , bucket: bucketName
                 , setupId: capabilityProvider.Id);
             agent.Context.System.EventStream.Publish(@event: pub);
         }
