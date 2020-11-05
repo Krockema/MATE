@@ -15,6 +15,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 case SimulationType.Default:
                     behaviour = Default(maxBucketSize, workTimeGenerator);
                     break;
+                case SimulationType.Queuing:
+                    behaviour = Queuing(maxBucketSize, workTimeGenerator);
+                    break;
                 default:
                     behaviour = Default(maxBucketSize, workTimeGenerator);
                     break;
@@ -32,6 +35,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         public static IBehaviour Central(string dbConnectionStringGanttPlan, string dbConnectionStringMaster, WorkTimeGenerator workTimeGenerator)
         {
             return new Central(dbConnectionStringGanttPlan, dbConnectionStringMaster, workTimeGenerator);
+        }
+
+        private static IBehaviour Queuing(long maxBucketSize, WorkTimeGenerator workTimeGenerator)
+        {
+            return new Queuing(maxBucketSize: maxBucketSize, workTimeGenerator: workTimeGenerator);
         }
     }
 }

@@ -15,6 +15,8 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                     break;
                 case SimulationType.Central: behaviour = Central(simType);
                     break;
+                case SimulationType.Queuing: behaviour = Queuing(simType);
+                    break;
                 default: behaviour = Default(simType);
                     break;
             }
@@ -29,6 +31,11 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
         private static IBehaviour Central(SimulationType simType)
         {
             return new Central(simulationType: simType);
+        }
+
+        private static IBehaviour Queuing(SimulationType simType)
+        {
+            return new Queuing(simulationType: simType);
         }
 
     }
