@@ -75,6 +75,9 @@ namespace Master40.DataGenerator.Generators
                     transitionMatrixGeneratorVerifier.VerifyGeneratedData(TransitionMatrix,
                         productStructure.NodesPerLevel, resourceCapabilities);
                 }
+
+                var capacityDemandVerifier = new CapacityDemandVerifier(0.0);
+                capacityDemandVerifier.Verify(productStructure);
             }
         }
     }

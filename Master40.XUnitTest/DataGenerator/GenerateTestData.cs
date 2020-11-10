@@ -43,7 +43,7 @@ namespace Master40.XUnitTest.DataGenerator
                 };
 
                 //Limit für Lambda und Anzahl Bearbeitungsstationen jeweils 100
-                var individualMachiningTime = true;
+                var individualMachiningTime = false;
                 approach.TransitionMatrixInput = new TransitionMatrixInput
                 {
                     DegreeOfOrganization = 0.13,
@@ -52,8 +52,8 @@ namespace Master40.XUnitTest.DataGenerator
                     ExtendedTransitionMatrix = false,
                     GeneralMachiningTimeParameterSet = individualMachiningTime ? null : new MachiningTimeParameterSet
                     {
-                        MeanMachiningTime = 15,
-                        VarianceMachiningTime = 5
+                        MeanMachiningTime = 1,
+                        VarianceMachiningTime = 0
                     },
                     WorkingStations = new List<WorkingStationParameterSet>()
                     {
@@ -145,7 +145,6 @@ namespace Master40.XUnitTest.DataGenerator
                             SetupTime = 4,
                             OperatorCount = 0
                         }
-
                     }
                 };
 
@@ -156,14 +155,14 @@ namespace Master40.XUnitTest.DataGenerator
                 double? doubleNull = null;
                 approach.ProductStructureInput = new ProductStructureInput
                 {
-                    EndProductCount = !randomGeneratedInputValues ? 2 : rng.Next(9) + 2,
-                    DepthOfAssembly = !randomGeneratedInputValues ? 6 : rng.Next(10) + 1,
-                    ComplexityRatio = !randomGeneratedInputValues ? 2.0 : rng.NextDouble() + 1,
+                    EndProductCount = !randomGeneratedInputValues ? 23 : rng.Next(9) + 2,
+                    DepthOfAssembly = !randomGeneratedInputValues ? 4 : rng.Next(10) + 1,
+                    ComplexityRatio = !randomGeneratedInputValues ? 1.85 : rng.NextDouble() + 1,
                     ReutilisationRatio = !randomGeneratedInputValues ? 1.0 : rng.NextDouble() + 1,
-                    MeanIncomingMaterialAmount = 2.5,
-                    StdDevIncomingMaterialAmount = 0.7,
-                    MeanWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 3.0,
-                    VarianceWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 1.0
+                    MeanIncomingMaterialAmount = 3,
+                    StdDevIncomingMaterialAmount = 0.0,
+                    MeanWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 8.0,
+                    VarianceWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 0.0
                 };
                 //System.Diagnostics.Debug.WriteLine(approach.ProductStructureInput.ToString());
 
@@ -185,8 +184,8 @@ namespace Master40.XUnitTest.DataGenerator
         [Fact]
         public void GenerateData() //Generierung für Simulation direkt im Testfall, wo Simulation durchgeführt wird
         {
-            var approachRangeStart = 4;
-            var approachRangeEnd = 4;
+            var approachRangeStart = 42;
+            var approachRangeEnd = 42;
             for (var i = approachRangeStart; i < approachRangeEnd + 1; i++)
             {
                 var approachId = i;
@@ -209,7 +208,7 @@ namespace Master40.XUnitTest.DataGenerator
         [Fact]
         public void CheckOrganizationDegreeFromResults()
         {
-            var simNumber = 16;
+            var simNumber = 1;
             var dbContext = MasterDBContext.GetContext(testCtxString);
             var dbResultCtx = ResultContext.GetContext(testResultCtxString);
             var dbGeneratorCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);

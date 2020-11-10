@@ -30,27 +30,27 @@ namespace Master40.XUnitTest.DataGenerator
             yield return new object[]  
             {
                 4       // approach id (test data generator input parameter set id)
-                , 14    // order Quantity
+                , 12    // order Quantity
                 , 240   // max bucket size
-                , 205   // throughput time
+                , 470   // throughput time
                 , 3664  // Random seed
-                , 1/200d// arrival rate
+                , 1/440d// arrival rate
                 , 2880  // simulation end
-                , 200   // min delivery time
-                , 225   // max delivery time
+                , 470   // min delivery time
+                , 480   // max delivery time
             };
             // Simulation run 2
             yield return new object[]
             {
                 8       // approach id (test data generator input parameter set id)
-                , 3     // order Quantity
+                , 2     // order Quantity
                 , 240   // max bucket size
-                , 900   // throughput time
+                , 1400  // throughput time
                 , 552   // Random seed
-                , 1/875d// arrival rate
+                , 1/1300d// arrival rate
                 , 2880  // simulation end
-                , 890   // min delivery time
-                , 950   // max delivery time
+                , 1400   // min delivery time
+                , 1440   // max delivery time
             };
         }
 
@@ -63,7 +63,9 @@ namespace Master40.XUnitTest.DataGenerator
         /// <param name="throughput"></param>
         /// <param name="seed"></param>
         /// <param name="arrivalRate"></param>
-        /// /// <param name="simulationEnd"></param>
+        /// <param name="simulationEnd"></param>
+        /// <param name="minDeliveryTime"></param>
+        /// <param name="maxDeliveryTime"></param>
         /// <returns></returns>
         [Theory]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]

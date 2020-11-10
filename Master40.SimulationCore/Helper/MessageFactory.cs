@@ -159,7 +159,7 @@ namespace Master40.SimulationCore.Helper
                 , storageAgent: ActorRefs.NoSender
                 , originRequester: requester
                 , dispoRequester: ActorRefs.Nobody
-                , providerList: new List<FStockProvider>()
+                , providerList: new List<FStockProvider>(100)
                 , finishedAt: 0
             );
             return article.CreateProductionKeys.SetPrimaryKey;
