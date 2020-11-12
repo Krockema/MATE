@@ -70,7 +70,8 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                 // it is probably neccesary to do this for each sub capability.
                 var filtered = resourceInformation.ResourceCapabilityProvider.Where(x => x.ResourceCapability.ParentResourceCapabilityId == capability.Id).ToList();
                 var resourceInfo = new FResourceInformation(resourceId: resourceInformation.ResourceId
-                                                            , filtered
+                                                            , resourceName: resourceInformation.ResourceName
+                                                            , resourceCapabilityProvider : filtered
                                                             , requiredFor: capability.Name
                                                             , this.Agent.Context.Sender);
                 Agent.Send(Hub.Instruction.Default.AddResourceToHub.Create(resourceInfo, hub));
@@ -126,13 +127,15 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
         /// <param name="discriminator"></param>
         private void RequestAgent(string discriminator)
         {
-            FResourceType type = FResourceType.Hub;
+            FResourceType type = FResourceType.Storage;
+            type = FResourceType.Hub;
             // find the related Hub/Storage Agent
-            var agentToProvide = _hubAgentActorRef;
+            var agentToProvide = storageManager.GetHubActorRefBy(discriminator);
             if (agentToProvide == null)
             {
-                type = FResourceType.Storage;
-                agentToProvide = storageManager.GetHubActorRefBy(discriminator);
+                type = FResourceType.Hub;
+                agentToProvide = _hubAgentActorRef;
+                
             }
 
             if (agentToProvide == null) throw new Exception("no Resource found!");

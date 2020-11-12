@@ -17,6 +17,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 case SimulationType.Default:
                     behaviour = Default(workTimeGenerator: workTimeGenerator, capabilityProvider, timeConstraintQueueLength, resourceId);
                     break;
+                case SimulationType.Queuing:
+                    behaviour = Queuing(capabilityProvider, resourceId);
+                    break;
                 default:
                     behaviour = Default(workTimeGenerator: workTimeGenerator, capabilityProvider, timeConstraintQueueLength, resourceId);
                     break;
@@ -38,6 +41,10 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         public static IBehaviour Central(FCentralResourceDefinition resourceDefinition)
         {
             return new Central(resourceDefinition, SimulationType.Central);
+        }
+        private static IBehaviour Queuing(List<M_ResourceCapabilityProvider> capabilityProvider, int resourceId)
+        {
+            return new Queuing(resourceId: resourceId, capabilityProvider: capabilityProvider);
         }
 
     }

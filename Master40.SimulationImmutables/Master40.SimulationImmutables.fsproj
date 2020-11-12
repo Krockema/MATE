@@ -31,7 +31,8 @@
     <Compile Include="Interface\ITimeRanges.fs" />
     <Compile Include="Interface\IKey.fs" />
     <Compile Include="Interface\IJob.fs" />
-    <Compile Include="Interface\IJobResults.fs" />
+    <Compile Include="Interface\IJobResults.fs"/>
+    <Compile Include="Interface\IQueuingJob.fs" />
     <Compile Include="Message\FOperation.fs" />
     <Compile Include="Message\FOperationResults.fs" />
     <Compile Include="Message\FArticle.fs" />
@@ -64,6 +65,8 @@
     <Compile Include="Message\FSetupConfirmations.fs" />
     <Compile Include="Message\FJobConfirmations.fs" />
     <Compile Include="Message\FJobResourceConfirmations.fs" />
+    <Compile Include="Message\Queuing\FQueuingSetups.fs" />
+    <Compile Include="Message\Queuing\FQueuingJobs.fs" />
   </ItemGroup>
 
   <ItemGroup>

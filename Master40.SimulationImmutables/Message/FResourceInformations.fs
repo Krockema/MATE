@@ -6,6 +6,7 @@ open Master40.DB.DataModel
     type public FResourceInformation = 
         {
             ResourceId : int32
+            ResourceName : string
             ResourceCapabilityProvider : System.Collections.Generic.List<M_ResourceCapabilityProvider>
             RequiredFor : string
             Ref : IActorRef

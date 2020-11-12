@@ -14,6 +14,8 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
                     break;
                 case SimulationType.Central: behaviour = Central(simType);
                     break;
+                case SimulationType.Queuing: behaviour = Default(simType);
+                    break;
                 default:
                     behaviour = Default();
                     break;
@@ -22,9 +24,9 @@ namespace Master40.SimulationCore.Agents.ContractAgent.Behaviour
             return behaviour;
         }
 
-        private static IBehaviour Default()
+        private static IBehaviour Default(SimulationType simType = SimulationType.Default)
         {
-            return new Default();
+            return new Default(simType);
         }
 
         private static IBehaviour Central(SimulationType simType)

@@ -45,7 +45,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Theory]
         //[InlineData(remoteMasterCtxString, remoteResultCtxString)] 
         //[InlineData(masterCtxString, masterResultCtxString)]
-        [InlineData(masterCtxString, testResultCtxString, testGeneratorCtxString)]
+        [InlineData(testCtxString, testResultCtxString, testGeneratorCtxString)]
         public void ResetResultsDB(string connectionString, string resultConnectionString, string generatorConnectionString)
         {
             MasterDBContext masterCtx = MasterDBContext.GetContext(connectionString);
@@ -135,7 +135,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         [Theory]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
-        [InlineData(SimulationType.Default, 1100, 240, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.015, false)]
+        [InlineData(SimulationType.Queuing, 1100, 240, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.015, false)]
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput,
             int seed
             , ModelSize resourceModelSize, ModelSize setupModelSize
@@ -167,14 +167,14 @@ namespace Master40.XUnitTest.SimulationEnvironment
             MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, ModelSize.Small, 3, distributeSetupsExponentially);
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(DBContext: masterCtx, messageHub: new ConsoleHub());
-            var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(_ctxResult, 1);
+            var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
             // update customized Items
             simConfig.AddOption(new DBConnectionString(testResultCtxString));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new KpiTimeSpan(1440));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 150)); 
+            simConfig.ReplaceOption(new OrderQuantity(value: 1500)); 
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
@@ -184,6 +184,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
             simConfig.ReplaceOption(new DebugSystem(value: false));
+            simConfig.ReplaceOption(new DebugAgents(value: false));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
             simConfig.ReplaceOption(new MinDeliveryTime(1920));
             simConfig.ReplaceOption(new MaxDeliveryTime(2880));

@@ -13,18 +13,24 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
                 case SimulationType.Default:
                     behaviour = Default();
                     break;
+                case SimulationType.Central:
+                    behaviour = Default(simType);
+                    break;
+                case SimulationType.Queuing:
+                    behaviour = Default(simType);
+                    break;
                 default:
-                    behaviour = Default();
+                    behaviour = Default(simType);
                     break;
             }
 
             return behaviour;
         }
 
-        private static IBehaviour Default()
+        private static IBehaviour Default(SimulationType simulationType = SimulationType.Default)
         { 
 
-            return new Default();
+            return new Default(simulationType);
 
         }
 
