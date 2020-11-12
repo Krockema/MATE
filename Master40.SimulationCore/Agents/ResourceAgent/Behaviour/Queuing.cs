@@ -1,21 +1,14 @@
 ﻿using Master40.DB.DataModel;
 using Master40.DB.Nominal;
-using Master40.SimulationCore.Helper.DistributionProvider;
+using Master40.SimulationCore.Agents.DirectoryAgent;
+using Master40.SimulationCore.Agents.HubAgent;
+using Master40.SimulationCore.Agents.ResourceAgent.Types;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Master40.SimulationCore.Agents.DirectoryAgent;
-using Master40.SimulationCore.Agents.ResourceAgent.Types;
-using static FCentralActivities;
-using static FCentralResourceDefinitions;
 using static FCreateTaskItems;
 using static FQueuingJobs;
 using static FResourceInformations;
-using static FQueuingSetups;
 using static IQueueingJobs;
-using Master40.SimulationCore.Agents.HubAgent;
-using Master40.SimulationCore.Helper;
-using static FOperations;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
@@ -91,7 +84,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 , end: Agent.CurrentTime + job.Duration
                 , capability: job.CapabilityProvider.ResourceCapability.Name
                 , operation: job.JobType == JobType.SETUP ? "Setup for " + job.JobName : job.JobName
-                , groupId: job.Key.ToString());
+                , groupId: Math.Abs(job.Key.GetHashCode()));
 
             //TODO NO tracking
             Agent.Context.System.EventStream.Publish(@event: pub);

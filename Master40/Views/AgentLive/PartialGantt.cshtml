@@ -120,7 +120,8 @@
         var minTime = maxTime - 500;
         var seed = new Math.seedrandom('randomSeed');
         var randomNr = seed();
-        var colorIndex = element.GroupId.substring(8, element.GroupId.indexOf(")"));;
+        var colorIndex = element.GroupId;
+        console.log(colorIndex);
         //var uniques = GetUniqueOrders(parsed_json);
         //var uniqueIterator = uniques.values();
         //for (i = 0; i < uniques.size; i++) {

@@ -75,7 +75,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 , end: Agent.CurrentTime + activity.Duration
                 , capability: activity.Capability
                 , operation: activity.ActivityType == JobType.SETUP ? "Setup for "+ activity.Name : activity.Name
-                , groupId: activity.ProductionOrderId + activity.OperationId + activity.ActivityId + activity.GanttPlanningInterval);
+                , groupId: int.Parse(activity.ProductionOrderId + activity.OperationId + activity.ActivityId + activity.GanttPlanningInterval));
 
             //TODO NO tracking
             Agent.Context.System.EventStream.Publish(@event: pub);

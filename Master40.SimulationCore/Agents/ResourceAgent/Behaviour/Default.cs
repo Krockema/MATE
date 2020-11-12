@@ -464,13 +464,13 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         {
             var pub = new FCreateTaskItem(
                 type: JobType.OPERATION
-                , resource: Agent.Name.Replace("Resource(", "").Replace(")","")
+                , resource: Agent.Name.Replace("Resource(", "").Replace(")", "")
                 , resourceId: _resourceId
                 , start: Agent.CurrentTime
                 , end: Agent.CurrentTime + item.Operation.RandomizedDuration
                 , capability: _jobInProgress.RequiredCapabilityName
                 , operation: item.Operation.Name
-                , groupId: _jobInProgress.JobName );
+                , groupId: int.Parse(_jobInProgress.JobName.Substring(8, _jobInProgress.JobName.IndexOf(')'))));
 
             //TODO NO tracking
             Agent.Context.System.EventStream.Publish(@event: pub);
@@ -486,7 +486,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 , end: Agent.CurrentTime + gap
                 , capability: _capabilityProviderManager.GetCurrentUsedCapability().Name
                 , operation: $"{type} for {_jobInProgress.JobName}"
-                , groupId: _jobInProgress.JobName );
+                , groupId: int.Parse(_jobInProgress.JobName.Substring(8, _jobInProgress.JobName.IndexOf(')'))));
 
             //TODO NO tracking
             Agent.Context.System.EventStream.Publish(@event: pub);
