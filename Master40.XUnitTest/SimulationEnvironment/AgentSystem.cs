@@ -46,12 +46,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
         //[InlineData(remoteMasterCtxString, remoteResultCtxString)] 
         //[InlineData(masterCtxString, masterResultCtxString)]
         [InlineData(testCtxString, testResultCtxString, testGeneratorCtxString)]
-        public void ResetResultsDB(string connectionString, string resultConnectionString, string generatorConnectionString)
+        public void ResetResultsDB(string connectionString, string resultConnectionString, string generatorConnectionString = testGeneratorCtxString)
         {
             MasterDBContext masterCtx = MasterDBContext.GetContext(connectionString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Small, ModelSize.Small, 3,  false);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3,  false);
             
             ResultContext results = ResultContext.GetContext(resultCon: resultConnectionString);
             results.Database.EnsureDeleted();
@@ -135,7 +135,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         [Theory]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
-        [InlineData(SimulationType.Queuing, 1100, 240, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.015, false)]
+        [InlineData(SimulationType.Default, 1, 240, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.015, false)]
+        [InlineData(SimulationType.Queuing, 2, 240, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.015, false)]
+
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput,
             int seed
             , ModelSize resourceModelSize, ModelSize setupModelSize
@@ -157,14 +159,14 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
             //CreateMaster40Result
             var masterPlanResultContext = ResultContext.GetContext(testResultCtxString);
-            masterPlanResultContext.Database.EnsureDeleted();
+            /*masterPlanResultContext.Database.EnsureDeleted();
             masterPlanResultContext.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(masterPlanResultContext);
-
+            */
             var masterCtx = ProductionDomainContext.GetContext(testCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, ModelSize.Small, 3, distributeSetupsExponentially);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, setupModelSize, 3, distributeSetupsExponentially);
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(DBContext: masterCtx, messageHub: new ConsoleHub());
             var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);

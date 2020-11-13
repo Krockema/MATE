@@ -470,7 +470,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 , end: Agent.CurrentTime + item.Operation.RandomizedDuration
                 , capability: _jobInProgress.RequiredCapabilityName
                 , operation: item.Operation.Name
-                , groupId: int.Parse(_jobInProgress.JobName.Substring(8, _jobInProgress.JobName.IndexOf(')'))));
+                , groupId: int.Parse(_jobInProgress.JobName.Substring(8, _jobInProgress.JobName.IndexOf(")") - 8)));
 
             //TODO NO tracking
             Agent.Context.System.EventStream.Publish(@event: pub);
@@ -486,7 +486,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
                 , end: Agent.CurrentTime + gap
                 , capability: _capabilityProviderManager.GetCurrentUsedCapability().Name
                 , operation: $"{type} for {_jobInProgress.JobName}"
-                , groupId: int.Parse(_jobInProgress.JobName.Substring(8, _jobInProgress.JobName.IndexOf(')'))));
+                , groupId: int.Parse(_jobInProgress.JobName.Substring(8, _jobInProgress.JobName.IndexOf(")") - 8)));
 
             //TODO NO tracking
             Agent.Context.System.EventStream.Publish(@event: pub);
