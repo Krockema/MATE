@@ -29,18 +29,18 @@ namespace Master40.XUnitTest.DataGenerator
             // Simulation run 1
             yield return new object[]  
             {
-                4       // approach id (test data generator input parameter set id)
-                , 12    // order Quantity
+                18      // approach id (test data generator input parameter set id)
+                , 240   // order Quantity
                 , 240   // max bucket size
-                , 470   // throughput time
-                , 3664  // Random seed
-                , 1/440d// arrival rate
-                , 2880  // simulation end
-                , 470   // min delivery time
-                , 480   // max delivery time
+                , 60    // throughput time
+                , 348345// Random seed
+                , 1/60d // arrival rate
+                , 15000 // simulation end
+                , 55    // min delivery time
+                , 65    // max delivery time
             };
             // Simulation run 2
-            yield return new object[]
+            /*yield return new object[]
             {
                 8       // approach id (test data generator input parameter set id)
                 , 2     // order Quantity
@@ -51,7 +51,7 @@ namespace Master40.XUnitTest.DataGenerator
                 , 2880  // simulation end
                 , 1400   // min delivery time
                 , 1440   // max delivery time
-            };
+            };*/
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace Master40.XUnitTest.DataGenerator
 
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PRIORITY, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.SCHEDULING, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.DISPOPRODRELATION, LogLevel.Debug, LogLevel.Debug);

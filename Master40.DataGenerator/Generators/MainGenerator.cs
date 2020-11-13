@@ -17,7 +17,7 @@ namespace Master40.DataGenerator.Generators
 
         public TransitionMatrix TransitionMatrix { get; set; }
 
-        public void StartGeneration(Approach approach, MasterDBContext dbContext, ResultContext resultContext, bool doVerify = false)
+        public void StartGeneration(Approach approach, MasterDBContext dbContext, ResultContext resultContext, bool doVerify = false, double setupTimeFactor = double.NaN)
         {
             dbContext.Database.EnsureDeleted();
             dbContext.Database.EnsureCreated();
@@ -76,8 +76,11 @@ namespace Master40.DataGenerator.Generators
                         productStructure.NodesPerLevel, resourceCapabilities);
                 }
 
-                var capacityDemandVerifier = new CapacityDemandVerifier(0.0);
-                capacityDemandVerifier.Verify(productStructure);
+                if (!double.IsNaN(setupTimeFactor))
+                {
+                    var capacityDemandVerifier = new CapacityDemandVerifier(setupTimeFactor);
+                    capacityDemandVerifier.Verify(productStructure);
+                }
             }
         }
     }
