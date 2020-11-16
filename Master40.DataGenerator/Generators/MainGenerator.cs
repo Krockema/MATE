@@ -17,7 +17,7 @@ namespace Master40.DataGenerator.Generators
 
         public TransitionMatrix TransitionMatrix { get; set; }
 
-        public void StartGeneration(Approach approach, MasterDBContext dbContext, ResultContext resultContext, bool doVerify = false)
+        public void StartGeneration(Approach approach, MasterDBContext dbContext, ResultContext resultContext, bool doVerify = false, double setupTimeFactor = double.NaN)
         {
             dbContext.Database.EnsureDeleted();
             dbContext.Database.EnsureCreated();
@@ -75,22 +75,13 @@ namespace Master40.DataGenerator.Generators
                     transitionMatrixGeneratorVerifier.VerifyGeneratedData(TransitionMatrix,
                         productStructure.NodesPerLevel, resourceCapabilities);
                 }
-            }
 
-            //##### TEMP
-            var incomingEdgeCount = 0;
-            foreach (var level in productStructure.NodesPerLevel)
-            {
-                foreach (var node in level)
+                if (!double.IsNaN(setupTimeFactor))
                 {
-                    incomingEdgeCount += node.Value.IncomingEdges.Count;
+                    var capacityDemandVerifier = new CapacityDemandVerifier(setupTimeFactor);
+                    capacityDemandVerifier.Verify(productStructure);
                 }
             }
-
-            var actualCR = incomingEdgeCount / (1.0 * (productStructure.NodesCounter - productStructure.NodesPerLevel[^1].Count));
-
-            System.Diagnostics.Debug.WriteLine("################################# eingesteller KG: " + approach.ProductStructureInput.ComplexityRatio + "; eigentlicher KG: " + actualCR);
-            //##### TEMP END
         }
     }
 }
