@@ -108,6 +108,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                     , resource: resource
                                                                     , time: Agent.CurrentTime
                                                                     , debug: Agent.DebugThis
+                                                                    , measurementActorRef: Agent.ActorPaths.MeasurementAgent.Ref
                                                                     , principal: Agent.Context.Self)
                                                     , name: ("Resource(" + resource.Name + ")").ToActorName());
 

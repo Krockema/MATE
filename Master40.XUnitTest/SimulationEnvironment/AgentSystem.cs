@@ -51,7 +51,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             MasterDBContext masterCtx = MasterDBContext.GetContext(connectionString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3,  false);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3,  false, false);
        
             ResultContext results = ResultContext.GetContext(resultCon: resultConnectionString);
             results.Database.EnsureDeleted();
@@ -135,8 +135,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         [Theory]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
-        [InlineData(SimulationType.Default, 1, 240, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.015, false)]
-        [InlineData(SimulationType.Queuing, 2, 240, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.015, false)]
+        [InlineData(SimulationType.Default, 1, 240, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        [InlineData(SimulationType.Queuing, 2, 240, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput,
             int seed
             , ModelSize resourceModelSize, ModelSize setupModelSize
@@ -167,7 +167,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
 
-            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, setupModelSize, 3, distributeSetupsExponentially);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, setupModelSize, 3, distributeSetupsExponentially, false);
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(DBContext: masterCtx, messageHub: new ConsoleHub());
             var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
