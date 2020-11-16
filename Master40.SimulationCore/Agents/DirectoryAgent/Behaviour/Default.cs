@@ -8,6 +8,7 @@ using Master40.SimulationCore.Helper.DistributionProvider;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Actor;
 using static FAgentInformations;
 using static FBreakDowns;
 using static FCapabilityProviderDefinitions;
@@ -109,7 +110,8 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                     , resource: resource
                                                                     , time: Agent.CurrentTime
                                                                     , debug: Agent.DebugThis
-                                                                    , principal: Agent.Context.Self)
+                                                                    , principal: Agent.Context.Self
+                                                                    , measurementActorRef: ActorRefs.Nobody)
                                                     , name: ("Resource(" + resource.Name + ")").ToActorName());
 
             Agent.Send(instruction: BasicInstruction.Initialize

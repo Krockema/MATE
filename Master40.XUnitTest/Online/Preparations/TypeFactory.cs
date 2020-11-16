@@ -52,7 +52,15 @@ namespace Master40.XUnitTest.Online.Preparations
                 ArticleBoms = new List<M_ArticleBom> { bom },
                 ResourceCapability = new M_ResourceCapability { Name = "Cutting" }
             };
-            return MessageFactory.ToOperationItem(operation, dueTime: dueTime, customerDue: customerDue, productionAgent: ActorRefs.Nobody, firstOperation: preCondition, currentTime: currentTime, remainingWork: 0);
+            return MessageFactory.ToOperationItem(
+                m_operation: operation, 
+                dueTime: dueTime,
+                customerDue: customerDue,
+                productionAgent: ActorRefs.Nobody,
+                firstOperation: preCondition,
+                currentTime: currentTime,
+                remainingWork: 0,
+                articleKey: Guid.NewGuid());
         }
 
 

@@ -73,7 +73,7 @@ namespace Master40.XUnitTest.Online.Integration
             _testOutputHelper.WriteLine("ResultDatabaseString: " + _resultContextDataBase.ConnectionString.Value);
             //Handle this one in our Resource Model?
             MasterDBInitializerTruck.DbInitialize(_contextDataBase.DbContext, resourceModelSize, setupModelSize,
-                operatorModelSize, numberOfWorkers, secondResource);
+                operatorModelSize, numberOfWorkers, secondResource, false);
             _testOutputHelper.WriteLine("MasterDBInitialized finished");
             ResultDBInitializerBasic.DbInitialize(_resultContextDataBase.DbContext);
             _testOutputHelper.WriteLine("ResultDBInitializerBasic finished");

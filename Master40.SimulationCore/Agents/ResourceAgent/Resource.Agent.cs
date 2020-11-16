@@ -15,9 +15,9 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
     {
         internal M_Resource _resource;
         // public Constructor
-        public static Props Props(ActorPaths actorPaths, M_Resource resource, long time, bool debug, IActorRef principal)
+        public static Props Props(ActorPaths actorPaths, M_Resource resource, long time, bool debug, IActorRef principal, IActorRef measurementActorRef)
         {
-            return Akka.Actor.Props.Create(factory: () => new Resource(actorPaths, resource, time, debug, principal));
+            return Akka.Actor.Props.Create(factory: () => new Resource(actorPaths, resource, time, debug, principal, measurementActorRef));
         }
 
         public static Props Props(ActorPaths actorPaths, long time, bool debug, IActorRef principal)
@@ -25,7 +25,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
             return Akka.Actor.Props.Create(factory: () => new Resource(actorPaths, time, debug, principal));
         }
 
-        public Resource(ActorPaths actorPaths, M_Resource resource, long time, bool debug, IActorRef principal) : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
+        public Resource(ActorPaths actorPaths, M_Resource resource, long time, bool debug, IActorRef principal, IActorRef measurementActorRef) : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
         {
             _resource = resource;
         }

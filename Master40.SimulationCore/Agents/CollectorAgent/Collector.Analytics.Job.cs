@@ -90,7 +90,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         /// <param name="simulationResourceSetup"></param>
         private void CreateSetup(FCreateSimulationResourceSetup simulationResourceSetup)
         {
-            var _SimulationResourceSetup = new DB.ReportingModel.Setup
+            var _SimulationResourceSetup = new Setup
             {
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,
@@ -241,6 +241,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,
                 SimulationType = Collector.simulationKind.Value,
+                CapabilityProvider = simJob.CapabilityProvider,
                 CreatedForOrderId = string.Empty,
                 Article = simJob.ArticleName,
                 OrderId = "[" + simJob.CustomerOrderId + "]",
@@ -253,6 +254,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 ExpectedDuration = simJob.OperationDuration,
                 ArticleType = simJob.ArticleType,
                 CapabilityName = simJob.RequiredCapabilityName,
+                Bucket = simJob.JobName,
                 Start = simJob.Start,
                 End =  simJob.End,
             };

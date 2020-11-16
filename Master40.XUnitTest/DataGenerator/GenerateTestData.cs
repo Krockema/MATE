@@ -31,7 +31,7 @@ namespace Master40.XUnitTest.DataGenerator
 
             for (var i = 0; i < iterations; i++)
             {
-                var usePresetSeed = true;
+                var usePresetSeed = false;
                 var rng = new Random();
                 int seed = usePresetSeed ? 2083793265 : rng.Next();
 
@@ -43,7 +43,7 @@ namespace Master40.XUnitTest.DataGenerator
                 };
 
                 //Limit für Lambda und Anzahl Bearbeitungsstationen jeweils 100
-                var individualMachiningTime = true;
+                var individualMachiningTime = false;
                 approach.TransitionMatrixInput = new TransitionMatrixInput
                 {
                     DegreeOfOrganization = 0.13,
@@ -52,8 +52,8 @@ namespace Master40.XUnitTest.DataGenerator
                     ExtendedTransitionMatrix = true,
                     GeneralMachiningTimeParameterSet = individualMachiningTime ? null : new MachiningTimeParameterSet
                     {
-                        MeanMachiningTime = 15,
-                        VarianceMachiningTime = 5
+                        MeanMachiningTime = 1,
+                        VarianceMachiningTime = 0
                     },
                     WorkingStations = new List<WorkingStationParameterSet>()
                     {
@@ -61,113 +61,46 @@ namespace Master40.XUnitTest.DataGenerator
                         {
                             MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0
+                                MeanMachiningTime = 1, VarianceMachiningTime = 0.1
                             },
-                            ResourceCount = 10,
-                            ToolCount = 1,
-                            SetupTime = 1,
+                            ResourceCount = 5,
+                            ToolCount = 7,
+                            SetupTime = 4,
                             OperatorCount = 0
                         },
                         new WorkingStationParameterSet()
                         {
                             MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0
+                                MeanMachiningTime = 1, VarianceMachiningTime = 0.1
                             },
-                            ResourceCount = 10,
-                            ToolCount = 1,
-                            SetupTime = 1,
+                            ResourceCount = 5,
+                            ToolCount = 7,
+                            SetupTime = 4,
                             OperatorCount = 0
                         },
                         new WorkingStationParameterSet()
                         {
                             MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0
+                                MeanMachiningTime = 1, VarianceMachiningTime = 0.1
                             },
-                            ResourceCount = 10,
-                            ToolCount = 1,
-                            SetupTime = 1,
+                            ResourceCount = 5,
+                            ToolCount = 7,
+                            SetupTime = 4,
                             OperatorCount = 0
                         },
                         new WorkingStationParameterSet()
                         {
                             MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0
+                                MeanMachiningTime = 1, VarianceMachiningTime = 0.1
                             },
-                            ResourceCount = 10,
-                            ToolCount = 1,
-                            SetupTime = 1,
-                            OperatorCount = 0
-                        },
-                        new WorkingStationParameterSet()
-                        {
-                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
-                            {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0
-                            },
-                            ResourceCount = 10,
-                            ToolCount = 1,
-                            SetupTime = 1,
-                            OperatorCount = 0
-                        },
-                        new WorkingStationParameterSet()
-                        {
-                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
-                            {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0
-                            },
-                            ResourceCount = 10,
-                            ToolCount = 1,
-                            SetupTime = 1,
-                            OperatorCount = 0
-                        },
-                        new WorkingStationParameterSet()
-                        {
-                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
-                            {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0
-                            },
-                            ResourceCount = 10,
-                            ToolCount = 1,
-                            SetupTime = 1,
-                            OperatorCount = 0
-                        },
-                        new WorkingStationParameterSet()
-                        {
-                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
-                            {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0
-                            },
-                            ResourceCount = 10,
-                            ToolCount = 1,
-                            SetupTime = 1,
-                            OperatorCount = 0
-                        },
-                        new WorkingStationParameterSet()
-                        {
-                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
-                            {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0
-                            },
-                            ResourceCount = 10,
-                            ToolCount = 1,
-                            SetupTime = 1,
-                            OperatorCount = 0
-                        },
-                        new WorkingStationParameterSet()
-                        {
-                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
-                            {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0
-                            },
-                            ResourceCount = 10,
-                            ToolCount = 1,
-                            SetupTime = 1,
+                            ResourceCount = 5,
+                            ToolCount = 7,
+                            SetupTime = 4,
                             OperatorCount = 0
                         }
-
                     }
                 };
 
@@ -178,16 +111,16 @@ namespace Master40.XUnitTest.DataGenerator
                 double? doubleNull = null;
                 approach.ProductStructureInput = new ProductStructureInput
                 {
-                    EndProductCount = !randomGeneratedInputValues ? 1000 : rng.Next(9) + 2,
-                    DepthOfAssembly = !randomGeneratedInputValues ? 2 : rng.Next(10) + 1,
-                    ComplexityRatio = !randomGeneratedInputValues ? 1.0 : rng.NextDouble() + 1,
-                    ReutilisationRatio = !randomGeneratedInputValues ? 1.0 : rng.NextDouble() + 1,
-                    MeanIncomingMaterialAmount = 1,
-                    StdDevIncomingMaterialAmount = 0.01,
-                    MeanWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 3.0,
-                    VarianceWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 1.0
+                    EndProductCount = !randomGeneratedInputValues ? 100 : rng.Next(9) + 2,
+                    DepthOfAssembly = !randomGeneratedInputValues ? 4 : rng.Next(10) + 1,
+                    ComplexityRatio = !randomGeneratedInputValues ? 1.85 : rng.NextDouble() + 1,
+                    ReutilisationRatio = !randomGeneratedInputValues ? 1.4 : rng.NextDouble() + 1,
+                    MeanIncomingMaterialAmount = 1.6,
+                    StdDevIncomingMaterialAmount = 0.5,
+                    MeanWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 8.0,
+                    VarianceWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 0.0
                 };
-                //_testOutputHelper.WriteLine(approach.ProductStructureInput.ToString());
+                //System.Diagnostics.Debug.WriteLine(approach.ProductStructureInput.ToString());
 
                 approach.BomInput = new BillOfMaterialInput
                 {
@@ -207,7 +140,9 @@ namespace Master40.XUnitTest.DataGenerator
         [Fact]
         public void GenerateData() //Generierung für Simulation direkt im Testfall, wo Simulation durchgeführt wird
         {
-            for (var i = 5; i < 6; i++)
+            var approachRangeStart = 18;
+            var approachRangeEnd = 18;
+            for (var i = approachRangeStart; i < approachRangeEnd + 1; i++)
             {
                 var approachId = i;
                 var generatorDbCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
@@ -220,7 +155,7 @@ namespace Master40.XUnitTest.DataGenerator
                 var resultContext = ResultContext.GetContext(testResultCtxString);
 
                 var generator = new MainGenerator();
-                generator.StartGeneration(approach, dbContext, resultContext, true);
+                generator.StartGeneration(approach, dbContext, resultContext, true, 0.4);
             }
             Assert.True(true);
 
@@ -229,7 +164,7 @@ namespace Master40.XUnitTest.DataGenerator
         [Fact]
         public void CheckOrganizationDegreeFromResults()
         {
-            var simNumber = 9;
+            var simNumber = 27;
             var dbContext = MasterDBContext.GetContext(testCtxString);
             var dbResultCtx = ResultContext.GetContext(testResultCtxString);
             var dbGeneratorCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);

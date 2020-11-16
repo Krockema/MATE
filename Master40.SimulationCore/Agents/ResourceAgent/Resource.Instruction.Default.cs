@@ -3,6 +3,7 @@ using AkkaSim.Definitions;
 using System;
 using static FAgentInformations;
 using static FJobConfirmations;
+using static FMeasurementInformations;
 using static FOperations;
 using static FRequestProposalForCapabilityProviders;
 using static IConfirmations;
@@ -170,6 +171,18 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
                     {
                     }
                     public Guid GetObjectFromMessage { get => (Guid)Message; }
+                }
+
+                public class CreateMeasurements : SimulationMessage
+                {
+                    public static CreateMeasurements Create(FMeasurementInformation message, IActorRef target)
+                    {
+                        return new CreateMeasurements(message: message, target: target);
+                    }
+                    private CreateMeasurements(object message, IActorRef target) : base(message: message, target: target)
+                    {
+                    }
+                    public FMeasurementInformation GetObjectFromMessage { get => (FMeasurementInformation)Message; }
                 }
 
 
