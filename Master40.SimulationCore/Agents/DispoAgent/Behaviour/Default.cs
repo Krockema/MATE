@@ -25,7 +25,7 @@ namespace Master40.SimulationCore.Agents.DispoAgent.Behaviour
 {
     public class Default : SimulationCore.Types.Behaviour
     {
-        internal Default(SimulationType simulationType = SimulationType.None)
+        internal Default(SimulationType simulationType = SimulationType.Default)
             : base(childMaker: null, simulationType: simulationType)
         {
             fArticlesToProvide = new Dictionary<IActorRef, Guid>();

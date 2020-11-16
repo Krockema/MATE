@@ -16,7 +16,7 @@ namespace Master40.DB.ReportingModel
         public long End { get; set; }
         public string CapabilityName { get; set; }
         public string Operation { get; set; } //i.e. Cut Baseplate or Setup Tool XX
-        public string GroupId { get; set; } //usually the bucket
+        public long GroupId { get; set; } //usually the bucket
         public string Mapping { get  => Resource; }
     }
 }

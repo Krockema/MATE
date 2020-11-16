@@ -18,15 +18,15 @@ using static FResourceTypes;
 
 namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
 {
-    public class Default : SimulationCore.Types.Behaviour
+    public class Queuing : SimulationCore.Types.Behaviour
     {
-        internal Default(SimulationType simulationType = SimulationType.None)
+        internal Queuing(SimulationType simulationType)
                        : base(childMaker: null, simulationType: simulationType) { }
 
 
-        internal HubManager hubManager { get; set; } = new HubManager();
+        internal IActorRef _hubAgentActorRef { get; set; } = ActorRefs.Nobody;
         internal HubManager storageManager { get; set; } = new HubManager();
- 
+
         public override bool Action(object message)
         {
             switch (message)
@@ -36,31 +36,29 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                 case Directory.Instruction.Default.RequestAgent msg: RequestAgent(discriminator: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ResourceBrakeDown msg: ResourceBrakeDown(breakDown: msg.GetObjectFromMessage); break;
                 case Directory.Instruction.Default.ForwardRegistrationToHub msg: ForwardRegistrationToHub(msg.GetObjectFromMessage); break;
-                case Directory.Instruction.Default.CreateResourceHubAgents msg: CreateResourceHubAgents(capabilityDefinition: msg.GetObjectFromMessage); break;
+                case Directory.Instruction.Default.CreateResourceHubAgents msg: CreateResourceHubAgents(msg.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
         }
 
-        private void CreateResourceHubAgents(FResourceHubInformation capabilityDefinition)
+        private void CreateResourceHubAgents(FResourceHubInformation resourceHubInformation)
         {
-            // Create Capability based Hub Agent for each Capability of resource
-            var capability = capabilityDefinition.Capability as M_ResourceCapability;
-            var hub = hubManager.GetHubActorRefBy(capability.Name);
-            if (hub == null)
-            {
-                var hubAgent = Agent.Context.ActorOf(props: Hub.Props(actorPaths: Agent.ActorPaths
-                        , time: Agent.CurrentTime
-                        , simtype: SimulationType
-                        , maxBucketSize: capabilityDefinition.MaxBucketSize
-                        , workTimeGenerator: capabilityDefinition.WorkTimeGenerator as WorkTimeGenerator
-                        , debug: Agent.DebugThis
-                        , principal: Agent.Context.Self)
-                    , name: ("Hub(" + capability.Name + ")").ToActorName());
+            if (!_hubAgentActorRef.Equals(ActorRefs.Nobody))
+                return;
 
-                System.Diagnostics.Debug.WriteLine($"Created Hub {capability.Name} with {capabilityDefinition.MaxBucketSize} !");
-                hubManager.AddOrCreateRelation(hubAgent, capability);
-            }
+            var hubAgent = Agent.Context.ActorOf(props: Hub.Props(actorPaths: Agent.ActorPaths
+                    , time: Agent.CurrentTime
+                    , simtype: SimulationType
+                    , maxBucketSize: 0 // not used currently
+                    , workTimeGenerator: resourceHubInformation.WorkTimeGenerator as WorkTimeGenerator
+                    , debug: Agent.DebugThis
+                    , principal: Agent.Context.Self)
+                , name: "CentralHub");
+
+            _hubAgentActorRef = hubAgent;
+
+            System.Diagnostics.Debug.WriteLine($"Created Central Hub !");
         }
 
         private void ForwardRegistrationToHub(FResourceInformation resourceInformation)
@@ -68,12 +66,12 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
             var capabilites = resourceInformation.ResourceCapabilityProvider.Select(x => x.ResourceCapability.ParentResourceCapability).Distinct();
             foreach (M_ResourceCapability capability in capabilites)
             {
-                var hub = hubManager.GetHubActorRefBy(capability.Name);
+                var hub = _hubAgentActorRef;
                 // it is probably neccesary to do this for each sub capability.
                 var filtered = resourceInformation.ResourceCapabilityProvider.Where(x => x.ResourceCapability.ParentResourceCapabilityId == capability.Id).ToList();
-                var resourceInfo = new FResourceInformation(  resourceId: resourceInformation.ResourceId
+                var resourceInfo = new FResourceInformation(resourceId: resourceInformation.ResourceId
                                                             , resourceName: resourceInformation.ResourceName
-                                                            , resourceCapabilityProvider: filtered
+                                                            , resourceCapabilityProvider : filtered
                                                             , requiredFor: capability.Name
                                                             , this.Agent.Context.Sender);
                 Agent.Send(Hub.Instruction.Default.AddResourceToHub.Create(resourceInfo, hub));
@@ -83,7 +81,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
 
         private void ResourceBrakeDown(FBreakDown breakDown)
         {
-            var hub = hubManager.GetHubActorRefBy(breakDown.ResourceCapability);
+            var hub = _hubAgentActorRef;
             Agent.Send(instruction: BasicInstruction.ResourceBrakeDown.Create(message: breakDown, target: hub));
             System.Diagnostics.Debug.WriteLine(message: "Break for " + breakDown.Resource, category: "Directory");
         }
@@ -110,8 +108,8 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                     , resource: resource
                                                                     , time: Agent.CurrentTime
                                                                     , debug: Agent.DebugThis
-                                                                    , principal: Agent.Context.Self
-                                                                    , measurementActorRef: ActorRefs.Nobody)
+                                                                    , measurementActorRef: Agent.ActorPaths.MeasurementAgent.Ref
+                                                                    , principal: Agent.Context.Self)
                                                     , name: ("Resource(" + resource.Name + ")").ToActorName());
 
             Agent.Send(instruction: BasicInstruction.Initialize
@@ -130,15 +128,18 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
         /// <param name="discriminator"></param>
         private void RequestAgent(string discriminator)
         {
-            FResourceType type = FResourceType.Hub;
+            FResourceType type = FResourceType.Storage;
+            type = FResourceType.Hub;
             // find the related Hub/Storage Agent
-            var agentToProvide = hubManager.GetHubActorRefBy(discriminator);
-            if (agentToProvide == null) { 
-                type = FResourceType.Storage;
-                agentToProvide = storageManager.GetHubActorRefBy(discriminator);
-            } 
+            var agentToProvide = storageManager.GetHubActorRefBy(discriminator);
+            if (agentToProvide == null)
+            {
+                type = FResourceType.Hub;
+                agentToProvide = _hubAgentActorRef;
+                
+            }
 
-            if(agentToProvide == null) throw new Exception("no Resource found!");
+            if (agentToProvide == null) throw new Exception("no Resource found!");
 
             var hubInfo = new FAgentInformation(fromType: type
                 , requiredFor: discriminator

@@ -8,5 +8,5 @@
         End: int64 
         Capability : string
         Operation : string
-        GroupId : string
+        GroupId : int64
     }

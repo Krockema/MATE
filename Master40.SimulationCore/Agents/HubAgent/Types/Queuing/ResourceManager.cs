@@ -1,0 +1,85 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using Akka.Actor;
+using Akka.Util.Internal;
+using Master40.DB.DataModel;
+using static IJobs;
+
+namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
+{
+    public class ResourceManager
+    {
+        public List<ResourceState> _resourceList { get; }
+
+        public ResourceManager()
+        {
+            _resourceList = new List<ResourceState>();
+        }
+
+        public void Add(int resourceId, string resourceName, IActorRef resourceRef, string resourceType)
+        {
+            if (_resourceList.Exists(x => x._resourceId.Equals(resourceId)))
+            {
+                //Resource does already exits, create only capabilities
+                return;
+            }
+            
+            _resourceList.Add(new ResourceState(resourceId, resourceName, resourceRef, resourceType));
+        }
+
+        internal bool ResouresAreWorking(List<M_Resource> requiredResources)
+        {
+            var resourceStates = new List<ResourceState>();
+            foreach (var resource in requiredResources)
+            {
+                var state =_resourceList.Single(x => x._resourceId.Equals(resource.Id));
+                resourceStates.Add(state);
+            }
+
+            return resourceStates.Any(x => x.IsWorking);
+        }
+
+        internal void SetSetup(int resourceId, M_ResourceCapability resourceCapability)
+        {
+            _resourceList.Single(x => x._resourceId.Equals(resourceId)).SetupResource(resourceCapability);
+        }
+
+        internal void SetJob(int resourceId, IJob job)
+        {
+            _resourceList.Single(x => x._resourceId.Equals(resourceId)).SetJob(job);
+        }
+
+        internal void ResetJob(int resourceId)
+        {
+            _resourceList.Single(x => x._resourceId.Equals(resourceId)).ResetJob();
+        }
+
+        internal List<ResourceState> GetResourceStates(List<int> resourceIds)
+        {
+            var resourceStateList = new List<ResourceState>();
+
+            foreach (var resourceId in resourceIds)
+            {
+                resourceStateList.Add(_resourceList.Single(x => x._resourceId.Equals(resourceId)));
+            }
+
+            return resourceStateList;
+
+        }
+
+        internal bool RequireSetup(List<int> mainResources)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void SetJobQueue(IJob job, List<M_Resource> requiredResources)
+        {
+            var resourceStates = GetResourceStates(requiredResources.Select(x=> x.Id).ToList());
+
+            resourceStates.ForEach(x => x.SetJob(job));
+        }
+    }
+}

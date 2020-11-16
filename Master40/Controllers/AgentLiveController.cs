@@ -67,13 +67,21 @@ namespace Master40.Controllers
             simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
             simConfig.ReplaceOption(new MaxDeliveryTime(3120));
             simConfig.ReplaceOption(new MinDeliveryTime(2160));
-
-
+            
 
             switch (simulationType)
             {
-                case 1: RunAgentSimulation(simConfig); return;
-                case 2: RunGanttSimulation(simConfig); return;
+                case 1:
+                    simConfig.ReplaceOption(new SimulationKind(SimulationType.Default));
+                    RunAgentSimulation(simConfig); 
+                    return;
+                case 2: 
+                    RunGanttSimulation(simConfig); 
+                    return;
+                case 3: 
+                    simConfig.ReplaceOption(new SimulationKind(SimulationType.Queuing));
+                    RunAgentSimulation(simConfig);
+                    return;
                 default: return;
             }
 
@@ -81,7 +89,6 @@ namespace Master40.Controllers
 
         public async void RunAgentSimulation(Configuration simConfig)
         {
-            simConfig.ReplaceOption(new SimulationKind(value: SimulationType.Default));
             simConfig.ReplaceOption(new SimulationNumber(2));
             await _agentSimulator.RunAkkaSimulation(configuration: simConfig);
         }

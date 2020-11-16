@@ -5,6 +5,7 @@
         None,
         Central,
         Decentral,
-        Default
+        Default,
+        Queuing
     }
 }
