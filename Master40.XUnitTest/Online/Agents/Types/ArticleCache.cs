@@ -55,7 +55,7 @@ namespace Master40.XUnitTest.Online.Agents.Types
 
         private void InitializeTestModel()
         {
-            MasterDBInitializerTruck.DbInitialize(_contextDataBase.DbContext, ModelSize.TestModel, ModelSize.Small, ModelSize.Small, 0, false);
+            MasterDBInitializerTruck.DbInitialize(_contextDataBase.DbContext, ModelSize.TestModel, ModelSize.Small, ModelSize.Small, 0, false, false);
         }
     }
 }

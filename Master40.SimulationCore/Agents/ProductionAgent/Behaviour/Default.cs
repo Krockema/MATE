@@ -266,7 +266,8 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
                     , productionAgent: Agent.Context.Self
                     , firstOperation: (operationCounter == numberOfOperations)
                     , currentTime: Agent.CurrentTime
-                    , remainingWork: sumOperationDurations);
+                    , remainingWork: sumOperationDurations
+                    , articleKey: fArticle.Key);
 
                 Agent.DebugMessage(
                     msg:

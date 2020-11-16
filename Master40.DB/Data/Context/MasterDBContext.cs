@@ -39,6 +39,10 @@ namespace Master40.DB.Data.Context
         public DbSet<T_ProductionOrderBom> ProductionOrderBoms { get; set; }
         public DbSet<T_ProductionOrderOperation> ProductionOrderOperations { get; set; }
         public DbSet<T_StockExchange> StockExchanges { get; set; }
+        public DbSet<M_Attribute> Attributes { get; set; }
+        public DbSet<M_Characteristic> Characteristics { get; set; }
+        public DbSet<T_MeasurementValue> MeasurementValues { get; set; }
+        public DbSet<M_ValueType> ValueTypes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -156,6 +160,18 @@ namespace Master40.DB.Data.Context
                 .ToTable("T_DemandToProvider");
             modelBuilder.Entity<T_ProviderToDemand>()
                 .ToTable("T_ProviderToDemand");
+            modelBuilder.Entity<M_Characteristic>()
+                .ToTable("M_Characteristic")
+                .HasOne(navigationExpression: c => c.Operation)
+                .WithMany(o => o.Characteristics)
+                .HasForeignKey(fk => fk.OperationId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<M_Attribute>()
+                .ToTable("M_Attribute");
+            modelBuilder.Entity<T_MeasurementValue>()
+                .ToTable("T_MeasurementValue");
+            modelBuilder.Entity<M_ValueType>()
+                .ToTable("M_ValueType");
         }
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -110,7 +110,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             var masterPlanContext = ProductionDomainContext.GetContext(masterCtxString);
             masterPlanContext.Database.EnsureDeleted();
             masterPlanContext.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterPlanContext, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3,false);
+            MasterDBInitializerTruck.DbInitialize(masterPlanContext, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3, false, false);
 
             //CreateMaster40Result
             var masterPlanResultContext = ResultContext.GetContext(masterResultCtxString);
