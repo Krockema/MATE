@@ -43,11 +43,27 @@ namespace Master40.SimulationCore.Helper
                                             , long remainingWork
                                             , Guid articleKey)
         {
+            /* LST */
             var prioRule = Extension.CreateFunc(
                     // Lamda zur Func.
                     func: (time) => (customerDue - time) - m_operation.Duration - remainingWork
                     // ENDE
                 );
+            
+            /* FIFO */
+            /*var prioRule = Extension.CreateFunc(
+                // Lamda zur Func.
+                func: (time) => currentTime
+                // ENDE
+            );
+            */
+            /* SPT */
+            /*var prioRule = Extension.CreateFunc(
+                // Lamda zur Func.
+                func: (time) => m_operation.Duration
+                // ENDE
+            );
+            */
 
             return new FOperation(key: Guid.NewGuid()
                                 , dueTime: dueTime

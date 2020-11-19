@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Master40.DB.DataModel;
 using Microsoft.EntityFrameworkCore.Internal;
+using static FOperations;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
@@ -24,19 +25,19 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
         {
             if (_jobStorage.TryGetValue(job.RequiredCapability.Id, out var jobQueue))
             {
-                jobQueue.Enqueue(job);
+                jobQueue.Add(job);
                 return;
             }
             
             jobQueue = new JobQueue();
-            jobQueue.Enqueue(job);
+            jobQueue.Add(job);
             _jobStorage.Add(job.RequiredCapability.Id, jobQueue);
             
         }
 
         public void Remove(JobQueue jobQueue)
         {
-            var capabilityId = jobQueue.Peek().RequiredCapability.Id;
+            var capabilityId = jobQueue.First().RequiredCapability.Id;
 
             if (!_jobStorage.ContainsKey(capabilityId))
             {
@@ -45,6 +46,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
             
             _jobStorage.Remove(capabilityId);
 
+        }
+
+        internal List<JobQueue> GetAllJobQueues(long currentTime)
+        {
+            return _jobStorage.Values.OrderBy(x => x.Priority(currentTime: currentTime)).ToList();
         }
 
         public List<JobQueue> GetJobQueues(long currentTime)
@@ -72,7 +78,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
             return jobQueues;
 
         }
-
-
+        
     }
 }

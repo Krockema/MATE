@@ -98,17 +98,16 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
         private void StartNext()
         {
-            var jobQueues = _jobManager.GetNextJobQueues(Agent.CurrentTime);
-
-            foreach (var queue in jobQueues)
+            foreach (var queue in _jobManager.GetAllJobQueues(Agent.CurrentTime))
             {
                 TryDoWork(queue);
             }
+
         }
 
         private void TryDoWork(JobQueue jobQueue)
         {
-            var capability = jobQueue.Peek().RequiredCapability;
+            var capability = jobQueue.PeekNext(Agent.CurrentTime).RequiredCapability;
 
             var capabilityProviders = _capabilityManager.GetAllCapabilityProvider(capability);
 
@@ -117,7 +116,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 var requiredResources = capabilityProvider.ResourceSetups.Where(x=> x.Resource.IsPhysical).Select(x => x.Resource).ToList();
                 if (_resourceManager.ResouresAreWorking(requiredResources)) 
                     continue;
-
 
                 var key = _jobManager.AddActiveJob(jobQueue, capabilityProvider);
                 _jobManager.Remove(jobQueue);
@@ -140,12 +138,12 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             //Check if Setup
             if (resourceStatesMainResources.Any(x => x._currentResourceCapability == null || !resourceStatesMainResources.TrueForAll(x => x._currentResourceCapability.Id.Equals(jobQueue.ResourceCapabilityProvider.ResourceCapabilityId))))
             {
-                _resourceManager.SetJobQueue(jobQueue.Peek(), jobQueue.GetAllResources);
+                _resourceManager.SetJobQueue(jobQueue.Peek(Agent.CurrentTime), jobQueue.GetAllResources);
                 DoSetup(key);
                 return;
             }
 
-            _resourceManager.SetJobQueue(jobQueue.Peek(), jobQueue.GetProcessingResources);
+            _resourceManager.SetJobQueue(jobQueue.Peek(Agent.CurrentTime), jobQueue.GetProcessingResources);
             Agent.DebugMessage($"JobQueue {jobQueue.QueueId} skip setup, as all resource are already set up to {jobQueue.ResourceCapabilityProvider.ResourceCapability.Name}", CustomLogger.JOB, LogLevel.Debug);
             //Else start production
             DoWork(key);
@@ -156,7 +154,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             var jobQueue = _jobManager.GetActiveJob(queueKey);
 
-            var nextJob = jobQueue.Peek();
+            var nextJob = jobQueue.Peek(Agent.CurrentTime);
 
             Agent.DebugMessage($"Start setup for {jobQueue.QueueId} require capability {jobQueue.ResourceCapabilityProvider.Name}", CustomLogger.JOB, LogLevel.Debug);
             var setupResources = jobQueue.GetSetupResources;
@@ -222,7 +220,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             var jobQueue = _jobManager.GetActiveJob(queueKey);
 
-            var nextJob = jobQueue.Dequeue();
+            var nextJob = jobQueue.Dequeue(Agent.CurrentTime);
             
             var randomizedDuration = _workTimeGenerator.GetRandomWorkTime(nextJob.Duration);
 
@@ -268,8 +266,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             jobQueue.ClearProcessing();
 
-            if(jobQueue.JobQueue.TryPeek(out var nextJob))
+            if(jobQueue.JobQueue.Count > 0)
             {
+                var nextJob = jobQueue.JobQueue.PeekNext(Agent.CurrentTime);
                 Agent.DebugMessage($"Queue {jobQueue.QueueId} with {jobQueue.JobQueue.Count} jobs left will start with next job {nextJob.Name}");
                 DoWork(jobQueue.QueueId);
                 return;

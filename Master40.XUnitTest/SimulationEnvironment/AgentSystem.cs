@@ -136,7 +136,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Theory]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
         [InlineData(SimulationType.Default, 100, 240, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
-        [InlineData(SimulationType.Queuing, 101, 240, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+
+        //[InlineData(SimulationType.Queuing, 101, 240, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)] //SPT
+        
+        //[InlineData(SimulationType.Queuing, 102, 240, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)] //FIFO
+
+        //[InlineData(SimulationType.Queuing, 103, 240, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)] //LST
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput,
             int seed
             , ModelSize resourceModelSize, ModelSize setupModelSize

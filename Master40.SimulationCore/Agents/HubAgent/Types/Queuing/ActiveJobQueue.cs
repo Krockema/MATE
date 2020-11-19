@@ -45,15 +45,15 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
             CurrentJob = null;
         }
 
-        public IJob Peek()
+        public IJob Peek(long currentTime)
         {
-            return JobQueue.Peek();
+            return JobQueue.PeekNext(currentTime);
         }
 
 
-        public IJob Dequeue()
+        public IJob Dequeue(long currentTime)
         {
-            CurrentJob = JobQueue.Dequeue();
+            CurrentJob = JobQueue.DequeueNext(currentTime);
             return CurrentJob;
         }
 
