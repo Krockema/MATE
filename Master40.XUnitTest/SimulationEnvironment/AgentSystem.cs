@@ -135,8 +135,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         [Theory]
         //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
-        [InlineData(SimulationType.Default, 1, 240, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
-        [InlineData(SimulationType.Queuing, 2, 240, 1920, 169, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        [InlineData(SimulationType.Default, 100, 240, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        [InlineData(SimulationType.Queuing, 101, 240, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
         public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput,
             int seed
             , ModelSize resourceModelSize, ModelSize setupModelSize
@@ -166,8 +166,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
             var masterCtx = ProductionDomainContext.GetContext(testCtxString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-
             MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, setupModelSize, 3, distributeSetupsExponentially, false);
+            
+            
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(DBContext: masterCtx, messageHub: new ConsoleHub());
             var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
@@ -181,7 +182,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 0));
+            simConfig.ReplaceOption(new SettlingStart(value: 2880));
             simConfig.ReplaceOption(new SimulationEnd(value: 10080));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
