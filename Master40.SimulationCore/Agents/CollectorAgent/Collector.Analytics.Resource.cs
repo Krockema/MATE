@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Akka.Util.Internal;
 using Master40.DB.Nominal.Model;
 using static FCreateTaskItems;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
@@ -121,7 +122,16 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
 
             ResourceUtilization(finalCall, tempOperationTasks, tempSetupTasks);
 
-            var OEE = OverallEquipmentEffectiveness(resources: _resources, lastIntervalStart, Collector.Time, tempOperationTasks, tempSetupTasks);
+            var resourceDictionary = new ResourceDictionary();
+            foreach (var resource in _resources)
+            {
+                if (resource.Value.ResourceType == ResourceType.Workcenter)
+                {
+                    resourceDictionary.Add(resource.Key,resource.Value);
+                }
+            }
+
+            var OEE = OverallEquipmentEffectiveness(resources: resourceDictionary, lastIntervalStart, Collector.Time, tempOperationTasks, tempSetupTasks);
             Collector.CreateKpi(Collector, OEE, "OEE", KpiType.Ooe, finalCall);
 
             archiveOperationTask.AddRange(tempOperationTasks);
