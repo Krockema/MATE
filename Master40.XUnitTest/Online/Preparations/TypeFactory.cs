@@ -5,6 +5,7 @@ using Master40.SimulationCore.Helper;
 using Microsoft.FSharp.Collections;
 using System;
 using System.Collections.Generic;
+using Master40.DB.Nominal;
 using static FArticles;
 using static FJobConfirmations;
 using static FOperations;
@@ -53,6 +54,7 @@ namespace Master40.XUnitTest.Online.Preparations
                 ResourceCapability = new M_ResourceCapability { Name = "Cutting" }
             };
             return MessageFactory.ToOperationItem(
+                priorityRule: PriorityRule.LST,
                 m_operation: operation, 
                 dueTime: dueTime,
                 customerDue: customerDue,

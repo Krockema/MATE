@@ -1,7 +1,7 @@
 ﻿using Akka.Actor;
 using Master40.SimulationCore.Helper;
 using Master40.DB.Nominal;
-using Master40.SimulationCore.Agents.HubAgent.Types;
+using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Helper.DistributionProvider;
 
 namespace Master40.SimulationCore.Agents.HubAgent
@@ -13,22 +13,24 @@ namespace Master40.SimulationCore.Agents.HubAgent
     {
         // public Constructor
 
-        public static Props Props(ActorPaths actorPaths, long time, SimulationType simtype, long maxBucketSize, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal)
+        public static Props Props(ActorPaths actorPaths, Configuration configuration, long time, SimulationType simtype, long maxBucketSize, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal)
         {
-            return Akka.Actor.Props.Create(factory: () => new Hub(actorPaths, time, simtype, maxBucketSize, workTimeGenerator, debug, principal));
+            return Akka.Actor.Props.Create(factory: () => new Hub(actorPaths, configuration,  time, simtype, maxBucketSize, workTimeGenerator, debug, principal));
         }
 
-        public Hub(ActorPaths actorPaths, long time, SimulationType simtype, long maxBucketSize, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal) : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
+        public Hub(ActorPaths actorPaths, Configuration configuration, long time, SimulationType simtype, long maxBucketSize, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal) 
+            : base(actorPaths: actorPaths, configuration: configuration, time: time, debug: debug, principal: principal)
         {
             this.Do(o: BasicInstruction.Initialize.Create(target: Self, message: HubAgent.Behaviour.Factory.Get(simType:simtype, maxBucketSize: maxBucketSize, workTimeGenerator: workTimeGenerator)));
         }
 
-        public static Props Props(ActorPaths actorPaths, long time, SimulationType simtype, long maxBucketSize, string dbConnectionStringGanttPlan, string dbConnectionStringMaster, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal)
+        public static Props Props(ActorPaths actorPaths, Configuration configuration, long time, SimulationType simtype, long maxBucketSize, string dbConnectionStringGanttPlan, string dbConnectionStringMaster, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal)
         {
-            return Akka.Actor.Props.Create(factory: () => new Hub(actorPaths, time, simtype, maxBucketSize, dbConnectionStringGanttPlan, dbConnectionStringMaster, workTimeGenerator, debug, principal));
+            return Akka.Actor.Props.Create(factory: () => new Hub(actorPaths, configuration, time, simtype, maxBucketSize, dbConnectionStringGanttPlan, dbConnectionStringMaster, workTimeGenerator, debug, principal));
         }
 
-        public Hub(ActorPaths actorPaths, long time, SimulationType simtype, long maxBucketSize, string dbConnectionStringGanttPlan, string dbConnectionStringMaster, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal) : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
+        public Hub(ActorPaths actorPaths, Configuration configuration, long time, SimulationType simtype, long maxBucketSize, string dbConnectionStringGanttPlan, string dbConnectionStringMaster, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal) 
+            : base(actorPaths: actorPaths, configuration: configuration, time, debug: debug, principal: principal)
         {
             this.Do(o: BasicInstruction.Initialize.Create(target: Self, message: HubAgent.Behaviour.Factory.Central(dbConnectionStringGanttPlan, dbConnectionStringMaster, workTimeGenerator: workTimeGenerator)));
         }

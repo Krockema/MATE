@@ -22,9 +22,10 @@ namespace Master40.XUnitTest.Online.Agents.Contract.Behaviour
             var simContext = CreateTestProbe();
             var actorPaths = AgentMoc.CreateActorPaths(testKit: this, simContext: simContext);
             AgentMoc.CreateAgent(actorPaths: actorPaths
-                                           , principal: null
-                                           , behaviour: behave
-                                           , guardianType: GuardianType.Dispo);
+                             ,configuration: null
+                                , principal: null
+                                , behaviour: behave
+                             , guardianType: GuardianType.Dispo);
             behave.Action(message: message);
 
             Assert.Equal(expected: "Bear", actual: ((IDefaultProperties)behave)._fArticle.Article.Name);

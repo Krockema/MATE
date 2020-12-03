@@ -258,10 +258,12 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             var sumOperationDurations = fArticle.RemainingDuration;
             var numberOfOperations = fArticle.Article.Operations.Count();
             var operationCounter = 0;
+
             foreach (var operation in fArticle.Article.Operations.OrderByDescending(keySelector: x => x.HierarchyNumber))
             {
                 operationCounter++;
                 var fJob = operation.ToOperationItem(dueTime: lastDue
+                    , priorityRule: Agent.Configuration.GetOption<Environment.Options.PriorityRule>().Value
                     , customerDue: fArticle.CustomerDue
                     , productionAgent: Agent.Context.Self
                     , firstOperation: (operationCounter == numberOfOperations)

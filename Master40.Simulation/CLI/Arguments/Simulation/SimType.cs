@@ -16,17 +16,13 @@ namespace Master40.Simulation.CLI.Arguments.Simulation
         {
             Action = (result, arg) =>
             {
-                if (arg.Equals(value: SimulationType.Decentral.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
+                if (arg.Equals(value: SimulationType.Default.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
                 {
                     result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.Decentral));
                 }
-                else if (arg.Equals(value: SimulationType.Central.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
+                else if (arg.Equals(value: SimulationType.Queuing.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
                 {
                     result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.Central));
-                }
-                else if (arg.Equals(value: SimulationType.Default.ToString(), comparisonType: StringComparison.OrdinalIgnoreCase))
-                {
-                    result.AddOption(o: new SimulationCore.Environment.Options.SimulationKind(value: SimulationType.Default));
                 }
                 else
                 {

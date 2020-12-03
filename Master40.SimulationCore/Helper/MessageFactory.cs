@@ -10,13 +10,13 @@ using System.Linq;
 using Master40.DB.Data.Helper;
 using Master40.DB.GanttPlanModel;
 using Master40.DB.ReportingModel;
+using Master40.SimulationCore.Environment;
 using static FArticles;
 using static FBuckets;
 using static FCreateSimulationJobs;
 using static FOperations;
 using static FStartConditions;
 using static FStockProviders;
-using static FUpdateSimulationJobs;
 using static IJobs;
 using static FMeasurementInformations;
 
@@ -27,6 +27,7 @@ namespace Master40.SimulationCore.Helper
         private static int BucketNumber = 0;
         /// <summary>
         /// Fulfill Creator
+        /// 
         /// </summary>
         /// <param name="operation"></param>
         /// <param name="dueTime"></param>
@@ -35,6 +36,7 @@ namespace Master40.SimulationCore.Helper
         /// <param name="currentTime"></param>
         /// <returns></returns>
         public static FOperation ToOperationItem(this M_Operation m_operation
+                                            , PriorityRule priorityRule
                                             , long dueTime
                                             , long customerDue
                                             , IActorRef productionAgent
@@ -43,27 +45,14 @@ namespace Master40.SimulationCore.Helper
                                             , long remainingWork
                                             , Guid articleKey)
         {
-            /* LST */
-            var prioRule = Extension.CreateFunc(
-                    // Lamda zur Func.
-                    func: (time) => (customerDue - time) - m_operation.Duration - remainingWork
-                    // ENDE
-                );
-            
-            /* FIFO */
-            /*var prioRule = Extension.CreateFunc(
-                // Lamda zur Func.
-                func: (time) => currentTime
-                // ENDE
-            );
-            */
-            /* SPT */
-            /*var prioRule = Extension.CreateFunc(
-                // Lamda zur Func.
-                func: (time) => m_operation.Duration
-                // ENDE
-            );
-            */
+
+            IDictionary<PriorityRule, Func<long, double>> priorityFunctions = new Dictionary<PriorityRule, Func<long, double>>
+            {
+                { PriorityRule.LST, (time) => (customerDue - time) - m_operation.Duration - remainingWork },
+                { PriorityRule.MDD, (time) => (new double[] { dueTime, time + remainingWork + m_operation.Duration}).Max() },
+                { PriorityRule.FIFO, (time) => currentTime },
+                { PriorityRule.SPT, (time) => m_operation.Duration }
+            };
 
             return new FOperation(key: Guid.NewGuid()
                                 , dueTime: dueTime
@@ -77,7 +66,7 @@ namespace Master40.SimulationCore.Helper
                                 , end: 0
                                 , start: 0
                                 , startConditions: new FStartCondition(preCondition: firstOperation, articlesProvided: false)
-                                , priority: prioRule.ToFSharpFunc()
+                                , priority: priorityFunctions[priorityRule].ToFSharpFunc()
                                 , setupKey: -1 // unset
                                 , isFinished: false
                                 , hubAgent: ActorRefs.NoSender

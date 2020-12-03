@@ -6,7 +6,7 @@ namespace Master40.Simulation.CLI
 {
     public class Commands : List<ICommand>
     {
-        private static Commands self = new Commands
+        private static readonly Commands self = new Commands
         {
              new Help()
             , new DBConnectionString()
@@ -32,6 +32,7 @@ namespace Master40.Simulation.CLI
             , new MaxDeliveryTime()
             , new MinDeliveryTime()
             , new TimeConstraintQueueLength()
+            , new PriorityRule()
         };
 
 

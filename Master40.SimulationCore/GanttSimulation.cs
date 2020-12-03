@@ -93,7 +93,7 @@ namespace Master40.SimulationCore
                 AddTimeMonitor();
 
                 // Create Guardians and Inject Childcreators
-                GenerateGuardians();
+                GenerateGuardians(configuration: configuration);
 
                 // Create Supervisor Agent
                 CreateSupervisor(configuration: configuration);
@@ -144,6 +144,7 @@ namespace Master40.SimulationCore
 
             ActorPaths.SetSupervisorAgent(systemAgent: _simulation.ActorSystem
                 .ActorOf(props: Supervisor.Props(actorPaths: ActorPaths,
+                        configuration: configuration,
                         time: 0,
                         debug: _debugAgents,
                         principal: ActorRefs.Nobody),
@@ -161,12 +162,12 @@ namespace Master40.SimulationCore
         private void CreateDirectoryAgents(Configuration configuration)
         {
             // Resource Directory
-            ActorPaths.SetHubDirectoryAgent(hubAgent: _simulation.ActorSystem.ActorOf(props: Directory.Props(actorPaths: ActorPaths, time: 0, debug: _debugAgents), name: "HubDirectory"));
+            ActorPaths.SetHubDirectoryAgent(hubAgent: _simulation.ActorSystem.ActorOf(props: Directory.Props(actorPaths: ActorPaths, configuration: configuration, time: 0, debug: _debugAgents), name: "HubDirectory"));
             _simulation.SimulationContext.Tell(message: BasicInstruction.Initialize.Create(target: ActorPaths.HubDirectory.Ref, message: Agents.DirectoryAgent.Behaviour.Factory.Get(simType: _simulationType)));
             CreateHubAgent(ActorPaths.HubDirectory.Ref, configuration);
 
             // Storage Directory
-            ActorPaths.SetStorageDirectory(storageAgent: _simulation.ActorSystem.ActorOf(props: Directory.Props(actorPaths: ActorPaths, time: 0, debug: _debugAgents), name: "StorageDirectory"));
+            ActorPaths.SetStorageDirectory(storageAgent: _simulation.ActorSystem.ActorOf(props: Directory.Props(actorPaths: ActorPaths, configuration: configuration, time: 0, debug: _debugAgents), name: "StorageDirectory"));
             _simulation.SimulationContext.Tell(message: BasicInstruction.Initialize.Create(target: ActorPaths.StorageDirectory.Ref, message: Agents.DirectoryAgent.Behaviour.Factory.Get(simType: _simulationType)));
         }
 
@@ -184,16 +185,22 @@ namespace Master40.SimulationCore
             
         }
 
-        private void GenerateGuardians()
+        private void GenerateGuardians(Configuration configuration)
         {
-            CreateGuard(guardianType: GuardianType.Contract, guardianBehaviour: GuardianBehaviour.Get(childMaker: ChildMaker.ContractCreator, simulationType: _simulationType, _messageHub));
-            CreateGuard(guardianType: GuardianType.Dispo, guardianBehaviour: GuardianBehaviour.Get(childMaker: ChildMaker.DispoCreator, simulationType: _simulationType, _messageHub));
-            CreateGuard(guardianType: GuardianType.Production, guardianBehaviour: GuardianBehaviour.Get(childMaker: ChildMaker.ProductionCreator, simulationType: _simulationType, _messageHub));
+            CreateGuard(guardianType: GuardianType.Contract,
+                        guardianBehaviour: GuardianBehaviour.Get(childMaker: ChildMaker.ContractCreator, simulationType: _simulationType, _messageHub),
+                        configuration: configuration);
+            CreateGuard(guardianType: GuardianType.Dispo, 
+                        guardianBehaviour: GuardianBehaviour.Get(childMaker: ChildMaker.DispoCreator, simulationType: _simulationType, _messageHub),
+                        configuration: configuration);
+            CreateGuard(guardianType: GuardianType.Production,
+                        guardianBehaviour: GuardianBehaviour.Get(childMaker: ChildMaker.ProductionCreator, simulationType: _simulationType, _messageHub),
+                        configuration: configuration);
         }
 
-        private void CreateGuard(GuardianType guardianType, GuardianBehaviour guardianBehaviour)
+        private void CreateGuard(GuardianType guardianType, GuardianBehaviour guardianBehaviour, Configuration configuration)
         {
-            var guard = _simulation.ActorSystem.ActorOf(props: Guardian.Props(actorPaths: ActorPaths, time: 0, debug: _debugAgents), name: guardianType.ToString() + "Guard");
+            var guard = _simulation.ActorSystem.ActorOf(props: Guardian.Props(actorPaths: ActorPaths, configuration: configuration,  time: 0, debug: _debugAgents), name: guardianType.ToString() + "Guard");
             _simulation.SimulationContext.Tell(message: BasicInstruction.Initialize.Create(target: guard, message: guardianBehaviour));
             ActorPaths.AddGuardian(guardianType: guardianType, actorRef: guard);
         }

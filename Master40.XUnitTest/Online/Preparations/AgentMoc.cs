@@ -3,6 +3,7 @@ using Akka.Actor;
 using Akka.TestKit.Xunit;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Agents.Guardian;
+using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Types;
 
@@ -15,9 +16,10 @@ namespace Master40.XUnitTest.Online.Preparations
         private readonly GuardianType _guardianType;
         
 
-        public static AgentMoc CreateAgent(ActorPaths actorPaths, IActorRef principal, IBehaviour behaviour, GuardianType guardianType)
+        public static AgentMoc CreateAgent(ActorPaths actorPaths, Configuration configuration, IActorRef principal, IBehaviour behaviour, GuardianType guardianType)
         {
             return new AgentMoc(actorPaths: actorPaths,
+                          configuration: configuration,
                                    time: 0,
                                   debug: false,
                               principal: principal,
@@ -36,8 +38,8 @@ namespace Master40.XUnitTest.Online.Preparations
             return agentPaths;
         }
 
-        public AgentMoc(ActorPaths actorPaths, long time, bool debug, IActorRef principal, IBehaviour behaviour, GuardianType guardianType)
-            : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
+        public AgentMoc(ActorPaths actorPaths, Configuration configuration, long time, bool debug, IActorRef principal, IBehaviour behaviour, GuardianType guardianType)
+            : base(actorPaths: actorPaths, configuration: configuration, time: time, debug: debug, principal: principal)
         {
             _actorPaths = actorPaths;
             _guardianType = guardianType;

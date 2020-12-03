@@ -14,6 +14,7 @@ using NLog;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using PriorityRule = Master40.DB.Nominal.PriorityRule;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {
@@ -134,19 +135,27 @@ namespace Master40.XUnitTest.SimulationEnvironment
         }
 
         [Theory]
-        //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
-        [InlineData(SimulationType.Default, 100, 240, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
-
-        //[InlineData(SimulationType.Queuing, 101, 240, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)] //SPT
+        //[InlineData(SimulationType.Default, 700, 480, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.0135, false, false)]
+        //[InlineData(SimulationType.Default, 701, 480, 1920, 281, ModelSize.Medium, ModelSize.Medium, 0.0135, false, false)]
+        //[InlineData(SimulationType.Default, 702, 480, 1920, 213, ModelSize.Medium, ModelSize.Medium, 0.0135, false, false)]
+        //[InlineData(SimulationType.Default, 703, 480, 1920, 945, ModelSize.Medium, ModelSize.Medium, 0.0135, false, false)]
+        //[InlineData(SimulationType.Default, 704, 480, 1920, 998, ModelSize.Medium, ModelSize.Medium, 0.0135, false, false)]
+        //[InlineData(SimulationType.Default, 705, 480, 1920, 120, ModelSize.Medium, ModelSize.Medium, 0.0135, false, false)]
+        //[InlineData(SimulationType.Default, 706, 480, 1920, 124, ModelSize.Medium, ModelSize.Medium, 0.0135, false, false)]
+        //[InlineData(SimulationType.Default, 707, 480, 1920, 854, ModelSize.Medium, ModelSize.Medium, 0.0135, false, false)]
+        //[InlineData(SimulationType.Default, 708, 480, 1920, 213, ModelSize.Medium, ModelSize.Medium, 0.0135, false, false)]
+        //[InlineData(SimulationType.Default, 709, 480, 1920, 325, ModelSize.Medium, ModelSize.Medium, 0.0135, false, false)]
         
-        //[InlineData(SimulationType.Queuing, 102, 240, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)] //FIFO
+        [InlineData(SimulationType.Default, PriorityRule.LST, 5000, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        [InlineData(SimulationType.Default, PriorityRule.MDD, 5001, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        [InlineData(SimulationType.Default, PriorityRule.SPT, 5002, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        [InlineData(SimulationType.Default, PriorityRule.FIFO, 5003, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
 
-        //[InlineData(SimulationType.Queuing, 103, 240, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)] //LST
-        public async Task SystemTestAsync(SimulationType simulationType, int simNr, int maxBucketSize, long throughput,
-            int seed
+        public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule
+            , int simNr, int maxBucketSize, long throughput, int seed
             , ModelSize resourceModelSize, ModelSize setupModelSize
             , double arrivalRate, bool distributeSetupsExponentially
-            , bool createMeasurements)
+            , bool createMeasurements = false)
         {
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
@@ -188,16 +197,17 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
-            simConfig.ReplaceOption(new SimulationEnd(value: 10080));
+            simConfig.ReplaceOption(new SimulationEnd(value: 40360));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
             simConfig.ReplaceOption(new DebugSystem(value: false));
             simConfig.ReplaceOption(new DebugAgents(value: false));
-            simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
+            simConfig.ReplaceOption(new WorkTimeDeviation(0.0));
             simConfig.ReplaceOption(new MinDeliveryTime(1920));
             simConfig.ReplaceOption(new MaxDeliveryTime(2880));
-            simConfig.ReplaceOption(new CreateQualityData(true));
+            simConfig.ReplaceOption(new SimulationCore.Environment.Options.PriorityRule(priorityRule));
+            simConfig.ReplaceOption(new CreateQualityData(createMeasurements));
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 

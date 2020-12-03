@@ -211,7 +211,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                 while (enumerator.MoveNext())
                 {
                     // Limit? Job satisfied?
-                    if (!isQueueAble)
+                    if (!isQueueAble) // earliestStart =  current.Value.ScopeConfirmation.GetScopeEnd();
                         break;
 
                     requiredTime = requiredTimeForJob;
@@ -252,7 +252,8 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
                     earliestStart = !preIsReady && jobToPutIsReady
                                     && (currentJobPriority > jobPriority)
                                     ? earliestStart : current.Value.ScopeConfirmation.GetScopeEnd();
-                    isQueueAble = (currentTime + Limit) > (earliestStart + requiredTime) || ((FBucket)job).HasSatisfiedJob;
+                    isQueueAble = (currentTime + Limit) > (earliestStart + requiredTime) || jobToPutIsReady;
+                    
                 }
             }
 

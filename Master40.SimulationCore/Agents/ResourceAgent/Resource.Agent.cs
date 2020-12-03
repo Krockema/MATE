@@ -1,13 +1,7 @@
 ﻿using Akka.Actor;
 using Master40.DB.DataModel;
-using Master40.SimulationCore.Agents.HubAgent;
+using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Helper;
-using System.Collections.Generic;
-using Master40.SimulationCore.Types;
-using static FAgentInformations;
-using static FResourceInformations;
-using static FResourceTypes;
-using static FCentralResourceDefinitions;
 
 namespace Master40.SimulationCore.Agents.ResourceAgent
 {
@@ -15,22 +9,24 @@ namespace Master40.SimulationCore.Agents.ResourceAgent
     {
         internal M_Resource _resource;
         // public Constructor
-        public static Props Props(ActorPaths actorPaths, M_Resource resource, long time, bool debug, IActorRef principal, IActorRef measurementActorRef)
+        public static Props Props(ActorPaths actorPaths,Configuration configuration, M_Resource resource, long time, bool debug, IActorRef principal, IActorRef measurementActorRef)
         {
-            return Akka.Actor.Props.Create(factory: () => new Resource(actorPaths, resource, time, debug, principal, measurementActorRef));
+            return Akka.Actor.Props.Create(factory: () => new Resource(actorPaths, configuration, resource, time, debug, principal, measurementActorRef));
         }
 
-        public static Props Props(ActorPaths actorPaths, long time, bool debug, IActorRef principal)
+        public static Props Props(ActorPaths actorPaths, Configuration configuration, long time, bool debug, IActorRef principal)
         {
-            return Akka.Actor.Props.Create(factory: () => new Resource(actorPaths, time, debug, principal));
+            return Akka.Actor.Props.Create(factory: () => new Resource(actorPaths, configuration, time, debug, principal));
         }
 
-        public Resource(ActorPaths actorPaths, M_Resource resource, long time, bool debug, IActorRef principal, IActorRef measurementActorRef) : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
+        public Resource(ActorPaths actorPaths, Configuration configuration, M_Resource resource, long time, bool debug, IActorRef principal, IActorRef measurementActorRef) 
+            : base(actorPaths: actorPaths, configuration: configuration, time: time, debug: debug, principal: principal)
         {
             _resource = resource;
         }
 
-        public Resource(ActorPaths actorPaths, long time, bool debug, IActorRef principal) : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
+        public Resource(ActorPaths actorPaths, Configuration configuration, long time, bool debug, IActorRef principal) 
+            : base(actorPaths: actorPaths, configuration: configuration, time: time, debug: debug, principal: principal)
         {
 
         }

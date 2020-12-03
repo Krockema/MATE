@@ -18,17 +18,17 @@ namespace Master40.SimulationCore.Agents.Guardian.Options
 
         public static Func<IUntypedActorContext, AgentSetup, IActorRef> ContractCreator = (ctx, setup) =>
         {
-            return ctx.ActorOf(props: Contract.Props(actorPaths: setup.ActorPaths, time: setup.Time, debug: setup.Debug), name: "ContractAgent(" + contractCount++ + ")");
+            return ctx.ActorOf(props: Contract.Props(actorPaths: setup.ActorPaths, configuration: setup.Configuration, time: setup.Time, debug: setup.Debug), name: "ContractAgent(" + contractCount++ + ")");
         };
 
         public static Func<IUntypedActorContext, AgentSetup, IActorRef> DispoCreator = (ctx, setup) =>
         {
-            return ctx.ActorOf(props: Dispo.Props(actorPaths: setup.ActorPaths, time: setup.Time, debug: setup.Debug, principal: setup.Principal), name: "DispoAgent(" + productionCount++ + ")");
+            return ctx.ActorOf(props: Dispo.Props(actorPaths: setup.ActorPaths, configuration: setup.Configuration, time: setup.Time, debug: setup.Debug, principal: setup.Principal), name: "DispoAgent(" + productionCount++ + ")");
         };
 
         public static Func<IUntypedActorContext, AgentSetup, IActorRef> ProductionCreator = (ctx, setup) =>
         {
-            return ctx.ActorOf(props: Production.Props(actorPaths: setup.ActorPaths, time: setup.Time, debug: setup.Debug, principal: setup.Principal), name: "ProductionAgent(" + dispoCount++ + ")");
+            return ctx.ActorOf(props: Production.Props(actorPaths: setup.ActorPaths, configuration: setup.Configuration, time: setup.Time, debug: setup.Debug, principal: setup.Principal), name: "ProductionAgent(" + dispoCount++ + ")");
         };
     }
 }
