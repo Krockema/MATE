@@ -29,7 +29,21 @@ namespace Master40.DB.Data.WrappersForPrimitives
             _decimal += t._decimal;
         }
 
-       
+        public void IncrementByOne()
+        {
+            _decimal++;
+        }
+
+        public void DecrementByOne()
+        {
+            _decimal--;
+        }
+
+        public void ToZero()
+        {
+            _decimal = 0;
+        }
+
         public void DecrementBy(T t)
         {
             _decimal -= t._decimal;

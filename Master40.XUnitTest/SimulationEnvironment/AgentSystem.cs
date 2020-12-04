@@ -165,7 +165,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Theory]
         [MemberData(nameof(GetTestData))]
 
-        public async Task SystemTestAsync(SimulationType simulationType, SimulationCore.Environment.Options. priorityRule
+        public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule
             , int simNr, int maxBucketSize, long throughput, int seed
             , ModelSize resourceModelSize, ModelSize setupModelSize
             , double arrivalRate, bool distributeSetupsExponentially
