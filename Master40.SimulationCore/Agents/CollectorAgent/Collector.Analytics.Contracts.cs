@@ -69,7 +69,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 message = $"Order No: {finishedArticle.OriginRequester.Path.Name} finished {finishedArticle.Article.Name} too late at {Collector.Time}";
                 orderDictionary[OrderKpi.OrderState.OverDue].Increment();
-                orderDictionary[OrderKpi.OrderState.InDueTotal].Increment();
+                orderDictionary[OrderKpi.OrderState.OverDueTotal].Increment();
             }
             
 
