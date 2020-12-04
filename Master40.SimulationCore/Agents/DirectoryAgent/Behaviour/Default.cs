@@ -50,6 +50,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
             if (hub == null)
             {
                 var hubAgent = Agent.Context.ActorOf(props: Hub.Props(actorPaths: Agent.ActorPaths
+                        , configuration: Agent.Configuration
                         , time: Agent.CurrentTime
                         , simtype: SimulationType
                         , maxBucketSize: capabilityDefinition.MaxBucketSize
@@ -91,6 +92,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
         public void CreateStorageAgents(M_Stock stock)
         {
             var storage = Agent.Context.ActorOf(props: Storage.Props(actorPaths: Agent.ActorPaths
+                                            , configuration: Agent.Configuration
                                             , time: Agent.CurrentTime
                                             , debug: Agent.DebugThis
                                             , principal: Agent.Context.Self)
@@ -107,6 +109,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
             var resource = resourceCapabilityProviderDefinition.Resource as M_Resource;
             // Create resource If Required
             var resourceAgent = Agent.Context.ActorOf(props: ResourceAgent.Resource.Props(actorPaths: Agent.ActorPaths
+                                                                    , configuration: Agent.Configuration
                                                                     , resource: resource
                                                                     , time: Agent.CurrentTime
                                                                     , debug: Agent.DebugThis

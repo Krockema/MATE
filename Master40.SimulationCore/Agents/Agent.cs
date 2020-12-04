@@ -6,6 +6,7 @@ using Master40.SimulationCore.Types;
 using NLog;
 using System;
 using System.Collections.Generic;
+using Master40.SimulationCore.Environment;
 using LogLevel = NLog.LogLevel;
 
 namespace Master40.SimulationCore.Agents
@@ -18,7 +19,7 @@ namespace Master40.SimulationCore.Agents
         /// VirtualParrent is his Principal Agent
         /// </summary>
         internal IActorRef VirtualParent { get; }
-
+        internal Configuration Configuration { get; }
         // internal IActorRef Guardian { get; }
         internal HashSet<IActorRef> VirtualChildren { get; }
         internal ActorPaths ActorPaths { get; private set; }
@@ -35,10 +36,11 @@ namespace Master40.SimulationCore.Agents
         /// Basic Agent
         /// </summary>
         /// <param name="actorPaths"></param>
+        /// <param name="configuration">Simulation Config</param>
         /// <param name="time">Current time span</param>
         /// <param name="debug">Parameter to activate Debug Messages on Agent level</param>
         /// <param name="principal">If not set, put IActorRefs.Nobody</param>
-        protected Agent(ActorPaths actorPaths, long time, bool debug, IActorRef principal) 
+        protected Agent(ActorPaths actorPaths, Configuration configuration, long time, bool debug, IActorRef principal) 
             : base(simulationContext: actorPaths.SimulationContext.Ref, time: time)
         {
             DebugThis = debug;
@@ -46,6 +48,7 @@ namespace Master40.SimulationCore.Agents
             ActorPaths = actorPaths;
             VirtualParent = principal;
             VirtualChildren = new HashSet<IActorRef>();
+            Configuration = configuration;
             DebugMessage(msg: "I'm alive: " + Self.Path.ToStringWithAddress());
         }
 

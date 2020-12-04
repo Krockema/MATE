@@ -3,6 +3,7 @@ using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Agents.ProductionAgent;
 using Master40.SimulationCore.Helper;
 using System.Linq;
+using Master40.SimulationCore.Environment;
 
 namespace Master40.SimulationCore.Agents.DispoAgent
 {
@@ -22,11 +23,12 @@ namespace Master40.SimulationCore.Agents.DispoAgent
         IActorRef IAgent.Guardian => this.ActorPaths.Guardians.Single(predicate: x => x.Key == GuardianType.Production).Value;
 
         // public Constructor
-        public static Props Props(ActorPaths actorPaths, long time, bool debug, IActorRef principal)
+        public static Props Props(ActorPaths actorPaths, Configuration configuration,long time, bool debug, IActorRef principal)
         {
-            return Akka.Actor.Props.Create(factory: () => new Dispo(actorPaths, time, debug, principal));
+            return Akka.Actor.Props.Create(factory: () => new Dispo(actorPaths, configuration, time, debug, principal));
         }
-        public Dispo(ActorPaths actorPaths, long time, bool debug, IActorRef principal) : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
+        public Dispo(ActorPaths actorPaths, Configuration configuration, long time, bool debug, IActorRef principal) 
+            : base(actorPaths: actorPaths, configuration: configuration, time: time, debug: debug, principal: principal)
         {
             DebugMessage(msg: "I'm Alive: " + Context.Self.Path);
             //this.Do(BasicInstruction.Initialize.Create(Self, DispoBehaviour.Get()));

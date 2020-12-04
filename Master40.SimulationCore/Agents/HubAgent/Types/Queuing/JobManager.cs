@@ -44,6 +44,11 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
             return _capabilityJobStorage.GetJobQueues(currentTime);
         }
 
+        public List<JobQueue> GetAllJobQueues(long currentTime)
+        {
+            return _capabilityJobStorage.GetAllJobQueues(currentTime: currentTime);
+        }
+
         public IJob GetJob(Guid key)
         {
             return _pendingJobList.SingleOrDefault(x => x.Key.Equals(key));

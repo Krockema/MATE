@@ -3,6 +3,7 @@ using Master40.DB.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using static FProposals;
 using static FQueueingScopes;
 
@@ -34,9 +35,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         public List<FProposal> GetProposalsFor(List<IActorRef> actorRefs)
         {
             var proposals = new List<FProposal>();
-            //ClearAllNotQueueAbleProposals();
-            actorRefs.ForEach(x => proposals.AddRange(_proposals.Where(y => y.ResourceAgent.Equals(x) 
+            ClearAllNotQueueAbleProposals();
+            actorRefs.ForEach(x => proposals.AddRange(_proposals.Where(y => y.ResourceAgent.Equals(x)
                                                                            && !y.Postponed.IsPostponed)));
+                                                                            
             return proposals;
         }
 

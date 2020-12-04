@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Akka.Actor;
+using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Helper;
 
 namespace Master40.SimulationCore.Agents.Guardian
@@ -15,17 +16,15 @@ namespace Master40.SimulationCore.Agents.Guardian
         /// <param name="actorPaths"></param>
         /// <param name="time">Current time span</param>
         /// <param name="debug">Parameter to activate Debug Messages on Agent level</param>
-
-
-        public Guardian(ActorPaths actorPaths, long time, bool debug)
-            : base(actorPaths: actorPaths, time: time, debug: false, principal: null)
+        public Guardian(ActorPaths actorPaths, Configuration configuration, long time, bool debug)
+            : base(actorPaths: actorPaths, configuration: configuration, time: time, debug: false, principal: null)
         {
             DebugMessage(msg: "I'm alive: " + Self.Path.ToStringWithAddress());
         }
 
-        public static Props Props(ActorPaths actorPaths, long time, bool debug)
+        public static Props Props(ActorPaths actorPaths, Configuration configuration , long time, bool debug)
         {
-            return Akka.Actor.Props.Create(factory: () => new Guardian(actorPaths, time, debug));
+            return Akka.Actor.Props.Create(factory: () => new Guardian(actorPaths, configuration, time, debug));
         }
 
         public override void AroundPostStop()

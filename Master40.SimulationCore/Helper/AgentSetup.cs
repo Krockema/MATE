@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using Master40.SimulationCore.Agents;
 using Master40.SimulationCore.Types;
+using Master40.SimulationCore.Environment;
 
 namespace Master40.SimulationCore.Helper
 {
@@ -17,8 +18,10 @@ namespace Master40.SimulationCore.Helper
             Principal = agent.Context.Self;
             Debug = agent.DebugThis;
             Behaviour = behaviour;
+            Configuration = agent.Configuration;
         }
         public ActorPaths ActorPaths { get; }
+        public Configuration Configuration { get; }
         public long Time { get; }
         public IActorRef Principal { get; }
         public bool Debug { get; }

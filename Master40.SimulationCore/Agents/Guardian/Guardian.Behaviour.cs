@@ -3,7 +3,6 @@ using Akka.Actor;
 using Master40.DB.Nominal;
 using Master40.SimulationCore.Helper;
 using Master40.Tools.SignalR;
-using Newtonsoft.Json;
 using static Master40.SimulationCore.Agents.Guardian.Instruction;
 
 namespace Master40.SimulationCore.Agents.Guardian

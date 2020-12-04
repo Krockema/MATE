@@ -1,4 +1,5 @@
 ﻿using Akka.Actor;
+using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Helper;
 using static FUpdateStockValues;
 
@@ -9,12 +10,13 @@ namespace Master40.SimulationCore.Agents.StorageAgent
 
         // Statistic 
         // public Constructor
-        public static Props Props(ActorPaths actorPaths, long time, bool debug, IActorRef principal)
+        public static Props Props(ActorPaths actorPaths, Configuration configuration, long time, bool debug, IActorRef principal)
         {
-            return Akka.Actor.Props.Create(factory: () => new Storage(actorPaths, time, true, principal));
+            return Akka.Actor.Props.Create(factory: () => new Storage(actorPaths, configuration, time, true, principal));
         }
 
-        public Storage(ActorPaths actorPaths, long time, bool debug, IActorRef principal) : base(actorPaths: actorPaths, time: time, debug: debug, principal: principal)
+        public Storage(ActorPaths actorPaths, Configuration configuration, long time, bool debug, IActorRef principal) 
+            : base(actorPaths: actorPaths, configuration: configuration, time: time, debug: debug, principal: principal)
         {
             
         }

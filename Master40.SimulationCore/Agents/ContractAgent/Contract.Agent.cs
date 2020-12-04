@@ -4,6 +4,7 @@ using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.Guardian;
 using Master40.SimulationCore.Helper;
 using System.Linq;
+using Master40.SimulationCore.Environment;
 
 namespace Master40.SimulationCore.Agents.ContractAgent
 {
@@ -21,13 +22,13 @@ namespace Master40.SimulationCore.Agents.ContractAgent
         IActorRef IAgent.Guardian => this.ActorPaths.Guardians.Single(predicate: x => x.Key == GuardianType.Dispo).Value;
 
         // public Constructor
-        public static Props Props(ActorPaths actorPaths, long time, bool debug)
+        public static Props Props(ActorPaths actorPaths, Configuration configuration, long time, bool debug)
         {
-            return Akka.Actor.Props.Create(factory: () => new Contract(actorPaths, time, debug));   
+            return Akka.Actor.Props.Create(factory: () => new Contract(actorPaths, configuration, time, debug));   
         }
         
-        public Contract(ActorPaths actorPaths, long time, bool debug) 
-            : base(actorPaths: actorPaths, time: time, debug: debug, principal: actorPaths.SystemAgent.Ref)
+        public Contract(ActorPaths actorPaths, Configuration configuration, long time, bool debug) 
+            : base(actorPaths: actorPaths, configuration: configuration, time: time, debug: debug, principal: actorPaths.SystemAgent.Ref)
         {
             DebugMessage(msg: "I'm Alive:" + Context.Self.Path);
         }
