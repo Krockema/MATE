@@ -149,14 +149,14 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         public static IEnumerable<object[]> GetTestData()
         {
-            var simNumber = 10000;
-            var throughput = 600;
+            var simNumber = 13000;
+            var throughput = 1920;
 
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 1; i++)
             {
                 yield return new object[]
                 {
-                    SimulationType.Default, PriorityRule.LST, simNumber++, 960, throughput, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false
+                    SimulationType.Default, PriorityRule.LST, simNumber++, 960, throughput, 594, ModelSize.Medium, ModelSize.Medium, 0.0135, false, false
                 };
                 throughput = throughput + 100;
             }
@@ -203,7 +203,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             // update customized Items
             simConfig.AddOption(new DBConnectionString(testResultCtxString));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
-            simConfig.ReplaceOption(new KpiTimeSpan(1440));
+            simConfig.ReplaceOption(new KpiTimeSpan(480));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: 1500)); 

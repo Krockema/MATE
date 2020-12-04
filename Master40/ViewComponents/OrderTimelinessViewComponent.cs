@@ -25,7 +25,7 @@ namespace Master40.ViewComponents
         {
             // Determine Type and Data
             SimulationType simType = (paramsList[index: 1].Equals(value: "Decentral")) ? SimulationType.Decentral : SimulationType.Central;
-            var kpi = _context.Kpis.Where(predicate: x => x.KpiType == KpiType.Timeliness
+            var kpi = _context.Kpis.Where(predicate: x => x.KpiType == KpiType.AdherenceToDue
                                     && x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                     && x.SimulationNumber == Convert.ToInt32(paramsList[2])
                                     && x.SimulationType == simType);

@@ -5,7 +5,7 @@
         LeadTime,
         ResourceUtilization,
         ResourceSetup,
-        AdheranceToDue,
+        AdherenceToDue,
         StockEvolution,
         LayTime,
         AgentStatistics,

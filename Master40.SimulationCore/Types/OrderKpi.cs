@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Master40.DB.Data.WrappersForPrimitives;
 
 namespace Master40.SimulationCore.Types
@@ -12,19 +13,21 @@ namespace Master40.SimulationCore.Types
             Open,
             Total,
             InDue,
-            OverDue
-            
+            InDueTotal,
+            OverDue,
+            OverDueTotal,
+            Tardiness,
+            Lateness,
+            CycleTime
         }
 
         public OrderKpi()
         {
-            this.Add(OrderState.New, new Quantity(0));
-            this.Add(OrderState.Finished, new Quantity(0));
-            this.Add(OrderState.Open, new Quantity(0));
-            this.Add(OrderState.Total, new Quantity(0));
-            this.Add(OrderState.InDue, new Quantity(0));
-            this.Add(OrderState.OverDue, new Quantity(0));
+            var values = Enum.GetValues(typeof(OrderState));
+            foreach(OrderState val in values )
+            {
+                this.Add(val, new Quantity(0));
+            }
         }
-        
     }
 }

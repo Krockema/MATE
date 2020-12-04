@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.DB.Data.WrappersForPrimitives;
 using static FArticles;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
@@ -21,11 +22,11 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private OrderKpi orderDictionary = new OrderKpi();
         
         private readonly List<SimulationOrder> _simulationOrders = new List<SimulationOrder>();
+
         private CollectorAnalyticsContracts() : base()
         {
 
         }
-
 
         public Collector Collector { get; set; }
 
@@ -61,21 +62,23 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             if (finishedArticle.DueTime >= finishedArticle.FinishedAt)
             {
                 message = $"Order No: {finishedArticle.OriginRequester.Path.Name} finished {finishedArticle.Article.Name} in time at {Collector.Time}";
-                orderDictionary[OrderKpi.OrderState.InDue].IncrementByOne();
+                orderDictionary[OrderKpi.OrderState.InDue].Increment();
+                orderDictionary[OrderKpi.OrderState.InDueTotal].Increment();
             }
             else
             {
                 message = $"Order No: {finishedArticle.OriginRequester.Path.Name} finished {finishedArticle.Article.Name} too late at {Collector.Time}";
-                orderDictionary[OrderKpi.OrderState.OverDue].IncrementByOne();
+                orderDictionary[OrderKpi.OrderState.OverDue].Increment();
+                orderDictionary[OrderKpi.OrderState.InDueTotal].Increment();
             }
             
 
             Collector.messageHub.SendToAllClients(msg: message);
             UpdateOrder(item: finishedArticle);
 
-            orderDictionary[OrderKpi.OrderState.Open].DecrementByOne(); 
-            orderDictionary[OrderKpi.OrderState.Finished].IncrementByOne();
-            orderDictionary[OrderKpi.OrderState.Total].IncrementByOne(); 
+            orderDictionary[OrderKpi.OrderState.Open].Decrement(); 
+            orderDictionary[OrderKpi.OrderState.Finished].Increment();
+            orderDictionary[OrderKpi.OrderState.Total].Increment(); 
 
             var percent = Math.Round((decimal) Collector.Time / Collector.maxTime * 100, 0);
             Collector.messageHub.ProcessingUpdate((int)orderDictionary[OrderKpi.OrderState.Finished].GetValue(), (int)percent, 
@@ -97,42 +100,36 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                                                   Processing = orderDictionary[OrderKpi.OrderState.Open].GetValue(),
                                                                   Output = orderDictionary[OrderKpi.OrderState.Finished].GetValue(),
                                                                   Time = Collector.Time }));
-
-
-            decimal adheranceToDue = 0;
-            if (orderDictionary[OrderKpi.OrderState.InDue].GetValue() != 0)
-            {
-                adheranceToDue = orderDictionary[OrderKpi.OrderState.InDue].GetValue() / 
-                            (orderDictionary[OrderKpi.OrderState.InDue].GetValue() + orderDictionary[OrderKpi.OrderState.OverDue].GetValue()) * 100;
-                //Collector.messageHub.SendToClient(listener: "Timeliness", msg: timelines.ToString().Replace(oldValue: ",", newValue: "."));
-            }
-
-            this.Collector.Kpis.Add(new Kpi
-            {
-                Name = "AdheranceToDue",
-                Value = (double)Math.Round(adheranceToDue, 2),
-                Time = (int) Collector.Time,
-                KpiType = KpiType.AdheranceToDue,
-                SimulationConfigurationId = Collector.simulationId.Value,
-                SimulationNumber = Collector.simulationNumber.Value,
-                IsFinal = finalCall,
-                IsKpi = true,
-                SimulationType = Collector.simulationKind.Value
-            });
-
+            
             CreateKpis(finalCall);
+            WriteToDb(agent: Collector, finalCall: finalCall);
 
             orderDictionary[OrderKpi.OrderState.New].ToZero();
             orderDictionary[OrderKpi.OrderState.Finished].ToZero();
-
-            WriteToDb(agent: Collector, finalCall: finalCall);
+            orderDictionary[OrderKpi.OrderState.InDue].ToZero();
+            orderDictionary[OrderKpi.OrderState.OverDue].ToZero();
 
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from Contracts");
         }
 
         private void CreateKpis(bool finalCall)
-        {
+        {   
+            
+            var from = Collector.Config.GetOption<KpiTimeSpan>().Value;
+            if (finalCall)
+                from = Collector.Config.GetOption<SettlingStart>().Value;
+
+            var orders = _simulationOrders.Where(x => x.FinishingTime != 0 &&
+                                                      x.FinishingTime > from);
+
+            if (orders.Any())
+            {
+                CalculateAdherenceToDue(finalCall);
+                CalculateTardiness(orders);
+                CalculateCycleTime(orders);    
+            }
+            
             foreach (var value in orderDictionary)
             {
                 this.Collector.Kpis.Add(new Kpi
@@ -140,7 +137,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                     Name = value.Key.ToString(),
                     Value = (double)value.Value.GetValue(),
                     Time = (int) Collector.Time,
-                    KpiType = KpiType.AdheranceToDue,
+                    KpiType = KpiType.AdherenceToDue,
                     SimulationConfigurationId = Collector.simulationId.Value,
                     SimulationNumber = Collector.simulationNumber.Value,
                     IsFinal = finalCall,
@@ -149,6 +146,58 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 });
             }
         }
+
+        private void CalculateCycleTime(IEnumerable<SimulationOrder> orders)
+        {
+            decimal cycleTime = (decimal)orders.Average(x => x.ProductionFinishedTime - x.CreationTime);
+            orderDictionary[OrderKpi.OrderState.CycleTime].SetValue(new Quantity(cycleTime));
+
+        }
+
+        private void CalculateAdherenceToDue(bool finalCall)
+        {
+            var inDue = orderDictionary[OrderKpi.OrderState.InDue].GetValue();
+            var overDue = orderDictionary[OrderKpi.OrderState.OverDue].GetValue();
+            decimal adherenceToDue = 0;
+            if (finalCall) 
+            {
+                inDue = orderDictionary[OrderKpi.OrderState.InDueTotal].GetValue();
+                overDue = orderDictionary[OrderKpi.OrderState.OverDueTotal].GetValue();
+            }
+           
+            if (inDue != 0)
+            {
+                adherenceToDue = inDue / (overDue + inDue) * 100;
+            }
+
+            this.Collector.Kpis.Add(new Kpi
+            {
+                Name = KpiType.AdherenceToDue.ToString(),
+                Value = (double)Math.Round(adherenceToDue, 2),
+                Time = (int) Collector.Time,
+                KpiType = KpiType.AdherenceToDue,
+                SimulationConfigurationId = Collector.simulationId.Value,
+                SimulationNumber = Collector.simulationNumber.Value,
+                IsFinal = finalCall,
+                IsKpi = true,
+                SimulationType = Collector.simulationKind.Value
+            });
+        }
+
+        private void CalculateTardiness(IEnumerable<SimulationOrder> orders)
+        {
+            decimal lateness = (decimal)orders.Average(x => x.ProductionFinishedTime - x.DueTime);
+            decimal tardinessOrders = orders.Sum(x => new[] {0, x.ProductionFinishedTime - x.DueTime}.Max());
+            decimal tardinessCount = orders.Count(x => 0 > x.ProductionFinishedTime - x.DueTime);
+
+            decimal tardiness = 0;
+            if (tardinessCount > 0)
+                tardiness = tardinessOrders / tardinessCount;
+            
+            orderDictionary[OrderKpi.OrderState.Lateness].SetValue(new Quantity(lateness));
+            orderDictionary[OrderKpi.OrderState.Tardiness].SetValue(new Quantity(tardiness));            
+        }
+
 
         private void AddOrder(Contract.Instruction.StartOrder m)
         {
@@ -166,8 +215,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             _simulationOrders.Add(item: order);
 
             
-            orderDictionary[OrderKpi.OrderState.Open].IncrementByOne();
-            orderDictionary[OrderKpi.OrderState.New].IncrementByOne();
+            orderDictionary[OrderKpi.OrderState.Open].Increment();
+            orderDictionary[OrderKpi.OrderState.New].Increment();
         }
 
 
