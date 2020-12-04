@@ -68,6 +68,15 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 Collector.messageHub.SendToClient(listener: "Storage", msg: JsonConvert.SerializeObject(value: item));
             }
 
+            var stockTotals = from so in StockValuesOverTime
+                group so by so.Name.Substring(0, 8)
+                into summarized orderby summarized.Key
+                select new
+                {
+                    Key = summarized.Key,
+                    Value = summarized.Sum(x => ((x.Time - x.ValueMin) * x.Value / Collector.Time) * 0.10)
+                };
+
 
             if (writeToDatabase)
             {
@@ -76,24 +85,11 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                     System.Diagnostics.Debug.WriteLine($"Storage: {item.Value.StockName} in stock {item.Value.NewValue} ");
                     UpdateKPI(item.Value);
                 }
-                
-                var stockTotals = from so in StockValuesOverTime
-                    group so by so.Name.Substring(0, 8)
-                    into summarized orderby summarized.Key
-                    select new
-                    {
-                        Key = summarized.Key,
-                        Value = summarized.Sum(x => ((x.Time - x.ValueMin) * x.Value / Collector.Time) * 0.10)
-                    };
                 Collector.messageHub.SendToClient(listener: "stockTotalsListener", msg: JsonConvert.SerializeObject(stockTotals));
-                stockTotals.ForEach(st => CreateKpi(st.Key, st.Value));
             }
 
-            // select Substring(Name, 0, 8), (Sum((Time - ValueMin) * Value) / 20160) * 0.10  
-            // from [dbo].[Kpis]
-            // where KpiType = 4 and SimulationNumber = 2
-            // group by Substring(Name, 0, 8)
-            
+            stockTotals.ForEach(st => CreateKpi(st.Key, st.Value, writeToDatabase));
+
             LogToDB(agent: Collector, writeToDatabase: writeToDatabase);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finish Update Feed from Storage");
@@ -152,7 +148,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             StockValuesOverTime.Add(item: k);
         }
 
-        private void CreateKpi(string name, double values)
+        private void CreateKpi(string name, double values, bool isFinal)
         {
             var k = new Kpi
             {
@@ -162,7 +158,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 KpiType = DB.Nominal.KpiType.StockTotals,
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,
-                IsFinal = true,
+                IsFinal = isFinal,
                 IsKpi = true,
                 SimulationType = Collector.simulationKind.Value
             };

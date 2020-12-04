@@ -68,8 +68,11 @@ open IJobs
         member this.UpdatePoductionAgent p = { this with ProductionAgent = p }
         member this.AsIjob = this :> IJob
         member this.UpdateHubAgent hub =  this.HubAgent <- hub 
-        member this.SetStartConditions preCondition articleProvided = this.StartConditions <- { PreCondition = preCondition; ArticlesProvided = articleProvided } 
+        member this.SetStartConditions preCondition articleProvided time = this.StartConditions <- { PreCondition = preCondition; 
+                                                                                                     ArticlesProvided = articleProvided; 
+                                                                                                     WasSetReadyAt = if(preCondition && articleProvided && this.StartConditions.WasSetReadyAt < 1L) 
+                                                                                                                     then time else this.StartConditions.WasSetReadyAt ; } 
         member this.SetForwardSchedule earliestStart = { this with ForwardStart = earliestStart;
                                                                    ForwardEnd = earliestStart + (int64)this.Operation.Duration; }
         member this.UpdateCustomerDue due = { this with CustomerDue = due }
-        member this.UpdateBucket bucketId = { this with Bucket = bucketId}
+        member this.UpdateBucket bucketId = { this with Bucket = bucketId }

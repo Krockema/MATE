@@ -65,7 +65,7 @@ namespace Master40.SimulationCore.Helper
                                 , remainingWork: remainingWork
                                 , end: 0
                                 , start: 0
-                                , startConditions: new FStartCondition(preCondition: firstOperation, articlesProvided: false)
+                                , startConditions: new FStartCondition(preCondition: firstOperation, articlesProvided: false, 0)
                                 , priority: priorityFunctions[priorityRule].ToFSharpFunc()
                                 , setupKey: -1 // unset
                                 , isFinished: false
@@ -104,7 +104,7 @@ namespace Master40.SimulationCore.Helper
                 , scope: scope
                 , end: 0
                 , start: 0
-                , startConditions: new FStartCondition(preCondition: false, articlesProvided: false)
+                , startConditions: new FStartCondition(preCondition: false, articlesProvided: false, 0)
                 , maxBucketSize: maxBucketSize
                 , minBucketSize: 1000
                 , setupKey: -1 //unset

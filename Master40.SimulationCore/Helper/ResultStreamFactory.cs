@@ -27,6 +27,8 @@ namespace Master40.SimulationCore.Helper
                 , duration: duration
                 , start: agent.CurrentTime
                 , capabilityProvider: capabilityProvider.Name
+                , capability: capabilityProvider.ResourceCapability.Name
+                , readyAt: job.StartConditions.WasSetReadyAt
                 , jobType: JobType.OPERATION
                 , bucket: bucketName
                 , setupId: capabilityProvider.Id);

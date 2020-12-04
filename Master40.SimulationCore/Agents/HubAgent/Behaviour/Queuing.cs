@@ -300,7 +300,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 return;
             }
 
-            job.SetStartConditions(startCondition.PreCondition, startCondition.ArticlesProvided);
+            job.SetStartConditions(startCondition.PreCondition, startCondition.ArticlesProvided, Agent.CurrentTime);
 
             _jobManager.SetJob(job);
             if (job.StartConditions.Satisfied)

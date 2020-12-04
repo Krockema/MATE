@@ -343,7 +343,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                                     $"| ArticleProvided: {startCondition.ArticlesProvided} " +
                                     $"| PreCondition: {startCondition.PreCondition} ");
             
-            var bucket = _bucketManager.SetOperationStartCondition(startCondition.OperationKey, startCondition);
+            var bucket = _bucketManager.SetOperationStartCondition(startCondition.OperationKey, startCondition, Agent.CurrentTime);
             if (bucket.IsNull())
             {
                 Agent.DebugMessage(msg: $"No Bucket found and should be at Work");
