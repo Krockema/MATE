@@ -212,7 +212,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             return bucket;
         }
 
-        public FBucket SetOperationStartCondition(Guid operationKey, FUpdateStartCondition startCondition)
+        public FBucket SetOperationStartCondition(Guid operationKey, FUpdateStartCondition startCondition, long currentTime)
         {
             var bucket = GetBucketByOperationKey(operationKey);
 
@@ -221,7 +221,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
                 var operation = bucket.Operations.Single(x => x.Key == operationKey);
                 bucket.RemoveOperation(operation);
 
-                operation.SetStartConditions(preCondition: startCondition.PreCondition, articleProvided: startCondition.ArticlesProvided);
+                operation.SetStartConditions(preCondition: startCondition.PreCondition, articleProvided: startCondition.ArticlesProvided, currentTime);
                 operation = operation.UpdateCustomerDue(startCondition.CustomerDue);
 
                 bucket.AddOperation(operation);

@@ -14,6 +14,7 @@
         ResourceSetupTotal,
         StockTotals,
         Ooe,
+        CapabilityIdle,
         AverageResult = 999
         
     }

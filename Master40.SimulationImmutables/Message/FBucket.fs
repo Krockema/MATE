@@ -61,7 +61,10 @@ open FUpdateStartConditions
         member this.AddOperation op = { this with Operations = this.Operations.Add(op)}
         member this.RemoveOperation op = { this with Operations = this.Operations.Remove(op)}
         member this.SetFixPlanned = { this with IsFixPlanned = true}
-        member this.SetStartConditions preCondition articleProvided = this.StartConditions <- { PreCondition = preCondition; ArticlesProvided = articleProvided } 
+        member this.SetStartConditions preCondition articleProvided time = this.StartConditions <- { PreCondition = preCondition; 
+                                                                                                ArticlesProvided = articleProvided; 
+                                                                                                WasSetReadyAt = if(preCondition && articleProvided && this.StartConditions.WasSetReadyAt < 1L) 
+                                                                                                                then time else 0L ; } 
         member this.GetCapacityLeft = (this.BackwardStart - this.ForwardStart) - this.Operations.Sum(fun y -> (int64)y.Operation.Duration)
         member this.HasSatisfiedJob = this.Operations.Any(fun y -> y.StartConditions.Satisfied)
         member this.UpdateBucket bucketId = { this with Bucket = bucketId }

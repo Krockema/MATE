@@ -17,6 +17,7 @@ namespace Master40.DB.ReportingModel
         public long ExpectedDuration { get; set; }
         public long Start { get; set; }
         public long End { get; set; }
+        public long ReadyAt { get; set; }
         public string CapabilityProvider { get; set; }
         public string CapabilityName { get; set; }
         public string JobId { get; set; }

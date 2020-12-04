@@ -149,16 +149,16 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         public static IEnumerable<object[]> GetTestData()
         {
-            var simNumber = 13000;
+            var simNumber = 16000;
             var throughput = 1920;
 
             for (int i = 0; i < 1; i++)
             {
                 yield return new object[]
                 {
-                    SimulationType.Default, PriorityRule.LST, simNumber++, 960, throughput, 594, ModelSize.Medium, ModelSize.Medium, 0.0135, false, false
+                    SimulationType.Default, PriorityRule.LST, simNumber++, 960, throughput, 594, ModelSize.Medium, ModelSize.Medium, 0.0153, false, false
                 };
-                throughput = throughput + 100;
+                throughput += 100;
             }
         }
 
