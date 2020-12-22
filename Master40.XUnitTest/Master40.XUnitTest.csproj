@@ -4,6 +4,7 @@
 
 	<PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
     <Configurations>Debug;Release;Azure</Configurations>
 		<Platforms>AnyCPU;x64</Platforms>
     <LangVersion>8.0</LangVersion>

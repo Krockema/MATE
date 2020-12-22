@@ -21,23 +21,23 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
 
         }
 
-        public void Add(IJob job)
+        public void Add(IJob job, long currentTime)
         {
             if (_jobStorage.TryGetValue(job.RequiredCapability.Id, out var jobQueue))
             {
-                jobQueue.Add(job);
+                jobQueue.Enqueue(job, currentTime);
                 return;
             }
             
             jobQueue = new JobQueue();
-            jobQueue.Add(job);
+            jobQueue.Enqueue(job, currentTime);
             _jobStorage.Add(job.RequiredCapability.Id, jobQueue);
             
         }
 
         public void Remove(JobQueue jobQueue)
         {
-            var capabilityId = jobQueue.First().RequiredCapability.Id;
+            var capabilityId = jobQueue.data.First().RequiredCapability.Id;
 
             if (!_jobStorage.ContainsKey(capabilityId))
             {
@@ -48,9 +48,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
 
         }
 
-        internal List<JobQueue> GetAllJobQueues(long currentTime)
+        internal List<JobQueue> GetAllJobQueues(long currentTime, List<int> availableCapabilities)
         {
             return _jobStorage.Values.OrderBy(x => x.Priority(currentTime: currentTime)).ToList();
+            //return _jobStorage.Where(x => availableCapabilities.Contains(x.Key)).Select(x => x.Value).OrderBy(x => x.Priority(currentTime: currentTime)).ToList();
         }
 
         public List<JobQueue> GetJobQueues(long currentTime)

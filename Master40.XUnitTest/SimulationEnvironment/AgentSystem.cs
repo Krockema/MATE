@@ -135,10 +135,10 @@ namespace Master40.XUnitTest.SimulationEnvironment
         }
 
         [Theory]
-        [InlineData(SimulationType.Default, PriorityRule.LST, 5000, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
-        [InlineData(SimulationType.Default, PriorityRule.MDD, 5001, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
-        [InlineData(SimulationType.Default, PriorityRule.SPT, 5002, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
-        [InlineData(SimulationType.Default, PriorityRule.FIFO, 5003, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        [InlineData(SimulationType.Queuing, PriorityRule.LST, 5001, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        //[InlineData(SimulationType.Queuing, PriorityRule.MDD, 5001, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        //[InlineData(SimulationType.Queuing, PriorityRule.SPT, 5002, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        //[InlineData(SimulationType.Queuing, PriorityRule.FIFO, 5003, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
 
         public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule
             , int simNr, int maxBucketSize, long throughput, int seed
@@ -186,7 +186,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
-            simConfig.ReplaceOption(new SimulationEnd(value: 40360));
+            simConfig.ReplaceOption(new SimulationEnd(value: 20160));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));

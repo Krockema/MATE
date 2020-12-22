@@ -19,14 +19,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
             _capabilityJobStorage = new CapabilityJobStorage();
         }
 
-        public void SetJob(IJob job)
+        public void SetJob(IJob job, long currentTime)
         {
 
             _pendingJobList.RemoveAll(x => x.Key.Equals(job.Key));
 
             if (job.StartConditions.Satisfied)
             {
-                _capabilityJobStorage.Add(job);
+                _capabilityJobStorage.Add(job, currentTime);
                 return;
             }
 
@@ -44,9 +44,9 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
             return _capabilityJobStorage.GetJobQueues(currentTime);
         }
 
-        public List<JobQueue> GetAllJobQueues(long currentTime)
+        public List<JobQueue> GetAllJobQueues(long currentTime, List<int> availableCapabilities)
         {
-            return _capabilityJobStorage.GetAllJobQueues(currentTime: currentTime);
+            return _capabilityJobStorage.GetAllJobQueues(currentTime: currentTime, availableCapabilities);
         }
 
         public IJob GetJob(Guid key)

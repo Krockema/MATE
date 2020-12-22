@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using Master40.DB.DataModel;
 using Master40.DB.Nominal;
+using Master40.DB.Nominal.Model;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.JobAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
@@ -27,10 +28,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
 {
     public class Default : SimulationCore.Types.Behaviour
     {
-        public Default(int timeConstraintQueueLength, int resourceId, WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider, SimulationType simulationType = SimulationType.None)
+        public Default(int timeConstraintQueueLength, int resourceId, ResourceType resourceType, WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider, SimulationType simulationType = SimulationType.None)
             : base(simulationType: simulationType)
         {
             _resourceId = resourceId;
+            _resourceType = resourceType;
             _workTimeGenerator = workTimeGenerator;
             _capabilityProviderManager = new CapabilityProviderManager(capabilityProvider);
             _agentDictionary = new AgentDictionary();
@@ -39,6 +41,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
         }
 
         internal int _resourceId { get; }
+        internal ResourceType _resourceType { get; }
         internal JobInProgress _jobInProgress { get; set; } = new JobInProgress();
         internal WorkTimeGenerator _workTimeGenerator { get; }
         internal CapabilityProviderManager _capabilityProviderManager { get; }
@@ -76,10 +79,11 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var capabilityProviders = _capabilityProviderManager.GetAllCapabilityProvider();
             Agent.Send(instruction: Directory.Instruction.Default.ForwardRegistrationToHub.Create(
                 new FResourceInformation(
-                    resourceId: resourceAgent._resource.Id, 
-                    resourceName: this.Agent.Name, 
-                    resourceCapabilityProvider: capabilityProviders, 
-                    requiredFor: String.Empty, 
+                    resourceId: resourceAgent._resource.Id,
+                    resourceName: this.Agent.Name,
+                    resourceCapabilityProvider: capabilityProviders,
+                    resourceType: _resourceType,
+                    requiredFor: String.Empty,
                     Agent.Context.Self)
                 , target: Agent.VirtualParent));
             return true;
