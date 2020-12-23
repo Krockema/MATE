@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using Akka.Actor;
 using AkkaSim.Definitions;
 using Master40.DB.DataModel;
+using Master40.DB.ReportingModel;
 using static FArticles;
 using static FSetEstimatedThroughputTimes;
 
@@ -95,6 +97,18 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
 
                 }
                 public FSetEstimatedThroughputTime GetObjectFromMessage { get => Message as FSetEstimatedThroughputTime; }
+            }
+
+            public class AddKpi : SimulationMessage
+            {
+                public static AddKpi Create(List<Kpi> message, IActorRef target)
+                {
+                    return new AddKpi(message: message, target: target);
+                }
+                private AddKpi(object message, IActorRef target) : base(message: message, target: target)
+                {
+                }
+                public List<Kpi> GetObjectFromMessage { get => Message as List<Kpi>; }
             }
         }
     }

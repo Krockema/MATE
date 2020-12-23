@@ -3,7 +3,7 @@ using Master40.SimulationCore.Environment.Options;
 
 namespace Master40.SimulationCore.Types
 {
-    public class ThroughPutDictionary 
+    public class ThroughPutDictionary
     {
         private Dictionary<string, EstimatedThroughPut> dic = new Dictionary<string, EstimatedThroughPut>();
 
@@ -23,13 +23,25 @@ namespace Master40.SimulationCore.Types
 
         public bool UpdateOrCreate(string name, long time)
         {
-            if(dic.TryGetValue(key: name, value: out EstimatedThroughPut eta))
+            if (dic.TryGetValue(key: name, value: out EstimatedThroughPut eta))
             {
                 eta.Set(time: time);
                 return false;
             }
             // else
             dic.Add(key: name, value: new EstimatedThroughPut(value: time));
+            return true;
+        }
+
+        public bool UpdateAll(long time)
+        {
+            List<string> keys = new List<string>(dic.Keys);
+            foreach (string key in keys)
+                if (dic.TryGetValue(key: key, value: out EstimatedThroughPut eta))
+                {
+                    eta.Set(time: time);
+                }
+
             return true;
         }
     }

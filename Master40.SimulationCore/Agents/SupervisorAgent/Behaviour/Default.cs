@@ -9,6 +9,7 @@ using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper.Types;
 using Master40.DB.DataModel;
 using Master40.DB.Nominal;
+using Master40.DB.ReportingModel;
 using Master40.SimulationCore.Agents.ContractAgent;
 using Master40.SimulationCore.Agents.DispoAgent;
 using Master40.SimulationCore.Agents.Guardian;
@@ -19,7 +20,9 @@ using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
 using Master40.Tools.SignalR;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using static Master40.SimulationCore.Agents.SupervisorAgent.Supervisor.Instruction;
 
 namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
@@ -29,6 +32,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private ProductionDomainContext _productionDomainContext { get; set; }
         private DbConnection _dataBaseConnection { get; set; }
         private IMessageHub _messageHub { get; set; }
+        private HubConnection _connection;
         private int orderCount { get; set; } = 0;
         private long _simulationEnds { get; set; }
         private int _configID { get; set; }
@@ -41,7 +45,10 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private ThroughPutDictionary _estimatedThroughPuts { get; set; } = new ThroughPutDictionary();
         private Queue<T_CustomerOrderPart> _orderQueue { get; set; } = new Queue<T_CustomerOrderPart>();
         private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
-        public  Default(ProductionDomainContext productionDomainContext
+        private bool _predictThroughput { get; set; }
+        private ThroughputPredictor ThroughputPredictor { get; set; }
+        private List<Kpi> Kpis { get; set; } = new List<Kpi>();
+        public Default(ProductionDomainContext productionDomainContext
             , IMessageHub messageHub
             , Configuration configuration
             , List<FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime> estimatedThroughputTimes)
@@ -70,6 +77,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 case CreateContractAgent instruction: CreateContractAgent(order: instruction.GetObjectFromMessage); break;
                 case RequestArticleBom instruction: RequestArticleBom(articleId: instruction.GetObjectFromMessage); break;
                 case OrderProvided instruction: OrderProvided(instruction: instruction); break;
+                case AddKpi instruction: AddToKpis(kpi: instruction.GetObjectFromMessage); break; //new
                 case SystemCheck instruction: SystemCheck(); break;
                 case EndSimulation instruction: End(); break;
                 case PopOrder p: PopOrder(); break;
@@ -191,6 +199,23 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
         }
 
-        //hier fehlt was
+        private void kickoffPrediction(int numberOfValuesForPrediction)
+        {
+            var valuesForPrediction = Kpis.Skip(Math.Max(0, Kpis.Count() - numberOfValuesForPrediction)).Take(numberOfValuesForPrediction);
+            var predictedThroughput = ThroughputPredictor.PredictThroughput(valuesForPrediction);
+            _estimatedThroughPuts.UpdateAll(predictedThroughput); //TODO: differentiate between articles -> use "UpdateOrCreate" method
+        }
+
+        private void AddToKpis(List<Kpi> kpi)
+        {
+            Kpis.AddRange(kpi);
+
+            var numberOfValuesForPrediction = 20; //TODO: get it from somewhere else?
+
+            if (_predictThroughput && Kpis.Count >= numberOfValuesForPrediction)
+            {
+                kickoffPrediction(numberOfValuesForPrediction);
+            }
+        }
     }
 }

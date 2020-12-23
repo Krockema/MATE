@@ -42,7 +42,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         public Collector Collector { get; set; }
         //
         IdleTime idleTime = new IdleTime();
-        
+
         /// <summary>
         /// Required to get Number output with . instead of ,
         /// </summary>
@@ -115,7 +115,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             _ThroughPutTimes.Add(m);
         }
 
-#region breakdown
+        #region breakdown
         private void BreakDwn(FBreakDown item)
         {
             Collector.messageHub.SendToClient(listener: item.Resource + "_State", msg: "offline");
@@ -125,11 +125,11 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             Collector.messageHub.SendToClient(listener: item.RequiredFor + "_State", msg: "online");
         }
-#endregion
+        #endregion
         private void UpdateFeed(bool finalCall)
         {
             // check if Update has been processed this time step.
- 
+
             if (lastIntervalStart != Collector.Time)
             {
                 //var OEE = OverallEquipmentEffectiveness(resources: _resources, Collector.Time - 1440L, Collector.Time);
@@ -138,15 +138,24 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             ThroughPut(finalCall);
             CallTotal(finalCall);
             CallAverageIdle(finalCall);
-
+            GatherKpiForAI(finalCall);
             LogToDB(writeResultsToDB: finalCall);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from WorkSchedule");
         }
 
+        private void GatherKpiForAI(bool finalCall)
+        {
+            // Samle relevante kpi
+            // Generiere CycleTime/Trhoughput Time 
+            // Sende sie an den Supervisor
+            Collector.SendKpis(/* fill me */);
+            throw new NotImplementedException();
+        }
+
         private void CallAverageIdle(bool finalCall)
         {
-             idleTime.GetKpis(Collector, finalCall);
+            idleTime.GetKpis(Collector, finalCall);
         }
 
 
@@ -160,7 +169,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 var settlingStart = Collector.Config.GetOption<SettlingStart>().Value;
                 var resourcesDatas = kpiManager.GetSimulationDataForResources(resources: _resources, simulationResourceData: allSimulationData, simulationResourceSetupData: allSimulationSetupData, startInterval: settlingStart, endInterval: Collector.Time);
 
-                foreach (var resource in resourcesDatas) { 
+                foreach (var resource in resourcesDatas)
+                {
                     var tuple = resource._workTime + " " + resource._setupTime;
                     var machine = resource._resource;
                 }
@@ -172,8 +182,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                     SetupTime = resourcesDatas.Sum(x => x._totalSetupTime),
                     SetupTimePercent = Math.Round((resourcesDatas.Sum(x => Convert.ToDouble(x._setupTime.Replace(".", ","))) / resourcesDatas.Count * 100), 4).ToString(_cultureInfo)
                 };
-                
-                Collector.messageHub.SendToClient(listener: "totalUtilizationListener", msg: JsonConvert.SerializeObject(value: toSend ));
+
+                Collector.messageHub.SendToClient(listener: "totalUtilizationListener", msg: JsonConvert.SerializeObject(value: toSend));
             }
         }
 
@@ -257,7 +267,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 OrderId = "[" + simJob.CustomerOrderId + "]",
                 HierarchyNumber = simJob.OperationHierarchyNumber,
                 //Remember this is now a fArticleKey (Guid)
-                ProductionOrderId =  simJob.ProductionAgent,
+                ProductionOrderId = simJob.ProductionAgent,
                 Parent = simJob.IsHeadDemand.ToString(),
                 FArticleKey = simJob.fArticleKey.ToString(),
                 Time = (int)(Collector.Time),
@@ -266,7 +276,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 CapabilityName = simJob.RequiredCapabilityName,
                 Bucket = simJob.JobName,
                 Start = simJob.Start,
-                End =  simJob.End,
+                End = simJob.End,
             };
 
             var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.ToString().Equals(simJob.Key));
@@ -279,7 +289,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             }
             simulationJobs.Add(item: simulationJob);
         }
-        
+
         private void UpdateJob(FUpdateSimulationJob simJob)
         {
             var edit = simulationJobs.FirstOrDefault(predicate: x => x.JobId.Equals(value: simJob.Job.Key.ToString()));
@@ -307,7 +317,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             foreach (var fpk in uswp.FArticleProviderKeys)
             {
                 var items = simulationJobs.Where(predicate: x => x.FArticleKey.Equals(value: fpk.ProvidesArticleKey.ToString())
-                                                            && x.ProductionOrderId == fpk.ProductionAgentKey); 
+                                                            && x.ProductionOrderId == fpk.ProductionAgentKey);
                 foreach (var item in items)
                 {
                     item.ParentId = item.Parent.Equals(value: false.ToString()) ? "[" + uswp.RequestAgentId + "]" : "[]";

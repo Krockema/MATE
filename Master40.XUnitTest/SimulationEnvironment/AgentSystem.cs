@@ -25,7 +25,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         // local Context
         private const string masterCtxString = "Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true";
         private const string masterResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true";
-        
+
         // local TEST Context
         private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true";
         private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
@@ -53,8 +53,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
             MasterDBContext masterCtx = MasterDBContext.GetContext(connectionString);
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3,  false, false);
-       
+            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3, false, false);
+
             ResultContext results = ResultContext.GetContext(resultCon: resultConnectionString);
             results.Database.EnsureDeleted();
             results.Database.EnsureCreated();
@@ -117,7 +117,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             }
 
         }
-        
+
         private void GetSetups(M_Resource resource, ProductionDomainContext masterCtx)
         {
             if (!resource.IsPhysical)
@@ -127,7 +127,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
                     .ThenInclude(x => x.ResourceCapability)
                 .Include(x => x.Resource)
                 .Where(x => x.ResourceId == resource.Id).ToList();
-            
+
             System.Diagnostics.Debug.WriteLine($"Creating Resource: {resource.Name} with following setups...");
             foreach (var setup in setups)
             {
@@ -151,14 +151,15 @@ namespace Master40.XUnitTest.SimulationEnvironment
         {
             var simNumber = 16000;
             var throughput = 1920;
+            var seed = 594;
 
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 5; i++)
             {
                 yield return new object[]
                 {
-                    SimulationType.Default, PriorityRule.LST, simNumber++, 960, throughput, 594, ModelSize.Medium, ModelSize.Medium, 0.0153, false, false
+                    SimulationType.Default, PriorityRule.LST, simNumber++, 960, throughput, seed++, ModelSize.Medium, ModelSize.Medium, 0.0153, false, false
                 };
-                throughput += 100;
+                //throughput += 100;
             }
         }
 
@@ -169,7 +170,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             , int simNr, int maxBucketSize, long throughput, int seed
             , ModelSize resourceModelSize, ModelSize setupModelSize
             , double arrivalRate, bool distributeSetupsExponentially
-            , bool createMeasurements = false)
+            , bool createMeasurements = false, bool predictThroughput = true)
         {
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
@@ -195,8 +196,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, setupModelSize, 3, distributeSetupsExponentially, false);
-            
-            
+
+
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(DBContext: masterCtx, messageHub: new ConsoleHub());
             var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
@@ -206,7 +207,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new KpiTimeSpan(480));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 1500)); 
+            simConfig.ReplaceOption(new OrderQuantity(value: 1500));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
@@ -222,6 +223,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new MaxDeliveryTime(2880));
             simConfig.ReplaceOption(new SimulationCore.Environment.Options.PriorityRule(priorityRule));
             simConfig.ReplaceOption(new CreateQualityData(createMeasurements));
+            simConfig.ReplaceOption(new UsePredictedThroughput(predictThroughput));
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 
@@ -241,22 +243,22 @@ namespace Master40.XUnitTest.SimulationEnvironment
             Assert.True(condition: simWasReady);
         }
 
-        [Fact (Skip = "Offline")]
+        [Fact(Skip = "Offline")]
         public void AggreteResults()
         {
-            var  _resultContext = ResultContext.GetContext(remoteResultCtxString);
+            var _resultContext = ResultContext.GetContext(remoteResultCtxString);
 
             var aggregator = new ResultAggregator(_resultContext);
             aggregator.BuildResults(1);
         }
-        
-        
+
+
         [Fact]
         private void ArgumentConverter()
         {
             var numberOfArguments = _ctxResult.ConfigurationRelations.Count(x => x.Id == 1);
-            var config = Simulation. CLI.ArgumentConverter.ConfigurationConverter(_ctxResult, 2);
-            Assert.Equal(numberOfArguments +1, config.Count());
+            var config = Simulation.CLI.ArgumentConverter.ConfigurationConverter(_ctxResult, 2);
+            Assert.Equal(numberOfArguments + 1, config.Count());
         }
 
         private void emtpyResultDBbySimulationNumber(SimulationNumber simNr)
