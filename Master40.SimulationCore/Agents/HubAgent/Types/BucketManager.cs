@@ -46,7 +46,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         }
         public JobConfirmation GetConfirmationByBucketKey(Guid bucketKey)
         {
-            return _jobConfirmations.FirstOr((x => x.Job.Key == bucketKey), null);
+            return _jobConfirmations.FirstOrDefault((x => x.Job.Key == bucketKey));
         }
 
         public void Replace(FBucket bucket)
@@ -171,7 +171,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
             }
 
             //var matchingBucket = GetBucketWithMostLeftCapacity(matchingBuckets);
-            var matchingBucket = matchingBuckets.OrderBy(x => x.Priority.Invoke(x).Invoke(time)).FirstOr(null);
+            var matchingBucket = matchingBuckets.OrderBy(x => x.Priority.Invoke(x).Invoke(time)).FirstOrDefault();
 
             return matchingBucket;
         }

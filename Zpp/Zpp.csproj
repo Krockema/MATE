@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <OutputType>Exe</OutputType>
+        <OutputType>Library</OutputType>
         <TargetFramework>net5.0</TargetFramework>
 		<LangVersion>9.0</LangVersion>
 		<Platforms>AnyCPU;x64</Platforms>
@@ -14,11 +14,14 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Json.Net" Version="1.0.18" />
-      <PackageReference Include="OptimizedPriorityQueue" Version="4.2.0" />
-      <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
-      <PackageReference Include="Zeiss.PiWeb.Api.Rest" Version="6.0.0" />
-      <PackageReference Include="Zeiss.PiWeb.Api.Rest.Dtos" Version="6.0.0" />
+      <PackageReference Include="Json.Net" Version="1.0.23" />
+      <PackageReference Include="OptimizedPriorityQueue" Version="5.0.0" />
+      <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Zeiss.PiWeb.Api.Rest" Version="6.1.0" />
+      <PackageReference Include="Zeiss.PiWeb.Api.Rest.Dtos" Version="6.1.0" />
     </ItemGroup>
   <ItemGroup>
     <None Update="xunit.runner.json">

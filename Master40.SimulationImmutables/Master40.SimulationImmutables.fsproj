@@ -31,7 +31,7 @@
     <Compile Include="Interface\ITimeRanges.fs" />
     <Compile Include="Interface\IKey.fs" />
     <Compile Include="Interface\IJob.fs" />
-    <Compile Include="Interface\IJobResults.fs"/>
+    <Compile Include="Interface\IJobResults.fs" />
     <Compile Include="Interface\IQueuingJob.fs" />
     <Compile Include="Message\FOperation.fs" />
     <Compile Include="Message\FOperationResults.fs" />
@@ -75,9 +75,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Akka" Version="1.4.10" />
-    <PackageReference Include="Zeiss.PiWeb.Api.Rest" Version="6.0.0" />
-    <PackageReference Include="Zeiss.PiWeb.Api.Rest.Dtos" Version="6.0.0" />
+    <PackageReference Include="Akka" Version="1.4.13" />
+    <PackageReference Include="Zeiss.PiWeb.Api.Rest" Version="6.1.0" />
+    <PackageReference Include="Zeiss.PiWeb.Api.Rest.Dtos" Version="6.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -85,7 +85,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="4.7.2" />
+    <PackageReference Update="FSharp.Core" Version="5.0.0" />
   </ItemGroup>
 
 </Project>
