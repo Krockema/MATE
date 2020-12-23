@@ -136,7 +136,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
         {
             var jobQueue = _jobManager.GetActiveJob(queueKey);
 
-            Agent.DebugMessage($"JobQueue {jobQueue.QueueId} with {jobQueue.JobQueue.data.Count} jobs require {jobQueue.ResourceCapabilityProvider.Name} will be started on capability provider: {jobQueue.ResourceCapabilityProvider.Name}", CustomLogger.JOB, LogLevel.Debug);
+            Agent.DebugMessage($"JobQueue {jobQueue.QueueId} with {jobQueue.JobQueue.Count} jobs require {jobQueue.ResourceCapabilityProvider.Name} will be started on capability provider: {jobQueue.ResourceCapabilityProvider.Name}", CustomLogger.JOB, LogLevel.Debug);
             //Set JobQueue to each resource to block them
 
             var mainResources = jobQueue.GetOnlyMainResources.Select(x => x.Id).ToList();
@@ -275,10 +275,10 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
 
             jobQueue.ClearProcessing();
 
-            if(jobQueue.JobQueue.data.Count > 0)
+            if(jobQueue.JobQueue.Count > 0)
             {
                 var nextJob = jobQueue.JobQueue.PeekNext(Agent.CurrentTime);
-                Agent.DebugMessage($"Queue {jobQueue.QueueId} with {jobQueue.JobQueue.data.Count} jobs left will start with next job {nextJob.Name}");
+                Agent.DebugMessage($"Queue {jobQueue.QueueId} with {jobQueue.JobQueue.Count} jobs left will start with next job {nextJob.Name}");
                 DoWork(jobQueue.QueueId, nextJob);
                 return;
             }

@@ -25,19 +25,19 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
         {
             if (_jobStorage.TryGetValue(job.RequiredCapability.Id, out var jobQueue))
             {
-                jobQueue.Enqueue(job, currentTime);
+                jobQueue.Add(job);
                 return;
             }
             
             jobQueue = new JobQueue();
-            jobQueue.Enqueue(job, currentTime);
+            jobQueue.Add(job);
             _jobStorage.Add(job.RequiredCapability.Id, jobQueue);
             
         }
 
         public void Remove(JobQueue jobQueue)
         {
-            var capabilityId = jobQueue.data.First().RequiredCapability.Id;
+            var capabilityId = jobQueue.First().RequiredCapability.Id;
 
             if (!_jobStorage.ContainsKey(capabilityId))
             {
