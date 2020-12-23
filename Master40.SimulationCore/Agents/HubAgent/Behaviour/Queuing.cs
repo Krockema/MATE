@@ -64,7 +64,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
                 resourceRef: resourceInformation.Ref,
                 resourceType: resourceInformation.ResourceType,
                 resourceCapability: resourceInformation.ResourceCapabilityProvider.FirstOrDefault().ResourceCapability.ParentResourceCapabilityId.Value,
-                resourceCapabilityName: resourceInformation.RequiredFor);
+                resourceCapabilityName: resourceInformation.RequiredFor,
+                resourceCapabilities: resourceInformation.ResourceCapabilityProvider.Select(x => x.ResourceCapabilityId).ToList());
             
             foreach (var capabilityProvider in resourceInformation.ResourceCapabilityProvider)
             {

@@ -16,12 +16,13 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
         public ResourceType _resourceType { get; }
         public string _resourceParentCapabilityName { get; }
         public int _resourceParentCapability { get; }
+        public List<int> _resourceCapabilities { get; }
         public M_ResourceCapability _currentResourceCapability { get; private set; }
         public IJob _jobInProgress { get; private set; }
 
         public bool IsWorking => _jobInProgress != null;
 
-        public ResourceState(int resourceId, string resourceName, IActorRef resourceRef, ResourceType resourceType, string resourceParentCapabilityName, int resourceParentCapability)
+        public ResourceState(int resourceId, string resourceName, IActorRef resourceRef, ResourceType resourceType, string resourceParentCapabilityName, int resourceParentCapability, List<int> resourceCapabilities)
         {
             _resourceId = resourceId;
             _resourceName = resourceName;
@@ -29,6 +30,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
             _resourceType = resourceType;
             _resourceParentCapabilityName = resourceParentCapabilityName;
             _resourceParentCapability = resourceParentCapability;
+            _resourceCapabilities = resourceCapabilities;
             _jobInProgress = null;
             _currentResourceCapability = null;
         }

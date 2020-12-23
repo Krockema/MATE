@@ -20,7 +20,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
             _resourceList = new List<ResourceState>();
         }
 
-        public void Add(int resourceId, string resourceName, IActorRef resourceRef, ResourceType resourceType, string resourceCapabilityName, int resourceCapability)
+        public void Add(int resourceId, string resourceName, IActorRef resourceRef, ResourceType resourceType, string resourceCapabilityName, int resourceCapability, List<int> resourceCapabilities)
         {
             if (_resourceList.Exists(x => x._resourceId.Equals(resourceId)))
             {
@@ -28,13 +28,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
                 return;
             }
             
-            _resourceList.Add(new ResourceState(resourceId, resourceName, resourceRef, resourceType, resourceCapabilityName, resourceCapability));
+            _resourceList.Add(new ResourceState(resourceId, resourceName, resourceRef, resourceType, resourceCapabilityName, resourceCapability, resourceCapabilities));
         }
 
         internal List<int> GetAvailableCapabilities()
         {
-            return _resourceList.Where(x => x._resourceType.Equals(ResourceType.Workcenter) && x.IsWorking == false).Select(x => x._resourceParentCapability).ToList();
-
+            List<int> availableCapabilities = new List<int>();
+            _resourceList.Where(x => x._resourceType.Equals(ResourceType.Workcenter) && x.IsWorking == false).ForEach(x => availableCapabilities.AddRange(x._resourceCapabilities));
+            return availableCapabilities; 
         }
 
         internal bool ResouresAreWorking(List<M_Resource> requiredResources)

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <UseRazorBuildServer>false</UseRazorBuildServer>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <Configurations>Debug;Release;Azure</Configurations>
@@ -14,7 +14,7 @@
     <ApplicationIcon>wwwroot\favicon.ico</ApplicationIcon>
     <OutputType>Exe</OutputType>
     <StartupObject>Master40.Program</StartupObject>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <UserSecretsId>8704d405-f8e4-4ac1-bc7f-a240f95a29a5</UserSecretsId>
   </PropertyGroup>
 

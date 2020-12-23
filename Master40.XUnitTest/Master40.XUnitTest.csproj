@@ -3,11 +3,11 @@
 
 
 	<PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <ServerGarbageCollection>true</ServerGarbageCollection>
     <Configurations>Debug;Release;Azure</Configurations>
 		<Platforms>AnyCPU;x64</Platforms>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
