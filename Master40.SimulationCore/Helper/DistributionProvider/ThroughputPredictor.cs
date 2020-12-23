@@ -13,6 +13,7 @@ namespace Master40.SimulationCore.Helper.DistributionProvider
         public long PredictThroughput(IEnumerable<Kpi> valuesForPrediction)
         {
             //_estimatedThroughPuts.UpdateOrCreate(articleName, predictedThroughput);
+            // Test Commit mschwrdtnr
             return 1920;
         }
     }
