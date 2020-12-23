@@ -2,7 +2,7 @@ language: csharp
 os: linux
 mono: none
 dist: bionic
-dotnet: 3.1.105
+dotnet: 5.0
 
 services:
   - docker
