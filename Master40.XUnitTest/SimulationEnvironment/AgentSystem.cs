@@ -135,7 +135,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         }
 
         [Theory]
-        [InlineData(SimulationType.Queuing, PriorityRule.LST, 5001, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        [InlineData(SimulationType.Queuing, PriorityRule.LST, 5000, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
         //[InlineData(SimulationType.Queuing, PriorityRule.MDD, 5001, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
         //[InlineData(SimulationType.Queuing, PriorityRule.SPT, 5002, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
         //[InlineData(SimulationType.Queuing, PriorityRule.FIFO, 5003, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
@@ -186,7 +186,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
-            simConfig.ReplaceOption(new SimulationEnd(value: 20160));
+            simConfig.ReplaceOption(new SimulationEnd(value: 10080));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
@@ -243,6 +243,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
                     _ctxResult.SimulationJobs.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)).ToList();
                 _ctxResult.RemoveRange(entities: itemsToRemove);
                 _ctxResult.RemoveRange(entities: _ctxResult.Kpis.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctxResult.RemoveRange(entities: _ctxResult.SimulationOrders.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctxResult.RemoveRange(entities: _ctxResult.TaskItems.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
                 _ctxResult.RemoveRange(entities: _ctxResult.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
                 _ctxResult.SaveChanges();
             }
