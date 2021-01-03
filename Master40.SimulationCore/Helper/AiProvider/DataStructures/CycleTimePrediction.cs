@@ -1,6 +1,6 @@
 ﻿using Microsoft.ML.Data;
 
-namespace AIAgent.DataStuctures
+namespace AiProvider.DataStuctures
 {
     public class CycleTimePrediction
     {

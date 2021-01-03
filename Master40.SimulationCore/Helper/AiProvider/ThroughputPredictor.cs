@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
+using Master40.DB.ReportingModel;
 using System.IO;
-using AIAgent.DataStuctures;
+using AiProvider.DataStuctures;
 using Microsoft.ML;
 
-namespace Master40.SimulationCore.Agents.AIAgent
+namespace Master40.SimulationCore.Helper.AiProvider
 {
-    public class AI
+    public class ThroughputPredictor
     {
+        public ThroughputPredictor()
+        {
+        }
+
         private static string rootDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../"));
         private static string ModelPath = Path.Combine(rootDir, "MLModel.zip");
         private static MLContext mlContext = new MLContext();
@@ -32,6 +38,13 @@ namespace Master40.SimulationCore.Agents.AIAgent
                             resultPrediction = predEngine.Predict(simKpis[i]);
                         }
                         return resultPrediction / numberOfPredictions;*/
+        }
+
+        public long PredictThroughput(IEnumerable<Kpi> valuesForPrediction)
+        {
+            //_estimatedThroughPuts.UpdateOrCreate(articleName, predictedThroughput);
+            // Test Commit mschwrdtnr
+            return 1920;
         }
     }
 }
