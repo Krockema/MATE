@@ -138,20 +138,22 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             ThroughPut(finalCall);
             CallTotal(finalCall);
             CallAverageIdle(finalCall);
-            GatherKpiForAI(finalCall);
+            //GatherKpiForAI(finalCall);
             LogToDB(writeResultsToDB: finalCall);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from WorkSchedule");
         }
 
-        private void GatherKpiForAI(bool finalCall)
-        {
-            // Samle relevante kpi - Lateness, Assembly, Total, CycleTime, Consumabl, Material, InDueTotal
-            // Generiere CycleTime/Trhoughput Time 
-            // Sende sie an den Supervisor
-            //Collector.SendKpis(/* fill me */);
-            Collector.KpisForPrediction.AddRange(Collector.Kpis.FindAll(k => k.KpiType == KpiType.StockTotals));
-        }
+        //private void GatherKpiForAI(bool finalCall)
+        //{
+        //    // Samle relevante kpi - Lateness, Assembly, Total, CycleTime, Consumabl, Material, InDueTotal
+        //    // Generiere CycleTime/Trhoughput Time 
+        //    // Sende sie an den Supervisor
+        //    //Collector.SendKpis(/* fill me */);
+        //    Collector.KpisForPrediction.AddRange(Collector.Kpis.FindAll(k => k.KpiType == KpiType.StockTotals));
+        //    Collector.KpisForPrediction.AddRange(Collector.Kpis.FindAll(k => k.KpiType == KpiType.AdherenceToDue));
+        //    Collector.SendKpis();
+        //}
 
         private void CallAverageIdle(bool finalCall)
         {

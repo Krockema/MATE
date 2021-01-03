@@ -157,7 +157,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             {
                 yield return new object[]
                 {
-                    SimulationType.Default, PriorityRule.LST, simNumber++, 960, throughput, seed++, ModelSize.Medium, ModelSize.Medium, 0.0153, false, false
+                    SimulationType.Default, PriorityRule.LST, simNumber++, 960, throughput, seed++, ModelSize.Medium, ModelSize.Medium, 0.0153, false, false, 10
                 };
                 //throughput += 100;
             }
@@ -165,12 +165,13 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         [Theory]
         [MemberData(nameof(GetTestData))]
+        [MemberData(nameof(GetTestData))]
 
         public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule
             , int simNr, int maxBucketSize, long throughput, int seed
             , ModelSize resourceModelSize, ModelSize setupModelSize
             , double arrivalRate, bool distributeSetupsExponentially
-            , bool createMeasurements = false, bool predictThroughput = true)
+            , bool createMeasurements = false, int numberOfValuesForPrediction = 10)
         {
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
@@ -223,7 +224,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new MaxDeliveryTime(2880));
             simConfig.ReplaceOption(new SimulationCore.Environment.Options.PriorityRule(priorityRule));
             simConfig.ReplaceOption(new CreateQualityData(createMeasurements));
-            simConfig.ReplaceOption(new UsePredictedThroughput(predictThroughput));
+            simConfig.ReplaceOption(new UsePredictedThroughput(numberOfValuesForPrediction));
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 

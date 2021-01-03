@@ -21,7 +21,7 @@ namespace Master40.SimulationCore.Agents.AIAgent
             // Create prediction engine related to the loaded trained model.
             var predEngine = mlContext.Model.CreatePredictionEngine<SimulationKpis, CycleTimePrediction>(trainedModel);
 
-            resultPrediction = predEngine.Predict(simKpis);
+            //resultPrediction = predEngine.Predict(simKpis);
             return resultPrediction;
 
             // --> Finde ich doch erstmal gar nicht so sinnvoll. Aufgrund der Bildung des Durchschnitts kann es sein, dass wir einen zu hohen oder zu niedrigen Wert verwenden

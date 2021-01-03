@@ -43,7 +43,7 @@ namespace Master40.DB.Data.Initializer
                 new ConfigurationItem {Property = "WorkTimeDeviation", PropertyValue = "0.2", Description = "Default"},
                 new ConfigurationItem {Property = "SaveToDB", PropertyValue = "true", Description = "Default"},
                 new ConfigurationItem {Property = "TimeToAdvance", PropertyValue = "0", Description = "Default"},
-                new ConfigurationItem {Property = "PriorityRule", PropertyValue = "0", Description = "Default, LST"}
+                new ConfigurationItem {Property = "PriorityRule", PropertyValue = "LST", Description = "Default, LST"}
             };
             context.ConfigurationItems.AddRange(entities: configurationItems);
             context.SaveChanges();

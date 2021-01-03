@@ -102,6 +102,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                                                   Time = Collector.Time }));
             
             CreateKpis(finalCall);
+            GatherKpiForAI(finalCall);
             WriteToDb(agent: Collector, finalCall: finalCall);
 
             orderDictionary[OrderKpi.OrderState.New].ToZero();
@@ -111,6 +112,12 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from Contracts");
+        }
+
+        private void GatherKpiForAI(bool finalCall)
+        {
+            Collector.KpisForPrediction.AddRange(Collector.Kpis.FindAll(k => k.Name == "Total" || k.Name == "InDueTotal" || k.Name == "CycleTime" || k.Name == "Lateness"));
+            Collector.SendKpis();
         }
 
         private void CreateKpis(bool finalCall)

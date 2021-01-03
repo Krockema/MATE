@@ -89,10 +89,16 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             }
 
             stockTotals.ForEach(st => CreateKpi(st.Key, st.Value, writeToDatabase));
-
+            GatherKpiForAI();
             LogToDB(agent: Collector, writeToDatabase: writeToDatabase);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finish Update Feed from Storage");
+        }
+
+        private void GatherKpiForAI()
+        {
+            Collector.KpisForPrediction.AddRange(StockTotalValues.FindAll(k => k.Name == "Assembly" || k.Name == "Consumab" || k.Name == "Material"));
+            Collector.SendKpis();
         }
 
 

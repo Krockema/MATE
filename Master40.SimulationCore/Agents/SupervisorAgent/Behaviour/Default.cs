@@ -45,7 +45,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private ThroughPutDictionary _estimatedThroughPuts { get; set; } = new ThroughPutDictionary();
         private Queue<T_CustomerOrderPart> _orderQueue { get; set; } = new Queue<T_CustomerOrderPart>();
         private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
-        private bool _predictThroughput { get; set; }
+        private int _numberOfValuesForPrediction { get; set; }
         private ThroughputPredictor ThroughputPredictor { get; set; }
         private List<Kpi> Kpis { get; set; } = new List<Kpi>();
         public Default(ProductionDomainContext productionDomainContext
@@ -64,6 +64,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
             _simulationEnds = configuration.GetOption<SimulationEnd>().Value;
             _simulationType = configuration.GetOption<SimulationKind>().Value;
             _transitionFactor = configuration.GetOption<TransitionFactor>().Value;
+            _numberOfValuesForPrediction = configuration.GetOption<UsePredictedThroughput>().Value;
             estimatedThroughputTimes.ForEach(SetEstimatedThroughputTime);
 
         }
@@ -199,9 +200,10 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
         }
 
-        private void kickoffPrediction(int numberOfValuesForPrediction)
+        private void KickoffThroughputPrediction()
         {
-            var valuesForPrediction = Kpis.Skip(Math.Max(0, Kpis.Count() - numberOfValuesForPrediction)).Take(numberOfValuesForPrediction);
+            //var valuesForPrediction = Kpis.Skip(Math.Max(0, Kpis.Count() - _numberOfValuesForPrediction)).Take(_numberOfValuesForPrediction); //set number of values for prediction
+            var valuesForPrediction = Kpis; //all kpis for prediction
             var predictedThroughput = ThroughputPredictor.PredictThroughput(valuesForPrediction);
             _estimatedThroughPuts.UpdateAll(predictedThroughput); //TODO: differentiate between articles -> use "UpdateOrCreate" method
         }
@@ -210,11 +212,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         {
             Kpis.AddRange(kpi);
 
-            var numberOfValuesForPrediction = 20; //TODO: get it from somewhere else?
-
-            if (_predictThroughput && Kpis.Count >= numberOfValuesForPrediction)
+            if (Kpis.Count >= _numberOfValuesForPrediction)
             {
-                kickoffPrediction(numberOfValuesForPrediction);
+                KickoffThroughputPrediction();
             }
         }
     }

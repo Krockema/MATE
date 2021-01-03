@@ -92,15 +92,20 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         }
 
-        internal void SendKpis(List<Kpi> kpis)
+        internal void SendKpis()
         {
+            var kpis = KpisForPrediction;
 
-            this.actorPaths.SimulationContext.Ref.Tell(
-                message: SupervisorAgent.Supervisor.Instruction.AddKpi.Create(
-                    message: kpis
-                    , target: this.actorPaths.SystemAgent.Ref
-                )
-                , sender: ActorRefs.NoSender);
+            if (kpis.Count == 8)
+            {
+                this.actorPaths.SimulationContext.Ref.Tell(
+                    message: SupervisorAgent.Supervisor.Instruction.AddKpi.Create(
+                        message: kpis
+                        , target: this.actorPaths.SystemAgent.Ref
+                    )
+                    , sender: ActorRefs.NoSender);
+                KpisForPrediction.Clear();
+            }
         }
     }
 }
