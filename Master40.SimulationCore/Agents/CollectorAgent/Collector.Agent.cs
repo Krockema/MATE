@@ -26,6 +26,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         internal SaveToDB saveToDB;
         internal long maxTime;
         internal List<Kpi> Kpis { get; } = new List<Kpi>();
+        internal List<Kpi> KpisForPrediction { get; } = new List<Kpi>();
         internal new IUntypedActorContext Context => UntypedActor.Context;
         /// <summary>
         /// Collector Agent for Life data Aquesition

@@ -146,11 +146,11 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void GatherKpiForAI(bool finalCall)
         {
-            // Samle relevante kpi
+            // Samle relevante kpi - Lateness, Assembly, Total, CycleTime, Consumabl, Material, InDueTotal
             // Generiere CycleTime/Trhoughput Time 
             // Sende sie an den Supervisor
-            Collector.SendKpis(/* fill me */);
-            throw new NotImplementedException();
+            //Collector.SendKpis(/* fill me */);
+            Collector.KpisForPrediction.AddRange(Collector.Kpis.FindAll(k => k.KpiType == KpiType.StockTotals));
         }
 
         private void CallAverageIdle(bool finalCall)
