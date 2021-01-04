@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.DB.Data.WrappersForPrimitives;
 using static FArticles;
 using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction;
 
@@ -17,16 +18,15 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 {
     public class CollectorAnalyticsContracts : Behaviour, ICollectorBehaviour
     {
-        private CollectorAnalyticsContracts() : base() { }
+        
+        private OrderKpi orderDictionary = new OrderKpi();
+        
+        private readonly List<SimulationOrder> _simulationOrders = new List<SimulationOrder>();
 
-        private int newOrderParts = 0;
-        private int finishedOrderParts = 0;
-        private int openOrderParts = 0;
-        private int totalOrders = 0;
-        private double inTime = 0;
-        private double toLate = 0;
+        private CollectorAnalyticsContracts() : base()
+        {
 
-        private readonly List<SimulationOrder> simulationOrders = new List<SimulationOrder>();
+        }
 
         public Collector Collector { get; set; }
 
@@ -50,7 +50,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             {
                 case Contract.Instruction.StartOrder m: AddOrder(m: m); break;
                 case Supervisor.Instruction.OrderProvided m: ProvideOrder(finishedArticle: m.GetObjectFromMessage); break;
-                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(writeResultsToDB: m.GetObjectFromMessage); break;
+                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(finalCall: m.GetObjectFromMessage); break;
                 default: return false;
             }
             return true;
@@ -62,88 +62,142 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             if (finishedArticle.DueTime >= finishedArticle.FinishedAt)
             {
                 message = $"Order No: {finishedArticle.OriginRequester.Path.Name} finished {finishedArticle.Article.Name} in time at {Collector.Time}";
-                inTime++;
+                orderDictionary[OrderKpi.OrderState.InDue].Increment();
+                orderDictionary[OrderKpi.OrderState.InDueTotal].Increment();
             }
             else
             {
                 message = $"Order No: {finishedArticle.OriginRequester.Path.Name} finished {finishedArticle.Article.Name} too late at {Collector.Time}";
-                toLate++;
+                orderDictionary[OrderKpi.OrderState.OverDue].Increment();
+                orderDictionary[OrderKpi.OrderState.OverDueTotal].Increment();
             }
             
 
             Collector.messageHub.SendToAllClients(msg: message);
             UpdateOrder(item: finishedArticle);
 
-            openOrderParts--;
-            finishedOrderParts++;
-            totalOrders++;
+            orderDictionary[OrderKpi.OrderState.Open].Decrement(); 
+            orderDictionary[OrderKpi.OrderState.Finished].Increment();
+            orderDictionary[OrderKpi.OrderState.Total].Increment(); 
+
             var percent = Math.Round((decimal) Collector.Time / Collector.maxTime * 100, 0);
-            Collector.messageHub.ProcessingUpdate(finishedOrderParts, (int)percent, 
+            Collector.messageHub.ProcessingUpdate((int)orderDictionary[OrderKpi.OrderState.Finished].GetValue(), (int)percent, 
                                                     $" Progress({percent} %) " + message
-                                                    , totalOrders);
-            var timeliness = new[] { totalOrders.ToString(), (finishedArticle.ProvidedAt - finishedArticle.DueTime).ToString()};
+                                                    , (int)orderDictionary[OrderKpi.OrderState.Total].GetValue());
+            var timeliness = new[] { orderDictionary[OrderKpi.OrderState.Total].GetValue().ToString(), (finishedArticle.ProvidedAt - finishedArticle.DueTime).ToString()};
             Collector.messageHub.SendToClient(listener: "orderListener", msg: JsonConvert.SerializeObject(timeliness));
 
         }
 
-        private void UpdateFeed(bool writeResultsToDB)
+        private void UpdateFeed(bool finalCall)
         {
             //var open = openOrderParts.GroupBy(x => x.Article).Select(y => new { Article =  y.Key, Count = y.Sum(z => z.Quantity)} );
             //Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from Contracts");
 
             Collector.messageHub
                  .SendToClient(listener: "Contracts", 
-                                msg: JsonConvert.SerializeObject(value: new { Input = newOrderParts,
-                                                                  Processing = openOrderParts,
-                                                                  Output = finishedOrderParts,
+                                msg: JsonConvert.SerializeObject(value: new { Input = orderDictionary[OrderKpi.OrderState.New].GetValue(),
+                                                                  Processing = orderDictionary[OrderKpi.OrderState.Open].GetValue(),
+                                                                  Output = orderDictionary[OrderKpi.OrderState.Finished].GetValue(),
                                                                   Time = Collector.Time }));
+            
+            CreateKpis(finalCall);
+            WriteToDb(agent: Collector, finalCall: finalCall);
 
-
-            var timelines = 1.0;
-            if (inTime != 0)
-            {
-                timelines = (inTime / (inTime + toLate) * 100);
-                //Collector.messageHub.SendToClient(listener: "Timeliness", msg: timelines.ToString().Replace(oldValue: ",", newValue: "."));
-            }
-
-            newOrderParts = 0;
-            finishedOrderParts = 0;
-
-            if (writeResultsToDB)
-            {
-                this.Collector.Kpis.Add(new Kpi
-                {
-                    Name = "timeliness",
-                    Value = Math.Round(timelines, 2),
-                    Time = (int) Collector.Time,
-                    KpiType = KpiType.Timeliness,
-                    SimulationConfigurationId = Collector.simulationId.Value,
-                    SimulationNumber = Collector.simulationNumber.Value,
-                    IsFinal = true,
-                    IsKpi = true,
-                    SimulationType = Collector.simulationKind.Value
-                });
-
-                this.Collector.Kpis.Add(new Kpi
-                {
-                    Name = "OrderProcessed",
-                    Value = totalOrders,
-                    ValueMax = openOrderParts,
-                    Time = (int) Collector.Time,
-                    KpiType = KpiType.Timeliness,
-                    SimulationConfigurationId = Collector.simulationId.Value,
-                    SimulationNumber = Collector.simulationNumber.Value,
-                    IsFinal = true,
-                    IsKpi = true,
-                    SimulationType = Collector.simulationKind.Value
-                });
-
-            }
-            WriteToDB(agent: Collector, writeResultsToDB: writeResultsToDB);
+            orderDictionary[OrderKpi.OrderState.New].ToZero();
+            orderDictionary[OrderKpi.OrderState.Finished].ToZero();
+            orderDictionary[OrderKpi.OrderState.InDue].ToZero();
+            orderDictionary[OrderKpi.OrderState.OverDue].ToZero();
 
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from Contracts");
         }
+
+        private void CreateKpis(bool finalCall)
+        {   
+            
+            var from = Collector.Config.GetOption<KpiTimeSpan>().Value;
+            if (finalCall)
+                from = Collector.Config.GetOption<SettlingStart>().Value;
+
+            var orders = _simulationOrders.Where(x => x.FinishingTime != 0 &&
+                                                      x.FinishingTime > from);
+
+            if (orders.Any())
+            {
+                CalculateAdherenceToDue(finalCall);
+                CalculateTardiness(orders);
+                CalculateCycleTime(orders);    
+            }
+            
+            foreach (var value in orderDictionary)
+            {
+                this.Collector.Kpis.Add(new Kpi
+                {
+                    Name = value.Key.ToString(),
+                    Value = (double)value.Value.GetValue(),
+                    Time = (int) Collector.Time,
+                    KpiType = KpiType.AdherenceToDue,
+                    SimulationConfigurationId = Collector.simulationId.Value,
+                    SimulationNumber = Collector.simulationNumber.Value,
+                    IsFinal = finalCall,
+                    IsKpi = true,
+                    SimulationType = Collector.simulationKind.Value
+                });
+            }
+        }
+
+        private void CalculateCycleTime(IEnumerable<SimulationOrder> orders)
+        {
+            decimal cycleTime = (decimal)orders.Average(x => x.ProductionFinishedTime - x.CreationTime);
+            orderDictionary[OrderKpi.OrderState.CycleTime].SetValue(new Quantity(cycleTime));
+
+        }
+
+        private void CalculateAdherenceToDue(bool finalCall)
+        {
+            var inDue = orderDictionary[OrderKpi.OrderState.InDue].GetValue();
+            var overDue = orderDictionary[OrderKpi.OrderState.OverDue].GetValue();
+            decimal adherenceToDue = 0;
+            if (finalCall) 
+            {
+                inDue = orderDictionary[OrderKpi.OrderState.InDueTotal].GetValue();
+                overDue = orderDictionary[OrderKpi.OrderState.OverDueTotal].GetValue();
+            }
+           
+            if (inDue != 0)
+            {
+                adherenceToDue = inDue / (overDue + inDue) * 100;
+            }
+
+            this.Collector.Kpis.Add(new Kpi
+            {
+                Name = KpiType.AdherenceToDue.ToString(),
+                Value = (double)Math.Round(adherenceToDue, 2),
+                Time = (int) Collector.Time,
+                KpiType = KpiType.AdherenceToDue,
+                SimulationConfigurationId = Collector.simulationId.Value,
+                SimulationNumber = Collector.simulationNumber.Value,
+                IsFinal = finalCall,
+                IsKpi = true,
+                SimulationType = Collector.simulationKind.Value
+            });
+        }
+
+        private void CalculateTardiness(IEnumerable<SimulationOrder> orders)
+        {
+            decimal lateness = (decimal)orders.Average(x => x.ProductionFinishedTime - x.DueTime);
+            decimal tardinessOrders = orders.Sum(x => new[] {0, x.ProductionFinishedTime - x.DueTime}.Max());
+            decimal tardinessCount = orders.Count(x => 0 > x.ProductionFinishedTime - x.DueTime);
+
+            decimal tardiness = 0;
+            if (tardinessCount > 0)
+                tardiness = tardinessOrders / tardinessCount;
+            
+            orderDictionary[OrderKpi.OrderState.Lateness].SetValue(new Quantity(lateness));
+            orderDictionary[OrderKpi.OrderState.Tardiness].SetValue(new Quantity(tardiness));            
+        }
+
 
         private void AddOrder(Contract.Instruction.StartOrder m)
         {
@@ -158,16 +212,17 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                                                 , SimulationType = Collector.simulationKind.Value
                                                 , SimulationConfigurationId = Collector.simulationId.Value };
 
-            simulationOrders.Add(item: order);
+            _simulationOrders.Add(item: order);
 
-            openOrderParts++;
-            newOrderParts++;
+            
+            orderDictionary[OrderKpi.OrderState.Open].Increment();
+            orderDictionary[OrderKpi.OrderState.New].Increment();
         }
 
 
         private void UpdateOrder(FArticle item)
         {
-            var toUpdate = simulationOrders.SingleOrDefault(predicate: x => x.OriginId == item.CustomerOrderId);
+            var toUpdate = _simulationOrders.SingleOrDefault(predicate: x => x.OriginId == item.CustomerOrderId);
             if (toUpdate == null)
             {
                 throw new Exception(message: "OrderNotFound during Order update from Contract Collector Agent");
@@ -179,23 +234,21 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             toUpdate.FinishingTime = (int) item.FinishedAt;
         }
 
-        private void WriteToDB(Collector agent,bool writeResultsToDB)
+        private void WriteToDb(Collector agent, bool finalCall)
         {
-            if (writeResultsToDB)
-                Collector.messageHub.ProcessingUpdate(finishedOrderParts, openOrderParts, 
+            if (finalCall)
+                Collector.messageHub.ProcessingUpdate((int)orderDictionary[OrderKpi.OrderState.Finished].GetValue(), (int)orderDictionary[OrderKpi.OrderState.Finished].GetValue(), 
                     $"Progress({100} %) Finalizing Steps. Write to DB and Shutdown!" 
-                    , totalOrders);
+                    , (int)orderDictionary[OrderKpi.OrderState.Total].GetValue());
             
-            if (agent.saveToDB.Value && writeResultsToDB)
+            if (agent.saveToDB.Value && finalCall)
             {
-                using (var ctx = ResultContext.GetContext(resultCon: agent.Config.GetOption<DBConnectionString>().Value))
-                {
-                    ctx.SimulationOrders.AddRange(entities: simulationOrders);
-                    ctx.SaveChanges();
-                    ctx.Kpis.AddRange(this.Collector.Kpis);
-                    ctx.SaveChanges();
-                    ctx.Dispose();
-                }
+                using var ctx = ResultContext.GetContext(resultCon: agent.Config.GetOption<DBConnectionString>().Value);
+                ctx.SimulationOrders.AddRange(entities: _simulationOrders);
+                ctx.SaveChanges();
+                ctx.Kpis.AddRange(this.Collector.Kpis);
+                ctx.SaveChanges();
+                ctx.Dispose();
             }
         }
     }

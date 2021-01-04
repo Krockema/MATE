@@ -1,7 +1,4 @@
 using System;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.Extensions.DependencyModel;
-
 namespace Master40.DB.Data.WrappersForPrimitives
 {
     public class DecimalPrimitive<T>: INumericPrimitive<T> where T : DecimalPrimitive<T>, new()
@@ -29,7 +26,26 @@ namespace Master40.DB.Data.WrappersForPrimitives
             _decimal += t._decimal;
         }
 
-       
+        public void Increment()
+        {
+            _decimal++;
+        }
+
+        public void Decrement()
+        {
+            _decimal--;
+        }
+
+        public void SetValue(T set)
+        {
+            _decimal = set._decimal;
+        }
+
+        public void ToZero()
+        {
+            _decimal = 0;
+        }
+
         public void DecrementBy(T t)
         {
             _decimal -= t._decimal;

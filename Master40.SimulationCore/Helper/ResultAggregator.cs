@@ -61,7 +61,7 @@ namespace Master40.SimulationCore.Helper
         private Kpi Timeliness(int forId)
         {
             var values = _resultCtx.Kpis
-                .Where(x => x.KpiType == KpiType.Timeliness
+                .Where(x => x.KpiType == KpiType.AdherenceToDue
                          && x.SimulationConfigurationId == forId
                          && x.Name == "timeliness")
                 .Select(x => x.Value);
@@ -148,7 +148,7 @@ namespace Master40.SimulationCore.Helper
         private Kpi CompletedOrders(int forId)
         {
             var values = _resultCtx.Kpis
-                .Where(x => x.KpiType == KpiType.Timeliness
+                .Where(x => x.KpiType == KpiType.AdherenceToDue
                             && x.SimulationConfigurationId == forId
                             && x.Name == "OrderProcessed")
                 .Select(x => x.Value);

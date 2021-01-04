@@ -70,7 +70,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
 
             if (nextOperation.IsNotNull())
             {
-                nextOperation.SetStartConditions(true, nextOperation.StartConditions.ArticlesProvided);
+                nextOperation.SetStartConditions(true, nextOperation.StartConditions.ArticlesProvided, Agent.CurrentTime);
                 Agent.DebugMessage(msg: $"PreCondition for operation {nextOperation.Operation.Name} {nextOperation.Key} at {_articleToProduce.Article.Name} was set true.");
                 Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: nextOperation.GetStartCondition(nextOperation.CustomerDue)
                                                                                       ,target: nextOperation.HubAgent));
@@ -228,7 +228,7 @@ namespace Master40.SimulationCore.Agents.ProductionAgent.Behaviour
             {
                 Agent.DebugMessage(msg:$"All Article for {_articleToProduce.Article.Name} {_articleToProduce.Key} have been provided");
 
-                articleDictionary.Operation.SetStartConditions(articleDictionary.Operation.StartConditions.PreCondition, true);
+                articleDictionary.Operation.SetStartConditions(articleDictionary.Operation.StartConditions.PreCondition, true, Agent.CurrentTime);
                 if (articleDictionary.Operation.HubAgent == null) return;
                 // // else 
                 Agent.Send(BasicInstruction.UpdateStartConditions

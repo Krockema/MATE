@@ -5,7 +5,7 @@
         LeadTime,
         ResourceUtilization,
         ResourceSetup,
-        Timeliness,
+        AdherenceToDue,
         StockEvolution,
         LayTime,
         AgentStatistics,
@@ -14,6 +14,7 @@
         ResourceSetupTotal,
         StockTotals,
         Ooe,
+        CapabilityIdle,
         AverageResult = 999
         
     }
