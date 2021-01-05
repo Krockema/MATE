@@ -40,7 +40,7 @@ namespace Master40.SimulationCore.Helper.AiProvider
                         return resultPrediction / numberOfPredictions;*/
         }
 
-        public long PredictThroughput(IEnumerable<Kpi> valuesForPrediction)
+        public long PredictThroughput(List<SimulationKpis> valuesForPrediction)
         {
             //_estimatedThroughPuts.UpdateOrCreate(articleName, predictedThroughput);
             // Test Commit mschwrdtnr

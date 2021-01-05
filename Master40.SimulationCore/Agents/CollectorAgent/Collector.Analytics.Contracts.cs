@@ -116,8 +116,19 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void GatherKpiForAI(bool finalCall)
         {
-            Collector.KpisForPrediction.AddRange(Collector.Kpis.FindAll(k => k.Name == "Total" || k.Name == "InDueTotal" || k.Name == "CycleTime" || k.Name == "Lateness"));
-            Collector.SendKpis();
+            if (Collector.Time <= Collector.Config.GetOption<SettlingStart>().Value) return;
+            var total = Collector.Kpis.Find(k => k.Name == "Total" && k.Time == Collector.Time);
+            var fTotal = new FKpi.FKpi(total.Time, total.Name, total.Value);
+            Collector.SendKpi(fTotal);
+            var inDueTotal = Collector.Kpis.Find(k => k.Name == "InDueTotal" && k.Time == Collector.Time);
+            var fInDueTotal = new FKpi.FKpi(inDueTotal.Time, inDueTotal.Name, inDueTotal.Value);
+            Collector.SendKpi(fInDueTotal);
+            var cycleTime = Collector.Kpis.Find(k => k.Name == "CycleTime" && k.Time == Collector.Time);
+            var fCycleTime = new FKpi.FKpi(cycleTime.Time, cycleTime.Name, cycleTime.Value);
+            Collector.SendKpi(fCycleTime);
+            var lateness = Collector.Kpis.Find(k => k.Name == "Lateness" && k.Time == Collector.Time);
+            var fLateness = new FKpi.FKpi(lateness.Time, lateness.Name, lateness.Value);
+            Collector.SendKpi(fLateness);
         }
 
         private void CreateKpis(bool finalCall)

@@ -6,6 +6,7 @@ using Master40.SimulationCore.Helper;
 using Master40.Tools.SignalR;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Master40.DB.Nominal;
 using Master40.DB.ReportingModel;
 using Newtonsoft.Json;
@@ -26,7 +27,6 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         internal SaveToDB saveToDB;
         internal long maxTime;
         internal List<Kpi> Kpis { get; } = new List<Kpi>();
-        internal List<Kpi> KpisForPrediction { get; } = new List<Kpi>();
         internal new IUntypedActorContext Context => UntypedActor.Context;
         /// <summary>
         /// Collector Agent for Life data Aquesition
@@ -92,20 +92,14 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         }
 
-        internal void SendKpis()
+        internal void SendKpi(FKpi.FKpi kpi)
         {
-            var kpis = KpisForPrediction;
-
-            if (kpis.Count == 8)
-            {
-                this.actorPaths.SimulationContext.Ref.Tell(
-                    message: SupervisorAgent.Supervisor.Instruction.AddKpi.Create(
-                        message: kpis
-                        , target: this.actorPaths.SystemAgent.Ref
-                    )
-                    , sender: ActorRefs.NoSender);
-                KpisForPrediction.Clear();
-            }
+            this.actorPaths.SimulationContext.Ref.Tell(
+                message: SupervisorAgent.Supervisor.Instruction.AddKpi.Create(
+                    message: kpi
+                    , target: this.actorPaths.SystemAgent.Ref
+                )
+                , sender: ActorRefs.NoSender);
         }
     }
 }

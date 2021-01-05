@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="AI\FKpi.fs" />
     <Compile Include="FunctionConverter.fs" />
     <Compile Include="Message\Central\FCentralGanttPlanInformations.fs" />
     <Compile Include="Message\Central\FCentralProvideOrders.fs" />
@@ -31,7 +32,7 @@
     <Compile Include="Interface\ITimeRanges.fs" />
     <Compile Include="Interface\IKey.fs" />
     <Compile Include="Interface\IJob.fs" />
-    <Compile Include="Interface\IJobResults.fs"/>
+    <Compile Include="Interface\IJobResults.fs" />
     <Compile Include="Interface\IQueuingJob.fs" />
     <Compile Include="Message\FOperation.fs" />
     <Compile Include="Message\FOperationResults.fs" />

@@ -101,14 +101,14 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent
 
             public class AddKpi : SimulationMessage
             {
-                public static AddKpi Create(List<Kpi> message, IActorRef target)
+                public static AddKpi Create(FKpi.FKpi message, IActorRef target)
                 {
                     return new AddKpi(message: message, target: target);
                 }
                 private AddKpi(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public List<Kpi> GetObjectFromMessage { get => Message as List<Kpi>; }
+                public FKpi.FKpi GetObjectFromMessage { get => Message as FKpi.FKpi; }
             }
         }
     }
