@@ -28,6 +28,7 @@ namespace Master40.SimulationCore.Helper.AiProvider
             var predEngine = mlContext.Model.CreatePredictionEngine<SimulationKpis, CycleTimePrediction>(trainedModel);
 
             //resultPrediction = predEngine.Predict(simKpis);
+            //resultPrediction = Math.Round(resultPrediction, 0);
             return resultPrediction;
 
             // --> Finde ich doch erstmal gar nicht so sinnvoll. Aufgrund der Bildung des Durchschnitts kann es sein, dass wir einen zu hohen oder zu niedrigen Wert verwenden

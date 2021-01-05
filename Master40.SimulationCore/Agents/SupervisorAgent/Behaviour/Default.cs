@@ -40,7 +40,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private long _simulationEnds { get; set; }
         private int _configID { get; set; }
         private OrderCounter _orderCounter { get; set; }
-        private long lastTimestamp { get; set; } = 0;
+        private long _lastTimestamp { get; set; } = 0;
+        private long _newKpiTimestamp { get; set; } = 0;
+        private long _lastPredict { get; set; } = 0;
         private int _createdOrders { get; set; } = 0;
         private SimulationType _simulationType { get; set; }
         private decimal _transitionFactor { get; set; }
@@ -172,7 +174,12 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
         private void PopOrder()
         {
-            // new Time vs old Time
+            if (Kpis.Count >= _numberOfValuesForPrediction && _lastPredict < _newKpiTimestamp)
+            {
+                KickoffThroughputPrediction();
+                _lastPredict = Agent.CurrentTime;
+            }
+
             if (!_orderCounter.TryAddOne()) return;
 
             var order = _orderGenerator.GetNewRandomOrder(time: Agent.CurrentTime);
@@ -208,25 +215,16 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private void KickoffThroughputPrediction()
         {
             //var valuesForPrediction = Kpis.Skip(Math.Max(0, Kpis.Count() - _numberOfValuesForPrediction)).Take(_numberOfValuesForPrediction); //set number of values for prediction
-            var valuesForPrediction = Kpis; //all kpis for prediction, possibly bad for efficiency
+            var valuesForPrediction = Kpis.FindAll(k => k.Time <= _newKpiTimestamp); //all kpis for prediction, possibly bad for efficiency
             var predictedThroughput = _throughputPredictor.PredictThroughput(valuesForPrediction);
             _estimatedThroughPuts.UpdateAll(predictedThroughput); //TODO: differentiate between articles -> use "UpdateOrCreate" method
         }
 
         private void AddToKpi(FKpi.FKpi kpi)
         {
-
-            //Time Name Value
-
-            // new Time? -> new row 
-
-            //
-            if (lastTimestamp < kpi.Time)
+            if (_lastTimestamp < kpi.Time)
             {
-                if (Kpis.Count >= _numberOfValuesForPrediction)
-                {
-                    KickoffThroughputPrediction();
-                }
+                _newKpiTimestamp = _lastTimestamp;
                 switch (kpi.Name)
                 {
                     case "Assembly":
@@ -255,11 +253,13 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                         break;
                 }
 
-                lastTimestamp = kpi.Time;
+                _lastTimestamp = kpi.Time;
             }
             else
             {
                 var kpiFromList = Kpis.Find(k => k.Time == kpi.Time);
+
+                //kpiFromList[kpi.Name] = kpi.Value;
 
                 switch (kpi.Name)
                 {
@@ -282,7 +282,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                         kpiFromList.Lateness = kpi.Value;
                         break;
                     case "CycleTime":
-                        kpiFromList.Assembly = kpi.Value;
+                        kpiFromList.CycleTime = kpi.Value;
                         break;
                     default:
                         Agent.DebugMessage(msg: "Invalid Kpi to add to Kpis for Prediction");
