@@ -19,4 +19,13 @@
     <PackageReference Include="Zeiss.PiWeb.Api.Rest.Dtos" Version="6.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Connectoren\Python\python3.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Connectoren\Python\python38.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

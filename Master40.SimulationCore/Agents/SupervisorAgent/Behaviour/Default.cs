@@ -180,6 +180,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 _lastPredict = Agent.CurrentTime;
             }
 
+            KickoffThroughputPrediction();
+
             if (!_orderCounter.TryAddOne()) return;
 
             var order = _orderGenerator.GetNewRandomOrder(time: Agent.CurrentTime);
@@ -216,7 +218,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         {
             //var valuesForPrediction = Kpis.Skip(Math.Max(0, Kpis.Count() - _numberOfValuesForPrediction)).Take(_numberOfValuesForPrediction); //set number of values for prediction
             var valuesForPrediction = Kpis.FindAll(k => k.Time <= _newKpiTimestamp); //all kpis for prediction, possibly bad for efficiency
-            var predictedThroughput = _throughputPredictor.PredictThroughput(valuesForPrediction);
+            var predictedThroughput = _throughputPredictor.PredictThroughputWithKeras(valuesForPrediction);
             _estimatedThroughPuts.UpdateAll(predictedThroughput); //TODO: differentiate between articles -> use "UpdateOrCreate" method
         }
 
