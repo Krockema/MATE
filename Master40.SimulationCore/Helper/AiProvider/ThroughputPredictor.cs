@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Reflection;
 
 namespace Master40.SimulationCore.Helper.AiProvider
 {
@@ -15,14 +16,18 @@ namespace Master40.SimulationCore.Helper.AiProvider
         {
         }
 
-        private static string rootDir =
-            Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../"));
-        private static string ModelPath = Path.Combine(rootDir, "Helper/AiProvider/MLModel/MLModel_OLS.zip");
+        //private static string rootDir =
+        //    Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../../"));
+        //private static string ModelPath = Path.Combine(rootDir, "Helper/AiProvider/MLModel/MLModel_OLS.zip");
+        //private static string ModelPath = "E:/VCRepos/ng-erp-4.0_forked/Master40.SimulationCore/Helper/AiProvider/MLModel/MLModel_OLS.zip";
+        private static string ModelPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).Replace("Master40.XUnitTest\\bin\\Debug\\netcoreapp3.1",
+            "Master40.SimulationCore\\Helper\\AiProvider\\MLModel\\MLModel_OLS.zip");
         private static MLContext mlContext = new MLContext();
         //private const string PYTHON_HOME = @"C:\Users\weick\AppData\Local\Programs\Python\Python38";
         //private const string PYTHON_PATH = @"C:\Users\weick\AppData\Local\Programs\Python\Python38\lib\site-packages";
         //private const string PYTHON_DLL = @"\python38.dll";
-        internal List<SimulationKpis> SimulationKpis { get; } //= new List<SimulationKpis>();
+
+        private List<float[]> predictedActualThroughputList = new List<float[]>();
 
         public long PredictThroughput(List<SimulationKpis> valuesForPrediction)
         {
@@ -34,7 +39,20 @@ namespace Master40.SimulationCore.Helper.AiProvider
             var predEngine = mlContext.Model.CreatePredictionEngine<SimulationKpisReshaped, CycleTimePrediction>(trainedModel);
 
             var resultPrediction = predEngine.Predict(kpisForPredict);
-            
+
+            if (predictedActualThroughputList.Count == 0)
+            {
+                predictedActualThroughputList.Add(new float[] { valuesForPrediction.Last().Time, resultPrediction.CycleTime, 0 });
+            }
+            else
+            {
+                predictedActualThroughputList.Last()[2] = valuesForPrediction.Last().CycleTime;
+                predictedActualThroughputList.Add(new float[] { valuesForPrediction.Last().Time, resultPrediction.CycleTime, 0 });
+
+
+
+            }
+
             return (long)Math.Round(resultPrediction.CycleTime, 0);
             //return 1920;
         }
@@ -49,8 +67,9 @@ namespace Master40.SimulationCore.Helper.AiProvider
                 Consumab_t0 = kpiList.Last().Consumab,
                 Consumab_t1 = kpiList[^2].Consumab,
                 Consumab_t2 = kpiList[^3].Consumab,
-                CycleTime_t1 = kpiList[^2].CycleTime,
-                CycleTime_t2 = kpiList[^3].CycleTime,
+                CycleTime_t0 = 0,
+                CycleTime_t1 = kpiList.Last().CycleTime,
+                CycleTime_t2 = kpiList[^2].CycleTime,
                 InDueTotal_t0 = kpiList.Last().InDueTotal,
                 InDueTotal_t1 = kpiList[^2].InDueTotal,
                 InDueTotal_t2 = kpiList[^3].InDueTotal,

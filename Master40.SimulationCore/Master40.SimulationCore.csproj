@@ -16,6 +16,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="3.7.0" />
     <PackageReference Include="Microsoft.ML" Version="1.5.4" />
     <PackageReference Include="Microsoft.ML.FastTree" Version="1.5.4" />
+    <PackageReference Include="Microsoft.ML.Mkl.Components" Version="1.5.4" />
     <PackageReference Include="Zeiss.PiWeb.Api.Rest" Version="6.0.0" />
     <PackageReference Include="Zeiss.PiWeb.Api.Rest.Dtos" Version="6.0.0" />
   </ItemGroup>

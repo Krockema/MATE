@@ -157,7 +157,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             {
                 yield return new object[]
                 {
-                    SimulationType.Default, PriorityRule.LST, simNumber++, 960, throughput, seed++, ModelSize.Medium, ModelSize.Medium, 0.0153, false, false, 10
+                    SimulationType.Default, PriorityRule.LST, simNumber++, 960, throughput, seed++, ModelSize.Medium, ModelSize.Medium, 0.0153, false, false
                 };
                 //throughput += 100;
             }
@@ -171,7 +171,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             , int simNr, int maxBucketSize, long throughput, int seed
             , ModelSize resourceModelSize, ModelSize setupModelSize
             , double arrivalRate, bool distributeSetupsExponentially
-            , bool createMeasurements = false, int numberOfValuesForPrediction = 10)
+            , bool createMeasurements = false, int numberOfValuesForPrediction = 0)
         {
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
@@ -212,8 +212,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 2880));
-            simConfig.ReplaceOption(new SimulationEnd(value: 40360));
+            simConfig.ReplaceOption(new SettlingStart(value: 3360));
+            simConfig.ReplaceOption(new SimulationEnd(value: 121080));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));

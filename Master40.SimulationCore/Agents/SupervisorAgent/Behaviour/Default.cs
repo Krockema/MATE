@@ -174,7 +174,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
         private void PopOrder()
         {
-            if (Kpis.Count >= _numberOfValuesForPrediction && _lastPredict < _newKpiTimestamp)
+            if (Kpis.Count >= _numberOfValuesForPrediction && _lastPredict < _newKpiTimestamp && _numberOfValuesForPrediction != 0)
             {
                 KickoffThroughputPrediction();
                 _lastPredict = Agent.CurrentTime;
@@ -228,7 +228,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 switch (kpi.Name)
                 {
                     case "Assembly":
-                        Kpis.Add(new SimulationKpis((float)kpi.Time, consumable: (float)kpi.Value));
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, assembly: (float)kpi.Value));
                         break;
                     case "Consumab":
                         Kpis.Add(new SimulationKpis((float)kpi.Time, consumable: (float)kpi.Value));
@@ -237,16 +237,16 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                         Kpis.Add(new SimulationKpis((float)kpi.Time, material: (float)kpi.Value));
                         break;
                     case "Total":
-                        Kpis.Add(new SimulationKpis((float)kpi.Time, material: (float)kpi.Value));
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, total: (float)kpi.Value));
                         break;
                     case "InDueTotal":
-                        Kpis.Add(new SimulationKpis((float)kpi.Time, material: (float)kpi.Value));
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, inDueTotal: (float)kpi.Value));
                         break;
                     case "Lateness":
-                        Kpis.Add(new SimulationKpis((float)kpi.Time, material: (float)kpi.Value));
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, lateness: (float)kpi.Value));
                         break;
                     case "CycleTime":
-                        Kpis.Add(new SimulationKpis((float)kpi.Time, material: (float)kpi.Value));
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, cycleTime: (float)kpi.Value));
                         break;
                     default:
                         Agent.DebugMessage(msg: "Invalid Kpi to add to Kpis for Prediction");
