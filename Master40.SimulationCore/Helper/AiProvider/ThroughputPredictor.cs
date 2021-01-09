@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using Master40.DB.ReportingModel;
+using System.Linq;
 using System.IO;
 using AiProvider.DataStuctures;
 using Microsoft.ML;
+using Microsoft.ML.FastTree;
 
 namespace Master40.SimulationCore.Helper.AiProvider
 {
@@ -15,37 +15,24 @@ namespace Master40.SimulationCore.Helper.AiProvider
         }
 
         private static string rootDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../"));
-        private static string ModelPath = Path.Combine(rootDir, "MLModel.zip");
+        private static string ModelPath = Path.Combine(rootDir, "Helper/AiProvider/MLModel/MLModel_OLS.zip");
+        //private static string ModelPath = "../Master40.SimulationCore/Helper/AiProvider/MLModel/MLModel_OLS.zip";
         private static MLContext mlContext = new MLContext();
-        internal List<SimulationKpis> SimulationKpis { get; } //= new List<SimulationKpis>();
+        internal List<SimulationKpis> SimulationKpis { get; }
 
-        public static float PredictWithSavedModel(List<SimulationKpis> simKpis, int numberOfPredictions)
+        public long PredictThroughput(List<SimulationKpis> valuesForPrediction)
         {
-            float resultPrediction = 0;
+            var kpisForPredict = valuesForPrediction.Last();
+
             ITransformer trainedModel = mlContext.Model.Load(ModelPath, out var modelInputSchema);
 
             // Create prediction engine related to the loaded trained model.
             var predEngine = mlContext.Model.CreatePredictionEngine<SimulationKpis, CycleTimePrediction>(trainedModel);
 
-            //resultPrediction = predEngine.Predict(simKpis);
-            //resultPrediction = Math.Round(resultPrediction, 0);
-            return resultPrediction;
-
-            // --> Finde ich doch erstmal gar nicht so sinnvoll. Aufgrund der Bildung des Durchschnitts kann es sein, dass wir einen zu hohen oder zu niedrigen Wert verwenden
-            // Eventuell Durchschnitt aus 2 Predictions
-            // Predict i number of Values to use a mean value
-            /*            for (int i = 0; i < numberOfPredictions; i++)
-                        {
-                            resultPrediction = predEngine.Predict(simKpis[i]);
-                        }
-                        return resultPrediction / numberOfPredictions;*/
-        }
-
-        public long PredictThroughput(List<SimulationKpis> valuesForPrediction)
-        {
-            //_estimatedThroughPuts.UpdateOrCreate(articleName, predictedThroughput);
-            // Test Commit mschwrdtnr
-            return 1920;
+            var resultPrediction = predEngine.Predict(kpisForPredict);
+            
+            return (long)Math.Round(resultPrediction.CycleTime, 0);
+            //return 1920;
         }
     }
 }
