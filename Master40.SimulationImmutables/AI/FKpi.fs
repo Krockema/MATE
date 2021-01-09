@@ -1,8 +1,7 @@
 ﻿module FKpi
 
-
 type public FKpi =
-       { Time : int64
+       { Time : float
          Name : string
-         Value : double
+         Value : float
        } 

@@ -4,7 +4,7 @@ namespace AiProvider.DataStuctures
 {
     public class SimulationKpis
     {
-        public SimulationKpis(long time, double lateness = 0, double assembly = 0, double total = 0, double cycleTime = 0, double consumable = 0, double material = 0, double inDueTotal = 0)
+        public SimulationKpis(float time, float lateness = 0, float assembly = 0, float total = 0, float cycleTime = 0, float consumable = 0, float material = 0, float inDueTotal = 0)
         {
             Time = time;
             Lateness = lateness;
@@ -15,29 +15,16 @@ namespace AiProvider.DataStuctures
             Material = material;
             InDueTotal = inDueTotal;
         }
+        public float Time { get; set; }
 
-        //[ColumnName("Time"), LoadColumn(0)]
-        public long Time { get; set; }
+        public float Lateness { get; set; }
+        public float Assembly { get; set; }
+        public float Total { get; set; }
 
-        //[ColumnName("Lateness"), LoadColumn(1)]
-        public double Lateness { get; set; }
+        public float CycleTime { get; set; }
+        public float Consumab { get; set; }
 
-        //[ColumnName("Assembly"), LoadColumn(2)]
-        public double Assembly { get; set; }
-
-        //[ColumnName("Total"), LoadColumn(3)]
-        public double Total { get; set; }
-
-        //[ColumnName("CycleTime"), LoadColumn(4)]
-        public double CycleTime { get; set; }
-
-        //[ColumnName("Consumab"), LoadColumn(5)]
-        public double Consumab { get; set; }
-
-        //[ColumnName("Material"), LoadColumn(6)]
-        public double Material { get; set; }
-
-        //[ColumnName("InDueTotal"), LoadColumn(7)]
-        public double InDueTotal { get; set; }
+        public float Material { get; set; }
+        public float InDueTotal { get; set; }
     }
 }

@@ -37,7 +37,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="Microsoft.NETCore.Portable.Compatibility" Version="1.0.1" />
     <PackageReference Include="sqlite" Version="3.13.0" />
-    <PackageReference Include="System.Data.SQLite" Version="1.0.113.1" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>
@@ -49,6 +49,7 @@
 
 	<ItemGroup>
     <ProjectReference Include="..\Master40.DataGenerator\Master40.DataGenerator.csproj" />
+    <ProjectReference Include="..\Master40.DB\Master40.DB.csproj" />
     <ProjectReference Include="..\Master40.PiWebApi\Master40.PiWebApi.csproj" />
     <ProjectReference Include="..\Master40.SimulationMrp\Master40.SimulationMrp.csproj" />
     <ProjectReference Include="..\Master40\Master40.csproj" />

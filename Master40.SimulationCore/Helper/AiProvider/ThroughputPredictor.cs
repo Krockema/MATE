@@ -4,6 +4,7 @@ using Microsoft.ML;
 using Numpy;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 
 namespace Master40.SimulationCore.Helper.AiProvider
@@ -14,42 +15,57 @@ namespace Master40.SimulationCore.Helper.AiProvider
         {
         }
 
-        private static string rootDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../"));
-        private static string ModelPath = Path.Combine(rootDir, "MLModel.zip");
-        private static string kerasModelPath = Path.Combine(rootDir, "KerasModel");
+        private static string rootDir =
+            Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../../"));
+        private static string ModelPath = Path.Combine(rootDir, "Helper/AiProvider/MLModel/MLModel_OLS.zip");
         private static MLContext mlContext = new MLContext();
         //private const string PYTHON_HOME = @"C:\Users\weick\AppData\Local\Programs\Python\Python38";
         //private const string PYTHON_PATH = @"C:\Users\weick\AppData\Local\Programs\Python\Python38\lib\site-packages";
         //private const string PYTHON_DLL = @"\python38.dll";
         internal List<SimulationKpis> SimulationKpis { get; } //= new List<SimulationKpis>();
 
-        public static float PredictWithSavedModel(List<SimulationKpis> simKpis, int numberOfPredictions)
+        public long PredictThroughput(List<SimulationKpis> valuesForPrediction)
         {
-            float resultPrediction = 0;
+            var kpisForPredict = getReshapedKpisForPrediction(valuesForPrediction);
+
             ITransformer trainedModel = mlContext.Model.Load(ModelPath, out var modelInputSchema);
 
             // Create prediction engine related to the loaded trained model.
-            var predEngine = mlContext.Model.CreatePredictionEngine<SimulationKpis, CycleTimePrediction>(trainedModel);
+            var predEngine = mlContext.Model.CreatePredictionEngine<SimulationKpisReshaped, CycleTimePrediction>(trainedModel);
 
-            //resultPrediction = predEngine.Predict(simKpis);
-            //resultPrediction = Math.Round(resultPrediction, 0);
-            return resultPrediction;
-
-            // --> Finde ich doch erstmal gar nicht so sinnvoll. Aufgrund der Bildung des Durchschnitts kann es sein, dass wir einen zu hohen oder zu niedrigen Wert verwenden
-            // Eventuell Durchschnitt aus 2 Predictions
-            // Predict i number of Values to use a mean value
-            /*            for (int i = 0; i < numberOfPredictions; i++)
-                        {
-                            resultPrediction = predEngine.Predict(simKpis[i]);
-                        }
-                        return resultPrediction / numberOfPredictions;*/
+            var resultPrediction = predEngine.Predict(kpisForPredict);
+            
+            return (long)Math.Round(resultPrediction.CycleTime, 0);
+            //return 1920;
         }
 
-        public long PredictThroughput(List<SimulationKpis> valuesForPrediction)
+        private SimulationKpisReshaped getReshapedKpisForPrediction(List<SimulationKpis> kpiList)
         {
-            //_estimatedThroughPuts.UpdateOrCreate(articleName, predictedThroughput);
-            // Test Commit mschwrdtnr
-            return 1920;
+            var newKpi = new SimulationKpisReshaped
+            {
+                Assembly_t0 = kpiList.Last().Assembly,
+                Assembly_t1 = kpiList[^2].Assembly,
+                Assembly_t2 = kpiList[^3].Assembly,
+                Consumab_t0 = kpiList.Last().Consumab,
+                Consumab_t1 = kpiList[^2].Consumab,
+                Consumab_t2 = kpiList[^3].Consumab,
+                CycleTime_t1 = kpiList[^2].CycleTime,
+                CycleTime_t2 = kpiList[^3].CycleTime,
+                InDueTotal_t0 = kpiList.Last().InDueTotal,
+                InDueTotal_t1 = kpiList[^2].InDueTotal,
+                InDueTotal_t2 = kpiList[^3].InDueTotal,
+                Lateness_t0 = kpiList.Last().Lateness,
+                Lateness_t1 = kpiList[^2].Lateness,
+                Lateness_t2 = kpiList[^3].Lateness,
+                Material_t0 = kpiList.Last().Material,
+                Material_t1 = kpiList[^2].Material,
+                Material_t2 = kpiList[^3].Material,
+                Total_t0 = kpiList.Last().Total,
+                Total_t1 = kpiList[^2].Total,
+                Total_t2 = kpiList[^3].Total
+            };
+
+            return newKpi;
         }
 
         public long PredictThroughputWithKeras(List<SimulationKpis> valuesForPrediction)
@@ -87,19 +103,16 @@ namespace Master40.SimulationCore.Helper.AiProvider
             //                      " while running the script: " + ex.Message);
             //}
 
-
-
-
-            NDarray array = np.array(new double[,] {{}});
-
-            valuesForPrediction.ForEach(v =>
-            {
-                array.add(new NDarray(new double[,]
-                    {{v.Lateness, v.Assembly, v.Total, v.Consumab, v.Material, v.InDueTotal, v.CycleTime}}));
-            });
-
-            var model = Sequential.LoadModel(kerasModelPath);
-            var predictionData = model.Predict(array);
+            //NDarray array = np.array(new double[,] {{}});
+            //
+            //valuesForPrediction.ForEach(v =>
+            //{
+            //    array.add(new NDarray(new double[,]
+            //        {{v.Lateness, v.Assembly, v.Total, v.Consumab, v.Material, v.InDueTotal, v.CycleTime}}));
+            //});
+            //
+            //var model = Sequential.LoadModel(kerasModelPath);
+            //var predictionData = model.Predict(array);
 
 
             return 1920;

@@ -1,4 +1,5 @@
 ﻿using Microsoft.ML.Data;
+using System;
 
 namespace AiProvider.DataStuctures
 {
@@ -6,5 +7,10 @@ namespace AiProvider.DataStuctures
     {
         //[ColumnName("Score")]
         public float CycleTime;
+
+        //public static explicit operator long(CycleTimePrediction v)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

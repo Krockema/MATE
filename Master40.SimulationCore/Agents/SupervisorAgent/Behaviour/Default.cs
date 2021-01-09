@@ -40,9 +40,9 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private long _simulationEnds { get; set; }
         private int _configID { get; set; }
         private OrderCounter _orderCounter { get; set; }
-        private long _lastTimestamp { get; set; } = 0;
-        private long _newKpiTimestamp { get; set; } = 0;
-        private long _lastPredict { get; set; } = 0;
+        private float _lastTimestamp { get; set; } = 0;
+        private float _newKpiTimestamp { get; set; } = 0;
+        private float _lastPredict { get; set; } = 0;
         private int _createdOrders { get; set; } = 0;
         private SimulationType _simulationType { get; set; }
         private decimal _transitionFactor { get; set; }
@@ -180,8 +180,6 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 _lastPredict = Agent.CurrentTime;
             }
 
-            KickoffThroughputPrediction();
-
             if (!_orderCounter.TryAddOne()) return;
 
             var order = _orderGenerator.GetNewRandomOrder(time: Agent.CurrentTime);
@@ -218,7 +216,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         {
             //var valuesForPrediction = Kpis.Skip(Math.Max(0, Kpis.Count() - _numberOfValuesForPrediction)).Take(_numberOfValuesForPrediction); //set number of values for prediction
             var valuesForPrediction = Kpis.FindAll(k => k.Time <= _newKpiTimestamp); //all kpis for prediction, possibly bad for efficiency
-            var predictedThroughput = _throughputPredictor.PredictThroughputWithKeras(valuesForPrediction);
+            var predictedThroughput = _throughputPredictor.PredictThroughput(valuesForPrediction);
             _estimatedThroughPuts.UpdateAll(predictedThroughput); //TODO: differentiate between articles -> use "UpdateOrCreate" method
         }
 
@@ -230,32 +228,32 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 switch (kpi.Name)
                 {
                     case "Assembly":
-                        Kpis.Add(new SimulationKpis(kpi.Time, assembly: kpi.Value));
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, consumable: (float)kpi.Value));
                         break;
                     case "Consumab":
-                        Kpis.Add(new SimulationKpis(kpi.Time, consumable: kpi.Value));
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, consumable: (float)kpi.Value));
                         break;
                     case "Material":
-                        Kpis.Add(new SimulationKpis(kpi.Time, material: kpi.Value));
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, material: (float)kpi.Value));
                         break;
                     case "Total":
-                        Kpis.Add(new SimulationKpis(kpi.Time, total: kpi.Value));
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, material: (float)kpi.Value));
                         break;
                     case "InDueTotal":
-                        Kpis.Add(new SimulationKpis(kpi.Time, inDueTotal: kpi.Value));
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, material: (float)kpi.Value));
                         break;
                     case "Lateness":
-                        Kpis.Add(new SimulationKpis(kpi.Time, lateness: kpi.Value));
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, material: (float)kpi.Value));
                         break;
                     case "CycleTime":
-                        Kpis.Add(new SimulationKpis(kpi.Time, cycleTime: kpi.Value));
+                        Kpis.Add(new SimulationKpis((float)kpi.Time, material: (float)kpi.Value));
                         break;
                     default:
                         Agent.DebugMessage(msg: "Invalid Kpi to add to Kpis for Prediction");
                         break;
                 }
 
-                _lastTimestamp = kpi.Time;
+                _lastTimestamp = (float)kpi.Time;
             }
             else
             {
@@ -266,25 +264,25 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
                 switch (kpi.Name)
                 {
                     case "Assembly":
-                        kpiFromList.Assembly = kpi.Value;
+                        kpiFromList.Assembly = (float)kpi.Value;
                         break;
                     case "Consumab":
-                        kpiFromList.Consumab = kpi.Value;
+                        kpiFromList.Consumab = (float)kpi.Value;
                         break;
                     case "Material":
-                        kpiFromList.Material = kpi.Value;
+                        kpiFromList.Material = (float)kpi.Value;
                         break;
                     case "Total":
-                        kpiFromList.Total = kpi.Value;
+                        kpiFromList.Total = (float)kpi.Value;
                         break;
                     case "InDueTotal":
-                        kpiFromList.InDueTotal = kpi.Value;
+                        kpiFromList.InDueTotal = (float)kpi.Value;
                         break;
                     case "Lateness":
-                        kpiFromList.Lateness = kpi.Value;
+                        kpiFromList.Lateness = (float)kpi.Value;
                         break;
                     case "CycleTime":
-                        kpiFromList.CycleTime = kpi.Value;
+                        kpiFromList.CycleTime = (float)kpi.Value;
                         break;
                     default:
                         Agent.DebugMessage(msg: "Invalid Kpi to add to Kpis for Prediction");
