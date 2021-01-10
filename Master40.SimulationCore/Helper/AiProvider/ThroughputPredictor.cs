@@ -46,11 +46,9 @@ namespace Master40.SimulationCore.Helper.AiProvider
             }
             else
             {
-                predictedActualThroughputList.Last()[2] = valuesForPrediction.Last().CycleTime;
+                predictedActualThroughputList.Last()[2] =
+                    valuesForPrediction.Find(v => v.Time == predictedActualThroughputList.Last()[0] + 480).CycleTime;
                 predictedActualThroughputList.Add(new float[] { valuesForPrediction.Last().Time, resultPrediction.CycleTime, 0 });
-
-
-
             }
 
             return (long)Math.Round(resultPrediction.CycleTime, 0);
