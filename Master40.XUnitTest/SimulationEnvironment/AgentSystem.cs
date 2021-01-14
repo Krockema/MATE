@@ -157,7 +157,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             {
                 yield return new object[]
                 {
-                    SimulationType.Default, PriorityRule.LST, simNumber++, 960, throughput, seed++, ModelSize.Medium, ModelSize.Medium, 0.0153, false, false
+                    SimulationType.Default, PriorityRule.LST, simNumber++, 960, throughput, seed++, ModelSize.Medium, ModelSize.Medium, 0.015, false, false
                 };
                 //throughput += 100;
             }
@@ -175,6 +175,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         {
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
+            LogConfiguration.LogTo(TargetTypes.File, CustomLogger.AIPREDICTIONS, LogLevel.Info, LogLevel.Info);
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PRIORITY, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.SCHEDULING, LogLevel.Warn, LogLevel.Warn);
@@ -208,12 +209,12 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new KpiTimeSpan(480));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 1500));
+            simConfig.ReplaceOption(new OrderQuantity(value: int.MaxValue));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
             simConfig.ReplaceOption(new SettlingStart(value: 3360));
-            simConfig.ReplaceOption(new SimulationEnd(value: 121080));
+            simConfig.ReplaceOption(new SimulationEnd(value: 525600));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));

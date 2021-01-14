@@ -7,6 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Reflection;
+using Master40.SimulationCore.Agents;
+using Newtonsoft.Json;
+using NLog;
 
 namespace Master40.SimulationCore.Helper.AiProvider
 {
@@ -29,7 +32,7 @@ namespace Master40.SimulationCore.Helper.AiProvider
 
         private List<float[]> predictedActualThroughputList = new List<float[]>();
 
-        public long PredictThroughput(List<SimulationKpis> valuesForPrediction)
+        public long PredictThroughput(List<SimulationKpis> valuesForPrediction, Agent agent)
         {
             var kpisForPredict = getReshapedKpisForPrediction(valuesForPrediction);
 
@@ -48,7 +51,9 @@ namespace Master40.SimulationCore.Helper.AiProvider
             {
                 predictedActualThroughputList.Last()[2] =
                     valuesForPrediction.Find(v => v.Time == predictedActualThroughputList.Last()[0] + 480).CycleTime;
-                predictedActualThroughputList.Add(new float[] { valuesForPrediction.Last().Time, resultPrediction.CycleTime, 0 });
+                agent.DebugMessage(JsonConvert.SerializeObject(predictedActualThroughputList.Last()), CustomLogger.AIPREDICTIONS, LogLevel.Info);
+                var newEntry = new float[] {valuesForPrediction.Last().Time, resultPrediction.CycleTime, 0};
+                predictedActualThroughputList.Add(newEntry);
             }
 
             return (long)Math.Round(resultPrediction.CycleTime, 0);

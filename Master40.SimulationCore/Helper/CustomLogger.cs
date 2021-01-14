@@ -16,6 +16,6 @@ namespace Master40.SimulationCore.Helper
         public const string SCHEDULING = "Scheduling";
         public const string JOBSTATE = "JobStateInfo";
         public const string DISPOPRODRELATION = "DispoProdRelation";
-
+        public const string AIPREDICTIONS = "AIPREDICTIONS";
     }
 }
