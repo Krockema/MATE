@@ -2,6 +2,7 @@
 using System.Linq;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.Helper;
+using Master40.DB.Data.Initializer.StoredProcedures;
 using Master40.DB.Data.Initializer.Tables;
 using Master40.DB.Nominal.Model;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,9 @@ namespace Master40.DB.Data.Initializer
             // Look for any Entrys.
             if (context.Articles.Any())
                 return;   // DB has been seeded
-            
+
+            ArticleStatistics.CreateProcedures(context);
+
             var resourceCapabilities = MasterTableResourceCapability(context, resourceModelSize, setupModelSize, operatorsModelSize, numberOfWorkersForProcessing, secondResource);
 
             // Article Definitions

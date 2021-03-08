@@ -1,4 +1,5 @@
-﻿using Master40.DB.DataModel;
+﻿using Master40.DB.Data.Initializer.StoredProcedures;
+using Master40.DB.DataModel;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
@@ -172,7 +173,9 @@ namespace Master40.DB.Data.Context
                 .ToTable("T_MeasurementValue");
             modelBuilder.Entity<M_ValueType>()
                 .ToTable("M_ValueType");
+
         }
+
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

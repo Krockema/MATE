@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Xunit;
 using LogLevel = NLog.LogLevel;
 using Master40.SimulationCore.Helper;
+using Master40.DB.Nominal;
 
 namespace Master40.XUnitTest.DataGenerator
 {
@@ -26,33 +27,37 @@ namespace Master40.XUnitTest.DataGenerator
         // TODO: return complete config objects to avoid errors, and separate Data Generator / Simulation configurations
         public static IEnumerable<object[]> GetTestData()
         {
-            // Simulation run 1
-            yield return new object[]  
-            {
-                18      // approach id (test data generator input parameter set id)
-                , 240   // order Quantity
-                , 240   // max bucket size
-                , 60    // throughput time
-                , 348345// Random seed
-                , 1/60d // arrival rate
-                , 15000 // simulation end
-                , 55    // min delivery time
-                , 65    // max delivery time
-            };
-            // Simulation run 2
-            /*yield return new object[]
-            {
-                8       // approach id (test data generator input parameter set id)
-                , 2     // order Quantity
-                , 240   // max bucket size
-                , 1400  // throughput time
-                , 552   // Random seed
-                , 1/1300d// arrival rate
-                , 2880  // simulation end
-                , 1400   // min delivery time
-                , 1440   // max delivery time
-            };*/
-        }
+
+            // var simNr = 10000; // Og : 0.98 
+            // var simNr = 11000; // Og : 0.0
+            //var simNr = 13000; // Og : 0.5
+            //var simNr = 14000; // Og : 0.25
+            //var simNr = 20000; // Og : 0.75
+            var simNr = 131000;
+            for (int approach = 30; approach < 35; approach++)
+                {
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        yield return new object[]
+                            {
+                            approach // approach id (test data generator input parameter set id)
+                            , 1500   // order Quantity
+                            , 1920   // max bucket size
+                            , 10160    // throughput time
+                            , 348345 + i * 13// Random seed
+                            , 0.00891 // arrival rate
+                            , 30240 // simulation end
+                            , 5     // min delivery time
+                            , 7     // max delivery time
+                            , SimulationType.Default //simulation type
+                            , simNr + i  //SimulationNumber
+                            };
+                    }
+                    simNr = simNr + 100;
+                }
+            }
+        
 
         /// <summary>
         /// To Run this test the Database must have been filled with Master data
@@ -78,7 +83,9 @@ namespace Master40.XUnitTest.DataGenerator
                                         , double arrivalRate
                                         , long simulationEnd
                                         , int minDeliveryTime
-                                        , int maxDeliveryTime)
+                                        , int maxDeliveryTime
+                                        , SimulationType simulationType
+                                        , int simulationNumber)
         {
             ResultContext ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);
             ProductionDomainContext masterCtx = ProductionDomainContext.GetContext(testCtxString);
@@ -123,16 +130,19 @@ namespace Master40.XUnitTest.DataGenerator
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
             simConfig.ReplaceOption(new Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 0)); 
+            simConfig.ReplaceOption(new SettlingStart(value: 2880));
+            simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new SimulationEnd(value: simulationEnd));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
-            simConfig.ReplaceOption(new SimulationNumber(value: dataGenSim.Id));
+            simConfig.ReplaceOption(new SimulationNumber(value: simulationNumber)); 
+            //simConfig.ReplaceOption(new SimulationNumber(value: dataGenSim.Id));
             simConfig.ReplaceOption(new DebugSystem(value: true));
-            simConfig.ReplaceOption(new WorkTimeDeviation(0.0));
+            simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
             // anpassen der Lieferzeiten anhand der Erwarteten Durchlaufzeit. 
             simConfig.ReplaceOption(new MinDeliveryTime(value: minDeliveryTime));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: maxDeliveryTime));
+            simConfig.ReplaceOption(new SimulationCore.Environment.Options.PriorityRule(DB.Nominal.PriorityRule.LST));
 
             await Task.Run(() => 
                 ArgumentConverter.ConvertBackAndSave(ctxResult, simConfig, dataGenSim.Id));

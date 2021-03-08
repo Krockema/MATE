@@ -7,6 +7,7 @@ using Master40.DataGenerator.Util;
 using Master40.DataGenerator.Verification;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.DynamicInitializer;
+using Master40.DB.Data.Initializer.StoredProcedures;
 using Master40.DB.Data.Initializer.Tables;
 using Master40.DB.GeneratorModel;
 
@@ -17,11 +18,17 @@ namespace Master40.DataGenerator.Generators
 
         public TransitionMatrix TransitionMatrix { get; set; }
 
+   
+
         public void StartGeneration(Approach approach, MasterDBContext dbContext, ResultContext resultContext, bool doVerify = false, double setupTimeFactor = double.NaN)
         {
             dbContext.Database.EnsureDeleted();
             dbContext.Database.EnsureCreated();
 
+            var amountOfWorker = 4;
+
+            ArticleStatistics.CreateProcedures(dbContext);
+            // 
             var rng = new XRandom(approach.Seed);
 
             var units = new MasterTableUnit();
@@ -44,7 +51,7 @@ namespace Master40.DataGenerator.Generators
             List<ResourceProperty> resourceProperties = approach.TransitionMatrixInput.WorkingStations
                 .Select(x => (ResourceProperty)x).ToList();
 
-            var resourceCapabilities = ResourceInitializer.Initialize(dbContext, resourceProperties);
+            var resourceCapabilities = ResourceInitializer.Initialize(dbContext, resourceProperties, amountOfWorker);
 
             var operationGenerator = new OperationGenerator();
             operationGenerator.GenerateOperations(productStructure.NodesPerLevel, TransitionMatrix,

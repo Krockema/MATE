@@ -27,13 +27,13 @@ namespace Master40.XUnitTest.DataGenerator
         public void SetInput()
         {
             var success = true;
-            var iterations = 1;
+            var iterations = 1d;
 
-            for (var i = 0; i < iterations; i++)
+            for (var i = 0d; i <= iterations; i += 0.25)
             {
-                var usePresetSeed = false;
+                var usePresetSeed = true;
                 var rng = new Random();
-                int seed = usePresetSeed ? 2083793265 : rng.Next();
+                int seed = usePresetSeed ? 368200759 : rng.Next();
 
                 var generatorDbCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
                 var approach = new Approach()
@@ -43,13 +43,13 @@ namespace Master40.XUnitTest.DataGenerator
                 };
 
                 //Limit für Lambda und Anzahl Bearbeitungsstationen jeweils 100
-                var individualMachiningTime = false;
+                var individualMachiningTime = true;
                 approach.TransitionMatrixInput = new TransitionMatrixInput
                 {
-                    DegreeOfOrganization = 0.13,
+                    DegreeOfOrganization = i,
                     Lambda = 1.3,
                     InfiniteTools = true,
-                    ExtendedTransitionMatrix = true,
+                    ExtendedTransitionMatrix = false,
                     GeneralMachiningTimeParameterSet = individualMachiningTime ? null : new MachiningTimeParameterSet
                     {
                         MeanMachiningTime = 1,
@@ -61,44 +61,44 @@ namespace Master40.XUnitTest.DataGenerator
                         {
                             MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0.1
+                                MeanMachiningTime = 18, VarianceMachiningTime = 4
                             },
-                            ResourceCount = 5,
-                            ToolCount = 7,
-                            SetupTime = 4,
+                            ResourceCount = 3,
+                            ToolCount = 4,
+                            SetupTime = 10,
                             OperatorCount = 0
                         },
                         new WorkingStationParameterSet()
                         {
                             MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0.1
+                                MeanMachiningTime = 12, VarianceMachiningTime = 2
                             },
-                            ResourceCount = 5,
-                            ToolCount = 7,
-                            SetupTime = 4,
+                            ResourceCount = 2,
+                            ToolCount = 3,
+                            SetupTime = 8,
                             OperatorCount = 0
                         },
                         new WorkingStationParameterSet()
                         {
                             MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0.1
+                                MeanMachiningTime = 6, VarianceMachiningTime = 1
                             },
-                            ResourceCount = 5,
-                            ToolCount = 7,
-                            SetupTime = 4,
+                            ResourceCount = 3,
+                            ToolCount = 5,
+                            SetupTime = 10,
                             OperatorCount = 0
                         },
                         new WorkingStationParameterSet()
                         {
                             MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
-                                MeanMachiningTime = 1, VarianceMachiningTime = 0.1
+                                MeanMachiningTime = 24, VarianceMachiningTime = 3
                             },
-                            ResourceCount = 5,
-                            ToolCount = 7,
-                            SetupTime = 4,
+                            ResourceCount = 4,
+                            ToolCount = 6,
+                            SetupTime = 10,
                             OperatorCount = 0
                         }
                     }
@@ -111,13 +111,13 @@ namespace Master40.XUnitTest.DataGenerator
                 double? doubleNull = null;
                 approach.ProductStructureInput = new ProductStructureInput
                 {
-                    EndProductCount = !randomGeneratedInputValues ? 100 : rng.Next(9) + 2,
+                    EndProductCount = !randomGeneratedInputValues ? 50 : rng.Next(9) + 2,
                     DepthOfAssembly = !randomGeneratedInputValues ? 4 : rng.Next(10) + 1,
-                    ComplexityRatio = !randomGeneratedInputValues ? 1.85 : rng.NextDouble() + 1,
-                    ReutilisationRatio = !randomGeneratedInputValues ? 1.4 : rng.NextDouble() + 1,
-                    MeanIncomingMaterialAmount = 1.6,
-                    StdDevIncomingMaterialAmount = 0.5,
-                    MeanWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 8.0,
+                    ComplexityRatio = !randomGeneratedInputValues ? 1.41 : rng.NextDouble() + 1,
+                    ReutilisationRatio = !randomGeneratedInputValues ? 1 : rng.NextDouble() + 1,
+                    MeanIncomingMaterialAmount = 1,
+                    StdDevIncomingMaterialAmount = 0,
+                    MeanWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 5.0,
                     VarianceWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 0.0
                 };
                 //System.Diagnostics.Debug.WriteLine(approach.ProductStructureInput.ToString());
@@ -140,8 +140,8 @@ namespace Master40.XUnitTest.DataGenerator
         [Fact]
         public void GenerateData() //Generierung für Simulation direkt im Testfall, wo Simulation durchgeführt wird
         {
-            var approachRangeStart = 18;
-            var approachRangeEnd = 18;
+            var approachRangeStart =25;
+            var approachRangeEnd = 25;
             for (var i = approachRangeStart; i < approachRangeEnd + 1; i++)
             {
                 var approachId = i;

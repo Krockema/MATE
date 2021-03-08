@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Initializer.StoredProcedures;
 using Master40.DB.DataModel;
 using Master40.SimulationCore.Environment;
 using Master40.SimulationCore.Environment.Options;
@@ -16,7 +17,7 @@ namespace Master40.SimulationCore.Helper.DistributionProvider
         private Random _seededRandom { get; set; }
         private Exponential _exponential { get; set; }
         private DiscreteUniform _prodVariation { get; set; }
-        private DiscreteUniform _duetime { get; set; }
+        private ContinuousUniform _duetime { get; set; }
         private ProductionDomainContext _productionDomainContext { get; }
 
         //TODO Seperate generatr from Production Context.
@@ -35,9 +36,11 @@ namespace Master40.SimulationCore.Helper.DistributionProvider
             _prodVariation = new DiscreteUniform(lower: 0, upper: _productIds.Count() - 1, randomSource: _seededRandom);
 
             //get equal distribution for duetime
-            _duetime = new DiscreteUniform(lower: simConfig.GetOption<MinDeliveryTime>().Value
-                                                    , upper: simConfig.GetOption<MaxDeliveryTime>().Value
+            //TODO: Change Option from int to double
+            _duetime = new ContinuousUniform(lower: Convert.ToDouble(simConfig.GetOption<MinDeliveryTime>().Value)
+                                                    , upper: Convert.ToDouble(simConfig.GetOption<MaxDeliveryTime>().Value)
                                                     , randomSource: _seededRandom);
+
         }
 
         public OrderGenerator(Configuration simConfig,  List<int> productIds)
@@ -54,9 +57,10 @@ namespace Master40.SimulationCore.Helper.DistributionProvider
             _prodVariation = new DiscreteUniform(lower: 0, upper: _productIds.Count() - 1, randomSource: _seededRandom);
 
             //get equal distribution for duetime
-            _duetime = new DiscreteUniform(lower: simConfig.GetOption<MinDeliveryTime>().Value
+            _duetime = new ContinuousUniform(lower: simConfig.GetOption<MinDeliveryTime>().Value
                 , upper: simConfig.GetOption<MaxDeliveryTime>().Value
                 , randomSource: _seededRandom);
+            
         }
 
 
@@ -67,8 +71,10 @@ namespace Master40.SimulationCore.Helper.DistributionProvider
             //get which product is to be ordered
             var productId = _productIds.ElementAt(index: _prodVariation.Sample());
 
+            var due = ArticleStatistics.DeliveryDateEstimator(productId, _duetime.Sample(), _productionDomainContext);
+            // The old way
             //create order and orderpart, duetime is creationtime + 1 day
-            var due = time + creationTime + _duetime.Sample();
+            due = time + creationTime + due;
             System.Diagnostics.Debug.WriteLineIf(condition: _debug, message: "Product(" + productId + ")" + ";" + time + ";" + due);
 
             // only Returns new Order does not save context.
