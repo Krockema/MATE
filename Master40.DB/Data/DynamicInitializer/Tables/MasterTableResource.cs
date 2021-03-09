@@ -23,7 +23,7 @@ namespace Master40.DB.Data.DynamicInitializer.Tables
             List<M_Resource> workers = new List<M_Resource>();
             for (int i = 1; i < 1 + amountOfWorker; i++)
             {
-                workers.Add(CreateNewResource("Worker " + i, true, true, null));
+                workers.Add(CreateNewResource("Operator " + i, true, true, null));
             }
             CapabilityToResourceDict.Add($"Worker", workers);
 
@@ -106,7 +106,7 @@ namespace Master40.DB.Data.DynamicInitializer.Tables
                                 setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, 0));
                                 if (workers != null)
                                 {
-                                    setups.Add(CreateNewSetup(workers[workerCounter], capabilityProvider, true, false, 0));
+                                    setups.Add(CreateNewSetup(workers[workerCounter], capabilityProvider, false, true, 0));
                                 }
                                 capabilityProviders.Add(capabilityProvider);
                                 workerCounter++;
@@ -136,7 +136,7 @@ namespace Master40.DB.Data.DynamicInitializer.Tables
                             setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, 0));
                             if (workers != null)
                             {
-                                setups.Add(CreateNewSetup(workers[workerCounter], capabilityProvider, true, false, 0));
+                                setups.Add(CreateNewSetup(workers[workerCounter], capabilityProvider, false, true, 0));
                             }
 
                             capabilityProviders.Add(capabilityProvider);

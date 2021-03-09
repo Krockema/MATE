@@ -29,7 +29,7 @@ namespace Master40.XUnitTest.DataGenerator
             var success = true;
             var iterations = 1d;
 
-            for (var i = 0d; i <= iterations; i += 0.25)
+            for (var i = 0d; i <= iterations; i += 1.0)
             {
                 var usePresetSeed = true;
                 var rng = new Random();
@@ -61,44 +61,55 @@ namespace Master40.XUnitTest.DataGenerator
                         {
                             MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
-                                MeanMachiningTime = 18, VarianceMachiningTime = 4
+                                MeanMachiningTime = 5, VarianceMachiningTime = 0
                             },
-                            ResourceCount = 3,
+                            ResourceCount = 1,
                             ToolCount = 4,
-                            SetupTime = 10,
+                            SetupTime = 5,
                             OperatorCount = 0
                         },
                         new WorkingStationParameterSet()
                         {
                             MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
-                                MeanMachiningTime = 12, VarianceMachiningTime = 2
+                                MeanMachiningTime = 5, VarianceMachiningTime = 0
                             },
-                            ResourceCount = 2,
-                            ToolCount = 3,
-                            SetupTime = 8,
+                            ResourceCount = 1,
+                            ToolCount = 4,
+                            SetupTime = 5,
                             OperatorCount = 0
                         },
                         new WorkingStationParameterSet()
                         {
                             MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
-                                MeanMachiningTime = 6, VarianceMachiningTime = 1
+                                MeanMachiningTime = 5, VarianceMachiningTime = 0
                             },
-                            ResourceCount = 3,
-                            ToolCount = 5,
-                            SetupTime = 10,
+                            ResourceCount = 1,
+                            ToolCount = 4,
+                            SetupTime = 5,
                             OperatorCount = 0
                         },
                         new WorkingStationParameterSet()
                         {
                             MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
                             {
-                                MeanMachiningTime = 24, VarianceMachiningTime = 3
+                                MeanMachiningTime = 5, VarianceMachiningTime = 0
                             },
-                            ResourceCount = 4,
-                            ToolCount = 6,
-                            SetupTime = 10,
+                            ResourceCount = 1,
+                            ToolCount = 4,
+                            SetupTime = 5,
+                            OperatorCount = 0
+                        },
+                        new WorkingStationParameterSet()
+                        {
+                            MachiningTimeParameterSet = !individualMachiningTime ? null : new MachiningTimeParameterSet
+                            {
+                                MeanMachiningTime = 5, VarianceMachiningTime = 0
+                            },
+                            ResourceCount = 1,
+                            ToolCount = 4,
+                            SetupTime = 5,
                             OperatorCount = 0
                         }
                     }

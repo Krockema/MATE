@@ -33,8 +33,8 @@ namespace Master40.XUnitTest.DataGenerator
             //var simNr = 13000; // Og : 0.5
             //var simNr = 14000; // Og : 0.25
             //var simNr = 20000; // Og : 0.75
-            var simNr = 131000;
-            for (int approach = 30; approach < 35; approach++)
+            var simNr = 930000;
+            for (int approach = 55; approach < 57; approach++)
                 {
 
                     for (int i = 0; i < 3; i++)
@@ -46,7 +46,7 @@ namespace Master40.XUnitTest.DataGenerator
                             , 1920   // max bucket size
                             , 10160    // throughput time
                             , 348345 + i * 13// Random seed
-                            , 0.00891 // arrival rate
+                            , 0.04 // arrival rate
                             , 30240 // simulation end
                             , 5     // min delivery time
                             , 7     // max delivery time

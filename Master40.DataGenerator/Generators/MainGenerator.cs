@@ -25,7 +25,7 @@ namespace Master40.DataGenerator.Generators
             dbContext.Database.EnsureDeleted();
             dbContext.Database.EnsureCreated();
 
-            var amountOfWorker = 4;
+            var amountOfWorker = 3;
 
             ArticleStatistics.CreateProcedures(dbContext);
             // 
