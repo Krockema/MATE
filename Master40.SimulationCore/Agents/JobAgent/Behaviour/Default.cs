@@ -221,9 +221,9 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
             foreach (var resourceScope in fJobResourceConfirmation.ScopeConfirmations)
             {
                 var resourceRef = resourceScope.Key;
-                var _jobConfirmationForResource = ((FJobConfirmation)_jobConfirmation).UpdateScopeConfirmation(resourceScope.Value);
+                var jobConfirmationForResource = ((FJobConfirmation)_jobConfirmation).UpdateScopeConfirmation(resourceScope.Value);
                 
-                Agent.Send(instruction: Resource.Instruction.Default.AcceptedProposals.Create(_jobConfirmationForResource, target: resourceRef));
+                Agent.Send(instruction: Resource.Instruction.Default.AcceptedProposals.Create(jobConfirmationForResource, target: resourceRef));
 
                 if (resourceScope.Value.Scopes.Length > 1)
                 {
@@ -434,7 +434,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
 
         private void UpdateOperationKpi()
         {
-            ResultStreamFactory.PublishJob(Agent, _currentOperation, _currentOperation.Operation.RandomizedDuration, _jobConfirmation.CapabilityProvider, _jobConfirmation.Job.Bucket);
+            ResultStreamFactory.PublishJob(Agent, _currentOperation, _currentOperation.Operation.RandomizedDuration, _jobConfirmation.CapabilityProvider, _jobConfirmation.Job.Name);
         }
 
 
@@ -449,7 +449,7 @@ namespace Master40.SimulationCore.Agents.JobAgent.Behaviour
                 , job: _currentOperation
                 , duration: _currentOperation.Operation.RandomizedDuration
                 , capabilityProvider: _jobConfirmation.CapabilityProvider
-                , bucketName: _jobConfirmation.Job.Bucket);
+                , bucketName: _jobConfirmation.Job.Name);
 
             var fOperationResult = new FOperationResult(key: _currentOperation.Key
                 , creationTime: 0

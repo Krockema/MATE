@@ -254,7 +254,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 ExpectedDuration = simJob.OperationDuration,
                 ArticleType = simJob.ArticleType,
                 CapabilityName = simJob.RequiredCapabilityName,
-                Bucket = simJob.JobName,
+                Bucket = "",
                 Start = simJob.Start,
                 End =  simJob.End,
             };
@@ -265,6 +265,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 simulationJob.Start = (int)edit.Start;
                 simulationJob.End = (int)(edit.Start + edit.Duration);
                 simulationJob.CapabilityProvider = edit.CapabilityProvider;
+                simulationJob.Bucket = edit.Bucket;
                 _updatedSimulationJob.Remove(item: edit);
             }
             simulationJobs.Add(item: simulationJob);

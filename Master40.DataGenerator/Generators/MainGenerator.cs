@@ -2,7 +2,6 @@
 using System.Linq;
 using Master40.DataGenerator.DataModel;
 using Master40.DataGenerator.MasterTableInitializers;
-using Master40.DataGenerator.Repository;
 using Master40.DataGenerator.Util;
 using Master40.DataGenerator.Verification;
 using Master40.DB.Data.Context;
@@ -24,8 +23,6 @@ namespace Master40.DataGenerator.Generators
         {
             dbContext.Database.EnsureDeleted();
             dbContext.Database.EnsureCreated();
-
-            var amountOfWorker = 3;
 
             ArticleStatistics.CreateProcedures(dbContext);
             // 
@@ -51,7 +48,7 @@ namespace Master40.DataGenerator.Generators
             List<ResourceProperty> resourceProperties = approach.TransitionMatrixInput.WorkingStations
                 .Select(x => (ResourceProperty)x).ToList();
 
-            var resourceCapabilities = ResourceInitializer.Initialize(dbContext, resourceProperties, amountOfWorker);
+            var resourceCapabilities = ResourceInitializer.Initialize(dbContext, resourceProperties);
 
             var operationGenerator = new OperationGenerator();
             operationGenerator.GenerateOperations(productStructure.NodesPerLevel, TransitionMatrix,

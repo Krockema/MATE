@@ -18,7 +18,7 @@ namespace Master40.SimulationCore.Helper
 
         public static void PublishJob(Agent agent, IJob job, long duration, M_ResourceCapabilityProvider capabilityProvider)
         {
-            PublishJob(agent, job, duration, capabilityProvider, job.Name);
+            PublishJob(agent, job, duration, capabilityProvider, job.Bucket);
         }
 
         public static void PublishJob(Agent agent, IJob job, long duration, M_ResourceCapabilityProvider capabilityProvider, string bucketName)

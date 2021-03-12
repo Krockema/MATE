@@ -326,7 +326,8 @@ namespace Master40.SimulationCore.Agents.HubAgent.Behaviour
             ResultStreamFactory.PublishJob(agent: Agent
                 , job: job
                 , duration: fQueuingJob.Duration
-                , capabilityProvider: fQueuingJob.CapabilityProvider);
+                , capabilityProvider: fQueuingJob.CapabilityProvider
+                , bucketName: fQueuingJob.Key.ToString());
 
             var fOperationResult = new FOperationResults.FOperationResult(key: job.Key
                 , creationTime: 0
