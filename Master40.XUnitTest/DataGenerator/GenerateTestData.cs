@@ -23,9 +23,9 @@ namespace Master40.XUnitTest.DataGenerator
         public void SetInput()
         {
             var success = true;
-            var iterations = 1d;
+            var iterations = 0.9;
 
-            for (var i = 0d; i <= iterations; i += 1.0)
+            for (var i = 0.1; i <= iterations; i += .1)
             {
                 var usePresetSeed = true;
                 var rng = new Random();
@@ -79,10 +79,10 @@ namespace Master40.XUnitTest.DataGenerator
                 double? doubleNull = null;
                 approach.ProductStructureInput = new ProductStructureInput
                 {
-                    EndProductCount = !randomGeneratedInputValues ? 35 : rng.Next(9) + 2,
-                    DepthOfAssembly = !randomGeneratedInputValues ? 4 : rng.Next(10) + 1,
-                    ComplexityRatio = !randomGeneratedInputValues ? 1.41: rng.NextDouble() + 1,
-                    ReutilisationRatio = !randomGeneratedInputValues ? 1 : rng.NextDouble() + 1,
+                    EndProductCount = !randomGeneratedInputValues ? 35 : rng.Next(9) + 2, // 100
+                    DepthOfAssembly = !randomGeneratedInputValues ? 4 : rng.Next(10) + 1, 
+                    ComplexityRatio = !randomGeneratedInputValues ? 1.41: rng.NextDouble() + 1, // 2 
+                    ReutilisationRatio = !randomGeneratedInputValues ? 1 : rng.NextDouble() + 1, // 5
                     MeanIncomingMaterialAmount = 1,
                     StdDevIncomingMaterialAmount = 0,
                     MeanWorkPlanLength = approach.TransitionMatrixInput.ExtendedTransitionMatrix ? doubleNull : 5.0,

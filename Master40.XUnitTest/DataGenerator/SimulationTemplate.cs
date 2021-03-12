@@ -25,28 +25,48 @@ namespace Master40.XUnitTest.DataGenerator
         // TODO: return complete config objects to avoid errors, and separate Data Generator / Simulation configurations
         public static IEnumerable<object[]> GetTestData()
         {
-            for (int approach = 14; approach < 18; approach++)
+            for (int approach = 1; approach < 10; approach++)
             {
-                for (int mbs = 960 ; mbs <=  960*3; mbs += 960 )
+                for (int i = 0; i < 10; i++)
                 {
-                    for (int i = 0; i < 10; i++)
+                    yield return new object[]
                     {
-                        yield return new object[]
-                        {
-                            approach // approach id (test data generator input parameter set id)
-                            , 3000   // order Quantity
-                            , 960   // max bucket size
-                            , 10160    // throughput time
-                            , 348345 + i * 14// Random seed
-                            , 0.04 // arrival rate
-                            , 10080*3 // simulation end
-                            , 10     // min delivery time
-                            , 15     // max delivery time
-                            , SimulationType.Default //simulation type
-                            , int.Parse(approach.ToString() + mbs.ToString().PadLeft(4, '0') + i.ToString().PadLeft(2, '0'))  //SimulationNumber
-                        };
-                    }
-                }   
+                        approach // approach id (test data generator input parameter set id)
+                        , 3000   // order Quantity
+                        , 960   // max bucket size
+                        , 10160    // throughput time
+                        , 348345 + i * 14// Random seed
+                        , 0.04 // arrival rate
+                        , 10080*3 // simulation end
+                        , 10     // min delivery time
+                        , 15     // max delivery time
+                        , SimulationType.Default //simulation type
+                        , int.Parse(1.ToString() + approach.ToString().PadLeft(3, '0')
+                                                 + i.ToString().PadLeft(2, '0'))  //SimulationNumber
+                    };
+                }
+            }
+
+            for (int approach = 1; approach < 10; approach++)
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    yield return new object[]
+                    {
+                        approach // approach id (test data generator input parameter set id)
+                        , 3000   // order Quantity
+                        , 960   // max bucket size
+                        , 10160    // throughput time
+                        , 348345 + i * 14// Random seed
+                        , 0.04 // arrival rate
+                        , 10080*3 // simulation end
+                        , 10     // min delivery time
+                        , 15     // max delivery time
+                        , SimulationType.Queuing //simulation type
+                        , int.Parse(2.ToString() + approach.ToString().PadLeft(3, '0')
+                                    + i.ToString().PadLeft(2, '0'))  //SimulationNumber
+                    };
+                }
             }
         }
     
