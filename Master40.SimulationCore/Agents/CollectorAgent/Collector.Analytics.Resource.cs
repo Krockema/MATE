@@ -216,9 +216,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             {
                 using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value))
                 {
-                    //ctx.TaskItems.AddRange(entities:  _taskArchive.Select(x => x.Value).ToArray()[0].ToList().Cast<TaskItem>());
-                    //ctx.TaskItems.AddRange(entities: _taskArchive.Select(x => x.Value).ToArray()[1].ToList().Cast<TaskItem>());
-                    //ctx.SaveChanges();
+                    ctx.TaskItems.AddRange(entities:  _taskArchive.Select(x => x.Value).ToArray()[0].ToList().Cast<TaskItem>());
+                    ctx.TaskItems.AddRange(entities: _taskArchive.Select(x => x.Value).ToArray()[1].ToList().Cast<TaskItem>());
+                    ctx.SaveChanges();
                     ctx.Kpis.AddRange(entities: Collector.Kpis);
                     ctx.SaveChanges();
                     ctx.Dispose();

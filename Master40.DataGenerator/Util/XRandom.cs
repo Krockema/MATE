@@ -4,7 +4,8 @@ using MathNet.Numerics.Random;
 namespace Master40.DataGenerator.Util
 {
 
-    public class XRandom{
+    public class XRandom
+    {
 
         private readonly Random _rng;
 

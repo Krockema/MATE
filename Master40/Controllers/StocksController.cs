@@ -1,3 +1,6 @@
+using System;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -103,7 +106,7 @@ namespace Master40.Controllers
                     _context.Update(entity: stock);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception e)
                 {
                     if (!StockExists(id: stock.Id))
                     {

@@ -40,8 +40,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
         // only for local usage
         private const string GanttPlanCtxString = "SERVER=(localdb)\\MSSQLLocalDB;DATABASE=GanttPlanImportTestDB;Trusted_connection=Yes;UID=;PWD=;MultipleActiveResultSets=true";
 
-        private ProductionDomainContext _masterDBContext = ProductionDomainContext.GetContext(remoteMasterCtxString);
-        private ResultContext _ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);
+        private ProductionDomainContext _masterDBContext = ProductionDomainContext.GetContext(testCtxString);
+        private ResultContext _ctxResult = ResultContext.GetContext(resultCon: masterResultCtxString);
 
         //[Fact(Skip = "manual test")]
         [Theory]
@@ -63,6 +63,79 @@ namespace Master40.XUnitTest.SimulationEnvironment
             DataGeneratorContext generatorCtx = DataGeneratorContext.GetContext(generatorConnectionString);
             generatorCtx.Database.EnsureDeleted();
             generatorCtx.Database.EnsureCreated();
+
+        }
+
+        [Fact]
+        public void TestRawSQL()
+        {
+            
+            string sql = string.Format(@"CREATE OR ALTER PROCEDURE ArticleCTE
+	@ArticleId int
+AS
+BEGIN
+	SET NOCOUNT ON;
+	DROP TABLE IF EXISTS dbo.#Temp;
+	DROP TABLE IF EXISTS dbo.#Union;
+
+	WITH Parts(AssemblyID, ComponentID, PerAssemblyQty, ComponentLevel) AS  
+	(  
+		SELECT b.ArticleParentId, b.ArticleChildId, CAST(b.Quantity AS decimal),0 AS ComponentLevel  
+		FROM dbo.M_ArticleBom  AS b  
+		join dbo.M_Article a on a.Id = b.ArticleParentId
+		where @ArticleId = a.Id
+		UNION ALL  
+		SELECT bom.ArticleParentId, bom.ArticleChildId, CAST(PerAssemblyQty * bom.Quantity as DECIMAL), ComponentLevel + 1  
+		 FROM dbo.M_ArticleBom  AS bom  
+			INNER join dbo.M_Article ac on ac.Id = bom.ArticleParentId
+			INNER JOIN Parts AS p ON bom.ArticleParentId = p.ComponentID  
+	)
+
+	select * into #Temp 
+	from (
+		select pr.Id,pr.Name, Sum(p.PerAssemblyQty) as qty, pr.ToBuild as ToBuild
+		FROM Parts AS p INNER JOIN M_Article AS pr ON p.ComponentID = pr.Id
+		Group By pr.Id, pr.Name, p.ComponentID, pr.ToBuild) as x
+
+	select * into #Union from (
+		select Sum(o.Duration * t.qty) as dur, sum(t.qty) as count ,0 as 'Po'
+			from dbo.M_Operation o join #Temp t on t.Id = o.ArticleId
+			where o.ArticleId in (select t.Id from #Temp t)
+	UNION ALL
+		SELECT SUM(ot.Duration) as dur, COUNT(*) as count , 0 as 'Po'
+			from dbo.M_Operation ot where ot.ArticleId = @ArticleId ) as x
+	UNION ALL 
+		SELECT 0 as dur, 0 as count, sum(t.qty) + 1 as 'Po'
+		from #Temp t where t.ToBuild = 1
+	select Sum(u.dur) as SumDuration , sum(u.count) as SumOperations, sum(u.Po)  as ProductionOrders from #Union u
+END");
+            using (var command = _masterDBContext.Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandText = sql;
+                _masterDBContext.Database.OpenConnection();
+                command.ExecuteNonQuery();
+            }
+
+        }
+
+        [Fact]
+        public void ReadRawSQL()
+        {
+            var articleId = 63380;
+            var sql = string.Format("Execute ArticleCTE {0}", articleId);
+            using (var command = _masterDBContext.Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandText = sql;
+                _masterDBContext.Database.OpenConnection();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        System.Diagnostics.Debug.WriteLine(string.Format("Summe der Dauer {0}; Summe der Operationen {1}; Summe der Prodktionsauftr�ge {2}", reader[0], reader[1], reader[2]));
+                    }
+
+                }
+            }
 
         }
 
@@ -164,7 +237,6 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
         [Theory]
         [MemberData(nameof(GetTestData))]
-
         public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule
             , int simNr, int maxBucketSize, long throughput, int seed
             , ModelSize resourceModelSize, ModelSize setupModelSize
@@ -211,7 +283,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
-            simConfig.ReplaceOption(new SimulationEnd(value: 40360));
+            simConfig.ReplaceOption(new SimulationEnd(value: 10080));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
@@ -268,6 +340,8 @@ namespace Master40.XUnitTest.SimulationEnvironment
                     _ctxResult.SimulationJobs.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)).ToList();
                 _ctxResult.RemoveRange(entities: itemsToRemove);
                 _ctxResult.RemoveRange(entities: _ctxResult.Kpis.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctxResult.RemoveRange(entities: _ctxResult.SimulationOrders.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctxResult.RemoveRange(entities: _ctxResult.TaskItems.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
                 _ctxResult.RemoveRange(entities: _ctxResult.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
                 _ctxResult.SaveChanges();
             }

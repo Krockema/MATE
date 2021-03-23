@@ -267,9 +267,25 @@ namespace Master40.SimulationCore
                 var capabilityProviders = GetCapabilityProviders(resource);
                 System.Diagnostics.Debug.WriteLine($"Creating Resource: {resource.Name} with {capabilityProviders.Count} capabilities");
                 //TODO: !IMPORTANT Max bucket size dynamic by Setup Count? 
+                var processing = resource.ResourceSetups.Any(x => x.UsedInProcess);
+                var setup = resource.ResourceSetups.Any(x => x.UsedInSetup);
+                ResourceType resourceType = ResourceType.Tool;
+                switch ((setup, processing))
+                {
+                    case (true, false):
+                        resourceType = ResourceType.Operator;
+                        break;
+                    case (false, true):
+                        resourceType = ResourceType.Worker;
+                        break;
+                    case (true, true):
+                        resourceType = ResourceType.Workcenter;
+                        break;
+                }
 
                 var capabilityProviderDefinition = new FCapabilityProviderDefinition(workTimeGenerator: randomWorkTime
                     , resource: resource
+                    , resourceType: resourceType
                     , capabilityProvider: capabilityProviders
                     , maxBucketSize: maxBucketSize
                     , timeConstraintQueueLength: timeConstraintQueueLength

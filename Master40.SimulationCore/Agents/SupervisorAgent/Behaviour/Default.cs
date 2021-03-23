@@ -165,7 +165,7 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
             Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: order.CreationTime - Agent.CurrentTime);
             var eta = _estimatedThroughPuts.Get(name: order.Name);
-            Agent.DebugMessage(msg: $"EstimatedTransitionTime {eta.Value} for order {order.Name} {order.Id}");
+            Agent.DebugMessage(msg: $"EstimatedTransitionTime {eta.Value} for order {order.Name} {order.Id} , {order.DueTime}");
 
             long period = order.DueTime - (eta.Value); // 1 Tag und 1 Schicht
             if (period < 0 || eta.Value == 0)

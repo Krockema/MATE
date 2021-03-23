@@ -65,8 +65,8 @@ namespace Master40.Controllers
             simConfig.ReplaceOption(new SaveToDB(value: false));
             simConfig.ReplaceOption(new DebugSystem(value: false));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
-            simConfig.ReplaceOption(new MaxDeliveryTime(3120));
-            simConfig.ReplaceOption(new MinDeliveryTime(2160));
+            simConfig.ReplaceOption(new MinDeliveryTime(10));
+            simConfig.ReplaceOption(new MaxDeliveryTime(15));
             
 
             switch (simulationType)

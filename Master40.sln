@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zpp", "Zpp\Zpp.csproj", "{E
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.DataGenerator", "Master40.DataGenerator\Master40.DataGenerator.csproj", "{1E0FB3B5-13D8-4D20-A3DE-6571E596BEE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Master40.PiWebApi", "Master40.PiWebApi\Master40.PiWebApi.csproj", "{AA59C7C1-9CA6-45D9-AFC6-D7D3E61B78AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.PiWebApi", "Master40.PiWebApi\Master40.PiWebApi.csproj", "{AA59C7C1-9CA6-45D9-AFC6-D7D3E61B78AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

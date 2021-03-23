@@ -2,11 +2,11 @@
 using System.Linq;
 using Master40.DataGenerator.DataModel;
 using Master40.DataGenerator.MasterTableInitializers;
-using Master40.DataGenerator.Repository;
 using Master40.DataGenerator.Util;
 using Master40.DataGenerator.Verification;
 using Master40.DB.Data.Context;
 using Master40.DB.Data.DynamicInitializer;
+using Master40.DB.Data.Initializer.StoredProcedures;
 using Master40.DB.Data.Initializer.Tables;
 using Master40.DB.GeneratorModel;
 
@@ -17,11 +17,15 @@ namespace Master40.DataGenerator.Generators
 
         public TransitionMatrix TransitionMatrix { get; set; }
 
+   
+
         public void StartGeneration(Approach approach, MasterDBContext dbContext, ResultContext resultContext, bool doVerify = false, double setupTimeFactor = double.NaN)
         {
             dbContext.Database.EnsureDeleted();
             dbContext.Database.EnsureCreated();
 
+            ArticleStatistics.CreateProcedures(dbContext);
+            // 
             var rng = new XRandom(approach.Seed);
 
             var units = new MasterTableUnit();

@@ -19,6 +19,8 @@ using Master40.Tools.Connectoren.Ganttplan;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 using NLog;
+using Master40.DataGenerator.Repository;
+using Master40.DataGenerator.Generators;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {
@@ -32,6 +34,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         // local TEST Context
         private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true";
         private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
+        private const string testGeneratorCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestGeneratorContext;Trusted_Connection=True;MultipleActiveResultSets=true";
 
         // remote Context
         private const string remoteMasterCtxString = "Server=141.56.137.25,1433;Persist Security Info=False;User ID=SA;Password=123*Start#;Initial Catalog=Master40;MultipleActiveResultSets=true";
@@ -42,7 +45,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         // only for local usage
         private const string GanttPlanCtxString = "SERVER=(localdb)\\MSSQLLocalDB;DATABASE=DBGP;Trusted_connection=Yes;UID=;PWD=;MultipleActiveResultSets=true";
 
-        private ProductionDomainContext _masterDBContext = ProductionDomainContext.GetContext(remoteMasterCtxString);
+        private ProductionDomainContext _masterDBContext = ProductionDomainContext.GetContext(testGeneratorCtxString);
         private ResultContext _ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);
 
         [Fact]
@@ -137,8 +140,84 @@ namespace Master40.XUnitTest.SimulationEnvironment
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
             simConfig.ReplaceOption(new Seed(value: seed));
+            simConfig.ReplaceOption(new MinDeliveryTime(value: 4));
+            simConfig.ReplaceOption(new MaxDeliveryTime(value: 6));
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
             simConfig.ReplaceOption(new SimulationEnd(value: 10080));
+            simConfig.ReplaceOption(new SaveToDB(value: true));
+            simConfig.ReplaceOption(new DebugSystem(value: false));
+            simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
+
+            var simulation = await simContext.InitializeSimulation(configuration: simConfig);
+
+            //emtpyResultDBbySimulationNumber(simNr: simConfig.GetOption<SimulationNumber>());
+
+            var simWasReady = false;
+            if (simulation.IsReady())
+            {
+                // set for Assert 
+                simWasReady = true;
+                // Start simulation
+                var sim = simulation.RunAsync();
+                simContext.StateManager.ContinueExecution(simulation);
+                await sim;
+            }
+
+            Assert.True(condition: simWasReady);
+        }
+
+        [Fact]
+        //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
+        public async Task TestdataGeneratorCentralSystemTest()
+        {
+            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
+            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Warn, LogLevel.Warn);
+
+            var simtulationType = SimulationType.Central;
+            var seed = 169;
+            var throughput = 1920;
+            var arrivalRate = 0.015;
+            var approachId = 1021;
+
+            //Create Master40Data
+            ResultContext ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);
+            ProductionDomainContext masterCtx = ProductionDomainContext.GetContext(masterCtxString);
+            DataGeneratorContext dataGenCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
+
+            var approach = ApproachRepository.GetApproachById(dataGenCtx, approachId);
+            var generator = new MainGenerator();
+            await Task.Run(() =>
+                generator.StartGeneration(approach, masterCtx, ctxResult));
+
+            masterCtx.SaveChanges();
+
+            //Reset GanttPLan DB?
+            var ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
+            ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
+
+            ganttPlanContext.SaveChanges();
+
+            //Synchronisation GanttPlan
+            GanttPlanOptRunner.RunOptAndExport("Init");
+
+            var simContext = new GanttSimulation(GanttPlanCtxString, masterCtxString, messageHub: new ConsoleHub());
+            var simConfig = ArgumentConverter.ConfigurationConverter(ctxResult, 1);
+            // update customized Items
+            simConfig.AddOption(new DBConnectionString(masterResultCtxString));
+            simConfig.ReplaceOption(new KpiTimeSpan(240));
+            simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
+            simConfig.ReplaceOption(new SimulationKind(value: simtulationType));
+            simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
+            simConfig.ReplaceOption(new OrderQuantity(value: 3000));
+            simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
+            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
+            simConfig.ReplaceOption(new Seed(value: seed));
+            simConfig.ReplaceOption(new MinDeliveryTime(value: 10));
+            simConfig.ReplaceOption(new MaxDeliveryTime(value: 15));
+            simConfig.ReplaceOption(new SettlingStart(value: 2880));
+            simConfig.ReplaceOption(new SimulationEnd(value: 30080));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: false));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.2));

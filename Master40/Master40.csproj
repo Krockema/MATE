@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <UseRazorBuildServer>false</UseRazorBuildServer>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <Configurations>Debug;Release;Azure</Configurations>
@@ -14,7 +14,7 @@
     <ApplicationIcon>wwwroot\favicon.ico</ApplicationIcon>
     <OutputType>Exe</OutputType>
     <StartupObject>Master40.Program</StartupObject>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <UserSecretsId>8704d405-f8e4-4ac1-bc7f-a240f95a29a5</UserSecretsId>
   </PropertyGroup>
 
@@ -26,18 +26,15 @@
 
   <ItemGroup>
     <PackageReference Include="ChartJSCore" Version="1.5.8" />
-    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.12" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.7" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.7">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.7" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.18" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.8.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="5.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
-    <PackageReference Include="System.Composition" Version="1.4.1" />
-    <PackageReference Include="Zeiss.PiWeb.Api.Rest" Version="6.0.0" />
-    <PackageReference Include="Zeiss.PiWeb.Api.Rest.Dtos" Version="6.0.0" />
+    <PackageReference Include="System.Composition" Version="5.0.0" />
+    <PackageReference Include="Zeiss.PiWeb.Api.Rest" Version="6.1.0" />
+    <PackageReference Include="Zeiss.PiWeb.Api.Rest.Dtos" Version="6.1.0" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.0" />

@@ -1,5 +1,6 @@
 ﻿using Master40.DB.DataModel;
 using Master40.DB.Nominal;
+using Master40.DB.Nominal.Model;
 using Master40.SimulationCore.Agents.DirectoryAgent;
 using Master40.SimulationCore.Agents.HubAgent;
 using Master40.SimulationCore.Agents.ResourceAgent.Types;
@@ -16,12 +17,14 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
     {
         internal string _resourceName { get; }
         internal int _resourceId { get; }
+        internal ResourceType _resourceType { get; }
         internal FQueuingJob _currentJob { get; set; }
         internal CapabilityProviderManager _capabilityProviderManager { get; }
-        public Queuing(int resourceId, List<M_ResourceCapabilityProvider> capabilityProvider, SimulationType simulationType = SimulationType.None)
+        public Queuing(int resourceId, ResourceType resourceType, List<M_ResourceCapabilityProvider> capabilityProvider, SimulationType simulationType = SimulationType.None)
             : base(simulationType: simulationType)
         {
             _resourceId = resourceId;
+            _resourceType = resourceType;
             _capabilityProviderManager = new CapabilityProviderManager(capabilityProvider);
         }
 
@@ -42,7 +45,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Behaviour
             var resourceAgent = Agent as Resource;
             var capabilityProviders = _capabilityProviderManager.GetAllCapabilityProvider();
             Agent.Send(instruction: Directory.Instruction.Default.ForwardRegistrationToHub.Create(
-                new FResourceInformation(resourceAgent._resource.Id, Agent.Name, capabilityProviders, String.Empty, Agent.Context.Self)
+                new FResourceInformation(resourceAgent._resource.Id, Agent.Name, capabilityProviders, _resourceType, String.Empty, Agent.Context.Self)
                 , target: Agent.VirtualParent));
             return true;
         }

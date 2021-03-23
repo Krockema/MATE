@@ -330,7 +330,7 @@ namespace Master40.SimulationCore.Agents.ResourceAgent.Types.TimeConstraintQueue
             if (this.Count <= 1) return false;
 
             var array = this.ToArray();                       //  21 > 200 --> false
-            var inTime = array[0].Value.ScopeConfirmation.GetScopeStart() > currentTime;
+            var inTime = array[0].Value.ScopeConfirmation.GetScopeStart() >= currentTime;
             if (inTime) return false;
 
             var priorityOfFirstElement = array[0].Value.Job.Priority(currentTime);

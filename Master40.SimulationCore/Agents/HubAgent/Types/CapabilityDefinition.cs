@@ -37,5 +37,6 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types
         {
             return ResourceCapability.ResourceCapabilityProvider.ToList();
         }
+
     }
 }

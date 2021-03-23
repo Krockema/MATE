@@ -8,6 +8,7 @@ namespace Master40.DB.Nominal.Model
     {
       Workcenter = 1,
       Worker = 3,
+      Operator = 4,
       Tool = 5
     }
 }

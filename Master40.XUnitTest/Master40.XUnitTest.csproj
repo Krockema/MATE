@@ -3,10 +3,11 @@
 
 
 	<PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
     <Configurations>Debug;Release;Azure</Configurations>
 		<Platforms>AnyCPU;x64</Platforms>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,21 +31,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Akka.TestKit.Xunit" Version="1.4.10" />
+    <PackageReference Include="Akka.TestKit.Xunit" Version="1.4.13" />
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
     <PackageReference Include="EfCore.InMemoryHelpers" Version="1.9.11" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.7" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.8.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
     <PackageReference Include="Microsoft.NETCore.Portable.Compatibility" Version="1.0.1" />
     <PackageReference Include="sqlite" Version="3.13.0" />
-    <PackageReference Include="System.Data.SQLite" Version="1.0.113.1" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.113.6" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Zeiss.PiWeb.Api.Rest" Version="6.0.0" />
-    <PackageReference Include="Zeiss.PiWeb.Api.Rest.Dtos" Version="6.0.0" />
+    <PackageReference Include="Zeiss.PiWeb.Api.Rest" Version="6.1.0" />
+    <PackageReference Include="Zeiss.PiWeb.Api.Rest.Dtos" Version="6.1.0" />
   </ItemGroup>
 
 	<ItemGroup>

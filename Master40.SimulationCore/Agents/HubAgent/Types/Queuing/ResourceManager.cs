@@ -6,6 +6,7 @@ using System.Text;
 using Akka.Actor;
 using Akka.Util.Internal;
 using Master40.DB.DataModel;
+using Master40.DB.Nominal.Model;
 using static IJobs;
 
 namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
@@ -19,7 +20,7 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
             _resourceList = new List<ResourceState>();
         }
 
-        public void Add(int resourceId, string resourceName, IActorRef resourceRef, string resourceType)
+        public void Add(int resourceId, string resourceName, IActorRef resourceRef, ResourceType resourceType, string resourceCapabilityName, int resourceCapability, List<int> resourceCapabilities)
         {
             if (_resourceList.Exists(x => x._resourceId.Equals(resourceId)))
             {
@@ -27,7 +28,14 @@ namespace Master40.SimulationCore.Agents.HubAgent.Types.Queuing
                 return;
             }
             
-            _resourceList.Add(new ResourceState(resourceId, resourceName, resourceRef, resourceType));
+            _resourceList.Add(new ResourceState(resourceId, resourceName, resourceRef, resourceType, resourceCapabilityName, resourceCapability, resourceCapabilities));
+        }
+
+        internal List<int> GetAvailableCapabilities()
+        {
+            List<int> availableCapabilities = new List<int>();
+            _resourceList.Where(x => x._resourceType.Equals(ResourceType.Workcenter) && x.IsWorking == false).ForEach(x => availableCapabilities.AddRange(x._resourceCapabilities));
+            return availableCapabilities; 
         }
 
         internal bool ResouresAreWorking(List<M_Resource> requiredResources)

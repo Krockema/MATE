@@ -75,6 +75,7 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                 var resourceInfo = new FResourceInformation(  resourceId: resourceInformation.ResourceId
                                                             , resourceName: resourceInformation.ResourceName
                                                             , resourceCapabilityProvider: filtered
+                                                            , resourceType : resourceInformation.ResourceType
                                                             , requiredFor: capability.Name
                                                             , this.Agent.Context.Sender);
                 Agent.Send(Hub.Instruction.Default.AddResourceToHub.Create(resourceInfo, hub));
@@ -124,7 +125,8 @@ namespace Master40.SimulationCore.Agents.DirectoryAgent.Behaviour
                                                                                  , workTimeGenerator: resourceCapabilityProviderDefinition.WorkTimeGenerator as WorkTimeGenerator
                                                                                  , resourceCapabilityProvider
                                                                                  , timeConstraintQueueLength: resourceCapabilityProviderDefinition.TimeConstraintQueueLength
-                                                                                 , resourceId: resource.Id)));
+                                                                                 , resourceId: resource.Id
+                                                                                 , resourceType: resourceCapabilityProviderDefinition.ResourceType)));
         }
 
         /// <summary>
