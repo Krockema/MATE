@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Akka.TestKit.Xunit;
 using AkkaSim.Logging;
 using Master40.DB.Data.Context;
@@ -130,7 +131,7 @@ END");
                 {
                     while (reader.Read())
                     {
-                        System.Diagnostics.Debug.WriteLine(string.Format("Summe der Dauer {0}; Summe der Operationen {1}; Summe der Prodktionsaufträge {2}", reader[0], reader[1], reader[2]));
+                        System.Diagnostics.Debug.WriteLine(string.Format("Summe der Dauer {0}; Summe der Operationen {1}; Summe der Prodktionsauftrï¿½ge {2}", reader[0], reader[1], reader[2]));
                     }
 
                 }
@@ -207,13 +208,35 @@ END");
             }
         }
 
-        [Theory]
-        //[InlineData(SimulationType.Default, PriorityRule.LST, 6000, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
-        [InlineData(SimulationType.Default, PriorityRule.LST, 6001, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
-        //[InlineData(SimulationType.Queuing, PriorityRule.MDD, 5001, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
-        //[InlineData(SimulationType.Queuing, PriorityRule.SPT, 5002, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
-        //[InlineData(SimulationType.Queuing, PriorityRule.FIFO, 5003, 960, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
 
+        // [InlineData(SimulationType.Default, 700, 480, 1920, 594, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        // [InlineData(SimulationType.Default, 701, 480, 1920, 281, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        // [InlineData(SimulationType.Default, 702, 480, 1920, 213, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        // [InlineData(SimulationType.Default, 703, 480, 1920, 945, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        // [InlineData(SimulationType.Default, 704, 480, 1920, 998, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        // [InlineData(SimulationType.Default, 705, 480, 1920, 120, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        // [InlineData(SimulationType.Default, 706, 480, 1920, 124, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        // [InlineData(SimulationType.Default, 707, 480, 1920, 854, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        // [InlineData(SimulationType.Default, 708, 480, 1920, 213, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+        // [InlineData(SimulationType.Default, 709, 480, 1920, 325, ModelSize.Medium, ModelSize.Medium, 0.015, false, false)]
+
+        public static IEnumerable<object[]> GetTestData()
+        {
+            var simNumber = 16000;
+            var throughput = 1920;
+
+            for (int i = 0; i < 1; i++)
+            {
+                yield return new object[]
+                {
+                    SimulationType.Default, PriorityRule.LST, simNumber++, 960, throughput, 594, ModelSize.Medium, ModelSize.Medium, 0.0153, false, false
+                };
+                throughput += 100;
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(GetTestData))]
         public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule
             , int simNr, int maxBucketSize, long throughput, int seed
             , ModelSize resourceModelSize, ModelSize setupModelSize
@@ -252,7 +275,7 @@ END");
             // update customized Items
             simConfig.AddOption(new DBConnectionString(testResultCtxString));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
-            simConfig.ReplaceOption(new KpiTimeSpan(1440));
+            simConfig.ReplaceOption(new KpiTimeSpan(480));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: 1500)); 

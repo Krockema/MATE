@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Master40.DB.Nominal;
 using static FAgentInformations;
 using static FBreakDowns;
 using static FCreateSimulationJobs;
@@ -39,7 +40,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         private List<FThroughPutTime> _ThroughPutTimes { get; } = new List<FThroughPutTime>();
         private ResourceDictionary _resources { get; set; } = new ResourceDictionary();
         public Collector Collector { get; set; }
-
+        //
+        IdleTime idleTime = new IdleTime();
+        
         /// <summary>
         /// Required to get Number output with . instead of ,
         /// </summary>
@@ -134,11 +137,18 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             }
             ThroughPut(finalCall);
             CallTotal(finalCall);
+            CallAverageIdle(finalCall);
 
             LogToDB(writeResultsToDB: finalCall);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from WorkSchedule");
         }
+
+        private void CallAverageIdle(bool finalCall)
+        {
+             idleTime.GetKpis(Collector, finalCall);
+        }
+
 
         private void CallTotal(bool finalCall)
         {
@@ -222,7 +232,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
 
             var products = simulationJobs.Where(predicate: a => a.ArticleType == "Product"
-                                                   && a.HierarchyNumber == 20
+                                                   && a.HierarchyNumber == 20 // TODO : REMOVE THIS GARBAGE
                                                    && a.End == 0);
 
             Collector.messageHub.SendToClient(listener: "ContractsV2", msg: JsonConvert.SerializeObject(value: new { Time = Collector.Time, Processing = products.Count().ToString() }));
@@ -259,7 +269,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 End =  simJob.End,
             };
 
-            var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.Equals(simJob.Key));
+            var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.ToString().Equals(simJob.Key));
             if (edit != null)
             {
                 simulationJob.Start = (int)edit.Start;
@@ -281,11 +291,14 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
                 edit.End = (int)(simJob.Start + simJob.Duration); // to have Time Points instead of Time Periods
                 edit.CapabilityProvider = simJob.CapabilityProvider;
                 edit.Bucket = simJob.Bucket;
+                edit.ReadyAt = simJob.ReadyAt;
                 edit.SetupId = simJob.SetupId;
-
+                idleTime.Add(edit);
                 return;
             }
             _updatedSimulationJob.Add(item: simJob);
+
+
 
             //tuples.Add(new Tuple<string, long>(uws.Machine, uws.Duration));
         }
