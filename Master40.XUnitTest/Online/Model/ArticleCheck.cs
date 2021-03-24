@@ -24,6 +24,7 @@ namespace Master40.XUnitTest.Online.Model
         public void HasBoms()
         {
             Console.WriteLine("DatabaseString: " + DataBase.ConnectionString.Value);
+            System.Diagnostics.Debug.WriteLine("DatabaseString: " + DataBase.ConnectionString.Value);
             var articles = DataBase.DbContext.Articles.Include(x => x.ArticleBoms);
             Assert.True(articles.All(x => x.ArticleBoms.Count >= 0));
         }
