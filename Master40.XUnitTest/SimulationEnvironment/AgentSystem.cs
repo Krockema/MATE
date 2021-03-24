@@ -17,6 +17,8 @@ using System.Threading.Tasks;
 using Xunit;
 using PriorityRule = Master40.DB.Nominal.PriorityRule;
 using Master40.DB;
+using Master40.DB.Data.Helper.Types;
+using Master40.DB.Data.Helper;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {
@@ -324,5 +326,14 @@ END");
             }
         }
 
+
+        [Fact]
+        private void TestDbms()
+        {
+            var dataBaseName = new DataBaseName("Test");
+            var connectionString = Constants.CreateServerConnectionString(dataBaseName);
+            System.Diagnostics.Debug.WriteLine(connectionString);
+            Assert.NotNull(connectionString);
+        }
     }
 }
