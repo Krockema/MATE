@@ -23,7 +23,7 @@ namespace Master40.XUnitTest.DataGenerator
             long currentTime = 0;
             int orderCount = 100;
 
-            var dataBase = Dbms.GetNewMasterDataBase(dbName: "Master40");
+            var dataBase = Dbms.GetMasterDataBase(dbName: "Master40");
 
             var productIds = dataBase.DbContext.Articles.Include(x => x.ArticleType).Where(x => x.ArticleType.Name.Equals("Product")).Select(x => x.Id).ToList();
             var simConfig = new SimulationCore.Environment.Configuration();

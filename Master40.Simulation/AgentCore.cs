@@ -1,7 +1,9 @@
 ﻿using Akka.Actor;
 using Hangfire;
 using Hangfire.Server;
+using Master40.DB;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
 using Master40.Simulation.CLI;
 using Master40.Simulation.HangfireConfiguration;
 using Master40.SimulationCore;
@@ -21,28 +23,24 @@ namespace Master40.Simulation
 {
     public class AgentCore
     {
+        private readonly DataBase<ProductionDomainContext> _masterCtx;
+        private readonly DataBase<ResultContext> _resultCtx;
 
-        private readonly ProductionDomainContext _context;
-        public const string DEFAULT_CONNECTION = "DefaultConnection";
-        public const string RESULT_CONNECTION = "ResultConnection";
-        private readonly ResultContext _resultContext;
         //private readonly ResultContext _resultContext;
         private AgentSimulation _agentSimulation;
         private Configuration _configuration;
         private IMessageHub _messageHub;
         private IActorRef SimulationContext;
-        public AgentCore(ProductionDomainContext context, IMessageHub messageHub)
+        public AgentCore(string dbName, IMessageHub messageHub)
         {
-            _context = context;
+            _masterCtx = Dbms.GetMasterDataBase(dbName: dbName);
             //_resultContext = resultContext;
             _messageHub = messageHub;
         }
-
         public AgentCore()
         {
-            
-            _context = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[DEFAULT_CONNECTION]);
-            _resultContext = ResultContext.GetContext(ConfigurationManager.AppSettings[RESULT_CONNECTION]);
+            _masterCtx = Dbms.GetMasterDataBase(dbName: "Master40");
+            _resultCtx = Dbms.GetResultDataBase(dbName: "Master40");
         }
 
         [KeepJobInStore]
@@ -51,8 +49,8 @@ namespace Master40.Simulation
         {
             _messageHub = new ProcessingHub(consoleContext);
             // _messageHub.StartSimulation(simId: simulationId.ToString() , simNumber: simNumber.ToString());
-            var simConfig = ArgumentConverter.ConfigurationConverter(_resultContext, simulationId);
-            simConfig.AddOption(new DBConnectionString(ConfigurationManager.AppSettings[RESULT_CONNECTION]));
+            var simConfig = ArgumentConverter.ConfigurationConverter(_resultCtx.DbContext, simulationId);
+            simConfig.AddOption(_resultCtx.ConnectionString);
             simConfig.Remove(typeof(SimulationNumber));
             simConfig.AddOption(new SimulationNumber(simNumber));
 
@@ -66,7 +64,7 @@ namespace Master40.Simulation
         public void AggregateResults(int simulationId, PerformContext consoleContext)
         {
             _messageHub = new ProcessingHub(consoleContext);
-            var aggregator = new ResultAggregator(_resultContext);
+            var aggregator = new ResultAggregator(_resultCtx.DbContext);
             aggregator.BuildResults(simulationId);
             _messageHub.SendToAllClients("AggretationFinished for " + simulationId);
         }
@@ -79,8 +77,8 @@ namespace Master40.Simulation
 
             _messageHub.SendToAllClients(msg: "Prepare Simulation");
 
-            _agentSimulation = new AgentSimulation(DBContext: _context
-                                                   ,messageHub: _messageHub); // Defines the status output
+            _agentSimulation = new AgentSimulation("Master40"
+                                                   , messageHub: _messageHub); // Defines the status output
             
             var simulation = await _agentSimulation.InitializeSimulation(configuration: _configuration);
             SimulationContext = simulation.SimulationContext;

@@ -23,7 +23,7 @@ namespace Master40.DB
             return false;
         }
 
-        private static DbConnectionString GetConnectionString(DataBaseName dataBaseName)
+        public static DbConnectionString GetConnectionString(DataBaseName dataBaseName)
         {
             var connectionString = String.Empty;
             if (UseLocalDb() && Constants.IsWindows)
@@ -49,50 +49,59 @@ namespace Master40.DB
             if (UseLocalDb() && Constants.IsWindows)
             {
                 connectionString = Constants.CreateLocalConnectionString(dataBaseName);
-            } else { 
+            }
+            else
+            {
                 connectionString = Constants.CreateServerConnectionString(dataBaseName);
             }
             return new DbConnectionString(connectionString);
         }
-
         public static DataBase<ProductionDomainContext> GetNewMasterDataBase(bool archive = false, string dbName = "")
         {
-            
             if (dbName.Equals(""))
             {
                 var archiveSuffix = "";
                 if (archive) archiveSuffix = "_archive";
                 dbName = Constants.DbWithSuffixMaster(archiveSuffix);
             }
+            return GetMasterDataBase(archive, dbName);
+        }
 
+        public static DataBase<ProductionDomainContext> GetMasterDataBase(bool archive = false, string dbName = "", bool noTracking = true)
+        {
             DataBase<ProductionDomainContext> dataBase = new DataBase<ProductionDomainContext>(dbName);
             if (UseLocalDb() && Constants.IsWindows)
             {
-                    Constants.IsLocalDb = true;
+                Constants.IsLocalDb = true;
             }
             else if (Constants.IsWindows)
             {
-                    Constants.IsLocalDb = false;
+                Constants.IsLocalDb = false;
             }
             // else Linux
             dataBase.ConnectionString = GetConnectionString(dataBase.DataBaseName);
             dataBase.DbContext = new ProductionDomainContext(
                 new DbContextOptionsBuilder<MasterDBContext>()
                     .UseSqlServer(dataBase.ConnectionString.Value).Options);
-            
-            // disable tracking (https://docs.microsoft.com/en-us/ef/core/querying/tracking)
-            dataBase.DbContext.ChangeTracker.QueryTrackingBehavior =
-                QueryTrackingBehavior.NoTracking;
 
+            if (noTracking)
+            {
+                // disable tracking (https://docs.microsoft.com/en-us/ef/core/querying/tracking)
+                dataBase.DbContext.ChangeTracker.QueryTrackingBehavior =
+                    QueryTrackingBehavior.NoTracking;
+            }
             return dataBase;
         }
 
-        public static DataBase<ResultContext> GetNewResultDataBase(string dbName = "")
+
+        public static DataBase<ResultContext> GetNewResultDataBase()
         {
+            var dbName = Constants.DbWithSuffixResults();
+            return GetResultDataBase(dbName);
+        }
 
-            if (dbName.Equals(""))
-                dbName = Constants.DbWithSuffixResults();
-
+        public static DataBase<ResultContext> GetResultDataBase(string dbName)
+        {
             DataBase<ResultContext> dataBase = new DataBase<ResultContext>(dbName);
 
             if (UseLocalDb() && Constants.IsWindows)
@@ -115,7 +124,62 @@ namespace Master40.DB
 
             return dataBase;
         }
+        public static DataBase<GanttPlanDBContext> GetGanttDataBase(string dbName)
+        {
+            DataBase<GanttPlanDBContext> dataBase = new DataBase<GanttPlanDBContext>(dbName);
+            if (UseLocalDb() && Constants.IsWindows)
+            {
+                Constants.IsLocalDb = true;
+            }
+            else if (Constants.IsWindows)
+            {
+                Constants.IsLocalDb = false;
+            }
+            // else Linux
+            dataBase.ConnectionString = GetConnectionString(dataBase.DataBaseName);
+            dataBase.DbContext = new GanttPlanDBContext(
+                new DbContextOptionsBuilder<GanttPlanDBContext>()
+                    .UseSqlServer(dataBase.ConnectionString.Value).Options);
+            return dataBase;
+        }
 
+        public static DataBase<HangfireDBContext> GetHangfireDataBase(string dbName)
+        {
+            DataBase<HangfireDBContext> dataBase = new DataBase<HangfireDBContext>(dbName);
+            if (UseLocalDb() && Constants.IsWindows)
+            {
+                Constants.IsLocalDb = true;
+            }
+            else if (Constants.IsWindows)
+            {
+                Constants.IsLocalDb = false;
+            }
+            // else Linux
+            dataBase.ConnectionString = GetConnectionString(dataBase.DataBaseName);
+            dataBase.DbContext = new HangfireDBContext(
+                new DbContextOptionsBuilder<HangfireDBContext>()
+                    .UseSqlServer(dataBase.ConnectionString.Value).Options);
+            return dataBase;
+        }
+
+        public static DataBase<DataGeneratorContext> GetGeneratorDataBase(string dbName)
+        {
+            DataBase<DataGeneratorContext> dataBase = new DataBase<DataGeneratorContext>(dbName);
+            if (UseLocalDb() && Constants.IsWindows)
+            {
+                Constants.IsLocalDb = true;
+            }
+            else if (Constants.IsWindows)
+            {
+                Constants.IsLocalDb = false;
+            }
+            // else Linux
+            dataBase.ConnectionString = GetConnectionString(dataBase.DataBaseName);
+            dataBase.DbContext = new DataGeneratorContext(
+                new DbContextOptionsBuilder<DataGeneratorContext>()
+                    .UseSqlServer(dataBase.ConnectionString.Value).Options);
+            return dataBase;
+        }
 
         private static bool CanConnect(string connectionString)
         {

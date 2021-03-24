@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
-using Akka.Actor;
+﻿using Akka.Actor;
 using AkkaSim.Definitions;
+using Master40.DB;
 using Master40.DB.Data.Context;
+using Master40.DB.Data.Helper;
 using Master40.DB.Data.Helper.Types;
 using Master40.DB.DataModel;
 using Master40.DB.Nominal;
@@ -19,15 +16,16 @@ using Master40.SimulationCore.Helper;
 using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
 using Master40.Tools.SignalR;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using static Master40.SimulationCore.Agents.SupervisorAgent.Supervisor.Instruction;
 
 namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 {
     public class Default : SimulationCore.Types.Behaviour
     {
-        private ProductionDomainContext _productionDomainContext { get; set; }
-        private DbConnection _dataBaseConnection { get; set; }
+        private DataBase<ProductionDomainContext> dbProduction { get; set; }
         private IMessageHub _messageHub { get; set; }
         private int orderCount { get; set; } = 0;
         private long _simulationEnds { get; set; }
@@ -41,16 +39,15 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private ThroughPutDictionary _estimatedThroughPuts { get; set; } = new ThroughPutDictionary();
         private Queue<T_CustomerOrderPart> _orderQueue { get; set; } = new Queue<T_CustomerOrderPart>();
         private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
-        public  Default(ProductionDomainContext productionDomainContext
+        public  Default(string dbNameProduction
             , IMessageHub messageHub
             , Configuration configuration
             , List<FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime> estimatedThroughputTimes)
         {
-            _productionDomainContext = productionDomainContext;
-            _dataBaseConnection = _productionDomainContext.Database.GetDbConnection();
-            _articleCache = new ArticleCache(connectionString: new DbConnectionString(_dataBaseConnection.ConnectionString));
+            dbProduction = Dbms.GetMasterDataBase(dbName: dbNameProduction, noTracking: false);
+            _articleCache = new ArticleCache(connectionString: new DbConnectionString(dbProduction.ConnectionString.Value));
             _messageHub = messageHub;
-            _orderGenerator = new OrderGenerator(simConfig: configuration, productionDomainContext: _productionDomainContext
+            _orderGenerator = new OrderGenerator(simConfig: configuration, productionDomainContext: dbProduction.DbContext
                 , productIds: estimatedThroughputTimes.Select(x => x.ArticleId).ToList());
             _orderCounter = new OrderCounter(maxQuantity: configuration.GetOption<OrderQuantity>().Value);
             _configID = configuration.GetOption<SimulationId>().Value;
@@ -95,8 +92,8 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 
         private void CreateContractAgent(T_CustomerOrder order)
         {
-            _productionDomainContext.CustomerOrders.Add(order);
-            _productionDomainContext.SaveChanges();
+            dbProduction.DbContext.CustomerOrders.Add(order);
+            dbProduction.DbContext.SaveChanges();
 
             var orderPart = order.CustomerOrderParts.First();
             _orderQueue.Enqueue(item: orderPart);

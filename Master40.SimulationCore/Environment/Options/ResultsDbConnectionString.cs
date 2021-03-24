@@ -3,10 +3,10 @@ using System;
 
 namespace Master40.SimulationCore.Environment.Options
 {
-    public class DBConnectionString : Option<string>
+    public class ResultsDbConnectionString : Option<string>
     {
-        public static Type Type => typeof(DBConnectionString);
-        public DBConnectionString(string value)
+        public static Type Type => typeof(ResultsDbConnectionString);
+        public ResultsDbConnectionString(string value)
         {
             _value = value;
         }

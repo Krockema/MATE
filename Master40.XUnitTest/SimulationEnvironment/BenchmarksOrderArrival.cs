@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
+using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.Nominal;
 using Master40.Simulation.CLI;
@@ -18,14 +19,6 @@ namespace Master40.XUnitTest.SimulationEnvironment
     [RPlotExporter]
     public class BenchmarksOrderArrivalTest
     {
-        private string localresultdb = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-
-        private ProductionDomainContext _masterDBContext = new ProductionDomainContext(options: new DbContextOptionsBuilder<MasterDBContext>()
-            .UseSqlServer(connectionString: "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true")
-            .Options);
-        private ResultContext _ctxResult = ResultContext.GetContext(resultCon:
-            "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true");
-
         [Params(SimulationType.Default)]
         public SimulationType SimulationType;
         
@@ -41,18 +34,18 @@ namespace Master40.XUnitTest.SimulationEnvironment
         public async Task BenchmarksOrderArrival()
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
-            var simContext = new AgentSimulation(DBContext: _masterDBContext, messageHub: new ConsoleHub());
+            var simContext = new AgentSimulation(dbName: "Test", messageHub: new ConsoleHub());
 
             var simConfig = SimulationCore.Environment.Configuration.Create(args: new object[]
             {
                 // set ResultDBString and set SaveToDB true
-                new DBConnectionString(value: localresultdb), new SimulationId(value: 1), new SimulationNumber(value: simNr++),
+                new ResultsDbConnectionString(value: Dbms.GetResultDataBase("Test").ConnectionString.Value), new SimulationId(value: 1), new SimulationNumber(value: simNr++),
                 new SimulationKind(value: SimulationType) // implements the used behaviour, if None --> DefaultBehaviour
                 ,
                 new OrderArrivalRate(value: OrderArrivalRate), new OrderQuantity(value: Int32.MaxValue),
                 new TransitionFactor(value: 3), new EstimatedThroughPut(value: 1920), new DebugAgents(value: false),
                 new DebugSystem(value: false), new KpiTimeSpan(value: 480), new MaxBucketSize(value: MaxBucketSize),
-                new Seed(value: 1337), new MinDeliveryTime(value: 1440), new MaxDeliveryTime(value: 2880),
+                new Seed(value: 1337), new MinDeliveryTime(value: 10), new MaxDeliveryTime(value: 15),
                 new TimePeriodForThroughputCalculation(value: 3840), new SettlingStart(value: 4320),
                 new SimulationEnd(value: 20160), new WorkTimeDeviation(value: 0.2), new SaveToDB(value: false)
             });
@@ -69,18 +62,6 @@ namespace Master40.XUnitTest.SimulationEnvironment
 
                 simContext.StateManager.ContinueExecution(simulation);
                 sim.Wait();
-            }
-        }
-
-        private void emtpyResultDBbySimulationNumber(SimulationNumber simNr)
-        {
-            var _simNr = simNr;
-            using (_ctxResult)
-            {
-                _ctxResult.RemoveRange(entities: _ctxResult.SimulationJobs.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
-                _ctxResult.RemoveRange(entities: _ctxResult.Kpis.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
-                _ctxResult.RemoveRange(entities: _ctxResult.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
-                _ctxResult.SaveChanges();
             }
         }
     }

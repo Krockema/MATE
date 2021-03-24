@@ -122,16 +122,16 @@ namespace Master40.XUnitTest.SimulationEnvironment
             ResultDBInitializerBasic.DbInitialize(masterPlanResultContext);
             
             //Reset GanttPLan DB?
-            var ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
+            var ganttPlanContext = GanttPlanDBContext.GetContext("DBGP");
             ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
             
             //Synchronisation GanttPlan
             GanttPlanOptRunner.RunOptAndExport("Init");
 
-            var simContext = new GanttSimulation(GanttPlanCtxString, masterCtxString, messageHub: new ConsoleHub());
+            var simContext = new GanttSimulation(GanttPlanCtxString, messageHub: new ConsoleHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
             // update customized Items
-            simConfig.AddOption(new DBConnectionString(masterResultCtxString));
+            simConfig.AddOption(new ResultsDbConnectionString(ganttPlanContext.Database.GetConnectionString()));
             simConfig.ReplaceOption(new KpiTimeSpan(240));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new SimulationKind(value: simtulationType));
@@ -202,10 +202,10 @@ namespace Master40.XUnitTest.SimulationEnvironment
             //Synchronisation GanttPlan
             GanttPlanOptRunner.RunOptAndExport("Init");
 
-            var simContext = new GanttSimulation(GanttPlanCtxString, masterCtxString, messageHub: new ConsoleHub());
+            var simContext = new GanttSimulation(GanttPlanCtxString, messageHub: new ConsoleHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(ctxResult, 1);
             // update customized Items
-            simConfig.AddOption(new DBConnectionString(masterResultCtxString));
+            simConfig.AddOption(new ResultsDbConnectionString(ganttPlanContext.Database.GetConnectionString()));
             simConfig.ReplaceOption(new KpiTimeSpan(240));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new SimulationKind(value: simtulationType));

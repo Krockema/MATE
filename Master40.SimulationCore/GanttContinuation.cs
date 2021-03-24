@@ -12,7 +12,7 @@ using static Master40.SimulationCore.Agents.CollectorAgent.Collector.Instruction
 
 namespace Master40.SimulationCore
 {
-    public class GanttStateManager : StateManager
+    public class GanttStateManager : StateManager, IStateManager
     {
         private readonly List<IActorRef> _collectorRefs;
         private readonly Inbox _inbox;

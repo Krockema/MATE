@@ -9,21 +9,21 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
 {
     public static class Factory
     {
-        public static IBehaviour Default(ProductionDomainContext productionDomainContext
+        public static IBehaviour Default(string dbNameProduction
             , IMessageHub messageHub
             , Configuration configuration
             , List<FSetEstimatedThroughputTime> estimatedThroughputTimes)
         {
-            return new Default(productionDomainContext, messageHub, configuration, estimatedThroughputTimes);
+            return new Default(dbNameProduction, messageHub, configuration, estimatedThroughputTimes);
 
         }
-        public static IBehaviour Central(GanttPlanDBContext ganttContext
-            , ProductionDomainContext productionDomainContext
+        public static IBehaviour Central(string dbNameProduction
+            , string dbNameGantt
             , IMessageHub messageHub
             , Configuration configuration
             , List<FSetEstimatedThroughputTime> estimatedThroughputTimes)
         {
-            return new Central(ganttContext, productionDomainContext, messageHub, configuration, estimatedThroughputTimes);
+            return new Central(dbNameGantt, dbNameProduction, messageHub, configuration, estimatedThroughputTimes);
         }
     }
 }

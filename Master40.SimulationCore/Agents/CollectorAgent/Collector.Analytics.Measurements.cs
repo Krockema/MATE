@@ -68,7 +68,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             //Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from Contracts");
             if (Collector.saveToDB.Value && writeResultsToDB)
             {
-                using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value))
+                using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<ResultsDbConnectionString>().Value))
                 {
                     ctx.SimulationMeasurements.AddRange(entities: simulationMeasurement);
                     ctx.SaveChanges();

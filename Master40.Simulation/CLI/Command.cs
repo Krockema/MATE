@@ -9,7 +9,7 @@ namespace Master40.Simulation.CLI
         private static readonly Commands self = new Commands
         {
              new Help()
-            , new DBConnectionString()
+            , new ResultsDbConnectionString()
             , new DebugAgents()
             , new TimeToAdvance()
             , new DebugSystem()

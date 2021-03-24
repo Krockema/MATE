@@ -169,7 +169,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             if (agent.saveToDB.Value && writeToDatabase)
             {
-                using (var ctx = ResultContext.GetContext(resultCon: agent.Config.GetOption<DBConnectionString>().Value))
+                using (var ctx = ResultContext.GetContext(resultCon: agent.Config.GetOption<ResultsDbConnectionString>().Value))
                 {
                     // ctx.Kpis.AddRange(entities: StockValuesOverTime);
                     // ctx.SaveChanges();

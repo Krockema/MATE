@@ -16,51 +16,30 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using PriorityRule = Master40.DB.Nominal.PriorityRule;
+using Master40.DB;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {
     public class AgentSystem : TestKit
     {
-
-        // local Context
-        private const string masterCtxString = "Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true";
-        private const string masterResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true";
         
-        // local TEST Context
-        private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        private const string testGeneratorCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestGeneratorContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-
-        // remote Context
-        private const string remoteMasterCtxString = "Server=141.56.137.25,1433;Persist Security Info=False;User ID=SA;Password=123*Start#;Initial Catalog=Master40;MultipleActiveResultSets=true";
-        private const string remoteResultCtxString = "Server=141.56.137.25,1433;Persist Security Info=False;User ID=SA;Password=123*Start#;Initial Catalog=Master40Result;MultipleActiveResultSets=true";
-
-        private const string hangfireCtxString = "Server=141.56.137.25;Database=Hangfire;Persist Security Info=False;User ID=SA;Password=123*Start#;MultipleActiveResultSets=true";
-
-        // only for local usage
-        private const string GanttPlanCtxString = "SERVER=(localdb)\\MSSQLLocalDB;DATABASE=GanttPlanImportTestDB;Trusted_connection=Yes;UID=;PWD=;MultipleActiveResultSets=true";
-
-        private ProductionDomainContext _masterDBContext = ProductionDomainContext.GetContext(testCtxString);
-        private ResultContext _ctxResult = ResultContext.GetContext(resultCon: masterResultCtxString);
-
-        //[Fact(Skip = "manual test")]
         [Theory]
         //[InlineData(remoteMasterCtxString, remoteResultCtxString)] 
-        //[InlineData(masterCtxString, masterResultCtxString)]
-        [InlineData(testCtxString, testResultCtxString, testGeneratorCtxString)]
-        public void ResetResultsDB(string connectionString, string resultConnectionString, string generatorConnectionString = testGeneratorCtxString)
+        //[InlineData("Master40", "Master40Results","TestGeneratorContext")]
+        [InlineData("Test", "TestResults","TestGeneratorContext")]
+        public void ResetResultsDB(string connectionString, string connectionResultString, string generatorConnectionString)
         {
-            MasterDBContext masterCtx = MasterDBContext.GetContext(connectionString);
+            MasterDBContext masterCtx = Dbms.GetMasterDataBase(dbName: connectionString).DbContext;
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3,  false, false);
-       
-            ResultContext results = ResultContext.GetContext(resultCon: resultConnectionString);
+
+            ResultContext results = Dbms.GetResultDataBase(dbName: connectionResultString).DbContext;
             results.Database.EnsureDeleted();
             results.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(results);
 
-            DataGeneratorContext generatorCtx = DataGeneratorContext.GetContext(generatorConnectionString);
+            DataGeneratorContext generatorCtx = Dbms.GetGeneratorDataBase(generatorConnectionString).DbContext;
             generatorCtx.Database.EnsureDeleted();
             generatorCtx.Database.EnsureCreated();
 
@@ -109,10 +88,10 @@ BEGIN
 		from #Temp t where t.ToBuild = 1
 	select Sum(u.dur) as SumDuration , sum(u.count) as SumOperations, sum(u.Po)  as ProductionOrders from #Union u
 END");
-            using (var command = _masterDBContext.Database.GetDbConnection().CreateCommand())
+            using (var command = Dbms.GetMasterDataBase(dbName: "Test").DbContext.Database.GetDbConnection().CreateCommand())
             {
                 command.CommandText = sql;
-                _masterDBContext.Database.OpenConnection();
+                Dbms.GetMasterDataBase(dbName: "Test").DbContext.Database.OpenConnection();
                 command.ExecuteNonQuery();
             }
 
@@ -123,10 +102,10 @@ END");
         {
             var articleId = 63380;
             var sql = string.Format("Execute ArticleCTE {0}", articleId);
-            using (var command = _masterDBContext.Database.GetDbConnection().CreateCommand())
+            using (var command = Dbms.GetMasterDataBase(dbName: "Test").DbContext.Database.GetDbConnection().CreateCommand())
             {
                 command.CommandText = sql;
-                _masterDBContext.Database.OpenConnection();
+                Dbms.GetMasterDataBase(dbName: "Test").DbContext.Database.OpenConnection();
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -143,19 +122,17 @@ END");
         [Fact]
         public void InitializeRemote()
         {
-            ResultContext results = ResultContext.GetContext(resultCon: remoteResultCtxString);
+            ResultContext results = Dbms.GetResultDataBase("TestResult").DbContext;
             results.Database.EnsureDeleted();
             results.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(results);
 
-            MasterDBContext masterCtx = MasterDBContext.GetContext(remoteMasterCtxString);
+            MasterDBContext masterCtx = Dbms.GetMasterDataBase(dbName: "Test").DbContext;
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Small, setupModelSize: ModelSize.Small, ModelSize.Small, 3, false, false);
 
-            HangfireDBContext dbContext = new HangfireDBContext(options: new DbContextOptionsBuilder<HangfireDBContext>()
-                .UseSqlServer(connectionString: hangfireCtxString)
-                .Options);
+            HangfireDBContext dbContext = Dbms.GetHangfireDataBase("Hangfire").DbContext;
             dbContext.Database.EnsureDeleted();
             dbContext.Database.EnsureCreated();
             HangfireDBInitializer.DbInitialize(context: dbContext);
@@ -165,9 +142,7 @@ END");
         [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]
         public void ClearHangfire()
         {
-            HangfireDBContext dbContext = new HangfireDBContext(options: new DbContextOptionsBuilder<HangfireDBContext>()
-                .UseSqlServer(connectionString: hangfireCtxString)
-                .Options);
+            HangfireDBContext dbContext = Dbms.GetHangfireDataBase("Hangfire").DbContext;
             dbContext.Database.EnsureDeleted();
             dbContext.Database.EnsureCreated();
             HangfireDBInitializer.DbInitialize(context: dbContext);
@@ -175,7 +150,7 @@ END");
         [Fact]
         public void SomethingToPlayWith()
         {
-            var masterCtx = ProductionDomainContext.GetContext(testCtxString);
+            var masterCtx = Dbms.GetMasterDataBase(dbName: "Test").DbContext;
             var resources = masterCtx.Resources
                 //.Where(x => x.Count == 1)
                 // .Include(x => x.RequiresResourceSetups)
@@ -258,46 +233,49 @@ END");
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
 
             //CreateMaster40Result
-            var masterPlanResultContext = ResultContext.GetContext(testResultCtxString);
-            /*masterPlanResultContext.Database.EnsureDeleted();
-            masterPlanResultContext.Database.EnsureCreated();
-            ResultDBInitializerBasic.DbInitialize(masterPlanResultContext);
-            */
-            var masterCtx = ProductionDomainContext.GetContext(testCtxString);
-            masterCtx.Database.EnsureDeleted();
-            masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize, setupModelSize, setupModelSize, 3, distributeSetupsExponentially, false);
-            
-            
+            var dbResult = Dbms.GetResultDataBase("TestResult");
+            dbResult.DbContext.Database.EnsureDeleted();
+            dbResult.DbContext.Database.EnsureCreated();
+            ResultDBInitializerBasic.DbInitialize(dbResult.DbContext);
+
+            var dbMaster = Dbms.GetMasterDataBase(dbName: "Test");
+            dbMaster.DbContext.Database.EnsureDeleted();
+            dbMaster.DbContext.Database.EnsureCreated();
+            MasterDBInitializerTruck.DbInitialize(context: dbMaster.DbContext
+                , resourceModelSize: resourceModelSize
+                , setupModelSize: setupModelSize
+                , operatorsModelSize: ModelSize.Small
+                , numberOfWorkersForProcessing: 3
+                , secondResource: false
+                , createMeasurements: createMeasurements
+                , distributeSetupsExponentially: distributeSetupsExponentially);
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
-            var simContext = new AgentSimulation(DBContext: masterCtx, messageHub: new ConsoleHub());
-            var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
+            var simContext = new AgentSimulation("Test", messageHub: new ConsoleHub());
+            var simConfig = Simulation.CLI.ArgumentConverter.ConfigurationConverter(dbResult.DbContext, 1);
             // update customized Items
-            simConfig.AddOption(new DBConnectionString(testResultCtxString));
+            simConfig.AddOption(new ResultsDbConnectionString(dbResult.ConnectionString.Value));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
-            simConfig.ReplaceOption(new KpiTimeSpan(480));
+            simConfig.ReplaceOption(new KpiTimeSpan(1440));
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 1500)); 
+            simConfig.ReplaceOption(new OrderQuantity(value: 150));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 1920));
             simConfig.ReplaceOption(new Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 2880));
+            simConfig.ReplaceOption(new SettlingStart(value: 0));
             simConfig.ReplaceOption(new SimulationEnd(value: 10080));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: maxBucketSize));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
             simConfig.ReplaceOption(new DebugSystem(value: false));
-            simConfig.ReplaceOption(new DebugAgents(value: false));
-            simConfig.ReplaceOption(new WorkTimeDeviation(0.0));
+            simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
             simConfig.ReplaceOption(new MinDeliveryTime(1920));
             simConfig.ReplaceOption(new MaxDeliveryTime(2880));
-            simConfig.ReplaceOption(new SimulationCore.Environment.Options.PriorityRule(priorityRule));
-            simConfig.ReplaceOption(new CreateQualityData(createMeasurements));
+            simConfig.ReplaceOption(new CreateQualityData(true));
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 
-            emtpyResultDBbySimulationNumber(simNr: simConfig.GetOption<SimulationNumber>());
+            ClearResultDBby(simNr: simConfig.GetOption<SimulationNumber>(), dbName: "TestResult");
 
             var simWasReady = false;
             if (simulation.IsReady())
@@ -316,7 +294,7 @@ END");
         [Fact (Skip = "Offline")]
         public void AggreteResults()
         {
-            var  _resultContext = ResultContext.GetContext(remoteResultCtxString);
+            var _resultContext = Dbms.GetResultDataBase("TestResult").DbContext;
 
             var aggregator = new ResultAggregator(_resultContext);
             aggregator.BuildResults(1);
@@ -326,22 +304,21 @@ END");
         [Fact]
         private void ArgumentConverter()
         {
-            var numberOfArguments = _ctxResult.ConfigurationRelations.Count(x => x.Id == 1);
-            var config = Simulation. CLI.ArgumentConverter.ConfigurationConverter(_ctxResult, 2);
-            Assert.Equal(numberOfArguments +1, config.Count());
+            var dbResult = Dbms.GetResultDataBase("TestResult");
+            var numberOfArguments = dbResult.DbContext.ConfigurationRelations.Count(x => x.Id == 1);
+            var config = Simulation.CLI.ArgumentConverter.ConfigurationConverter(dbResult.DbContext, 2);
+            Assert.Equal(numberOfArguments + 1, config.Count());
         }
 
-        private void emtpyResultDBbySimulationNumber(SimulationNumber simNr)
+        private void ClearResultDBby(SimulationNumber simNr, string dbName)
         {
             var _simNr = simNr;
-            using (_ctxResult)
+            using (var _ctxResult = Dbms.GetResultDataBase(dbName).DbContext)
             {
                 var itemsToRemove =
                     _ctxResult.SimulationJobs.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)).ToList();
                 _ctxResult.RemoveRange(entities: itemsToRemove);
                 _ctxResult.RemoveRange(entities: _ctxResult.Kpis.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
-                _ctxResult.RemoveRange(entities: _ctxResult.SimulationOrders.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
-                _ctxResult.RemoveRange(entities: _ctxResult.TaskItems.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
                 _ctxResult.RemoveRange(entities: _ctxResult.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
                 _ctxResult.SaveChanges();
             }

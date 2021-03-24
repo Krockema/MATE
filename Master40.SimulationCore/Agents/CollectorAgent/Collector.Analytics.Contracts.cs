@@ -243,7 +243,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
             
             if (agent.saveToDB.Value && finalCall)
             {
-                using var ctx = ResultContext.GetContext(resultCon: agent.Config.GetOption<DBConnectionString>().Value);
+                using var ctx = ResultContext.GetContext(resultCon: agent.Config.GetOption<ResultsDbConnectionString>().Value);
                 ctx.SimulationOrders.AddRange(entities: _simulationOrders);
                 ctx.SaveChanges();
                 ctx.Kpis.AddRange(this.Collector.Kpis);

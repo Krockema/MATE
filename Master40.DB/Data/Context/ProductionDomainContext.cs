@@ -116,9 +116,11 @@ namespace Master40.DB.Data.Context
 
         public T_CustomerOrder CreateNewOrder(int articleId, int amount, long creationTime, long dueTime)
         {
+            var article = Articles.Single(x => x.Id == articleId);
             var olist = new List<T_CustomerOrderPart>();
             var orderPart = new T_CustomerOrderPart
             {
+                Article = article,
                 ArticleId = articleId,
                 IsPlanned = false,
                 Quantity = amount,
