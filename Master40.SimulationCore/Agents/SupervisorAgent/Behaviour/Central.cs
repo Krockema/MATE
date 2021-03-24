@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using Akka.Actor;
+﻿using Akka.Actor;
 using AkkaSim.Definitions;
+using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.DataModel;
 using Master40.DB.Nominal;
@@ -18,6 +15,10 @@ using Master40.SimulationCore.Helper.DistributionProvider;
 using Master40.SimulationCore.Types;
 using Master40.Tools.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Linq;
 using static Master40.SimulationCore.Agents.SupervisorAgent.Supervisor.Instruction;
 
 namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
@@ -40,18 +41,18 @@ namespace Master40.SimulationCore.Agents.SupervisorAgent.Behaviour
         private ThroughPutDictionary _estimatedThroughPuts { get; set; } = new ThroughPutDictionary();
         private Queue<T_CustomerOrderPart> _orderQueue { get; set; } = new Queue<T_CustomerOrderPart>();
         private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
-        public Central(GanttPlanDBContext ganttContext
-            , ProductionDomainContext productionDomainContext
+        public Central(string dbNameGantt
+            , string dbNameProduction
             , IMessageHub messageHub
             , Configuration configuration
             , List<FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime> estimatedThroughputTimes)
         {
-            _ganttContext = ganttContext;
-            _productionContext = productionDomainContext;
+            _ganttContext = Dbms.GetGanttDataBase(dbName: dbNameGantt).DbContext;
+            _productionContext = Dbms.GetMasterDataBase(dbName: dbNameProduction).DbContext;
             _dataBaseConnection = _ganttContext.Database.GetDbConnection();
             _messageHub = messageHub;
-            _orderGenerator = new OrderGenerator(simConfig: configuration, 
-                                                productionDomainContext,
+            _orderGenerator = new OrderGenerator(simConfig: configuration,
+                                                _productionContext,
                                                 productIds: estimatedThroughputTimes.Select(x => x.ArticleId).ToList());
             _orderCounter = new OrderCounter(maxQuantity: configuration.GetOption<OrderQuantity>().Value);
             _configID = configuration.GetOption<SimulationId>().Value;

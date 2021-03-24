@@ -26,7 +26,6 @@ namespace Master40.Simulation
             //LogConfiguration.LogTo(TargetTypes.Console, TargetNames.LOG_AKKA, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
 
-            var masterDb = ProductionDomainContext.GetContext(ConfigurationManager.AppSettings[AgentCore.DEFAULT_CONNECTION]);
             var validCommands = Commands.GetAllValidCommands;
             var command = validCommands.Single(predicate: x => x.ArgLong == "Help");
             var lastArg = 0;
@@ -60,7 +59,7 @@ namespace Master40.Simulation
 
 
             } else {
-                RunSimulationTask(masterDb: masterDb, config: config).Wait();
+                RunSimulationTask("Master40", config: config).Wait();
                 Console.WriteLine(value: "Simulation Run Finished.");
             }
         }
@@ -89,7 +88,7 @@ namespace Master40.Simulation
             Console.ReadLine();
         }
 
-        private static async Task RunSimulationTask(ProductionDomainContext masterDb
+        private static async Task RunSimulationTask(string dbName
                                                     , SimulationCore.Environment.Configuration config)
         {
             foreach (var item in config)
@@ -100,7 +99,7 @@ namespace Master40.Simulation
             try
             {
                 Console.WriteLine(value: "Starting AkkaSim.");
-                var agentCore = new AgentCore(context: masterDb, messageHub: new ConsoleHub());
+                var agentCore = new AgentCore(dbName, messageHub: new ConsoleHub());
                 await agentCore.RunAkkaSimulation(configuration: config);
                 
             }

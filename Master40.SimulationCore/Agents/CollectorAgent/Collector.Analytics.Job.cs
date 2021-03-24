@@ -181,7 +181,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
         {
             if (Collector.saveToDB.Value && writeResultsToDB)
             {
-                using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value))
+                using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<ResultsDbConnectionString>().Value))
                 {
                     ctx.SimulationJobs.AddRange(entities: simulationJobs);
                     ctx.SaveChanges();

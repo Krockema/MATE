@@ -19,7 +19,7 @@ namespace Master40.DB
 
         protected BaseEntity()
         {
-            if (Configuration.TrackObjects)
+            if (DataBaseConfiguration.TrackObjects)
             {
                 // create id && track callers of this constructor
             

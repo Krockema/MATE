@@ -2,6 +2,7 @@
 using Master40.DataGenerator.Repository;
 using Master40.DataGenerator.Util;
 using Master40.DataGenerator.Verification;
+using Master40.DB;
 using Master40.DB.Data.Context;
 using Master40.DB.GeneratorModel;
 using Master40.DB.Util;
@@ -14,10 +15,7 @@ namespace Master40.XUnitTest.DataGenerator
 {
     public class GenerateTestData
     {
-        private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        private const string testGeneratorCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestGeneratorContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-
+        
         //Es gibt wohl eine Diskripanz zwischen Master40 und SYMTEP was Operationen und Stücklisten (BOM) angeht (Struktur und Zeitpunkt)
         [Fact]
         public void SetInput()
@@ -31,7 +29,7 @@ namespace Master40.XUnitTest.DataGenerator
                 var rng = new Random();
                 int seed = usePresetSeed ? 368200759 : rng.Next();
 
-                var generatorDbCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
+                var generatorDbCtx = Dbms.GetGeneratorDataBase("TestGeneratorContext").DbContext;
                 var approach = new Approach()
                 {
                     CreationDate = DateTime.Now,
@@ -113,14 +111,14 @@ namespace Master40.XUnitTest.DataGenerator
             for (var i = approachRangeStart; i < approachRangeEnd + 1; i++)
             {
                 var approachId = i;
-                var generatorDbCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
+                var generatorDbCtx = Dbms.GetGeneratorDataBase("TestGeneratorContext").DbContext;
                 var approach = ApproachRepository.GetApproachById(generatorDbCtx, approachId);
 
                 /*var parameterSet = ParameterSet.Create(new object[] { Dbms.GetNewMasterDataBase(false, "Master40") });
                 var dataBase = parameterSet.GetOption<DataBase<ProductionDomainContext>>();*/
 
-                var dbContext = MasterDBContext.GetContext(testCtxString);
-                var resultContext = ResultContext.GetContext(testResultCtxString);
+                var dbContext = Dbms.GetMasterDataBase(dbName: "Test").DbContext;
+                var resultContext = Dbms.GetResultDataBase("TestResults").DbContext;
 
                 var generator = new MainGenerator();
                 generator.StartGeneration(approach, dbContext, resultContext, true, 0.4);
@@ -133,9 +131,9 @@ namespace Master40.XUnitTest.DataGenerator
         public void CheckOrganizationDegreeFromResults()
         {
             var simNumber = 27;
-            var dbContext = MasterDBContext.GetContext(testCtxString);
-            var dbResultCtx = ResultContext.GetContext(testResultCtxString);
-            var dbGeneratorCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
+            var dbContext = Dbms.GetMasterDataBase(dbName: "Test").DbContext;
+            var dbResultCtx = Dbms.GetResultDataBase("TestResults").DbContext;
+            var dbGeneratorCtx = Dbms.GetGeneratorDataBase("TestGeneratorContext").DbContext;
 
             var transitionMatrixGeneratorVerifier = new TransitionMatrixGeneratorVerifier();
             transitionMatrixGeneratorVerifier.VerifySimulatedData(dbContext, dbGeneratorCtx, dbResultCtx, simNumber);

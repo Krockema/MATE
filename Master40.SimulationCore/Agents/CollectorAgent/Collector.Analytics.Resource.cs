@@ -214,7 +214,7 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
         {
             if (Collector.saveToDB.Value && writeResultsToDB)
             {
-                using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<DBConnectionString>().Value))
+                using (var ctx = ResultContext.GetContext(resultCon: Collector.Config.GetOption<ResultsDbConnectionString>().Value))
                 {
                     ctx.TaskItems.AddRange(entities:  _taskArchive.Select(x => x.Value).ToArray()[0].ToList().Cast<TaskItem>());
                     ctx.TaskItems.AddRange(entities: _taskArchive.Select(x => x.Value).ToArray()[1].ToList().Cast<TaskItem>());

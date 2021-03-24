@@ -78,11 +78,8 @@ namespace Master40.XUnitTest.Online.Integration
             ResultDBInitializerBasic.DbInitialize(_resultContextDataBase.DbContext);
             _testOutputHelper.WriteLine("ResultDBInitializerBasic finished");
             var messageHub = new ConsoleHub();
-            var simContext = new AgentSimulation(DBContext: _contextDataBase.DbContext, messageHub: messageHub);
             var simConfig = ArgumentConverter.ConfigurationConverter(_resultContextDataBase.DbContext, 1);
-            _testOutputHelper.WriteLine("ArgumentConverter finished");
-
-            simConfig.ReplaceOption(new DBConnectionString(_resultContextDataBase.ConnectionString.Value));
+            simConfig.AddOption(new ResultsDbConnectionString(_resultContextDataBase.ConnectionString.Value));
             simConfig.ReplaceOption(new TimeToAdvance(new TimeSpan(0L)));
             simConfig.ReplaceOption(new KpiTimeSpan(240));
             simConfig.ReplaceOption(new DebugAgents(true));
@@ -103,6 +100,9 @@ namespace Master40.XUnitTest.Online.Integration
             simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.0));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
+
+            var simContext = new AgentSimulation(dbName: "Test", messageHub: messageHub);
+            _testOutputHelper.WriteLine("ArgumentConverter finished");
 
             var simulation = simContext.InitializeSimulation(configuration: simConfig).Result;
             _testOutputHelper.WriteLine("simContext.InitializeSimulation finished");

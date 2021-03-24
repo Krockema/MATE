@@ -58,4 +58,7 @@
   <ItemGroup>
    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="1.0.0" />
   </ItemGroup>
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+    <Copy SourceFiles="..\Master40.DB\App.config" DestinationFiles="$(OutDir)\testhost.dll.config" />
+  </Target>
 </Project>

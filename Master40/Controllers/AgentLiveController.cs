@@ -51,7 +51,7 @@ namespace Master40.Controllers
 
             var simConfig = ArgumentConverter.ConfigurationConverter(resultCtx: _resultCtx, 1);
             // update customized Items
-            simConfig.AddOption(new DBConnectionString(_resultCtx.Database.GetDbConnection().ConnectionString));
+            simConfig.AddOption(new ResultsDbConnectionString(_resultCtx.Database.GetDbConnection().ConnectionString));
             simConfig.ReplaceOption(new KpiTimeSpan(240));
             simConfig.ReplaceOption(new TimeToAdvance(value: TimeSpan.FromMilliseconds(50)));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
@@ -100,8 +100,7 @@ namespace Master40.Controllers
             //Synchronisation GanttPlan
             GanttPlanOptRunner.Inizialize();
 
-            var simContext = new GanttSimulation(GanttPlanCtxString, _context.Database.GetDbConnection().ConnectionString, messageHub: _messageHub);
-            
+            var simContext = new GanttSimulation("Master40", messageHub: _messageHub);
             simConfig.ReplaceOption(new SimulationKind(value: SimulationType.Central));
             simConfig.ReplaceOption(new DebugSystem(value: false));
 
