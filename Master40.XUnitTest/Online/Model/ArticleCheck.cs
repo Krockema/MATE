@@ -15,7 +15,7 @@ namespace Master40.XUnitTest.Online.Model
         private DataBase<ProductionDomainContext> DataBase;
         public ArticleCheck()
         {
-            DataBase = Dbms.GetNewMasterDataBase();
+            DataBase = Dbms.GetNewMasterDataBase(dbName: "Test");
             MasterDBInitializerTruck.DbInitialize(context: DataBase.DbContext, resourceModelSize: ModelSize.Medium,
                 setupModelSize: ModelSize.Medium, ModelSize.Small, 3, false, false);
         }
