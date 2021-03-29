@@ -116,7 +116,9 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void GatherKpiForAI(bool finalCall)
         {
-            if (Collector.Time <= Collector.Config.GetOption<SettlingStart>().Value) return;
+            //if (Collector.Time <= Collector.Config.GetOption<SettlingStart>().Value) return;
+            //KPI gathering starts before settling start
+            if (Collector.Time <= 480) return;
             var total = Collector.Kpis.Find(k => k.Name == "Total" && k.Time == Collector.Time);
             var fTotal = new FKpi.FKpi(total.Time, total.Name, total.Value);
             Collector.SendKpi(fTotal);
