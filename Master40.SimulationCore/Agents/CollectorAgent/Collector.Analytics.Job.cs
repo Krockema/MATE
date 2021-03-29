@@ -146,7 +146,8 @@ namespace Master40.SimulationCore.Agents.CollectorAgent
 
         private void CallAverageIdle(bool finalCall)
         {
-             idleTime.GetKpis(Collector, finalCall);
+            var kpis = idleTime.GetKpis(Collector, finalCall);
+            Collector.Kpis.AddRange(kpis);
         }
 
 
