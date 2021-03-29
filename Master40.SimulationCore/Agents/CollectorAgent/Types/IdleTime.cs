@@ -39,14 +39,15 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
             _idleDictionaryTotals.Add(key, idleList);
         }
 
-        public void GetKpis(Collector collector, bool finalCall)
+        public List<Kpi> GetKpis(Collector collector, bool finalCall)
         {
+            List<Kpi> kpis = new();
             // change source on final call
             var sourceDict = _idleDictionary;
             if (finalCall)
                 sourceDict = _idleDictionaryTotals;
             
-            collector.Kpis.AddRange(
+            kpis.AddRange(
                 sourceDict.Select(x => new Kpi
                 {
                     Name = "Idle:" + x.Key,
@@ -60,10 +61,13 @@ namespace Master40.SimulationCore.Agents.CollectorAgent.Types
                     SimulationType = collector.simulationKind.Value
                 }));
             
-            if (finalCall) return;
-            // clear if more is coming.
-            _idleDictionary.ForEach(x => AddToTotals(x.Key, x.Value));
-            _idleDictionary.Clear();
+            if (!finalCall)
+            { 
+                // clear if more is coming.
+                _idleDictionary.ForEach(x => AddToTotals(x.Key, x.Value));
+                _idleDictionary.Clear();
+            }
+            return kpis;
         }
     }
 }

@@ -39,7 +39,7 @@ namespace Master40.XUnitTest.DataGenerator
                         , 10     // min delivery time
                         , 15     // max delivery time
                         , SimulationType.Default //simulation type
-                        , int.Parse(5.ToString() + approach.ToString().PadLeft(3, '0')
+                        , int.Parse(500.ToString() + approach.ToString().PadLeft(3, '0')
                                                  + i.ToString().PadLeft(2, '0'))  //SimulationNumber
                     };
                 }
