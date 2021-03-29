@@ -5,14 +5,6 @@ namespace AiProvider.DataStuctures
 {
     public class SimulationKpisReshaped
     {
-        //public SimulationKpisReshaped(
-        //    float Lateness_t2,
-        //    float Assembly_t2,
-        //    float Total_t2,
-        //
-        //)
-        //{
-        //}
         public float Lateness_t2 { get; set; }
         public float Assembly_t2 { get; set; }
         public float Total_t2 { get; set; }
