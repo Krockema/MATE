@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Akka.TestKit.Xunit;
 using Akka.Util.Internal;
@@ -19,41 +18,25 @@ using Master40.Tools.Connectoren.Ganttplan;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 using NLog;
-using Master40.DataGenerator.Repository;
-using Master40.DataGenerator.Generators;
+using Master40.DB;
 
 namespace Master40.XUnitTest.SimulationEnvironment
 {
     public class CentralSystem : TestKit
     {
 
-        // local Context
-        private const string masterCtxString = "Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true";
-        private const string masterResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=Master40Results;Trusted_Connection=True;MultipleActiveResultSets=true";
+        private const string GanttPlanDbName = "GPDB";
+        private const string Test = "Test";
+        private const string TestResult = "TestResult";
 
-        // local TEST Context
-        private const string testCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        private const string testResultCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestResultContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-        private const string testGeneratorCtxString = "Server=(localdb)\\mssqllocaldb;Database=TestGeneratorContext;Trusted_Connection=True;MultipleActiveResultSets=true";
-
-        // remote Context
-        private const string remoteMasterCtxString = "Server=141.56.137.25,1433;Persist Security Info=False;User ID=SA;Password=123*Start#;Initial Catalog=Master40;MultipleActiveResultSets=true";
-        private const string remoteResultCtxString = "Server=141.56.137.25,1433;Persist Security Info=False;User ID=SA;Password=123*Start#;Initial Catalog=Master40Result;MultipleActiveResultSets=true";
-
-        private const string hangfireCtxString = "Server=141.56.137.25;Database=Hangfire;Persist Security Info=False;User ID=SA;Password=123*Start#;MultipleActiveResultSets=true";
-
-        // only for local usage
-        private const string GanttPlanCtxString = "SERVER=(localdb)\\MSSQLLocalDB;DATABASE=DBGP;Trusted_connection=Yes;UID=;PWD=;MultipleActiveResultSets=true";
-
-        private ProductionDomainContext _masterDBContext = ProductionDomainContext.GetContext(testGeneratorCtxString);
-        private ResultContext _ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);
 
         [Fact]
         public void TestDateUpdate()
         {
             GanttPlanOptRunner.RunOptAndExport("Init");
 
-            var ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
+            var ganttPlanDataBase = Dbms.GetGanttDataBase(GanttPlanDbName);
+            var ganttPlanContext = ganttPlanDataBase.DbContext;
 
             var modelparameter = ganttPlanContext.GptblModelparameter.FirstOrDefault();
             if (modelparameter != null)
@@ -91,7 +74,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         public void ResetGanttPlanDB()
         {
             //Reset GanttPLan DB?
-            var ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
+            var ganttPlanContext = Dbms.GetGanttDataBase(GanttPlanDbName).DbContext;
             ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
         }
 
@@ -110,25 +93,25 @@ namespace Master40.XUnitTest.SimulationEnvironment
             var arrivalRate = 0.015;
 
             //Create Master40Data
-            var masterPlanContext = ProductionDomainContext.GetContext(masterCtxString);
+            var masterPlanContext = Dbms.GetMasterDataBase(dbName: Test).DbContext;
             masterPlanContext.Database.EnsureDeleted();
             masterPlanContext.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterPlanContext, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3, false, false);
 
             //CreateMaster40Result
-            var masterPlanResultContext = ResultContext.GetContext(masterResultCtxString);
+            var masterPlanResultContext = Dbms.GetResultDataBase(TestResult).DbContext;
             masterPlanResultContext.Database.EnsureDeleted();
             masterPlanResultContext.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(masterPlanResultContext);
             
             //Reset GanttPLan DB?
-            var ganttPlanContext = GanttPlanDBContext.GetContext("DBGP");
+            var ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanDbName);
             ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
             
             //Synchronisation GanttPlan
             GanttPlanOptRunner.RunOptAndExport("Init");
 
-            var simContext = new GanttSimulation(GanttPlanCtxString, messageHub: new ConsoleHub());
+            var simContext = new GanttSimulation(dbName: GanttPlanDbName, messageHub: new ConsoleHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(ganttPlanContext.Database.GetConnectionString()));
@@ -166,86 +149,13 @@ namespace Master40.XUnitTest.SimulationEnvironment
             Assert.True(condition: simWasReady);
         }
 
-        [Fact]
-        //[InlineData(SimulationType.DefaultSetup, 1, Int32.MaxValue, 1920, 169, ModelSize.Small, ModelSize.Small)]
-        public async Task TestdataGeneratorCentralSystemTest()
-        {
-            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Warn, LogLevel.Warn);
-
-            var simtulationType = SimulationType.Central;
-            var seed = 169;
-            var throughput = 1920;
-            var arrivalRate = 0.015;
-            var approachId = 1021;
-
-            //Create Master40Data
-            ResultContext ctxResult = ResultContext.GetContext(resultCon: testResultCtxString);
-            ProductionDomainContext masterCtx = ProductionDomainContext.GetContext(masterCtxString);
-            DataGeneratorContext dataGenCtx = DataGeneratorContext.GetContext(testGeneratorCtxString);
-
-            var approach = ApproachRepository.GetApproachById(dataGenCtx, approachId);
-            var generator = new MainGenerator();
-            await Task.Run(() =>
-                generator.StartGeneration(approach, masterCtx, ctxResult));
-
-            masterCtx.SaveChanges();
-
-            //Reset GanttPLan DB?
-            var ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
-            ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
-
-            ganttPlanContext.SaveChanges();
-
-            //Synchronisation GanttPlan
-            GanttPlanOptRunner.RunOptAndExport("Init");
-
-            var simContext = new GanttSimulation(GanttPlanCtxString, messageHub: new ConsoleHub());
-            var simConfig = ArgumentConverter.ConfigurationConverter(ctxResult, 1);
-            // update customized Items
-            simConfig.AddOption(new ResultsDbConnectionString(ganttPlanContext.Database.GetConnectionString()));
-            simConfig.ReplaceOption(new KpiTimeSpan(240));
-            simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
-            simConfig.ReplaceOption(new SimulationKind(value: simtulationType));
-            simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 3000));
-            simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
-            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
-            simConfig.ReplaceOption(new Seed(value: seed));
-            simConfig.ReplaceOption(new MinDeliveryTime(value: 10));
-            simConfig.ReplaceOption(new MaxDeliveryTime(value: 15));
-            simConfig.ReplaceOption(new SettlingStart(value: 2880));
-            simConfig.ReplaceOption(new SimulationEnd(value: 30080));
-            simConfig.ReplaceOption(new SaveToDB(value: true));
-            simConfig.ReplaceOption(new DebugSystem(value: false));
-            simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
-
-            var simulation = await simContext.InitializeSimulation(configuration: simConfig);
-
-            //emtpyResultDBbySimulationNumber(simNr: simConfig.GetOption<SimulationNumber>());
-
-            var simWasReady = false;
-            if (simulation.IsReady())
-            {
-                // set for Assert 
-                simWasReady = true;
-                // Start simulation
-                var sim = simulation.RunAsync();
-                simContext.StateManager.ContinueExecution(simulation);
-                await sim;
-            }
-
-            Assert.True(condition: simWasReady);
-        }
-
+       
         [Fact(Skip = "Offline")]
         public void AggreteResults()
         {
-            var _resultContext = ResultContext.GetContext(remoteResultCtxString);
+            var _resultContext = Dbms.GetResultDataBase(TestResult);
 
-            var aggregator = new ResultAggregator(_resultContext);
+            var aggregator = new ResultAggregator(_resultContext.DbContext);
             aggregator.BuildResults(1);
         }
 
@@ -253,9 +163,9 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Fact]
         public void TestGanttPlanApi()
         {
-            ProductionDomainContext master40Context = ProductionDomainContext.GetContext(masterCtxString);
+            ProductionDomainContext master40Context = Dbms.GetMasterDataBase(dbName: Test).DbContext;
 
-            GanttPlanDBContext ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
+            GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(GanttPlanDbName).DbContext;
              var prod = ganttPlanContext.GptblProductionorder
                  .Include(x => x.ProductionorderOperationActivities)
                      .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)
@@ -313,7 +223,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         public void GanttPlanInsertConfirmationAndReplan()
         {
 
-            ProductionDomainContext master40Context = ProductionDomainContext.GetContext(masterCtxString);
+            ProductionDomainContext master40Context = Dbms.GetMasterDataBase(dbName: Test).DbContext;
             master40Context.CustomerOrders.RemoveRange(master40Context.CustomerOrders);
             master40Context.CustomerOrderParts.RemoveRange(master40Context.CustomerOrderParts);
             master40Context.SaveChanges();
@@ -321,7 +231,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
             master40Context.CreateNewOrder(10115, 1, 0, 250);
             master40Context.SaveChanges();
 
-            GanttPlanDBContext ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanCtxString);
+            GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(GanttPlanDbName).DbContext;
 
             ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
             GanttPlanOptRunner.RunOptAndExport("Init");
@@ -396,7 +306,7 @@ namespace Master40.XUnitTest.SimulationEnvironment
         [Fact]
         public void TestMaterialRelations()
         {
-            using (var localGanttPlanDbContext = GanttPlanDBContext.GetContext(GanttPlanCtxString))
+            using (var localGanttPlanDbContext =  Dbms.GetGanttDataBase(GanttPlanDbName).DbContext)
             {
 
                 var materialId = "10115";

@@ -17,8 +17,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.SimulationCore", "
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Master40.SimulationImmutables", "Master40.SimulationImmutables\Master40.SimulationImmutables.fsproj", "{8842516A-909A-48A2-8062-CD87129DE81A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.DataGenerator", "Master40.DataGenerator\Master40.DataGenerator.csproj", "{1E0FB3B5-13D8-4D20-A3DE-6571E596BEE5}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Master40.PiWebApi", "Master40.PiWebApi\Master40.PiWebApi.csproj", "{AA59C7C1-9CA6-45D9-AFC6-D7D3E61B78AB}"
 EndProject
 Global
@@ -85,14 +83,6 @@ Global
 		{8842516A-909A-48A2-8062-CD87129DE81A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8842516A-909A-48A2-8062-CD87129DE81A}.Release|x64.ActiveCfg = Release|Any CPU
 		{8842516A-909A-48A2-8062-CD87129DE81A}.Release|x64.Build.0 = Release|Any CPU
-		{1E0FB3B5-13D8-4D20-A3DE-6571E596BEE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1E0FB3B5-13D8-4D20-A3DE-6571E596BEE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1E0FB3B5-13D8-4D20-A3DE-6571E596BEE5}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{1E0FB3B5-13D8-4D20-A3DE-6571E596BEE5}.Debug|x64.Build.0 = Debug|Any CPU
-		{1E0FB3B5-13D8-4D20-A3DE-6571E596BEE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1E0FB3B5-13D8-4D20-A3DE-6571E596BEE5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1E0FB3B5-13D8-4D20-A3DE-6571E596BEE5}.Release|x64.ActiveCfg = Release|Any CPU
-		{1E0FB3B5-13D8-4D20-A3DE-6571E596BEE5}.Release|x64.Build.0 = Release|Any CPU
 		{AA59C7C1-9CA6-45D9-AFC6-D7D3E61B78AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AA59C7C1-9CA6-45D9-AFC6-D7D3E61B78AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA59C7C1-9CA6-45D9-AFC6-D7D3E61B78AB}.Debug|x64.ActiveCfg = Debug|Any CPU

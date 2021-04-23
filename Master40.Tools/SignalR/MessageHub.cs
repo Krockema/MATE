@@ -1,6 +1,5 @@
 ﻿using Master40.Tools.Messages;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.SignalR.Client;
 using Newtonsoft.Json;
 
 namespace Master40.Tools.SignalR

@@ -1,5 +1,4 @@
 ﻿using Master40.Tools.Messages;
-using Microsoft.VisualBasic;
 
 namespace Master40.Tools.SignalR
 {
