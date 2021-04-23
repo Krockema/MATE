@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Master40.DB.DataModel
 {
-    public class M_Attribute : BaseEntity
+    public class M_Attribute : BaseEntity, IPiWebCharacteristic
     {
         public string Name { get; set; }
         public double Value { get; set; }

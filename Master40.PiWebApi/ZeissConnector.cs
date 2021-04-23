@@ -1,9 +1,8 @@
-﻿using Master40.DB.DataModel;
-using Master40.DB.ReportingModel;
-using Master40.Tools.DistributionProvider;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Master40.PiWebApi.Interfaces;
+using Master40.PiWebApi.PiWebMapping;
 using Zeiss.PiWeb.Api.Definitions;
 using Zeiss.PiWeb.Api.Rest.Dtos;
 using Zeiss.PiWeb.Api.Rest.Dtos.Data;
@@ -25,11 +24,11 @@ namespace Master40.PiWebApi
             //_partPath = "";
         }
 
-        public static string CheckForPart(M_Article part, string path)
+        public static string CheckForPart(IPiWebArticle part, string path)
         {
             var partInformation = CreatePart(part, path);
-            if (!part.Operations.Any()) return partInformation.Item2;
-            foreach (var operation in part.Operations)
+            if (!part.GetPiWebOperations().Any()) return partInformation.Item2;
+            foreach (var operation in part.GetPiWebOperations())
             {
                 foreach (var characteristic in operation.Characteristics)
                 {
@@ -40,7 +39,7 @@ namespace Master40.PiWebApi
             return partInformation.Item2;
         }
 
-        private static Tuple<InspectionPlanPartDto, string> CreatePart(M_Article part, string path)
+        private static Tuple<InspectionPlanPartDto, string> CreatePart(IPiWebArticle part, string path)
         {
             var client = new ZeissApiClient().ApiClient;
 
@@ -63,7 +62,7 @@ namespace Master40.PiWebApi
             return Tuple.Create(inspectionPlanPart, partPath);
         }
 
-        private static void AddCharacteristicsWithAttributes(InspectionPlanPartDto inspectionPlanPart, M_Characteristic characteristic, string path)
+        private static void AddCharacteristicsWithAttributes(InspectionPlanPartDto inspectionPlanPart, IPiWebCharacteristic characteristic, string path)
         {
             var client = new ZeissApiClient().ApiClient;
             //Search for Characteristics which are associated with the part --> build path out of given part and characteristic and map attributes to PiWeb
@@ -93,7 +92,7 @@ namespace Master40.PiWebApi
                     Path = PathHelper.RoundtripString2PathInformation(subCharacteristicPath),
                     Uuid = Guid.NewGuid(),
                     Attributes = new[] {
-                        new AttributeDto(SsopToPiWebMappings.GetFor(attributeIdentifier).AttributeNamePiWeb, attribute.Value)
+                        new AttributeDto(PiWebMappings.GetFor(attributeIdentifier).AttributeNamePiWeb, attribute.Value)
                         , new AttributeDto(WellKnownKeys.Characteristic.DesiredValue, attribute.Value)
                         , new AttributeDto(WellKnownKeys.Characteristic.NominalValue, attribute.Value)
                         , new AttributeDto(WellKnownKeys.Characteristic.LowerSpecificationLimit, attribute.Value + attribute.Tolerance_Min)
@@ -131,7 +130,7 @@ namespace Master40.PiWebApi
         //    client.CreateMeasurementValues(measuredPart.ToArray());
         //}
 
-        public static void TransferMeasurementsToPiWeb(SimulationMeasurement measure)   //SimulationMeasurement
+        public static void TransferMeasurementsToPiWeb(IPiWebMeasurement measure)   //SimulationMeasurement
         {
             if (_counter == 0) GetProductStructure();
 
@@ -156,7 +155,7 @@ namespace Master40.PiWebApi
                 }
             }
         }
-        private static void CreateMeasurements(SimulationMeasurement measure, InspectionPlanPartDto inspectionPlanPart, InspectionPlanCharacteristicDto inspectionPlanCharacteristic)
+        private static void CreateMeasurements(IPiWebMeasurement measure, InspectionPlanPartDto inspectionPlanPart, InspectionPlanCharacteristicDto inspectionPlanCharacteristic)
         {
             var client = new ZeissApiClient().ApiClient;
 
@@ -186,7 +185,7 @@ namespace Master40.PiWebApi
 
         }
 
-        private static void UpdateMeasurement(DataMeasurementDto dataMeasurement, SimulationMeasurement measure, InspectionPlanPartDto inspectionPlanPart, InspectionPlanCharacteristicDto inspectionPlanCharacteristic)
+        private static void UpdateMeasurement(DataMeasurementDto dataMeasurement, IPiWebMeasurement measure, InspectionPlanPartDto inspectionPlanPart, InspectionPlanCharacteristicDto inspectionPlanCharacteristic)
         {
             var client = new ZeissApiClient().ApiClient;
 
@@ -213,7 +212,7 @@ namespace Master40.PiWebApi
             
             client.UpdateMeasurementValues(new []{dataMeasurement}).Wait(TimeSpan.FromSeconds(1));
         }
-        private static DataMeasurementDto CreateMeasurementData(SimulationMeasurement measure, InspectionPlanPartDto inspectionPlanPart, InspectionPlanCharacteristicDto inspectionPlanCharacteristic)
+        private static DataMeasurementDto CreateMeasurementData(IPiWebMeasurement measure, InspectionPlanPartDto inspectionPlanPart, InspectionPlanCharacteristicDto inspectionPlanCharacteristic)
         {
             var dataMeasurement = new DataMeasurementDto
             {

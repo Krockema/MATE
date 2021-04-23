@@ -36,4 +36,7 @@
     <PackageReference Include="Zeiss.PiWeb.Api.Rest" Version="6.1.0" />
     <PackageReference Include="Zeiss.PiWeb.Api.Rest.Dtos" Version="6.1.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Master40.PiWebApi\Master40.PiWebApi.csproj" />
+  </ItemGroup>
 </Project>
