@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Master40.PiWebApi.Interfaces;
 
 namespace Master40.DB.DataModel
 {
-    public class M_Attribute : BaseEntity, IPiWebCharacteristic
+    public class M_Attribute : BaseEntity, IPiWebAttribute
     {
         public string Name { get; set; }
         public double Value { get; set; }
@@ -13,5 +14,6 @@ namespace Master40.DB.DataModel
         public int ValueTypeId { get; set; }
         public int CharacteristicId { get; set; }
         public M_Characteristic Characteristic { get; set; }
+        IPiWebCharacteristic IPiWebAttribute.Characteristic => this.Characteristic;
     }
 }
