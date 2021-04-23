@@ -52,7 +52,6 @@
 	<ItemGroup>
     <ProjectReference Include="..\Master40.DataGenerator\Master40.DataGenerator.csproj" />
     <ProjectReference Include="..\Master40.PiWebApi\Master40.PiWebApi.csproj" />
-    <ProjectReference Include="..\Master40.SimulationMrp\Master40.SimulationMrp.csproj" />
     <ProjectReference Include="..\Master40\Master40.csproj" />
   </ItemGroup>
   <ItemGroup>
