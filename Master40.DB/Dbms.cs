@@ -162,24 +162,6 @@ namespace Master40.DB
             return dataBase;
         }
 
-        public static DataBase<DataGeneratorContext> GetGeneratorDataBase(string dbName)
-        {
-            DataBase<DataGeneratorContext> dataBase = new DataBase<DataGeneratorContext>(dbName);
-            if (UseLocalDb() && Constants.IsWindows)
-            {
-                Constants.IsLocalDb = true;
-            }
-            else if (Constants.IsWindows)
-            {
-                Constants.IsLocalDb = false;
-            }
-            // else Linux
-            dataBase.ConnectionString = GetConnectionString(dataBase.DataBaseName);
-            dataBase.DbContext = new DataGeneratorContext(
-                new DbContextOptionsBuilder<DataGeneratorContext>()
-                    .UseSqlServer(dataBase.ConnectionString.Value).Options);
-            return dataBase;
-        }
 
         private static bool CanConnect(string connectionString)
         {
