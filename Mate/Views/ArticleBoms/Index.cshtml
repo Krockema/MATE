@@ -1,0 +1,179 @@
+@model IEnumerable< Mate.DataCore.DataModel.M_Article>
+
+@{
+    ViewData[index: "Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    // starting the script on page load
+    $(document).ready(function () {
+        imagePreview();
+    });
+</script>
+<style>
+    #preview {
+        position: absolute;
+        border: 1px solid #ccc;
+        background: #333;
+        padding: 5px;
+        display: none;
+        color: #fff;
+    }
+
+    img {
+        border: none;
+    }
+</style>
+
+
+<h2>Index</h2>
+
+<p>
+    <a asp-action="Create" asp-controller="ArticleBoms" data-target="#modal-container"
+       data-toggle="modal" class="btn btn-outline-secondary">
+        <i class="fa fa-plus-square-o fa-1x fa-unset"></i> Create
+    </a>
+</p>
+
+<table class="table table-sm table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(expression: model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(expression: model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(expression: model => model.DeliveryPeriod)
+            </th>
+            <th>
+                @Html.DisplayNameFor(expression: model => model.CreationDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(expression: model => model.ArticleType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(expression: model => model.Unit)
+            </th>
+            <th>
+                @Html.DisplayNameFor(expression: model => model.Operations)
+            </th>
+            <th>Action</th>
+            <th>Preview</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(expression: modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(expression: modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(expression: modelItem => item.DeliveryPeriod)
+                </td>
+                <td>
+                    @Html.DisplayFor(expression: modelItem => item.CreationDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(expression: modelItem => item.ArticleType.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(expression: modelItem => item.Unit.Name)
+                </td>
+                <td>
+                    @foreach (var ag in item.Operations.OrderBy(keySelector: x => x.HierarchyNumber))
+                    {
+                        <table>
+                            <tr>
+                                <td style="width: 25px;">@ag.HierarchyNumber</td>
+                                <td>@ag.Name</td>
+                            </tr>
+                        </table>
+                    }
+                </td>
+                <td style="text-align: right; width: auto;">
+                    <a asp-action="Edit" asp-controller="ArticleBoms" asp-route-id="@item.Id"
+                       data-target="#modal-container" data-toggle="modal" class="btn btn-outline-secondary btn-sm">
+                        <i class="fa fa-pencil-square-o fa-1x fa-unset"></i>
+                    </a>
+                    <a id="@item.Id" asp-action="Details" asp-controller="ArticleBoms" asp-route-id="@item.Id"
+                       data-target="#modal-container" data-toggle="modal" class="btn btn-outline-secondary btn-sm">
+                        <i class="fa fa-eye fa-1x fa-unset"></i>
+                    </a>
+                    <a asp-action="Delete" asp-controller="ArticleBoms" asp-route-id="@item.Id"
+                       data-target="#modal-container" data-toggle="modal" class="btn btn-outline-secondary btn-sm">
+                        <i class="fa fa-trash fa-1x fa-unset"></i>
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-toggle="collapse" data-target="#colapse_@item.Id">
+                        Show Structure
+                    </button>
+                </td>
+                <td>
+                    @if (item.PictureUrl != null)
+                    {
+                        <a href="@item.PictureUrl" class="preview btn btn-outline-secondary"
+                           title="@item.Name">
+                            <img src="@item.PictureUrl" alt="gallery thumbnail"
+                                 width="80" />
+                        </a>
+                    }
+                </td>
+            </tr>
+            <tr id="colapse_@item.Id" class="collapse out">
+                <td>&nbsp;</td>
+                <td colspan="8">
+                    <h3>Bomstructure</h3>
+                    <table class="table table-sm table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Level</th>
+                                <th>
+                                    Quantity
+                                </th>
+                                <th>
+                                    Name
+                                </th>
+                                <th>
+                                    ArticleChild
+                                </th>
+                                <th>
+                                    ArticleParent
+                                </th>
+                                <th>Work Schedules</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <partial name="ArticleBom" model="item.ArticleBoms" view-data='new ViewDataDictionary(source: ViewData) {{"level", null}}'/>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div id="modal-container" class="modal fade hidden-print" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" style="width: 600px; min-width: 600px !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalTitle">Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class='loading center-div' />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+

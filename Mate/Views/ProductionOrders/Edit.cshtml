@@ -1,0 +1,51 @@
+@model Mate.DataCore.DataModel.T_ProductionOrder
+
+@{
+    ViewData[index: "Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Edit</h2>
+
+<form asp-action="Edit">
+    <div class="form-horizontal">
+        <h4>ProductionOrder</h4>
+        <hr />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+        <div class="form-group">
+            <label asp-for="ArticleId" class="control-label col-md-2"></label>
+            <div class="col-md-10">
+                <select asp-for="ArticleId" class="form-control" asp-items="ViewBag.ArticleId"></select>
+                <span asp-validation-for="ArticleId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Quantity" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Quantity" class="form-control" />
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Name" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync(partialViewName: "_ValidationScriptsPartial");}
+}

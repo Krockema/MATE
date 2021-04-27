@@ -1,0 +1,29 @@
+@model Mate.DataCore.DataModel.T_CustomerOrderPart
+
+<div>
+    <h4>OrderParts for Order No.: @Html.DisplayFor(expression: model => model.CustomerOrder.Id)</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.Quantity)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.Quantity)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.IsPlanned)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.IsPlanned)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.Article)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.Article.Name)
+        </dd>
+    </dl>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Back</button>
+</div>

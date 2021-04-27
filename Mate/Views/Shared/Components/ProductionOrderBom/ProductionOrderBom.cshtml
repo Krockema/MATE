@@ -1,0 +1,39 @@
+@model IEnumerable<Mate.DataCore.DataModel.T_ProductionOrderBom>
+
+@{
+    string level = ViewData[index: "level"]?.ToString() ?? "";
+    level = (level != "") ? level + "." : level;
+    int count = 0;
+    string display = "";
+}
+@if (Model.Count() > 0 && Model != null)
+{
+    foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @{ count = count + 1; display = level + count.ToString(); }
+                @display
+            </td>
+            <td>
+                @Html.DisplayFor(expression: modelItem => item.Quantity)
+            </td>
+            <td>
+                @Html.DisplayFor(expression: modelItem => item.ProductionOrderParent.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(expression: modelItem => item.ProductionOrderParent.Article.Name)
+            </td>
+            <td>
+
+            </td>
+
+        </tr>
+      /*  if (item.ProductionOrderBomChild.ProductionOrderBoms != null)
+        {
+            ViewData["level"] = level + count.ToString();
+        @Html.Partial("ProductionOrderBom", item.ProductionOrderBomChild.ProductionOrderBoms, this.ViewData)
+        }
+        */
+    }
+}

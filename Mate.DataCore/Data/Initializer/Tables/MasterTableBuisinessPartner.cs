@@ -1,0 +1,24 @@
+﻿using Mate.DataCore.Data.Context;
+using Mate.DataCore.DataModel;
+
+namespace Mate.DataCore.Data.Initializer.Tables
+{
+    public class MasterTableBusinessPartner
+    {
+        internal M_BusinessPartner DEBITOR_TOYS_R_US = new M_BusinessPartner() { Debitor = true, Kreditor = false, Name = "Toys'R'us toy department" };
+        public M_BusinessPartner KREDITOR_MATERIAL_WHOLSALE = new M_BusinessPartner() { Debitor = false, Kreditor = true, Name = "Material wholesale" };
+        public M_BusinessPartner[] Init(MateDb context)
+        {
+            var businessPartner = new[]
+            {
+                DEBITOR_TOYS_R_US,
+                KREDITOR_MATERIAL_WHOLSALE
+            };
+
+            context.BusinessPartners.AddRange(businessPartner);
+            context.SaveChanges();
+            return businessPartner;
+        }
+        
+    }
+}

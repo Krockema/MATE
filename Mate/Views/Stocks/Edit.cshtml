@@ -1,0 +1,65 @@
+@model Mate.DataCore.DataModel.M_Stock
+
+@{
+    ViewData[index: "Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Edit</h2>
+
+<form asp-action="Edit">
+    <div class="form-horizontal">
+        <h4>Stock</h4>
+        <hr />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+        <div class="form-group">
+            <label asp-for="Name" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Max" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Max" class="form-control" />
+                <span asp-validation-for="Max" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Min" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Min" class="form-control" />
+                <span asp-validation-for="Min" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Current" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Current" class="form-control" />
+                <span asp-validation-for="Current" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ArticleForeignKey" class="control-label col-md-2"></label>
+            <div class="col-md-10">
+                <select asp-for="ArticleForeignKey" class="form-control" asp-items="ViewBag.ArticleForeignKey"></select>
+                <span asp-validation-for="ArticleForeignKey" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync(partialViewName: "_ValidationScriptsPartial");}
+}

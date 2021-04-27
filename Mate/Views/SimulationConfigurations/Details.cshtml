@@ -1,0 +1,94 @@
+@model Mate.DataCore.ReportingModel.SimulationConfiguration
+
+@{
+    ViewData[index: "Title"] = "Details";
+    Layout = null;
+}
+
+<h2>Simulation Configuration</h2>
+
+<div>
+    <h4>Details</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.Time)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.Time)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.MaxCalculationTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.MaxCalculationTime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.Lotsize)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.Lotsize)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.OrderQuantity)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.OrderQuantity)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.OrderRate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.OrderRate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.ConsecutiveRuns)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.ConsecutiveRuns)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.DynamicKpiTimeSpan)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.DynamicKpiTimeSpan)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.Seed)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.Seed)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.WorkTimeDeviation)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.WorkTimeDeviation)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.RecalculationTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.RecalculationTime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.SimulationEndTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.SimulationEndTime)
+        </dd>
+    </dl>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">Back</button>
+    <a id="@Model.Id" asp-action="Edit" asp-controller="SimulationConfigurations" asp-route-id="@Model.Id"
+       data-target="#modal-sub-container" data-toggle="modal" class="btn btn-default">
+        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit
+    </a>
+</div>
