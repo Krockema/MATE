@@ -72,9 +72,9 @@ namespace Mate.Test.Online.Integration
             //Handle this one in our Resource Model?
             MasterDBInitializerTruck.DbInitialize(_contextDataBase.DbContext, resourceModelSize, setupModelSize,
                 operatorModelSize, numberOfWorkers, secondResource, false);
-            _testOutputHelper.WriteLine("MasterDBInitialized finished");
+            _testOutputHelper.WriteLine("MateDB Initialization finished");
             ResultDBInitializerBasic.DbInitialize(_resultContextDataBase.DbContext);
-            _testOutputHelper.WriteLine("ResultDBInitializerBasic finished");
+            _testOutputHelper.WriteLine("ResultD Basic Initialization finished");
             var messageHub = new ConsoleHub();
             var simConfig = ArgumentConverter.ConfigurationConverter(_resultContextDataBase.DbContext, 1);
             simConfig.AddOption(new ResultsDbConnectionString(_resultContextDataBase.ConnectionString.Value));

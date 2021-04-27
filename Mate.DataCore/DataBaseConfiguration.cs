@@ -12,7 +12,7 @@ namespace Mate.DataCore
         public static string MateDb = "MateDb";
         public static string MateResultDb = "MateResultDb";
         public static string MateHangfireDb = "MateHangfire";
-        public static string GPDB = "GPDB";
+        public static string GPDB = ConfigurationManager.AppSettings["GanttPlanDataBase"];
     }
 
 }

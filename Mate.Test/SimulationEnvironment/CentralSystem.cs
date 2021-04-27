@@ -24,18 +24,15 @@ namespace Mate.Test.SimulationEnvironment
 {
     public class CentralSystem : TestKit
     {
-
-        private const string GanttPlanDbName = "GPDB";
-        private const string Test = "Test";
-        private const string TestResult = "TestResult";
-
+        private readonly string TestMateDb = "Test" + DataBaseConfiguration.MateDb;
+        private readonly string TestMateResultDb = "Test" + DataBaseConfiguration.MateResultDb;
 
         [Fact]
         public void TestDateUpdate()
         {
             GanttPlanOptRunner.RunOptAndExport("Init");
 
-            var ganttPlanDataBase = Dbms.GetGanttDataBase(GanttPlanDbName);
+            var ganttPlanDataBase = Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB);
             var ganttPlanContext = ganttPlanDataBase.DbContext;
 
             var modelparameter = ganttPlanContext.GptblModelparameter.FirstOrDefault();
@@ -74,7 +71,7 @@ namespace Mate.Test.SimulationEnvironment
         public void ResetGanttPlanDB()
         {
             //Reset GanttPLan DB?
-            var ganttPlanContext = Dbms.GetGanttDataBase(GanttPlanDbName).DbContext;
+            var ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).DbContext;
             ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
         }
 
@@ -93,25 +90,25 @@ namespace Mate.Test.SimulationEnvironment
             var arrivalRate = 0.015;
 
             //Create Master40Data
-            var masterPlanContext = Dbms.GetMasterDataBase(dbName: Test).DbContext;
+            var masterPlanContext = Dbms.GetMasterDataBase(dbName: TestMateDb).DbContext;
             masterPlanContext.Database.EnsureDeleted();
             masterPlanContext.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterPlanContext, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3, false, false);
 
             //CreateMaster40Result
-            var masterPlanResultContext = Dbms.GetResultDataBase(TestResult).DbContext;
+            var masterPlanResultContext = Dbms.GetResultDataBase(TestMateResultDb).DbContext;
             masterPlanResultContext.Database.EnsureDeleted();
             masterPlanResultContext.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(masterPlanResultContext);
             
             //Reset GanttPLan DB?
-            var ganttPlanContext = GanttPlanDBContext.GetContext(GanttPlanDbName);
+            var ganttPlanContext = GanttPlanDBContext.GetContext(DataBaseConfiguration.GPDB);
             ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
             
             //Synchronisation GanttPlan
             GanttPlanOptRunner.RunOptAndExport("Init");
 
-            var simContext = new GanttSimulation(dbName: GanttPlanDbName, messageHub: new ConsoleHub());
+            var simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new ConsoleHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(ganttPlanContext.Database.GetConnectionString()));
@@ -153,7 +150,7 @@ namespace Mate.Test.SimulationEnvironment
         [Fact(Skip = "Offline")]
         public void AggreteResults()
         {
-            var _resultContext = Dbms.GetResultDataBase(TestResult);
+            var _resultContext = Dbms.GetResultDataBase(TestMateResultDb);
 
             var aggregator = new ResultAggregator(_resultContext.DbContext);
             aggregator.BuildResults(1);
@@ -163,9 +160,9 @@ namespace Mate.Test.SimulationEnvironment
         [Fact]
         public void TestGanttPlanApi()
         {
-            MateProductionDb master40Context = Dbms.GetMasterDataBase(dbName: Test).DbContext;
+            MateProductionDb master40Context = Dbms.GetMasterDataBase(dbName: TestMateDb).DbContext;
 
-            GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(GanttPlanDbName).DbContext;
+            GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).DbContext;
              var prod = ganttPlanContext.GptblProductionorder
                  .Include(x => x.ProductionorderOperationActivities)
                      .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)
@@ -223,7 +220,7 @@ namespace Mate.Test.SimulationEnvironment
         public void GanttPlanInsertConfirmationAndReplan()
         {
 
-            MateProductionDb master40Context = Dbms.GetMasterDataBase(dbName: Test).DbContext;
+            MateProductionDb master40Context = Dbms.GetMasterDataBase(dbName: TestMateDb).DbContext;
             master40Context.CustomerOrders.RemoveRange(master40Context.CustomerOrders);
             master40Context.CustomerOrderParts.RemoveRange(master40Context.CustomerOrderParts);
             master40Context.SaveChanges();
@@ -231,7 +228,7 @@ namespace Mate.Test.SimulationEnvironment
             master40Context.CreateNewOrder(10115, 1, 0, 250);
             master40Context.SaveChanges();
 
-            GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(GanttPlanDbName).DbContext;
+            GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).DbContext;
 
             ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
             GanttPlanOptRunner.RunOptAndExport("Init");
@@ -306,7 +303,7 @@ namespace Mate.Test.SimulationEnvironment
         [Fact]
         public void TestMaterialRelations()
         {
-            using (var localGanttPlanDbContext =  Dbms.GetGanttDataBase(GanttPlanDbName).DbContext)
+            using (var localGanttPlanDbContext =  Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).DbContext)
             {
 
                 var materialId = "10115";

@@ -17,6 +17,9 @@ namespace Mate.Test.SimulationEnvironment
     public class BenchmarkBucketSize
     {
         
+        private readonly string TestMateDb = "Test" + DataBaseConfiguration.MateDb;
+        private readonly string TestMateResultDb = "Test" + DataBaseConfiguration.MateResultDb;
+
         [Params(SimulationType.Default)]
         public SimulationType SimulationType;
         
@@ -32,12 +35,12 @@ namespace Mate.Test.SimulationEnvironment
         public async Task BucketSizeTest()
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
-            var simContext = new AgentSimulation(dbName: "Test", messageHub: new ConsoleHub());
+            var simContext = new AgentSimulation(dbName: TestMateDb, messageHub: new ConsoleHub());
 
             var simConfig = Mate.Production.Core.Environment.Configuration.Create(args: new object[]
             {
                 // set ResultDBString and set SaveToDB true
-                new ResultsDbConnectionString(value: Dbms.GetResultDataBase("TestResult").ConnectionString.Value), new SimulationId(value: 1), new SimulationNumber(value: simNr++),
+                new ResultsDbConnectionString(value: Dbms.GetResultDataBase(TestMateResultDb).ConnectionString.Value), new SimulationId(value: 1), new SimulationNumber(value: simNr++),
                 new SimulationKind(value: SimulationType) // implements the used behaviour, if None --> DefaultBehaviour
                 ,
                 new OrderArrivalRate(value: OrderArrivalRate), new OrderQuantity(value: Int32.MaxValue),

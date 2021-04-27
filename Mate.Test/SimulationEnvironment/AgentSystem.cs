@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Akka.TestKit.Xunit;
-using AkkaSim;
 using AkkaSim.Logging;
 using Mate.DataCore;
 using Mate.DataCore.Data.Context;
@@ -25,24 +24,9 @@ namespace Mate.Test.SimulationEnvironment
 {
     public class AgentSystem : TestKit
     {
-        
-        [Theory]
-        //[InlineData(remoteMasterCtxString, remoteResultCtxString)] 
-        //[InlineData("Master40", "Master40Results","TestGeneratorContext")]
-        [InlineData("Master40", "Master40Results")]
-        public void ResetResultsDB(string connectionString, string connectionResultString)
-        {
-            MateDb masterCtx = Dbms.GetMasterDataBase(dbName: connectionString).DbContext;
-            masterCtx.Database.EnsureDeleted();
-            masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3,  false, false);
 
-            MateResultDb results = Dbms.GetResultDataBase(dbName: connectionResultString).DbContext;
-            results.Database.EnsureDeleted();
-            results.Database.EnsureCreated();
-            ResultDBInitializerBasic.DbInitialize(results);
-
-        }
+        private readonly string TestMateDb = "Test" + DataBaseConfiguration.MateDb;
+        private readonly string TestMateResultDb = "Test" + DataBaseConfiguration.MateResultDb;
 
         [Fact]
         public void TestRawSQL()
@@ -89,10 +73,10 @@ namespace Mate.Test.SimulationEnvironment
 	                select Sum(u.dur) as SumDuration , sum(u.count) as SumOperations, sum(u.Po)  as ProductionOrders from #Union u
                 END");
 
-            using (var command = Dbms.GetMasterDataBase(dbName: "Test").DbContext.Database.GetDbConnection().CreateCommand())
+            using (var command = Dbms.GetMasterDataBase(dbName: TestMateDb).DbContext.Database.GetDbConnection().CreateCommand())
             {
                 command.CommandText = sql;
-                Dbms.GetMasterDataBase(dbName: "Test").DbContext.Database.OpenConnection();
+                Dbms.GetMasterDataBase(dbName: TestMateDb).DbContext.Database.OpenConnection();
                 command.ExecuteNonQuery();
             }
 
@@ -103,7 +87,7 @@ namespace Mate.Test.SimulationEnvironment
         {
             var articleId = 63380;
             var sql = string.Format("Execute ArticleCTE {0}", articleId);
-            using (var command = Dbms.GetMasterDataBase(dbName: "Test").DbContext.Database.GetDbConnection().CreateCommand())
+            using (var command = Dbms.GetMasterDataBase(dbName: TestMateDb).DbContext.Database.GetDbConnection().CreateCommand())
             {
                 command.CommandText = sql;
                 Dbms.GetMasterDataBase(dbName: "Test").DbContext.Database.OpenConnection();
@@ -121,24 +105,23 @@ namespace Mate.Test.SimulationEnvironment
 
         // [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]
         [Fact]
-        public void InitializeRemote()
+        public void ResetAllDatabase()
         {
-            MateResultDb results = Dbms.GetResultDataBase("TestResults").DbContext;
+            MateResultDb results = Dbms.GetResultDataBase(DataBaseConfiguration.MateResultDb).DbContext;
             results.Database.EnsureDeleted();
             results.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(results);
 
-            MateDb masterCtx = Dbms.GetMasterDataBase(dbName: "Test").DbContext;
+            MateDb masterCtx = Dbms.GetMasterDataBase(dbName: DataBaseConfiguration.MateDb).DbContext;
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Small, setupModelSize: ModelSize.Small, ModelSize.Small, 3, false, false);
 
-            HangfireDBContext dbContext = Dbms.GetHangfireDataBase("Hangfire").DbContext;
+            HangfireDBContext dbContext = Dbms.GetHangfireDataBase(DataBaseConfiguration.MateHangfireDb).DbContext;
             dbContext.Database.EnsureDeleted();
             dbContext.Database.EnsureCreated();
             HangfireDBInitializer.DbInitialize(context: dbContext);
         }
-
 
         [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]
         public void ClearHangfire()
@@ -148,10 +131,11 @@ namespace Mate.Test.SimulationEnvironment
             dbContext.Database.EnsureCreated();
             HangfireDBInitializer.DbInitialize(context: dbContext);
         }
+
         [Fact]
         public void SomethingToPlayWith()
         {
-            var masterCtx = Dbms.GetMasterDataBase(dbName: "Test").DbContext;
+            var masterCtx = Dbms.GetMasterDataBase(dbName: TestMateDb).DbContext;
             var resources = masterCtx.Resources
                 //.Where(x => x.Count == 1)
                 // .Include(x => x.RequiresResourceSetups)
@@ -235,12 +219,12 @@ namespace Mate.Test.SimulationEnvironment
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
 
             //CreateMaster40Result
-            var dbResult = Dbms.GetResultDataBase("TestResults");
+            var dbResult = Dbms.GetResultDataBase(TestMateResultDb);
             dbResult.DbContext.Database.EnsureDeleted();
             dbResult.DbContext.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(dbResult.DbContext);
 
-            var dbMaster = Dbms.GetMasterDataBase(dbName: "Test");
+            var dbMaster = Dbms.GetMasterDataBase(dbName: TestMateDb);
             dbMaster.DbContext.Database.EnsureDeleted();
             dbMaster.DbContext.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(context: dbMaster.DbContext
@@ -252,7 +236,7 @@ namespace Mate.Test.SimulationEnvironment
                 , createMeasurements: createMeasurements
                 , distributeSetupsExponentially: distributeSetupsExponentially);
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
-            var simContext = new AgentSimulation("Test", messageHub: new ConsoleHub());
+            var simContext = new AgentSimulation(TestMateDb, messageHub: new ConsoleHub());
             var simConfig = Production.CLI.ArgumentConverter.ConfigurationConverter(dbResult.DbContext, 1);
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(dbResult.ConnectionString.Value));
@@ -278,7 +262,7 @@ namespace Mate.Test.SimulationEnvironment
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 
-            ClearResultDBby(simNr: simConfig.GetOption<SimulationNumber>(), dbName: "TestResults");
+            ClearResultDBby(simNr: simConfig.GetOption<SimulationNumber>(), dbName: TestMateResultDb);
 
             var simWasReady = false;
             if (simulation.IsReady())
@@ -297,7 +281,7 @@ namespace Mate.Test.SimulationEnvironment
         [Fact (Skip = "Offline")]
         public void AggreteResults()
         {
-            var _resultContext = Dbms.GetResultDataBase("TestResults").DbContext;
+            var _resultContext = Dbms.GetResultDataBase(TestMateResultDb).DbContext;
 
             var aggregator = new ResultAggregator(_resultContext);
             aggregator.BuildResults(1);
@@ -307,7 +291,7 @@ namespace Mate.Test.SimulationEnvironment
         [Fact]
         private void ArgumentConverter()
         {
-             var dbResult = Dbms.GetResultDataBase("TestResultContext");
+             var dbResult = Dbms.GetResultDataBase(TestMateResultDb);
             var numberOfArguments = dbResult.DbContext.ConfigurationRelations.Count(x => x.Id == 1);
             var config = Production.CLI.ArgumentConverter.ConfigurationConverter(dbResult.DbContext, 2);
             Assert.Equal(numberOfArguments + 1, config.Count());
@@ -331,7 +315,7 @@ namespace Mate.Test.SimulationEnvironment
         [Fact]
         private void TestDbms()
         {
-            var dataBaseName = new DataBaseName("Test");
+            var dataBaseName = new DataBaseName(TestMateDb);
             var connectionString = Constants.CreateServerConnectionString(dataBaseName);
             System.Diagnostics.Debug.WriteLine(connectionString);
             Assert.NotNull(connectionString);

@@ -7,8 +7,8 @@ namespace Mate.DataCore.Data.Helper
     public static class Constants
     {
         public static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        public static string DbWithSuffixMaster(string appendix = "") => GetDbName("Test" + appendix);
-        public static string DbWithSuffixResults() => GetDbName("TestResults");
+        public static string DbWithSuffixMaster(string appendix = "") => GetDbName(DataBaseConfiguration.MateDb + appendix);
+        public static string DbWithSuffixResults() => GetDbName(DataBaseConfiguration.MateResultDb);
         public static bool IsLocalDb = false;
         // TODO: the random/dateTime is a workaround, remove this if drop database query in Dispose() in TestClasses is added
         // private static readonly string random = $"{new Random().Next(1, 1000000)}";
@@ -18,7 +18,6 @@ namespace Mate.DataCore.Data.Helper
             return (IsWindows)
                 ? /* then */  $"{dbSuffix}{GetDateString()}"
                 : /* else */  $"{dbSuffix}{GetDateString()}";
-
         }
 
         private static string GetDateString()
