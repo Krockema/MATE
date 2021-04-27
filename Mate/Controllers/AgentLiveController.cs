@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Mate.DataCore;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.GanttPlan;
 using Mate.DataCore.Nominal;
@@ -22,7 +23,6 @@ namespace Mate.Controllers
         private readonly MateProductionDb _context;
         private readonly MateResultDb _resultCtx;
         private readonly IMessageHub _messageHub;
-        private const string GanttPlanCtxString = "SERVER=(localdb)\\MSSQLLocalDB;DATABASE=DBGP;Trusted_connection=Yes;UID=;PWD=;MultipleActiveResultSets=true";
 
         public AgentLiveController(AgentCore agentSimulator, MateProductionDb context, MateResultDb resultCtx, IMessageHub messageHub)
         {
@@ -93,12 +93,12 @@ namespace Mate.Controllers
 
         public async void RunGanttSimulation(Configuration simConfig)
         {
-            GanttPlanDBContext.ClearDatabase(GanttPlanCtxString);
+            GanttPlanDBContext.ClearDatabase(Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).ConnectionString.Value);
             
             //Synchronisation GanttPlan
             GanttPlanOptRunner.Inizialize();
 
-            var simContext = new GanttSimulation("Master40", messageHub: _messageHub);
+            var simContext = new GanttSimulation(DataBaseConfiguration.MateDb, messageHub: _messageHub);
             simConfig.ReplaceOption(new SimulationKind(value: SimulationType.Central));
             simConfig.ReplaceOption(new DebugSystem(value: false));
 
