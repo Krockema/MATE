@@ -21,8 +21,14 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
         {
             var capabilityDefinition =
                 _capabilityDefinitions.SingleOrDefault(x => x.ResourceCapability.Id == capability.Id);
-            if (capabilityDefinition != null) 
+            if (capabilityDefinition != null)
+            {
+                foreach (var capabilityProvider in capability.ResourceCapabilityProvider)
+                {
+                    capabilityDefinition.AddCapabilityProvider(capabilityProvider);
+                }
                 return capabilityDefinition;
+            }
             // else create a new one
             capabilityDefinition = new CapabilityDefinition(capability);
             _capabilityDefinitions.Add(capabilityDefinition);

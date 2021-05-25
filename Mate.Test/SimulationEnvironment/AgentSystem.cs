@@ -189,7 +189,7 @@ namespace Mate.Test.SimulationEnvironment
             {
                 yield return new object[]
                 {
-                    SimulationType.Default, DataCore.Nominal.PriorityRule.LST, simNumber++, 960, throughput, 594, ModelSize.Medium, ModelSize.Medium, 0.0153, false, false
+                    SimulationType.Queuing, DataCore.Nominal.PriorityRule.LST, simNumber++, 960, throughput, 594, ModelSize.Medium, ModelSize.Medium, 0.0153, false, false
                 };
                 throughput += 100;
             }
@@ -255,8 +255,8 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
             simConfig.ReplaceOption(new DebugSystem(value: false));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
-            simConfig.ReplaceOption(new MinDeliveryTime(1920));
-            simConfig.ReplaceOption(new MaxDeliveryTime(2880));
+            simConfig.ReplaceOption(new MinDeliveryTime(10));
+            simConfig.ReplaceOption(new MaxDeliveryTime(16));
             simConfig.ReplaceOption(new CreateQualityData(true));
             simConfig.ReplaceOption(new Mate.Production.Core.Environment.Options.PriorityRule(priorityRule));
 
