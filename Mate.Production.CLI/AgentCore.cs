@@ -27,14 +27,14 @@ namespace Mate.Production.CLI
         private IActorRef SimulationContext;
         public AgentCore(string dbName, IMessageHub messageHub)
         {
-            _mateCtx = Dbms.GetMasterDataBase(dbName: dbName);
+            _mateCtx = Dbms.GetMateDataBase(dbName: dbName);
             //_resultContext = resultContext;
             _messageHub = messageHub;
         }
         public AgentCore(IMessageHub messageHub)
         {
             _messageHub = messageHub;
-            _mateCtx = Dbms.GetMasterDataBase(dbName: DataBaseConfiguration.MateDb);
+            _mateCtx = Dbms.GetMateDataBase(dbName: DataBaseConfiguration.MateDb);
             _resultCtx = Dbms.GetResultDataBase(dbName: DataBaseConfiguration.MateResultDb);
         }
 
@@ -72,7 +72,7 @@ namespace Mate.Production.CLI
 
             _messageHub.SendToAllClients(msg: "Prepare Simulation");
 
-            _agentSimulation = new AgentSimulation("Master40"
+            _agentSimulation = new AgentSimulation(DataBaseConfiguration.MateDb
                                                    , messageHub: _messageHub); // Defines the status output
             
             var simulation = await _agentSimulation.InitializeSimulation(configuration: _configuration);

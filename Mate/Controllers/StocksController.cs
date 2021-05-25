@@ -112,7 +112,7 @@ namespace Mate.Controllers
                     }
                     else
                     {
-                        throw;
+                        throw e.GetBaseException();
                     }
                 }
                 return RedirectToAction(actionName: "Index");

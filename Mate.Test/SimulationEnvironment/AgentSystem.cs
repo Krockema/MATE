@@ -73,10 +73,10 @@ namespace Mate.Test.SimulationEnvironment
 	                select Sum(u.dur) as SumDuration , sum(u.count) as SumOperations, sum(u.Po)  as ProductionOrders from #Union u
                 END");
 
-            using (var command = Dbms.GetMasterDataBase(dbName: TestMateDb).DbContext.Database.GetDbConnection().CreateCommand())
+            using (var command = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext.Database.GetDbConnection().CreateCommand())
             {
                 command.CommandText = sql;
-                Dbms.GetMasterDataBase(dbName: TestMateDb).DbContext.Database.OpenConnection();
+                Dbms.GetMateDataBase(dbName: TestMateDb).DbContext.Database.OpenConnection();
                 command.ExecuteNonQuery();
             }
 
@@ -87,10 +87,10 @@ namespace Mate.Test.SimulationEnvironment
         {
             var articleId = 63380;
             var sql = string.Format("Execute ArticleCTE {0}", articleId);
-            using (var command = Dbms.GetMasterDataBase(dbName: TestMateDb).DbContext.Database.GetDbConnection().CreateCommand())
+            using (var command = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext.Database.GetDbConnection().CreateCommand())
             {
                 command.CommandText = sql;
-                Dbms.GetMasterDataBase(dbName: "Test").DbContext.Database.OpenConnection();
+                Dbms.GetMateDataBase(dbName: "Test").DbContext.Database.OpenConnection();
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -112,7 +112,7 @@ namespace Mate.Test.SimulationEnvironment
             results.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(results);
 
-            MateDb masterCtx = Dbms.GetMasterDataBase(dbName: DataBaseConfiguration.MateDb).DbContext;
+            MateDb masterCtx = Dbms.GetMateDataBase(dbName: DataBaseConfiguration.MateDb).DbContext;
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Small, setupModelSize: ModelSize.Small, ModelSize.Small, 3, false, false);
@@ -135,7 +135,7 @@ namespace Mate.Test.SimulationEnvironment
         [Fact]
         public void SomethingToPlayWith()
         {
-            var masterCtx = Dbms.GetMasterDataBase(dbName: TestMateDb).DbContext;
+            var masterCtx = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext;
             var resources = masterCtx.Resources
                 //.Where(x => x.Count == 1)
                 // .Include(x => x.RequiresResourceSetups)
@@ -218,13 +218,13 @@ namespace Mate.Test.SimulationEnvironment
             //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace, LogLevel.Trace);
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AKKA, LogLevel.Warn);
 
-            //CreateMaster40Result
+            //Create Result Context
             var dbResult = Dbms.GetResultDataBase(TestMateResultDb);
             dbResult.DbContext.Database.EnsureDeleted();
             dbResult.DbContext.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(dbResult.DbContext);
 
-            var dbMaster = Dbms.GetMasterDataBase(dbName: TestMateDb);
+            var dbMaster = Dbms.GetMateDataBase(dbName: TestMateDb);
             dbMaster.DbContext.Database.EnsureDeleted();
             dbMaster.DbContext.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(context: dbMaster.DbContext

@@ -30,7 +30,7 @@ namespace Mate.Production.Core
         public IStateManager StateManager { get; set; }
         public BaseSimulation(string dbName, IMessageHub messageHub)
         {
-            DbProduction = Dbms.GetMasterDataBase(dbName: dbName);
+            DbProduction = Dbms.GetMateDataBase(dbName: dbName);
             MessageHub = messageHub;
         }
 

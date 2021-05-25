@@ -1,4 +1,4 @@
-﻿namespace  Master40.FunctionConverter
+﻿namespace  Mate.Production.Immutables
 
 open System.Runtime.CompilerServices
 

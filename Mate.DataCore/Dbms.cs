@@ -56,7 +56,7 @@ namespace Mate.DataCore
             }
             return new DbConnectionString(connectionString);
         }
-        public static DataBase<MateProductionDb> GetNewMasterDataBase(bool archive = false, string dbName = "")
+        public static DataBase<MateProductionDb> GetNewMateDataBase(bool archive = false, string dbName = "")
         {
             if (dbName.Equals(""))
             {
@@ -64,10 +64,10 @@ namespace Mate.DataCore
                 if (archive) archiveSuffix = "_archive";
                 dbName = Constants.DbWithSuffixMaster(archiveSuffix);
             }
-            return GetMasterDataBase(archive, dbName);
+            return GetMateDataBase(archive, dbName);
         }
 
-        public static DataBase<MateProductionDb> GetMasterDataBase(bool archive = false, string dbName = "", bool noTracking = true)
+        public static DataBase<MateProductionDb> GetMateDataBase(bool archive = false, string dbName = "", bool noTracking = true)
         {
             DataBase<MateProductionDb> dataBase = new DataBase<MateProductionDb>(dbName);
             if (UseLocalDb() && Constants.IsWindows)

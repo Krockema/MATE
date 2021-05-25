@@ -46,7 +46,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             , Configuration configuration
             , List<FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime> estimatedThroughputTimes)
         {
-            dbProduction = Dbms.GetMasterDataBase(dbName: dbNameProduction, noTracking: false);
+            dbProduction = Dbms.GetMateDataBase(dbName: dbNameProduction, noTracking: false);
             _articleCache = new ArticleCache(connectionString: new DbConnectionString(dbProduction.ConnectionString.Value));
             _messageHub = messageHub;
             _orderGenerator = new OrderGenerator(simConfig: configuration, productionDomainContext: dbProduction.DbContext

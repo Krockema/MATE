@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Mate.DataCore;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.DataModel;
 using Mate.PiWebApi;
@@ -10,9 +11,7 @@ namespace Mate.Test.ZeissApi
     {
         private ZeissApiClient ApiClient;
 
-        MateProductionDb _masterDBContext = new MateProductionDb(options: new DbContextOptionsBuilder<MateDb>()
-            .UseSqlServer(connectionString: "Server=(localdb)\\mssqllocaldb;Database=Master40;Trusted_Connection=True;MultipleActiveResultSets=true")
-            .Options);
+        private MateProductionDb _masterDBContext = Dbms.GetMateDataBase(dbName: DataBaseConfiguration.MateDb).DbContext;
 
 
         private M_Article GetArticle(string ArticleName)

@@ -2,6 +2,7 @@
 using System.Globalization;
 using Hangfire;
 using Hangfire.Console;
+using Mate.DataCore;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Initializer;
 using Mate.Models;
@@ -39,22 +40,22 @@ namespace Mate
         {
             services.AddDbContext<MateDb>
             (optionsAction: options =>
-                options.UseSqlServer(connectionString: Configuration.GetConnectionString(name: "DefaultConnection")));
+                options.UseSqlServer(connectionString: Dbms.GetMateDataBase(dbName: DataBaseConfiguration.MateDb).ConnectionString.Value));
 
             services.AddDbContext<MateResultDb>(optionsAction: options =>
-                options.UseSqlServer(connectionString: Configuration.GetConnectionString(name: "ResultConnection")));
+                options.UseSqlServer(connectionString: Dbms.GetMateDataBase(dbName: DataBaseConfiguration.MateResultDb).ConnectionString.Value));
 
             services.AddDbContext<MateProductionDb>(optionsAction: options =>
-                options.UseSqlServer(connectionString: Configuration.GetConnectionString(name: "DefaultConnection")));
+                options.UseSqlServer(connectionString: Dbms.GetMateDataBase(dbName: DataBaseConfiguration.MateDb).ConnectionString.Value));
             services.AddLogging(builder => { builder.AddFilter("Microsoft", LogLevel.Error); });
 
 
             // Hangfire
             services.AddDbContext<HangfireDBContext>(optionsAction: options =>
-                options.UseSqlServer(connectionString: Configuration.GetConnectionString(name: "Hangfire")));
+                options.UseSqlServer(connectionString: Dbms.GetHangfireDataBase(DataBaseConfiguration.MateHangfireDb).ConnectionString.Value));
 
             services.AddHangfire(configuration: options =>
-                options.UseSqlServerStorage(Configuration.GetConnectionString(name: "Hangfire"),
+                options.UseSqlServerStorage(Dbms.GetHangfireDataBase(DataBaseConfiguration.MateHangfireDb).ConnectionString.Value,
                                             StorageOptions.Default));
 
 
@@ -114,7 +115,7 @@ namespace Mate
             HangfireDBInitializer.DbInitialize(context: hangfireContext);
             GlobalConfiguration.Configuration
                 .UseFilter(filter: new AutomaticRetryAttribute {Attempts = 0})
-                .UseSqlServerStorage(nameOrConnectionString: Configuration.GetConnectionString(name: "Hangfire"))
+                .UseSqlServerStorage(nameOrConnectionString: Dbms.GetHangfireDataBase(DataBaseConfiguration.MateHangfireDb).ConnectionString.Value)
                 .UseConsole(); 
             app.UseHangfireDashboard();
 

@@ -14,7 +14,7 @@ namespace Mate.Test.Online.Agents.Types
         public ArticleCache()
         {
 
-            _contextDataBase = Dbms.GetNewMasterDataBase();
+            _contextDataBase = Dbms.GetNewMateDataBase();
 
             InitializeTestModel();
         }
@@ -32,7 +32,7 @@ namespace Mate.Test.Online.Agents.Types
         [Fact(Skip = "BUG need to change system for new IDs not given from Db -see new Database for each test")]
         public void AddArticleWithoutOperation()
         {
-            _contextDataBase = Dbms.GetNewMasterDataBase();
+            _contextDataBase = Dbms.GetNewMateDataBase();
 
             InitializeTestModel();
             var _articleCache = new Mate.Production.Core.Types.ArticleCache(connectionString: _contextDataBase.ConnectionString);
@@ -44,7 +44,7 @@ namespace Mate.Test.Online.Agents.Types
         [Fact(Skip = "BUG need to change system for new IDs not given from Db -see new Database for each test")]
         public void AddExistingArticle()
         {
-            _contextDataBase = Dbms.GetNewMasterDataBase();
+            _contextDataBase = Dbms.GetNewMateDataBase();
 
             var _articleCache = new Mate.Production.Core.Types.ArticleCache(connectionString: _contextDataBase.ConnectionString);
             var article = _articleCache.GetArticleById(id: 10772, transitionFactor: 3);

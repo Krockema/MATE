@@ -29,7 +29,7 @@ namespace Mate.Test.Online.Integration
         public ProductionTest(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
-            _contextDataBase = Dbms.GetNewMasterDataBase();
+            _contextDataBase = Dbms.GetNewMateDataBase();
             _resultContextDataBase = Dbms.GetNewResultDataBase();
 
         }

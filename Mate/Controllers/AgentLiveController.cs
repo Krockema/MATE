@@ -43,7 +43,7 @@ namespace Mate.Controllers
         }
 
         [HttpGet(template: "[Controller]/RunAsync/{simulationType}/orderAmount/{orderAmount}/arivalRate/{arivalRate}/estimatedThroughputTime/{estimatedThroughputTime}")]
-        public async void RunAsync(int simulationType, int orderAmount, double arivalRate,int estimatedThroughputTime)
+        public void RunAsync(int simulationType, int orderAmount, double arivalRate,int estimatedThroughputTime)
         {
             _context.ClearCustomerOrders();
 

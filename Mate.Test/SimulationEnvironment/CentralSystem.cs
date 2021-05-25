@@ -16,6 +16,7 @@ using Mate.Production.CLI;
 using Mate.Production.Core;
 using Mate.Production.Core.Environment.Options;
 using Mate.Production.Core.Helper;
+using MathNet.Numerics.Distributions;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using Xunit;
@@ -89,13 +90,13 @@ namespace Mate.Test.SimulationEnvironment
             var throughput = 1920;
             var arrivalRate = 0.015;
 
-            //Create Master40Data
-            var masterPlanContext = Dbms.GetMasterDataBase(dbName: TestMateDb).DbContext;
+            //Create Mate Data Base
+            var masterPlanContext = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext;
             masterPlanContext.Database.EnsureDeleted();
             masterPlanContext.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterPlanContext, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3, false, false);
 
-            //CreateMaster40Result
+            //Create Mate Result Database
             var masterPlanResultContext = Dbms.GetResultDataBase(TestMateResultDb).DbContext;
             masterPlanResultContext.Database.EnsureDeleted();
             masterPlanResultContext.Database.EnsureCreated();
@@ -160,7 +161,7 @@ namespace Mate.Test.SimulationEnvironment
         [Fact]
         public void TestGanttPlanApi()
         {
-            MateProductionDb master40Context = Dbms.GetMasterDataBase(dbName: TestMateDb).DbContext;
+           // MateProductionDb mateCtx = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext;
 
             GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).DbContext;
              var prod = ganttPlanContext.GptblProductionorder
@@ -215,18 +216,29 @@ namespace Mate.Test.SimulationEnvironment
             Assert.True(ganttPlanContext.GptblMaterial.Any());
         }
 
+        [Fact]
+        public void GenerateRandomLogNormal()
+        {
+            var _distribution = new LogNormal(mu: 2.5, sigma: 0.2);
+            for (int i = 0; i < 10000; i++)
+            {
+                System.Diagnostics.Debug.WriteLine(_distribution.Sample());
+                
+            }
+        }
+
 
         [Fact]
         public void GanttPlanInsertConfirmationAndReplan()
         {
 
-            MateProductionDb master40Context = Dbms.GetMasterDataBase(dbName: TestMateDb).DbContext;
-            master40Context.CustomerOrders.RemoveRange(master40Context.CustomerOrders);
-            master40Context.CustomerOrderParts.RemoveRange(master40Context.CustomerOrderParts);
-            master40Context.SaveChanges();
-
-            master40Context.CreateNewOrder(10115, 1, 0, 250);
-            master40Context.SaveChanges();
+            MateProductionDb mateCtx = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext;
+            mateCtx.CustomerOrders.RemoveRange(mateCtx.CustomerOrders);
+            mateCtx.CustomerOrderParts.RemoveRange(mateCtx.CustomerOrderParts);
+            mateCtx.SaveChanges();
+            
+            mateCtx.CreateNewOrder(10115, 1, 0, 250);
+            mateCtx.SaveChanges();
 
             GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).DbContext;
 

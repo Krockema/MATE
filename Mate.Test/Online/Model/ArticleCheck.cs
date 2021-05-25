@@ -17,7 +17,7 @@ namespace Mate.Test.Online.Model
         private ITestOutputHelper _output;
         public ArticleCheck(ITestOutputHelper output)
         {
-            DataBase = Dbms.GetNewMasterDataBase(dbName: "Test");
+            DataBase = Dbms.GetNewMateDataBase(dbName: "Test");
             _output = output;
             output.WriteLine(DataBase.ConnectionString.Value);
             MasterDBInitializerTruck.DbInitialize(context: DataBase.DbContext, resourceModelSize: ModelSize.Medium,
