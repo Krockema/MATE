@@ -1,0 +1,162 @@
+﻿@model IEnumerable< Mate.DataCore.ReportingModel.ConfigurationItem>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "_Layout";
+}
+
+
+
+<p>
+    <div class="row">
+        <div class="col-6"><h4>Simulation Configurations</h4></div>
+        <div class="col-6"><a asp-action="Create" class="btn btn-outline-secondary float-right"><i class="fas fa-plus-square fa-1x fa-unset"></i> New</a></div>
+    </div>
+</p>
+
+<div id="accordion">
+    <div class="card">
+        <div class="card-header card-header-btn" id="headingOne">
+            <div class="mb-0">
+                <div class="btn-toolbar justify-content-between">
+                    <div class="btn-group" style="width: calc(100% - 45px);" >
+                        <button class="btn btn-block btn-secondary" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                            Job Overview
+                        </button>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="refreshChartComponent()" title="reloadChart" aria-label="reloadChart" role="none" >
+                            <i class="fas fa-sync"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+            <div class="card-body">
+                <div id="overViewChartComponent">
+                @await Component.InvokeAsync($"JobInformation")
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Property)
+            </th>
+            <th>
+                Value
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>Start At</th>
+            <th>End At</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Property)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PropertyValue)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    <input id="@Html.Raw("iterateFrom"+item.PropertyValue)" class="form-control" value="1"/>
+                </td>
+                <td>
+                    <input id="@Html.Raw("iterateTo" + item.PropertyValue)" class="form-control" value="10"/>
+                </td>
+                <td>
+                    <div class="bs-callout bs-callout-danger bs-callout-small" id="@Html.Raw("statusCallout"+item.PropertyValue)">
+                        Ready
+                    </div>
+                </td>
+                <td style="text-align: right;">
+                    <button class="btn btn-outline-secondary ladda-button btn-sm"
+                            type="button" onclick="startAgents(@item.PropertyValue)">
+                        <i class="fas fa-play-circle fa-1x fa-unset"></i> Run!
+                    </button> |
+                    <button class="btn btn-outline-secondary ladda-button btn-sm"
+                            type="button" onclick="aggregateResults(@item.PropertyValue)">
+                        <i class="fas fa-code-branch fa-1x fa-unset"></i>Aggregate
+                    </button> |
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-edit fa-1x fa-unset"></i> Edit
+                    </a> |
+                    <a asp-action="Details" asp-route-id="@item.PropertyValue" class="btn btn-outline-secondary  btn-sm">
+                        <i class="fas fa-eye fa-1x fa-unset"></i> Details
+                    </a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-trash fa-1x fa-unset"></i> Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    function startAgents(value) {
+        $(".MessageDisplayRunning").html("");
+        // var l = Ladda.create(document.querySelector("#simulationStart-btn"));
+        // l.start();
+        // l.toggle();
+        setStatusCallout(value, "Queued...", "waring");
+        var iterateFrom = document.getElementById("iterateFrom" + value).value;
+        var iterateTo = document.getElementById("iterateTo" + value).value;
+        $.get("ConfigurationItems/Start/" + value + "/iterateFrom/" + iterateFrom + "/iterateTo/" + iterateTo );
+    }
+
+    function aggregateResults(value) {
+        setStatusCallout(value, "Aggregateing...", "info");
+        $.get("ConfigurationItems/AggregateResults/" + value);
+    }
+
+    processingProxy.on("clientListener", function (msg) {
+        $(".MessageDisplay").prepend(msg);
+    });
+
+    processingProxy.on("workerListener", function (msg) {
+        var json = JSON.parse(msg);
+        if (json[0] === "SimulationComplete") {
+            $(".MessageDisplay").prepend('<div class="alert alert-info">Completed Processing</div>');
+            $(".MessageDisplayRunning").prepend('<div class="alert alert-success">Completed Processing</div>');
+            setStatusCallout(json[1], "Finished!", "success");
+            json[0] = "succeeded";
+            dataRef.push(json);
+        } else {
+            json[0] = "processingOn";
+            dataRef.push(json);
+            setStatusCallout(json[1], "Started!", "info");
+        }
+    });
+
+    function setStatusCallout(id, status, infoLevel) {
+        var html = "statusCallout" + id;
+        $("#" + html).replaceWith("<div class='bs-callout bs-callout-small bs-callout-"
+            + infoLevel + "' id='" + html + "'>" + status + "</div>");
+    }
+
+
+    function refreshChartComponent() {
+        var container = $("#overViewChartComponent");
+        $.get("/ConfigurationItems/ChartStatusComponent", function (data) { container.html(data); });
+    };
+
+    setInterval(updateChart, 500);
+</script>

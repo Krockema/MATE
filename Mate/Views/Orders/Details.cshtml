@@ -1,0 +1,38 @@
+@model Mate.DataCore.DataModel.T_CustomerOrder
+
+@{
+    ViewData[index: "Title"] = "Details";
+    string modelId = Model.Id.ToString();
+}
+
+<h3>Order - Details</h3>
+
+<div>
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.DueTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.DueTime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(expression: model => model.BusinessPartner)
+        </dt>
+        <dd>
+            @Html.DisplayFor(expression: model => model.BusinessPartner.Id)
+        </dd>
+    </dl>
+</div>
+<partial name="..\OrderParts\Index.cshtml" model="Model.CustomerOrderParts" view-data="ViewData" />
+<div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Back</button>
+        <a asp-action="Create" asp-controller="OrderParts" data-target="#modal-sub-container" asp-route-orderId="@modelId" data-toggle="modal" class="btn btn-default">
+            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Add Part
+        </a>
+    </div>

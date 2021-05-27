@@ -1,0 +1,56 @@
+@model IEnumerable<Mate.DataCore.DataModel.T_CustomerOrderPart>
+
+@{
+    Layout = null;
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(expression: model => model.Quantity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(expression: model => model.IsPlanned)
+            </th>
+            <th>
+                @Html.DisplayNameFor(expression: model => model.Article)
+            </th>
+            <th>
+                @Html.DisplayNameFor(expression: model => model.CustomerOrder)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(expression: modelItem => item.Quantity)
+            </td>
+            <td>
+                @Html.DisplayFor(expression: modelItem => item.IsPlanned)
+            </td>
+            <td>
+                @Html.DisplayFor(expression: modelItem => item.Article.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(expression: modelItem => item.CustomerOrder.Id)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-controller="OrderParts" asp-route-id="@item.Id"
+                   data-target="#modal-sub-container" data-toggle="modal" class="btn btn-default">
+                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                </a>
+                <a asp-action="Details" asp-controller="OrderParts" asp-route-id="@item.Id"
+                   data-target="#modal-sub-container" data-toggle="modal" class="btn btn-default">
+                    <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                </a>
+                <a asp-action="Delete" asp-controller="OrderParts" asp-route-id="@item.Id"
+                   data-target="#modal-sub-container" data-toggle="modal" class="btn btn-default">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                </a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

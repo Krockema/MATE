@@ -1,0 +1,81 @@
+@using Mate.DataCore.ReportingModel
+@{
+    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData[index: "chart"];
+    string raw = "Chart Rendering Failed";
+    string type = ViewData[index: "Type"].ToString();
+    string percentage = ViewData[index: "Percentage"].ToString() + " %";
+    var kpis = (List<Kpi>)ViewData[index: "Data"];
+    if (chart != null) {
+        raw = chart.CreateChartCode(canvasId: "OrderTimeliness_"+type);
+    }
+}
+
+<style>
+    .chartContainer {
+        position: relative;
+        width: 250px;
+        margin-left: 75px;
+        height: 150px;
+    }
+    chartLayer > canvas {
+        width: 250px;
+        height: 150px;
+    }
+    .chartLayer, textLayer {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+    }
+    .textLayer {
+        z-index: -10;
+        color: #666;
+        font: bold 30px Helvetica;
+        display: flex;
+        padding-top: 80px;
+        justify-content: center; /* align horizontal */
+        align-items: center; /* align vertical */
+    }
+
+</style>
+<div class="row">
+    <div class="col-md-6">
+        <div class="chartContainer">
+            <div class="chartLayer">
+                <!--div id="js-legend" class="chart-legend"><div-->
+                <canvas id="OrderTimeliness_@type"></canvas>
+            </div>
+            <div class="textLayer">
+                @percentage
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <table class="table table-responsive table-striped">
+            <thead>
+                <tr>
+                    <th>Orders</th>
+                    <th>Quantity</th>
+                    <th>Min [min]</th>
+                    <th>Max [min]</th>
+                    <th>Time [%]</th>
+                </tr>
+                @foreach (var item in kpis)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Count</td>
+                        <td>@item.ValueMin</td>
+                        <td>@item.ValueMax</td>
+                        <td>@(item.Value * 100)</td>
+                    </tr>
+                }
+            </thead>
+        </table>
+    </div>
+</div>
+
+<script>
+    @Html.Raw(value: raw);
+</script>

@@ -1,0 +1,153 @@
+﻿@model Mate.Models.HangfireJob
+
+<div id="canvas-holder" style="height: @Html.Raw(Model.MaxY * 30 + 20)px; width: 100%">
+    <canvas id="SimulationHeatMapChart"></canvas>
+</div>
+<br/>
+<br />
+<script>
+var data = [@Html.Raw(Model.DataItem)];
+var flickering = [];
+var dataRef = [];
+var matrixElement = document.getElementById("SimulationHeatMapChart");
+var matrixChartCtx = new Chart(matrixElement,
+{
+    type: 'matrix',
+    data: {
+        datasets: [
+            {
+                label: 'matrixChart',
+                data: data,
+                backgroundColor: function (ctx) {
+                    switch (ctx.dataset.data[ctx.dataIndex].v) {
+                    case 'queued':
+                        return Color('#aa6708').alpha(0.3).rgbString();
+                    case 'failed':
+                        return Color('#ce4844').alpha(0.3).rgbString();
+                    case 'succeeded':
+                        return Color('#155724').alpha(0.3).rgbString();
+                    case 'empty':
+                        return Color('#666666').alpha(0.05).rgbString();
+                    case 'processingOn':
+                        flickering.push(ctx.dataIndex);
+                        return Color("white").rgbString();
+                    default:
+                        flickering.push(ctx.dataIndex);
+                        return Color('#1b809e').alpha(0.3).rgbString();
+                    }
+
+                },
+                borderColor: function(ctx) {
+                    switch (ctx.dataset.data[ctx.dataIndex].v) {
+                    case 'queued':
+                        return Color('#aa6708').rgbString();
+                    case 'failed':
+                        return Color('#ce4844').rgbString();
+                    case 'empty':
+                        return Color('#666666').rgbString();
+                    case 'succeeded':
+                        return Color('#155724').rgbString();
+                    default:
+                        return Color('#1b809e').rgbString();
+                    }
+                },
+                borderWidth: 1,
+                borderSkipped: false,
+                width: function(ctx) {
+                    var a = ctx.chart.chartArea;
+                    return (a.right - a.left) / @Html.Raw(Model.MaxX) - 2;
+                },
+                height: function(ctx) {
+                    var a = ctx.chart.chartArea;
+                    return (a.bottom - a.top) / @Html.Raw(Model.MaxY) - 2;
+                }
+            }
+        ]
+    },
+    options: {
+        legend: {
+            display: false
+        },
+        maintainAspectRatio: false,
+        animation: false,
+        tooltips: {
+            callbacks: {
+                title: function() { return ''; },
+                label: function(item, data) {
+                    var v = data.datasets[item.datasetIndex].data[item.index];
+                    return ["Id: " + v.x, "No: " + v.y, "State: " + v.v];
+                }
+            }
+        },
+        scales: {
+            xAxes: [
+                {
+                    ticks: {
+                        display: true,
+                                    
+                        min: 0.5,
+                        max: @Html.Raw(Model.MaxX) + 0.5,
+                        stepSize: 1,
+                        callback: function(value, index, values) {
+                            return 'No:' + value;
+                        }
+                    },
+                    gridLines: {
+                        display: false
+                    },
+                    afterBuildTicks: function(scale, ticks) {
+                        return ticks.slice(1, @Html.Raw(Model.MaxX + 1));
+                    }
+                }
+            ],
+            yAxes: [
+                {
+                    ticks: {
+                        display: true,
+                        min: 0.5,
+                        max: @Html.Raw(Model.MaxY) + 0.5,
+                        stepSize: 1,
+                        callback: function(value, index, values) {
+                            return 'Sim Id:' + (parseInt(index) + parseInt(1));
+                            // (parseInt(@Html.Raw(Model.MaxY)) - parseInt(index) + parseInt(1));
+                        }
+                    },
+                    gridLines: {
+                        display: false
+                    },
+                    afterBuildTicks: function(scale, ticks) {
+                        return ticks.slice(1, @Html.Raw(Model.MaxY +1));
+                    }
+                }
+            ]
+        }
+    }
+});
+
+function updateChart() {
+    dataRef.forEach(json => {
+        var indexFor = matrixChartCtx.data.datasets[0].data.findIndex(x => x.x === parseInt(json[2]) && x.y === (parseInt(@Html.Raw(Model.MaxY + 1)) - parseInt(json[1])));
+        matrixChartCtx.data.datasets[0].data[indexFor].v = json[0];
+
+    });
+    dataRef = [];
+    flickering.forEach(element => {
+        matrixChartCtx.data.datasets[0].data[element].v =
+            toggle(matrixChartCtx.data.datasets[0].data[element].v);
+    });
+    flickering = [];
+    matrixChartCtx.update();
+}
+
+function toggle(item) {
+    if (item === "processingOn") {
+        return "processing";
+    } else if (item === "processing") {
+        return "processingOn";
+    } else {
+        return item;
+    }
+}
+</script>
+
+

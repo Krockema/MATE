@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <Configurations>Debug;Release;Azure</Configurations>
+		<Platforms>AnyCPU;x64</Platforms>
+    <LangVersion>9.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Online\Agents\Resource\**" />
+    <Compile Remove="Online\Simulation\**" />
+    <Compile Remove="Test\**" />
+    <Compile Remove="Zpp\**" />
+    <EmbeddedResource Remove="Online\Agents\Resource\**" />
+    <EmbeddedResource Remove="Online\Simulation\**" />
+    <EmbeddedResource Remove="Test\**" />
+    <None Remove="Online\Agents\Resource\**" />
+    <None Remove="Online\Simulation\**" />
+    <None Remove="Test\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Online\Agents\Types\BucketManagers.cs" />
+    <Compile Remove="Online\Agents\Types\TimeConstraintQueue.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Akka.TestKit.Xunit" Version="1.4.18" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+    <PackageReference Include="EfCore.InMemoryHelpers" Version="1.9.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.5" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+    <PackageReference Include="Microsoft.NETCore.Portable.Compatibility" Version="1.0.1" />
+    <PackageReference Include="sqlite" Version="3.13.0" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+	<ItemGroup>
+    <ProjectReference Include="..\Mate\Mate.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+   <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="1.0.0" />
+  </ItemGroup>
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+    <Copy SourceFiles="..\Mate.DataCore\App.config" DestinationFiles="$(OutDir)\testhost.dll.config" />
+  </Target>
+</Project>

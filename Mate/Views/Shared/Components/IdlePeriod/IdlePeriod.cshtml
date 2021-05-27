@@ -1,0 +1,89 @@
+@using Mate.DataCore.ReportingModel
+@{
+    ChartJSCore.Models.Chart chart = (ChartJSCore.Models.Chart)ViewData[index: "chart"];
+    string raw = "Chart Rendering Failed";
+    string type = ViewData[index: "Type"].ToString();
+    var kpis = (List<Kpi>)ViewData[index: "Data"];
+    if (chart != null) {
+        raw = chart.CreateChartCode(canvasId: "IdlePeriod_" + type);
+    }
+}
+
+<style>
+    .chartWrapper {
+        position: relative;
+            
+    }
+
+    .chartWrapper > canvas {
+        position: absolute;
+        left: 0;
+        top: 0;
+        pointer-events:none;
+    }
+    .chartAreaWrapper {
+        overflow-x: scroll;
+        position: relative;
+        width: 100%;
+    }
+    .chartAreaWrapper2 {
+        position: relative;
+        height: 300px;
+    }
+</style>
+<div class="chartWrapper">
+    <div class="chartAreaWrapper">
+        <div class="chartAreaWrapper2">
+                <!--div id="js-legend" class="chart-legend"><div-->
+                <canvas id="IdlePeriod_@type" height="300"></canvas>
+            </div>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#IdleDetails_@type">Idle Times - Show Raw Data</a>
+                    </h4>
+                </div>
+                <div id="IdleDetails_@type" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <table class="table table-responsive table-striped table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Article</th>
+                                    <th>Min</th>
+                                    <th>Averange</th>
+                                    <th>Max</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in kpis)
+                                {
+                                    <tr>
+                                        <td>@item.Name</td>
+                                        <td>@item.ValueMin</td>
+                                        <td>@item.Value</td>
+                                        <td>@item.ValueMax</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    @Html.Raw(value: raw);
+    // $( document ).ready(function() {
+    //     // var newwidth = 20 * $('#StockEvolution_@type').data.datasets[0].data.length;
+    //     // $('.chartAreaWrapper2').width(newwidth);
+    //     // $('.chartAreaWrapper').animate({scrollLeft:newwidth});
+    //     //document.getElementById('js-legend').innerHTML = MaschineChart.generateLegend();
+    // });
+</script>
