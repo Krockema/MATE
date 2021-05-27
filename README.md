@@ -1,4 +1,4 @@
-# Master-4.0
+# MATE - Manufacturing on Actor Technology
 
 
 <p align="center">
@@ -13,25 +13,18 @@ The Project build status [![Build Status](https://travis-ci.com/Krockema/ng-erp-
 </p>
 
 
-
-This project is created to test selforganized concepts in an Industrial Enterprise Resouce Planning application.
-
+This project is part of a research project of evalutating self-organizing concepts in an industrial production planning and control application.
 
 
 Code Structure
 <ul>
-<li>Master40</li>
-<li>Master40.DB</li>
-<li>Master40.Simulation</li>
-<li>Master40.SimulationCore</li>
-<li>Master40.SimulationImmutables</li>
-<li>Master40.Tools</li>
-<li>Master40.XUnitTest</li>
+<li>Mate</li>
+<li>Mate.DataCore</li>
+<li>Mate.Production.CLI</li>
+<li>Mate.Production.Core</li>
+<li>Mate.Production.Immutables</li>
+<li>Mate.Test</li>
 </ul>
 
-the current Active developed branch is AkkaSim.
 
-use XUnit and Watcher for Continious Testing
-```
-.\Master-4.0\Master40.XUnitTest> dotnet watch test 
-```
+![Mate Interface](/Mate_Overview.gif)
