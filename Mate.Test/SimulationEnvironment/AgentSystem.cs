@@ -25,8 +25,8 @@ namespace Mate.Test.SimulationEnvironment
     public class AgentSystem : TestKit
     {
 
-        private readonly string TestMateDb = "Test" + DataBaseConfiguration.MateDb;
-        private readonly string TestMateResultDb = "Test" + DataBaseConfiguration.MateResultDb;
+        private readonly string TestMateDb = "Mate" + DataBaseConfiguration.MateDb;
+        private readonly string TestMateResultDb = "Mate" + DataBaseConfiguration.MateResultDb;
 
         [Fact]
         public void TestRawSQL()
@@ -115,7 +115,7 @@ namespace Mate.Test.SimulationEnvironment
             MateDb masterCtx = Dbms.GetMateDataBase(dbName: DataBaseConfiguration.MateDb).DbContext;
             masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Small, setupModelSize: ModelSize.Small, ModelSize.Small, 3, false, false);
+            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Large, setupModelSize: ModelSize.Small, ModelSize.Small, 3, false, false);
 
             HangfireDBContext dbContext = Dbms.GetHangfireDataBase(DataBaseConfiguration.MateHangfireDb).DbContext;
             dbContext.Database.EnsureDeleted();
