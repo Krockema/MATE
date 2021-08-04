@@ -107,20 +107,21 @@ namespace Mate.Test.SimulationEnvironment
         [Fact]
         public void ResetAllDatabase()
         {
-            MateResultDb results = Dbms.GetResultDataBase(DataBaseConfiguration.MateResultDb).DbContext;
-            results.Database.EnsureDeleted();
-            results.Database.EnsureCreated();
-            ResultDBInitializerBasic.DbInitialize(results);
+            // MateResultDb results = Dbms.GetResultDataBase(DataBaseConfiguration.MateResultDb).DbContext;
+            // results.Database.EnsureDeleted();
+            // results.Database.EnsureCreated();
+            // ResultDBInitializerBasic.DbInitialize(results);
 
-            MateDb masterCtx = Dbms.GetMateDataBase(dbName: DataBaseConfiguration.MateDb).DbContext;
-            masterCtx.Database.EnsureDeleted();
-            masterCtx.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Small, setupModelSize: ModelSize.Small, ModelSize.Small, 3, false, false);
+            MateDb mateDb = Dbms.GetMateDataBase(dbName: DataBaseConfiguration.MateDb).DbContext;
+            mateDb.Database.EnsureDeleted();
+            mateDb.Database.EnsureCreated();
+            MasterDBInitializerShoes.DbInitialize(mateDb);
+            //MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Small, setupModelSize: ModelSize.Small, ModelSize.Small, 3, false, false);
 
-            HangfireDBContext dbContext = Dbms.GetHangfireDataBase(DataBaseConfiguration.MateHangfireDb).DbContext;
-            dbContext.Database.EnsureDeleted();
-            dbContext.Database.EnsureCreated();
-            HangfireDBInitializer.DbInitialize(context: dbContext);
+            // HangfireDBContext dbContext = Dbms.GetHangfireDataBase(DataBaseConfiguration.MateHangfireDb).DbContext;
+            // dbContext.Database.EnsureDeleted();
+            // dbContext.Database.EnsureCreated();
+            // HangfireDBInitializer.DbInitialize(context: dbContext);
         }
 
         [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]
@@ -189,7 +190,7 @@ namespace Mate.Test.SimulationEnvironment
             {
                 yield return new object[]
                 {
-                    SimulationType.Queuing, DataCore.Nominal.PriorityRule.LST, simNumber++, 960, throughput, 594, ModelSize.Medium, ModelSize.Medium, 0.0153, false, false
+                    SimulationType.Default, DataCore.Nominal.PriorityRule.LST, simNumber++, 960, throughput, 594, ModelSize.Medium, ModelSize.Medium, 0.0153, false, false
                 };
                 throughput += 100;
             }

@@ -55,7 +55,7 @@ namespace Mate.Controllers
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: orderAmount));
-            simConfig.ReplaceOption(new EstimatedThroughPut(value: estimatedThroughputTime));
+            simConfig.ReplaceOption(new EstimatedThroughPut(value: 0));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
             simConfig.ReplaceOption(new Seed(value: 169));
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
@@ -63,6 +63,7 @@ namespace Mate.Controllers
             simConfig.ReplaceOption(new SaveToDB(value: false));
             simConfig.ReplaceOption(new DebugSystem(value: false));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
+            simConfig.ReplaceOption(new MaxBucketSize(480));
             simConfig.ReplaceOption(new MinDeliveryTime(10));
             simConfig.ReplaceOption(new MaxDeliveryTime(15));
             

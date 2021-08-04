@@ -202,7 +202,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                            group lt by lt.ArticleName into so
                            select new
                            {
-                               ArticleName = so.Key,
+                               ArticleName = so.Key.Split(new char[] { '|' })[0],
                                Dlz = so.Select(selector: x => (double)x.End - x.Start).ToList()
                            };
 

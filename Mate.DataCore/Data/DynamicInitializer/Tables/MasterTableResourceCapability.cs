@@ -16,9 +16,13 @@ namespace Mate.DataCore.Data.DynamicInitializer.Tables
 
         internal M_ResourceCapability[] CreateCapabilities(MateDb context, List<ResourceProperty> resourceProperties)
         {
+
             for (var i = 0; i < resourceProperties.Count; i++)
             {
-                Capabilities.Add(new M_ResourceCapability{Name = "" + AlphabeticNumbering.GetAlphabeticNumbering(i) + " Capability"});
+                Capabilities.Add(new M_ResourceCapability{Name = resourceProperties[i].Name 
+                                                                    + " " 
+                                                                    + AlphabeticNumbering.GetAlphabeticNumbering(i) 
+                                                                    + " Capability"});
             }
 
             context.ResourceCapabilities.AddRange(Capabilities);
