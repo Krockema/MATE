@@ -60,7 +60,7 @@ namespace Mate.Controllers
             simConfig.ReplaceOption(new Seed(value: 169));
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
             simConfig.ReplaceOption(new SimulationEnd(value: 10080));
-            simConfig.ReplaceOption(new SaveToDB(value: false));
+            simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: false));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
             simConfig.ReplaceOption(new MaxBucketSize(480));

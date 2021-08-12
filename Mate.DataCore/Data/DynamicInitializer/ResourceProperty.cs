@@ -7,5 +7,7 @@
         public int ResourceCount { get; set; }
         public int SetupTime { get; set; }
         public int OperatorCount { get; set; }
+        public bool IsBatchAble { get; set;}
+        public double BatchSize { get; set; }
     }
 }

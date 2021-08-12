@@ -80,9 +80,9 @@ namespace Mate.DataCore.Data.Initializer
             ArticleStatistics.CreateProcedures(mateDb);
             // create resources
             var resourceProps = new List<ResourceProperty>();
-            resourceProps.Add(new ResourceProperty { Name = "Heat Press", ToolCount = 6, ResourceCount = 2, SetupTime = 5, OperatorCount = 0 });
-            resourceProps.Add(new ResourceProperty { Name = "Desma", ToolCount = 4, ResourceCount = 3, SetupTime = 2, OperatorCount = 0 });
-            resourceProps.Add(new ResourceProperty { Name = "Wrapper", ToolCount = 4, ResourceCount = 1, SetupTime = 2, OperatorCount = 0 });
+            resourceProps.Add(new ResourceProperty { Name = "Heat Press", ToolCount = 6, ResourceCount = 2, SetupTime = 5, OperatorCount = 0, IsBatchAble = false });
+            resourceProps.Add(new ResourceProperty { Name = "Desma", ToolCount = 4, ResourceCount = 3, SetupTime = 2, OperatorCount = 0, IsBatchAble = true, BatchSize = 20 });
+            resourceProps.Add(new ResourceProperty { Name = "Wrapper", ToolCount = 4, ResourceCount = 1, SetupTime = 2, OperatorCount = 0 , IsBatchAble = false });
             var capabilities = DynamicInitializer.ResourceInitializer.Initialize(mateDb, resourceProps);
 
             // Type and Units

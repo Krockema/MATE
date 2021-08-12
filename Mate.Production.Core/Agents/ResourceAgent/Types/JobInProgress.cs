@@ -22,7 +22,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
         public bool SetupIsOngoing { get; set; }
         public long LastTimeStartCall { get; private set; }
         public bool IsWorking {get; private set; } = false;
-        private Queue<FOperation> _finalOperations = new Queue<FOperation>();
+        private Queue<FOperation> _finalOperations { get; set; } = new Queue<FOperation>();
         public bool ResetIsWorking() => IsWorking = false;
 
     #region Passthrough Properties
@@ -98,6 +98,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
             IsWorking = false;
             StartedAt = 0;
             ExpectedResourceIsBusyUntil = 0;
+            _finalOperations = new ();
         }
 
         public IConfirmation RevokeJob(Guid confirmationKey)

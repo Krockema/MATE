@@ -155,18 +155,20 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
 
             foreach (var bucket in buckets)
             {
-                var maxbucket = ExceedMaxBucketSize(bucket, operation);
-
-                if (!maxbucket)
-                {
-                    //System.Diagnostics.Debug.WriteLine($"Max bucket size exceed");
-                }
-
-                if (HasCapacityLeft(bucket, operation) && HasLaterForwardStart(bucket, operation) && maxbucket)
+                if (operation.RequiredCapability.IsBatchAble 
+                    && bucket.Operations.Count < operation.RequiredCapability.BatchSize
+                    && bucket.MaxBucketSize == operation.Operation.Duration
+                    && HasLaterForwardStart(bucket, operation))
                 {
                     matchingBuckets.Add(bucket);
-                }
+                } 
+                else 
+                { 
 
+                var maxbucket = ExceedMaxBucketSize(bucket, operation);
+                if (HasCapacityLeft(bucket, operation) && HasLaterForwardStart(bucket, operation) && maxbucket)
+                    matchingBuckets.Add(bucket);
+                }
             }
 
             //var matchingBucket = GetBucketWithMostLeftCapacity(matchingBuckets);
@@ -299,7 +301,13 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
         public long GetBucketSize(int capabilityId)
         {
             if (CapabilityBucketSizeDictionary.TryGetValue(capabilityId, out var value))
+            {
+                if (value.Capability.IsBatchAble)
+                {
+                    return Convert.ToInt64(value.Duration);
+                }
                 return value.Size;
+            }
             // else
             throw new Exception("No bucket size Found!");
         }

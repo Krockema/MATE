@@ -22,7 +22,10 @@ namespace Mate.DataCore.Data.DynamicInitializer.Tables
                 Capabilities.Add(new M_ResourceCapability{Name = resourceProperties[i].Name 
                                                                     + " " 
                                                                     + AlphabeticNumbering.GetAlphabeticNumbering(i) 
-                                                                    + " Capability"});
+                                                                    + " Capability"
+                                                        , BatchSize = resourceProperties[i].BatchSize
+                                                        , IsBatchAble = resourceProperties[i].IsBatchAble
+                });
             }
 
             context.ResourceCapabilities.AddRange(Capabilities);
@@ -46,7 +49,9 @@ namespace Mate.DataCore.Data.DynamicInitializer.Tables
                 var capability = new M_ResourceCapability
                 {
                     Name = parent.Name + " Tool Nr " + i,
-                    ParentResourceCapabilityId = parent.Id
+                    ParentResourceCapabilityId = parent.Id,
+                    IsBatchAble = parent.IsBatchAble,
+                    BatchSize = parent.BatchSize
                 };
 
                 Capabilities.Add(capability);
