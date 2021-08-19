@@ -42,6 +42,15 @@ namespace Mate.Controllers
             return View(model: resources);
         }
 
+        [HttpGet(template: "[Controller]/InitalizeAR")]
+        public void InitalizeAR()
+        {
+            var resources = _context.Resources.Where(x => x.IsPhysical && !x.IsBiological)
+                                                .Select(x => new { Name = x.Name.Substring(0, 3), Id = x.Id.ToString() });
+
+            _messageHub.SendToClient("AR",System.Text.Json.JsonSerializer.Serialize(resources));
+        }    
+
         [HttpGet(template: "[Controller]/RunAsync/{simulationType}/orderAmount/{orderAmount}/arivalRate/{arivalRate}/estimatedThroughputTime/{estimatedThroughputTime}")]
         public void RunAsync(int simulationType, int orderAmount, double arivalRate,int estimatedThroughputTime)
         {
@@ -51,7 +60,7 @@ namespace Mate.Controllers
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(_resultCtx.Database.GetDbConnection().ConnectionString));
             simConfig.ReplaceOption(new KpiTimeSpan(240));
-            simConfig.ReplaceOption(new TimeToAdvance(value: TimeSpan.FromMilliseconds(50)));
+            simConfig.ReplaceOption(new TimeToAdvance(value: TimeSpan.FromMilliseconds(1000 * 1)));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: orderAmount));
@@ -66,6 +75,7 @@ namespace Mate.Controllers
             simConfig.ReplaceOption(new MaxBucketSize(480));
             simConfig.ReplaceOption(new MinDeliveryTime(10));
             simConfig.ReplaceOption(new MaxDeliveryTime(15));
+            simConfig.ReplaceOption(new Mate.Production.Core.Environment.Options.PriorityRule(value: DataCore.Nominal.PriorityRule.LST));
             
 
             switch (simulationType)

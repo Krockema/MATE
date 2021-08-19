@@ -35,7 +35,7 @@ namespace Mate.Production.Core
             /// <summary>
             /// Prepare Simulation Environment
             /// </summary>
-            /// <param name="debug">Enables AKKA-Global message Debugging</param>
+            /// <param name="debug">Enables AKKA-Global message Debugging</paSram>
         public AgentSimulation(string dbName, IMessageHub messageHub) : base(dbName, messageHub)
         {
         }

@@ -37,7 +37,7 @@
                 <div class="row form-group" style="">
                     <label class="col-md-8 col-form-label">Estimated throughput</label>
                     <div class="col-md-4">
-                        <input id="estimatedThroughputTime" class="form-control" value="1920">
+                        <input id="estimatedThroughputTime" class="form-control" value="5000">
                     </div>
                 </div>
             </div>
@@ -46,6 +46,10 @@
                 <button class="btn btn-outline-secondary ladda-button" id="simulationStart-btn" data-dismiss="modal"
                         type="button" onclick="startAgents()">
                     Launch!
+                </button>
+                <button class="btn btn-outline-secondary ladda-button" id="arInitialization-btn" data-dismiss="modal"
+                        type="button" onclick="InitalizeAR()">
+                    Initalize AR!
                 </button>
             </div>
         </div>

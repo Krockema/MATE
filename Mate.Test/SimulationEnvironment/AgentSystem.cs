@@ -25,8 +25,8 @@ namespace Mate.Test.SimulationEnvironment
     public class AgentSystem : TestKit
     {
 
-        private readonly string TestMateDb = "Test" + DataBaseConfiguration.MateDb;
-        private readonly string TestMateResultDb = "Test" + DataBaseConfiguration.MateResultDb;
+        private readonly string TestMateDb = "Mate" + DataBaseConfiguration.MateDb;
+        private readonly string TestMateResultDb = "Mate" + DataBaseConfiguration.MateResultDb;
 
         [Fact]
         public void TestRawSQL()
@@ -107,21 +107,20 @@ namespace Mate.Test.SimulationEnvironment
         [Fact]
         public void ResetAllDatabase()
         {
-            // MateResultDb results = Dbms.GetResultDataBase(DataBaseConfiguration.MateResultDb).DbContext;
-            // results.Database.EnsureDeleted();
-            // results.Database.EnsureCreated();
-            // ResultDBInitializerBasic.DbInitialize(results);
+            MateResultDb results = Dbms.GetResultDataBase(DataBaseConfiguration.MateResultDb).DbContext;
+            results.Database.EnsureDeleted();
+            results.Database.EnsureCreated();
+            ResultDBInitializerBasic.DbInitialize(results);
 
-            MateDb mateDb = Dbms.GetMateDataBase(dbName: DataBaseConfiguration.MateDb).DbContext;
-            mateDb.Database.EnsureDeleted();
-            mateDb.Database.EnsureCreated();
-            MasterDBInitializerShoes.DbInitialize(mateDb);
-            //MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Small, setupModelSize: ModelSize.Small, ModelSize.Small, 3, false, false);
+            MateDb masterCtx = Dbms.GetMateDataBase(dbName: DataBaseConfiguration.MateDb).DbContext;
+            masterCtx.Database.EnsureDeleted();
+            masterCtx.Database.EnsureCreated();
+            MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Large, setupModelSize: ModelSize.Small, ModelSize.Small, 3, false, false);
 
-            // HangfireDBContext dbContext = Dbms.GetHangfireDataBase(DataBaseConfiguration.MateHangfireDb).DbContext;
-            // dbContext.Database.EnsureDeleted();
-            // dbContext.Database.EnsureCreated();
-            // HangfireDBInitializer.DbInitialize(context: dbContext);
+            HangfireDBContext dbContext = Dbms.GetHangfireDataBase(DataBaseConfiguration.MateHangfireDb).DbContext;
+            dbContext.Database.EnsureDeleted();
+            dbContext.Database.EnsureCreated();
+            HangfireDBInitializer.DbInitialize(context: dbContext);
         }
 
         [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]
