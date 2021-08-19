@@ -114,6 +114,11 @@
         $("#oee").replaceWith("<p id='oee'><b>" + msg + " %</b></p>");
     });
 
+    processingProxy.on("ARINIT", function (msg) { //Dirty Init Command
+        console.log("AR Init Request received");
+        InitalizeAR();
+    });
+
     // Start Agents
     function startAgents() {
         $(".MessageDisplayRunning").html("");
@@ -131,6 +136,12 @@
             + "<p><b>&nbsp;</b></p>"
             + "</div>");
         $.get("AgentLive/RunAsync/" + simulationType + "/orderAmount/" + orderAmount + "/arivalRate/" + arivalRate + "/estimatedThroughputTime/" + estimatedThroughputTime);
+    }
+
+    // Initalize AR
+
+    function InitalizeAR() {
+        $.get("AgentLive/InitalizeAR");
     }
 
     // Start Agents

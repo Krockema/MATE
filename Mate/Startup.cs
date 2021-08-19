@@ -65,13 +65,17 @@ namespace Mate
 
             services.AddTransient<HangfireJob>();
 
-            services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
+
+
+            services.AddCors(options => options.AddDefaultPolicy(builder =>
             {
                 // Not recommended for productive use
                 builder
                     .AllowAnyMethod()
                     .AllowAnyHeader()
-                    .AllowAnyOrigin();
+                    .AllowAnyOrigin()
+                    .WithOrigins("https://www2.htw-dresden.de").AllowCredentials();
+
             }));
 
             GlobalJobFilters.Filters.Add(new KeepJobInStore());
@@ -134,7 +138,7 @@ namespace Mate
                 app.UseExceptionHandler(errorHandlingPath: "/Home/Error");
             }
 
-            app.UseCors("CorsPolicy");
+            app.UseCors();
             app.UseFileServer();
             app.UseStaticFiles();
             app.UseRouting();

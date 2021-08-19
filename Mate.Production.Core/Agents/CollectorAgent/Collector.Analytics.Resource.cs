@@ -95,6 +95,8 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
             Collector.messageHub.SendToClient(listener: "ganttChart", msg: JsonConvert.SerializeObject(value: taskItem));
 
+            CreateAndSendArElement(task);
+
         }
 
         private void UpdateFeed(bool finalCall)
@@ -351,6 +353,23 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                     Time = Collector.Time,
                     Load = new { Work = totalLoad, Setup = totalSetup }
                 }));
+        }
+
+        private void CreateAndSendArElement(FCreateTaskItem taskItem)
+        {
+            var resourceType = _resources.Single(x => x.Key.Equals(taskItem.ResourceId)).Value.ResourceType;
+
+            if (taskItem.Type == "Setup" || resourceType != ResourceType.Workcenter) return;
+
+            var arSimulationElement = new ArSimElement(
+                stuffId: Guid.NewGuid().ToString(),
+                targetMachineId: taskItem.ResourceId.ToString(),
+                processDuration: (taskItem.End - taskItem.Start) * 1500, // convert to milliseconds
+                transportDurRatio: 40
+            );
+            
+
+            Collector.messageHub.SendToClient("SIM", System.Text.Json.JsonSerializer.Serialize(arSimulationElement));
         }
 
     }
