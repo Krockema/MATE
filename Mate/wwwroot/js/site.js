@@ -57,10 +57,10 @@ imagePreview = function () {
             this.t = this.title;
             this.title = "";
             var c = (this.t !== "") ? "<br/>" + this.t : "";
-            $("body").append("<p id='preview'><img src='" + this.href + "' alt='Image preview' width='800px'/>" + c + "</p>");
+            $("body").append("<p id='preview'><img src='" + this.href + "' alt='Image preview' width='480px'/>" + c + "</p>");
             $("#preview")
                 .css("top", (e.pageY - xOffset) + "px")
-                .css("left", (e.pageX + yOffset - 800) + "px")
+                .css("left", (e.pageX + yOffset - 480) + "px")
                 .fadeIn("fast");
         },
         function () {
@@ -70,7 +70,7 @@ imagePreview = function () {
     $("a.preview").mousemove(function (e) {
         $("#preview")
             .css("top", (e.pageY - xOffset) + "px")
-            .css("left", (e.pageX - yOffset - 800) + "px");
+            .css("left", (e.pageX - yOffset - 480) + "px");
     });
 };
 $(document).ready(function () {

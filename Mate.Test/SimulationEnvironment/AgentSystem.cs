@@ -189,7 +189,7 @@ namespace Mate.Test.SimulationEnvironment
             {
                 yield return new object[]
                 {
-                    SimulationType.Queuing, DataCore.Nominal.PriorityRule.LST, simNumber++, 960, throughput, 594, ModelSize.Medium, ModelSize.Medium, 0.0153, false, false
+                    SimulationType.Default, DataCore.Nominal.PriorityRule.LST, simNumber++, 960, throughput, 594, ModelSize.Medium, ModelSize.Medium, 0.0153, false, false
                 };
                 throughput += 100;
             }

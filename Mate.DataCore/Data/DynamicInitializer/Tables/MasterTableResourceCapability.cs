@@ -16,9 +16,16 @@ namespace Mate.DataCore.Data.DynamicInitializer.Tables
 
         internal M_ResourceCapability[] CreateCapabilities(MateDb context, List<ResourceProperty> resourceProperties)
         {
+
             for (var i = 0; i < resourceProperties.Count; i++)
             {
-                Capabilities.Add(new M_ResourceCapability{Name = "" + AlphabeticNumbering.GetAlphabeticNumbering(i) + " Capability"});
+                Capabilities.Add(new M_ResourceCapability{Name = resourceProperties[i].Name 
+                                                                    + " " 
+                                                                    + AlphabeticNumbering.GetAlphabeticNumbering(i) 
+                                                                    + " Capability"
+                                                        , BatchSize = resourceProperties[i].BatchSize
+                                                        , IsBatchAble = resourceProperties[i].IsBatchAble
+                });
             }
 
             context.ResourceCapabilities.AddRange(Capabilities);
@@ -42,7 +49,9 @@ namespace Mate.DataCore.Data.DynamicInitializer.Tables
                 var capability = new M_ResourceCapability
                 {
                     Name = parent.Name + " Tool Nr " + i,
-                    ParentResourceCapabilityId = parent.Id
+                    ParentResourceCapabilityId = parent.Id,
+                    IsBatchAble = parent.IsBatchAble,
+                    BatchSize = parent.BatchSize
                 };
 
                 Capabilities.Add(capability);
