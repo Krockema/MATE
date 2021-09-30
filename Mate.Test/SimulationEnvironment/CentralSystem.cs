@@ -120,7 +120,7 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new OrderQuantity(value: 141));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
-            simConfig.ReplaceOption(new Seed(value: seed));
+            simConfig.ReplaceOption(new Production.Core.Environment.Options.Seed(value: seed));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 4));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: 6));
             simConfig.ReplaceOption(new SettlingStart(value: 2880));

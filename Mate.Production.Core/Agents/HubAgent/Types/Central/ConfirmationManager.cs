@@ -25,7 +25,6 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
                 localGanttPlanDbContext.GptblConfirmation.AddRange(_confirmations);
                 localGanttPlanDbContext.GptblConfirmationResource.AddRange(_confirmationsResources);
                 localGanttPlanDbContext.SaveChanges();
-                
             }
 
             ResetConfirmations();

@@ -13,12 +13,12 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
         private readonly MeasurementValuesGenerator _measurementValuesGenerator;
         private readonly DeflectionGenerator _deflectionGenerator;
 
-        public static Measurement Get(Seed seed)
+        public static Measurement Get(Environment.Options.Seed seed)
         {
             return new Measurement(seed);
         }
 
-        public Measurement(Seed seed, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
+        public Measurement(Environment.Options.Seed seed, SimulationType simulationType = SimulationType.None) : base(childMaker: null, simulationType: simulationType)
         {
             _measurementValuesGenerator = new MeasurementValuesGenerator(seed.Value);
             _deflectionGenerator = new DeflectionGenerator(seed.Value);

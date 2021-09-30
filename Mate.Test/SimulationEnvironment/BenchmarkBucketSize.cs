@@ -37,7 +37,7 @@ namespace Mate.Test.SimulationEnvironment
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(dbName: TestMateDb, messageHub: new ConsoleHub());
 
-            var simConfig = Mate.Production.Core.Environment.Configuration.Create(args: new object[]
+            var simConfig = Production.Core.Environment.Configuration.Create(args: new object[]
             {
                 // set ResultDBString and set SaveToDB true
                 new ResultsDbConnectionString(value: Dbms.GetResultDataBase(TestMateResultDb).ConnectionString.Value), new SimulationId(value: 1), new SimulationNumber(value: simNr++),
@@ -46,7 +46,7 @@ namespace Mate.Test.SimulationEnvironment
                 new OrderArrivalRate(value: OrderArrivalRate), new OrderQuantity(value: Int32.MaxValue),
                 new TransitionFactor(value: 3), new EstimatedThroughPut(value: 1920), new DebugAgents(value: false),
                 new DebugSystem(value: false), new KpiTimeSpan(value: 480), new MaxBucketSize(value: MaxBucketSize),
-                new Seed(value: 1337), new MinDeliveryTime(value: 1440), new MaxDeliveryTime(value: 2880),
+                new Production.Core.Environment.Options.Seed(value: 1337), new MinDeliveryTime(value: 1440), new MaxDeliveryTime(value: 2880),
                 new TimePeriodForThroughputCalculation(value: 3840), new SettlingStart(value: 4320),
                 new SimulationEnd(value: 20160), new WorkTimeDeviation(value: 0.2), new SaveToDB(value: false)
             });

@@ -89,7 +89,7 @@ namespace Mate.Test.Online.Integration
             simConfig.ReplaceOption(new OrderQuantity(value: orderQuantity));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: 1920));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
-            simConfig.ReplaceOption(new Seed(value: 1337));
+            simConfig.ReplaceOption(new Mate.Production.Core.Environment.Options.Seed(value: 1337));
             simConfig.ReplaceOption(new SettlingStart(value: 0));
             simConfig.ReplaceOption(new SimulationEnd(value: 4380));
             simConfig.ReplaceOption(new SaveToDB(value: true));

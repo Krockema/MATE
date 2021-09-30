@@ -29,7 +29,7 @@ namespace Mate.Production.Core.Helper.DistributionProvider
         public OrderGeneratorPerformance(Configuration simConfig, List<int> productIds,
             IEnumerable<M_Article> articles, IEnumerable<M_BusinessPartner> businessPartners)
         {
-            _seededRandom = new Random(Seed: simConfig.GetOption<Seed>().Value +
+            _seededRandom = new Random(Seed: simConfig.GetOption<Mate.Production.Core.Environment.Options.Seed>().Value +
                                              simConfig.GetOption<SimulationNumber>().Value);
             _exponential = new Exponential(rate: simConfig.GetOption<OrderArrivalRate>().Value,
                 randomSource: _seededRandom);

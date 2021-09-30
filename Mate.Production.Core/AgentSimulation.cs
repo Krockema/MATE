@@ -311,7 +311,7 @@ namespace Mate.Production.Core
 
             Simulation.SimulationContext.Tell(message:
                 BasicInstruction.Initialize.Create(target: ActorPaths.MeasurementAgent.Ref,
-                    message: Agents.ResourceAgent.Behaviour.Measurement.Get(configuration.GetOption<Seed>())));
+                    message: Agents.ResourceAgent.Behaviour.Measurement.Get(configuration.GetOption<Environment.Options.Seed>())));
 
             MeasurementCollector = Simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsMeasurements.Get()
                 , msgHub: MessageHub, configuration: configuration, time: 0, debug: DebugAgents

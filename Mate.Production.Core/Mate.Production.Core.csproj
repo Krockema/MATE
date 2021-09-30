@@ -3,11 +3,11 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <LangVersion>9.0</LangVersion>
-	  <Platforms>AnyCPU;x64</Platforms>
+	  <Platforms>AnyCPU;x64;x86</Platforms>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />
-    <Configurations>Debug;Release;Debuger</Configurations>
+    <Configurations>Debug;Release;Debuger;Debugger</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

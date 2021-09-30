@@ -10,7 +10,7 @@ namespace Mate.Production.Core.Helper.DistributionProvider
         public static WorkTimeGenerator Create(Configuration configuration, int salt = 0)
         {
             return new WorkTimeGenerator(
-                seed: configuration.GetOption<Seed>().Value + salt
+                seed: configuration.GetOption<Mate.Production.Core.Environment.Options.Seed>().Value + salt
                 , deviation: configuration.GetOption<WorkTimeDeviation>().Value
                 , simNumber: configuration.GetOption<SimulationNumber>().Value);
         }
