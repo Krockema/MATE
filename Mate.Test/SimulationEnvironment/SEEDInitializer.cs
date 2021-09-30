@@ -23,20 +23,19 @@ namespace Mate.Test.SimulationEnvironment
         [Fact]
         public void InitiateSeed()
         {
-
-            Materials Materials = new Materials();
-
+            var materials = new Materials();
             //Initialize MaterialConfig
             var seedConfig = new Configuration();
             var materialConfig = new MaterialConfig()
             {
-                StructureParameter = new StructureParameter() { ComplexityRatio = 4, ReuseRatio = 2, NumberOfSalesMaterials = 8, VerticalIntegration = 4 },
+                StructureParameter = new StructureParameter() { ComplexityRatio = 4, ReuseRatio = 2, NumberOfSalesMaterials = 8, VerticalIntegration = 4},
                 TransitionMatrixParameter = new TransitionMatrixParameter() { Lambda = 2, OrganizationalDegree = 0.15 }
             };
             seedConfig.WithOption(materialConfig);
 
             var rsSaw = new ResourceGroup("Saw")
                .WithResourceuQuantity(2)
+               .WithDefaultSetupDurationMean(TimeSpan.FromMinutes(5))
                .WithTools(new List<ResourceTool> {
                     new ResourceTool("Blade 4mm").WithOperationDurationAverage(TimeSpan.FromMinutes(6)).WithOperationDurationVariance(0.20),
                     new ResourceTool("Blade 6mm").WithOperationDurationAverage(TimeSpan.FromMinutes(8)).WithOperationDurationVariance(0.20),
@@ -45,8 +44,9 @@ namespace Mate.Test.SimulationEnvironment
 
             var rsDrill = new ResourceGroup("Drill")
                 .WithResourceuQuantity(1)
-                .WithDefaultDurationMean(TimeSpan.FromMinutes(5))
-                .WithDefaultDurationVariance(0.20)
+                .WithDefaultSetupDurationMean(TimeSpan.FromMinutes(5))
+                .WithDefaultOperationDurationMean(TimeSpan.FromMinutes(5))
+                .WithDefaultOperationDurationVariance(0.20)
                 .WithTools(new List<ResourceTool> {
                     new ResourceTool("Head 10mm"),
                     new ResourceTool("Head 15mm"),
@@ -61,7 +61,7 @@ namespace Mate.Test.SimulationEnvironment
             seedConfig.WithOption(resourceConfig);
 
             // Generator
-            var materials = MaterialGenerator.WithConfiguration(materialConfig)
+            materials = MaterialGenerator.WithConfiguration(materialConfig)
                                              .Generate();
 
             var randomizer = new RandomizerBase(materialConfig.StructureParameter.Seed);
@@ -89,11 +89,11 @@ namespace Mate.Test.SimulationEnvironment
             mateDb.Database.EnsureDeleted();
             mateDb.Database.EnsureCreated();
 
-            var capabilities = CapbilityTransformer.Transform(mateDb, resourceConfig);
+            var masterTableCapabilities = CapbilityTransformer.Transform(mateDb, resourceConfig);
 
             // 2. Create Materials with materials.NodesInUse --> material
 
-            MaterialTransformer.Transform(mateDb, materials, capabilities);
+            MaterialTransformer.Transform(mateDb, materials, masterTableCapabilities);
 
 
             // 3. Create BOMS with materials.Edges

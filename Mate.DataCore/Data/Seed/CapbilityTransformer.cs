@@ -13,19 +13,20 @@ namespace Mate.DataCore.Data.Seed
 {
     public class CapbilityTransformer
     {
-        public static List<M_ResourceCapability> Transform(MateDb mateDb, ResourceConfig resourceConfig) { 
+        public static MasterTableResourceCapability Transform(MateDb mateDb, ResourceConfig resourceConfig) { 
             
             var resourceProperties = new List<ResourceProperty>();
-            
+
             foreach(var group in resourceConfig.ResourceGroupList)
             { 
                 //TODO: take SetupTime from config after SEED Fix
-                resourceProperties.Add(new ResourceProperty { Name = group.Name, ToolCount = group.Tools.Count, ResourceCount = (int)group.ResourceQuantity, SetupTime = 10, OperatorCount = 0, IsBatchAble = false });
+                resourceProperties.Add(new ResourceProperty { Name = group.Name, ToolCount = group.Tools.Count, ResourceCount = (int)group.ResourceQuantity, SetupTime = (int)group.SetupDurationDistributionParameter.Mean, OperatorCount = 0, IsBatchAble = false });
+            
             }
 
-            var capabilities = ResourceInitializer.Initialize(mateDb, resourceProperties);
-            
-            return capabilities.Capabilities;
+            var masterTableResourceCapability = ResourceInitializer.Initialize(mateDb, resourceProperties);
+
+            return masterTableResourceCapability;
         }
     }
 }

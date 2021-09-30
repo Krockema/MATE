@@ -3,12 +3,9 @@ using Mate.DataCore.Data.Initializer.Tables;
 using Mate.DataCore.DataModel;
 using Seed.Data;
 using Seed.Generator.Material;
-using Seed.Parameter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Mate.DataCore.Data.Seed
 {
@@ -16,7 +13,7 @@ namespace Mate.DataCore.Data.Seed
     {
         public static string BUSINESS_PARTNER_1 { get; private set; } = "BUSINESS_PARTNER_1";
 
-        public static void Transform(MateDb mateDb, Materials materials, List<M_ResourceCapability> capabilities)
+        public static void Transform(MateDb mateDb, Materials materials, DynamicInitializer.Tables.MasterTableResourceCapability masterTableCapabilities)
         {
             // Type and Units
             var articleTypeTable = new MasterTableArticleType();
@@ -28,23 +25,24 @@ namespace Mate.DataCore.Data.Seed
 
             // Articles
             var articles = new List<M_Article>();
-            var operations = new List<M_Operation>();
+
             // Purchase
-            foreach(var material in materials.NodesPurchaseOnly())
+            foreach (var material in materials.NodesPurchaseOnly())
             {
-                var article = CreateArticleByMaterial(mateDb, material, articleTypeTable.MATERIAL, units.Single(x => x.Name.Equals("Pieces")));
+                var article = CreateArticleByMaterial(material, articleTypeTable.MATERIAL, units.Single(x => x.Name.Equals("Pieces")));
                 articles.Add(article);
             }
             // Sales
             foreach(var sale in materials.NodesSalesOnly())
             {
-                var article = CreateArticleByMaterial(mateDb, sale, articleTypeTable.PRODUCT, units.Single(x => x.Name.Equals("Pieces")));
+                var article = CreateArticleByMaterial(sale, articleTypeTable.PRODUCT, units.Single(x => x.Name.Equals("Pieces")));
                 articles.Add(article);
             }
             // Assembly
-            foreach (var sale in materials.NodesInUse.Where(x => x.OutgoingEdges.Count > 0 && x.IncomingEdges.Count > 0 ))
+            var maxNodeLevel = materials.NodesInUse.Max(x => x.InitialLevel);
+            foreach (var sale in materials.NodesInUse.Where(x => x.InitialLevel != 0 && !x.InitialLevel.Equals(maxNodeLevel)))
             {
-                var article = CreateArticleByMaterial(mateDb, sale, articleTypeTable.ASSEMBLY, units.Single(x => x.Name.Equals("Pieces")));
+                var article = CreateArticleByMaterial(sale, articleTypeTable.ASSEMBLY, units.Single(x => x.Name.Equals("Pieces")));
                 articles.Add(article);
             }
 
@@ -52,18 +50,33 @@ namespace Mate.DataCore.Data.Seed
             mateDb.SaveChanges();
 
             //Operations
-            foreach (var article in articles.Where(x => x.ArticleType.Name.Equals("Material")))
+
+            var operations = new List<M_Operation>();
+            foreach (var article in articles.Where(x => !x.ArticleType.Name.Equals("Material")))
             {
-                //var materialnode = materials.NodesInUse.Single(x => x.Id.Equals(article.Name));
-                //var operationFromArticle = CreateOperations(mateDb, article, materialnode, capabilities);
-                
+                var materialnode = materials.NodesInUse.Single(x => x.Id.ToString().Equals(article.Name));
+                var operationFromArticle = CreateOperations(article, materialnode, masterTableCapabilities);
+                operations.AddRange(operationFromArticle);
             }
 
             mateDb.Operations.AddRange(operations);
             mateDb.SaveChanges();
 
-            CreateStocks(mateDb, businessPartners.First()); ;
 
+            //BOM
+            var boms = new List<M_ArticleBom>();
+            foreach (var edge in materials.Edges)
+            {
+                var articleFrom = articles.Single(x => x.Name.Equals(edge.FromId.ToString()));
+                var articleTo = articles.Single(x => x.Name.Equals(edge.ToId.ToString()));
+                //TODO: Check if operations are required for M_Bom
+                var bom = CreateBOM(articleFrom, articleTo);
+                boms.Add(bom);
+            }
+            mateDb.ArticleBoms.AddRange(boms);
+            mateDb.SaveChanges();
+
+            CreateStocks(mateDb, businessPartners.First()); ;
 
         }
 
@@ -78,7 +91,7 @@ namespace Mate.DataCore.Data.Seed
             return businessPartners;
         }
 
-        private static M_Article CreateArticleByMaterial(MateDb context, MaterialNode material, M_ArticleType articleType, M_Unit unit)
+        private static M_Article CreateArticleByMaterial(MaterialNode material, M_ArticleType articleType, M_Unit unit)
         {
             return new M_Article
             {
@@ -92,47 +105,42 @@ namespace Mate.DataCore.Data.Seed
                 ToPurchase = material.Operations.Count == 0 ? true : false
             };
         }
-        private static M_Operation[] CreateOperations(MateDb context, M_Article article, MaterialNode materialNode, List<M_ResourceCapability> resourceCapabilities)
+        private static M_Operation[] CreateOperations(M_Article article, MaterialNode materialNode, DynamicInitializer.Tables.MasterTableResourceCapability masterTableCapabilities)
         {
+            
             var operations = new List<M_Operation>();
-            foreach(var operation in materialNode.Operations)
-            { 
+            foreach (var operation in materialNode.Operations)
+            {
+                //TODO: Should be refactored at the dynamic initilizer - currently "working"
+                var group = masterTableCapabilities.ParentCapabilities[operation.TargetResourceIdent];
+                var capability = group.ChildResourceCapabilities.ElementAt(operation.TargetToolIdent);
+
                 operations.Add(
                     new M_Operation
                     {
                         ArticleId = article.Id,
                         Name = article.Name,
                         Duration = (int)operation.Duration.TotalMinutes,
-                        ResourceCapabilityId = operation.TargetToolIdent,
+                        ResourceCapabilityId = capability.Id,
                         HierarchyNumber = operation.SequenceNumber,
                     });
             }
+
             return operations.ToArray();
         }
 
 
-        private static M_ArticleBom[] CreateBomBy(M_Article article, M_Article[] articles,
-            M_Operation operation)
+        private static M_ArticleBom CreateBOM(M_Article articleFrom, M_Article articlesTo)
         {
-            var boms = new List<M_ArticleBom>();
-
-            foreach (var item in articles)
-            {
-                boms.Add(
-                new M_ArticleBom
+            return new M_ArticleBom
                 {
-                    ArticleChildId = item.Id,
-                    Name = item.Name,
+                    ArticleChildId = articleFrom.Id,
+                    Name = articleFrom.Name,
                     Quantity = 1,
-                    ArticleParentId = article.Id,
-                    OperationId = operation.Id
-                });
-            }
-            return boms.ToArray();
+                    ArticleParentId = articlesTo.Id
+                };
 
         }
-
-
 
         private static void CreateStocks(MateDb mateDb, M_BusinessPartner businessPartners)
         {
