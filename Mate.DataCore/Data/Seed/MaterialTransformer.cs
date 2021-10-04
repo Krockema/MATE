@@ -1,4 +1,5 @@
 ﻿using Mate.DataCore.Data.Context;
+using Mate.DataCore.Data.Initializer.StoredProcedures;
 using Mate.DataCore.Data.Initializer.Tables;
 using Mate.DataCore.DataModel;
 using Seed.Data;
@@ -15,6 +16,10 @@ namespace Mate.DataCore.Data.Seed
 
         public static void Transform(MateDb mateDb, Materials materials, DynamicInitializer.Tables.MasterTableResourceCapability masterTableCapabilities)
         {
+            //Add Procedure
+            //TODO: Should be initialized because its required for simulation
+            ArticleStatistics.CreateProcedures(mateDb);
+
             // Type and Units
             var articleTypeTable = new MasterTableArticleType();
             articleTypeTable.Init(mateDb);

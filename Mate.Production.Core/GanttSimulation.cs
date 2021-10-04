@@ -34,6 +34,7 @@ namespace Mate.Production.Core
     public class GanttSimulation : BaseSimulation, ISimulation
     {
         public DataBase<GanttPlanDBContext> dbGantt { get; }
+        public string dbMate { get;}
         private ResourceDictionary _resourceDictionary { get; }
         /// <summary>
         /// Prepare Simulation Environment
@@ -41,7 +42,8 @@ namespace Mate.Production.Core
         /// <param name="debug">Enables AKKA-Global message Debugging</param>
         public GanttSimulation(string dbName, IMessageHub messageHub) : base(dbName, messageHub)
         {
-            dbGantt = Dbms.GetGanttDataBase("DBGP");
+            dbGantt = Dbms.GetGanttDataBase(DataBaseConfiguration.GP);
+            dbMate = dbName;
             _resourceDictionary = new ResourceDictionary();
         }
         public override Task<Simulation> InitializeSimulation(Configuration configuration)
@@ -132,7 +134,7 @@ namespace Mate.Production.Core
 
             var behave = Agents.SupervisorAgent.Behaviour.Factory.Central(
                 dbNameGantt: dbGantt.DataBaseName.Value,
-                dbNameProduction: base.DbProduction.DataBaseName.Value,
+                dbNameProduction: dbMate,
                 messageHub: MessageHub,
                 configuration: configuration,
                 estimatedThroughputTimes: estimatedThroughPuts);

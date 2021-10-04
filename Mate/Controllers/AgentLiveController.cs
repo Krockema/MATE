@@ -104,7 +104,7 @@ namespace Mate.Controllers
 
         public async void RunGanttSimulation(Configuration simConfig)
         {
-            GanttPlanDBContext.ClearDatabase(Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).ConnectionString.Value);
+            GanttPlanDBContext.ClearDatabase(Dbms.GetGanttDataBase(DataBaseConfiguration.GP).ConnectionString.Value);
             
             //Synchronisation GanttPlan
             GanttPlanOptRunner.Inizialize();

@@ -113,7 +113,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             timeStamps.Add("Write Confirmations", lastStep);
 
             System.Diagnostics.Debug.WriteLine("Start GanttPlan");
-            GanttPlanOptRunner.RunOptAndExport("Continuous"); //changed to Init - merged configs
+            GanttPlanOptRunner.RunOptAndExport("Continuous", "D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe"); //changed to Init - merged configs
             System.Diagnostics.Debug.WriteLine("Finish GanttPlan");
 
             lastStep = stopwatch.ElapsedMilliseconds - lastStep;

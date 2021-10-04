@@ -33,7 +33,7 @@ namespace Mate.Test.SimulationEnvironment
         {
             GanttPlanOptRunner.RunOptAndExport("Init");
 
-            var ganttPlanDataBase = Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB);
+            var ganttPlanDataBase = Dbms.GetGanttDataBase(DataBaseConfiguration.GP);
             var ganttPlanContext = ganttPlanDataBase.DbContext;
 
             var modelparameter = ganttPlanContext.GptblModelparameter.FirstOrDefault();
@@ -72,7 +72,7 @@ namespace Mate.Test.SimulationEnvironment
         public void ResetGanttPlanDB()
         {
             //Reset GanttPLan DB?
-            var ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).DbContext;
+            var ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GP).DbContext;
             ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
         }
 
@@ -101,18 +101,19 @@ namespace Mate.Test.SimulationEnvironment
             masterPlanResultContext.Database.EnsureDeleted();
             masterPlanResultContext.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(masterPlanResultContext);
-            
+
             //Reset GanttPLan DB?
-            var ganttPlanContext = GanttPlanDBContext.GetContext(DataBaseConfiguration.GPDB);
-            ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
-            
+            // make sure SimContext has DataBaseConfiguration.GP
+            var ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GP); 
+            ganttPlanContext.DbContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
+
             //Synchronisation GanttPlan
-            GanttPlanOptRunner.RunOptAndExport("Init");
+            GanttPlanOptRunner.RunOptAndExport("Init", "D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe");
 
             var simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new ConsoleHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
             // update customized Items
-            simConfig.AddOption(new ResultsDbConnectionString(ganttPlanContext.Database.GetConnectionString()));
+            simConfig.AddOption(new ResultsDbConnectionString(masterPlanResultContext.Database.GetConnectionString()));
             simConfig.ReplaceOption(new KpiTimeSpan(240));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new SimulationKind(value: simtulationType));
@@ -163,7 +164,7 @@ namespace Mate.Test.SimulationEnvironment
         {
            // MateProductionDb mateCtx = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext;
 
-            GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).DbContext;
+            GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GP).DbContext;
              var prod = ganttPlanContext.GptblProductionorder
                  .Include(x => x.ProductionorderOperationActivities)
                      .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)
@@ -240,7 +241,7 @@ namespace Mate.Test.SimulationEnvironment
             mateCtx.CreateNewOrder(10115, 1, 0, 250);
             mateCtx.SaveChanges();
 
-            GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).DbContext;
+            GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GP).DbContext;
 
             ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
             GanttPlanOptRunner.RunOptAndExport("Init");
@@ -315,7 +316,7 @@ namespace Mate.Test.SimulationEnvironment
         [Fact]
         public void TestMaterialRelations()
         {
-            using (var localGanttPlanDbContext =  Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).DbContext)
+            using (var localGanttPlanDbContext =  Dbms.GetGanttDataBase(DataBaseConfiguration.GP).DbContext)
             {
 
                 var materialId = "10115";

@@ -24,9 +24,8 @@ namespace Mate.Test.SimulationEnvironment
 {
     public class AgentSystem : TestKit
     {
-
-        private readonly string TestMateDb = "Mate" + DataBaseConfiguration.MateDb;
-        private readonly string TestMateResultDb = "Mate" + DataBaseConfiguration.MateResultDb;
+        private readonly string TestMateDb = "Test" + DataBaseConfiguration.MateDb;
+        private readonly string TestMateResultDb = "Test" + DataBaseConfiguration.MateResultDb;
 
         [Fact]
         public void TestRawSQL()
@@ -225,16 +224,16 @@ namespace Mate.Test.SimulationEnvironment
             ResultDBInitializerBasic.DbInitialize(dbResult.DbContext);
 
             var dbMaster = Dbms.GetMateDataBase(dbName: TestMateDb);
-            dbMaster.DbContext.Database.EnsureDeleted();
-            dbMaster.DbContext.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(context: dbMaster.DbContext
-                , resourceModelSize: resourceModelSize
-                , setupModelSize: setupModelSize
-                , operatorsModelSize: ModelSize.Small
-                , numberOfWorkersForProcessing: 3
-                , secondResource: false
-                , createMeasurements: createMeasurements
-                , distributeSetupsExponentially: distributeSetupsExponentially);
+            //dbMaster.DbContext.Database.EnsureDeleted();
+            //dbMaster.DbContext.Database.EnsureCreated();
+            //MasterDBInitializerTruck.DbInitialize(context: dbMaster.DbContext
+            //    , resourceModelSize: resourceModelSize
+            //    , setupModelSize: setupModelSize
+            //    , operatorsModelSize: ModelSize.Small
+            //    , numberOfWorkersForProcessing: 3
+            //    , secondResource: false
+            //    , createMeasurements: createMeasurements
+            //    , distributeSetupsExponentially: distributeSetupsExponentially);
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
             var simContext = new AgentSimulation(TestMateDb, messageHub: new ConsoleHub());
             var simConfig = Production.CLI.ArgumentConverter.ConfigurationConverter(dbResult.DbContext, 1);
