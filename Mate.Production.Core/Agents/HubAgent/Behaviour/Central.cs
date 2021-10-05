@@ -111,6 +111,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             lastStep = stopwatch.ElapsedMilliseconds;
             timeStamps.Add("Write Confirmations", lastStep);
+            CreateComputationalTime("TimeWriteConfirmations", lastStep);
 
             System.Diagnostics.Debug.WriteLine("Start GanttPlan");
             GanttPlanOptRunner.RunOptAndExport("Continuous", "D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe"); //changed to Init - merged configs
@@ -118,6 +119,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             lastStep = stopwatch.ElapsedMilliseconds - lastStep;
             timeStamps.Add("Gantt Plan Execution", lastStep);
+            CreateComputationalTime("TimeGanttPlanExecution", lastStep);
 
             using (var localGanttPlanDbContext = GanttPlanDBContext.GetContext(_dbConnectionStringGanttPlan))
             {
@@ -178,9 +180,9 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             timeStamps.Add("Load Gantt Results", lastStep);
             timeStamps.Add("TimeStep", Agent.CurrentTime);
             stopwatch.Stop();
-            
+            CreateComputationalTime("TimeTotalExecution", lastStep);
+
             inboxActorRef.Tell(new FCentralGanttPlanInformations.FCentralGanttPlanInformation(JsonConvert.SerializeObject(timeStamps), "Plan"), this.Agent.Context.Self);
-           
         }
 
         private void StartActivities()
@@ -526,6 +528,14 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                     , start: creationTime  // TODO  ADD CreationTime
                     , end: Agent.CurrentTime);
                 Agent.Context.System.EventStream.Publish(@event: pub);
+        }
+        private void CreateComputationalTime(string type ,long duration)
+        {
+            var pub = new FComputationalTimers.FComputationalTimer(
+                time: Agent.CurrentTime,
+                timertype: type,
+                duration: duration);
+            Agent.Context.System.EventStream.Publish(@event: pub);
         }
         #endregion
 

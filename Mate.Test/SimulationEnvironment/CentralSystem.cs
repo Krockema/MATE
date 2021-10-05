@@ -91,16 +91,16 @@ namespace Mate.Test.SimulationEnvironment
             var arrivalRate = 0.015;
 
             //Create Mate Data Base
-            var masterPlanContext = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext;
-            masterPlanContext.Database.EnsureDeleted();
-            masterPlanContext.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterPlanContext, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3, false, false);
+            //var masterPlanContext = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext;
+            //masterPlanContext.Database.EnsureDeleted();
+            //masterPlanContext.Database.EnsureCreated();
+            //MasterDBInitializerTruck.DbInitialize(masterPlanContext, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3, false, false);
 
             //Create Mate Result Database
             var masterPlanResultContext = Dbms.GetResultDataBase(TestMateResultDb).DbContext;
-            masterPlanResultContext.Database.EnsureDeleted();
-            masterPlanResultContext.Database.EnsureCreated();
-            ResultDBInitializerBasic.DbInitialize(masterPlanResultContext);
+            //masterPlanResultContext.Database.EnsureDeleted();
+            //masterPlanResultContext.Database.EnsureCreated();
+            //ResultDBInitializerBasic.DbInitialize(masterPlanResultContext);
 
             //Reset GanttPLan DB?
             // make sure SimContext has DataBaseConfiguration.GP
@@ -132,7 +132,7 @@ namespace Mate.Test.SimulationEnvironment
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 
-            //emtpyResultDBbySimulationNumber(simNr: simConfig.GetOption<SimulationNumber>());
+            ClearResultDBby(simNr: simConfig.GetOption<SimulationNumber>(), dbName: TestMateResultDb);
 
             var simWasReady = false;
             if (simulation.IsReady())
@@ -147,8 +147,21 @@ namespace Mate.Test.SimulationEnvironment
 
             Assert.True(condition: simWasReady);
         }
+        private void ClearResultDBby(SimulationNumber simNr, string dbName)
+        {
+            var _simNr = simNr;
+            using (var _ctxResult = Dbms.GetResultDataBase(dbName).DbContext)
+            {
+                var itemsToRemove =
+                    _ctxResult.SimulationJobs.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)).ToList();
+                _ctxResult.RemoveRange(entities: itemsToRemove);
+                _ctxResult.RemoveRange(entities: _ctxResult.Kpis.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctxResult.RemoveRange(entities: _ctxResult.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctxResult.SaveChanges();
+            }
+        }
 
-       
+
         [Fact(Skip = "Offline")]
         public void AggreteResults()
         {
@@ -232,7 +245,6 @@ namespace Mate.Test.SimulationEnvironment
         [Fact]
         public void GanttPlanInsertConfirmationAndReplan()
         {
-
             MateProductionDb mateCtx = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext;
             mateCtx.CustomerOrders.RemoveRange(mateCtx.CustomerOrders);
             mateCtx.CustomerOrderParts.RemoveRange(mateCtx.CustomerOrderParts);
@@ -337,7 +349,6 @@ namespace Mate.Test.SimulationEnvironment
                                     && x.IntervalAllocationType.Equals(1))
                         .OrderBy(x => x.DateFrom)
                         .ToList());
-
 
             } // filter Done and in Progress?
         }

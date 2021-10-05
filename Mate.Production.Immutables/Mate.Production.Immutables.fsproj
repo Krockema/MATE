@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Compile Include="FunctionConverter.fs" />
+    <Compile Include="Message\FComputationalTimers.fs" />
     <Compile Include="Message\Central\FCentralGanttPlanInformations.fs" />
     <Compile Include="Message\Central\FCentralProvideOrders.fs" />
     <Compile Include="Message\Central\FCentralProvideMaterials.fs" />

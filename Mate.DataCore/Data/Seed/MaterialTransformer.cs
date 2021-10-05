@@ -74,8 +74,9 @@ namespace Mate.DataCore.Data.Seed
             {
                 var articleFrom = articles.Single(x => x.Name.Equals(edge.FromId.ToString()));
                 var articleTo = articles.Single(x => x.Name.Equals(edge.ToId.ToString()));
+                var operationId = operations.Where(x => x.ArticleId.Equals(articleTo.Id)).OrderBy(x => x.HierarchyNumber).First();
                 //TODO: Check if operations are required for M_Bom
-                var bom = CreateBOM(articleFrom, articleTo);
+                var bom = CreateBOM(articleFrom, articleTo, operationId.Id);
                 boms.Add(bom);
             }
             mateDb.ArticleBoms.AddRange(boms);
@@ -135,11 +136,12 @@ namespace Mate.DataCore.Data.Seed
         }
 
 
-        private static M_ArticleBom CreateBOM(M_Article articleFrom, M_Article articlesTo)
+        private static M_ArticleBom CreateBOM(M_Article articleFrom, M_Article articlesTo, int operationId)
         {
             return new M_ArticleBom
                 {
                     ArticleChildId = articleFrom.Id,
+                    OperationId = operationId,
                     Name = articleFrom.Name,
                     Quantity = 1,
                     ArticleParentId = articlesTo.Id

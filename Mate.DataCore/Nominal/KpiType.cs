@@ -15,6 +15,7 @@
         StockTotals,
         Ooe,
         CapabilityIdle,
+        ComputationalTime,
         AverageResult = 999
     }
 }

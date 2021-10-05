@@ -20,6 +20,9 @@ namespace Mate.Test.SimulationEnvironment
 {
     public class SEEDInitializer
     {
+
+        private readonly string TestMateDb = "Test" + DataBaseConfiguration.MateDb;
+
         [Fact]
         public void InitiateSeed()
         {
@@ -85,7 +88,7 @@ namespace Mate.Test.SimulationEnvironment
 
             // 1. Create Ressources with resourceConfig --> return actual capabilities and use them for next step
 
-            MateDb mateDb = Dbms.GetMateDataBase(dbName: DataBaseConfiguration.MateDb).DbContext;
+            MateDb mateDb = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext;
             mateDb.Database.EnsureDeleted();
             mateDb.Database.EnsureCreated();
 

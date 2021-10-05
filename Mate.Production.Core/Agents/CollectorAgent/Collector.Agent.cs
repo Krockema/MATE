@@ -69,13 +69,13 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             Behaviour.EventHandle(simulationMonitor: this, message: o);
         }
 
-        internal void CreateKpi(Collector agent, string value, string name, KpiType kpiType, bool isFinal = false)
+        internal void CreateKpi(Collector agent, string value, string name, KpiType kpiType, bool isFinal = false, long logTime = 0)
         {
             var k = new Kpi
             {
                 Name = name,
                 Value = Math.Round(Convert.ToDouble(value: value), 2),
-                Time = (int)agent.Time,
+                Time = logTime > 0 ? (int)logTime : (int)agent.Time,
                 KpiType = kpiType,
                 SimulationConfigurationId = agent.simulationId.Value,
                 SimulationNumber = agent.simulationNumber.Value,
