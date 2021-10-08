@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 using Seed;
@@ -15,56 +12,95 @@ using Seed.Generator.Operation;
 using Mate.DataCore.Data.Seed;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore;
+using System.Linq;
 
 namespace Mate.Test.SimulationEnvironment
 {
-    public class SEEDInitializer
+    public class SeedInitializer : IDisposable
     {
 
         private readonly string TestMateDb = "Test" + DataBaseConfiguration.MateDb;
 
-        [Fact]
-        public void InitiateSeed()
+        public void Dispose()
         {
-            var materials = new Materials();
-            //Initialize MaterialConfig
+        }
+
+        public void GenerateTestData(string mateDbName)
+        {
+            
+            //Generate Config
             var seedConfig = new Configuration();
             var materialConfig = new MaterialConfig()
             {
-                StructureParameter = new StructureParameter() { ComplexityRatio = 4, ReuseRatio = 2, NumberOfSalesMaterials = 8, VerticalIntegration = 4},
-                TransitionMatrixParameter = new TransitionMatrixParameter() { Lambda = 2, OrganizationalDegree = 0.15 }
+                StructureParameter = new StructureParameter() {
+                    ComplexityRatio = 1.9,
+                    ReuseRatio = 1.3,
+                    NumberOfSalesMaterials = 100, 
+                    VerticalIntegration = 4
+                },
+                TransitionMatrixParameter = new TransitionMatrixParameter() { 
+                    Lambda = 2,
+                    OrganizationalDegree = 0.7 
+                }
             };
+
             seedConfig.WithOption(materialConfig);
 
             var rsSaw = new ResourceGroup("Saw")
-               .WithResourceuQuantity(2)
-               .WithDefaultSetupDurationMean(TimeSpan.FromMinutes(5))
+               .WithResourceuQuantity(4)
                .WithTools(new List<ResourceTool> {
-                    new ResourceTool("Blade 4mm").WithOperationDurationAverage(TimeSpan.FromMinutes(6)).WithOperationDurationVariance(0.20),
-                    new ResourceTool("Blade 6mm").WithOperationDurationAverage(TimeSpan.FromMinutes(8)).WithOperationDurationVariance(0.20),
-                    new ResourceTool("Blade 8mm").WithOperationDurationAverage(TimeSpan.FromMinutes(10)).WithOperationDurationVariance(0.20)
+                    new ResourceTool("Blade 4mm"),
+                    new ResourceTool("Blade 6mm"),
+                    new ResourceTool("Blade 8mm"),
+                    new ResourceTool("Blade 10mm"),
+                    new ResourceTool("Blade 12mm"),
+                    new ResourceTool("Blade 14mm")
                });
 
             var rsDrill = new ResourceGroup("Drill")
-                .WithResourceuQuantity(1)
-                .WithDefaultSetupDurationMean(TimeSpan.FromMinutes(5))
-                .WithDefaultOperationDurationMean(TimeSpan.FromMinutes(5))
-                .WithDefaultOperationDurationVariance(0.20)
+                .WithResourceuQuantity(4)
                 .WithTools(new List<ResourceTool> {
-                    new ResourceTool("Head 10mm"),
-                    new ResourceTool("Head 15mm"),
+                    new ResourceTool("Blade 4mm"),
+                    new ResourceTool("Blade 6mm"),
+                    new ResourceTool("Blade 8mm"),
+                    new ResourceTool("Blade 10mm"),
+                    new ResourceTool("Blade 12mm"),
+                    new ResourceTool("Blade 14mm")
                 });
 
-            var resourceConfig = new ResourceConfig().WithResourceGroup(new List<ResourceGroup> { rsSaw, rsDrill})
-                                               .WithDefaultOperationsDurationMean(TimeSpan.FromSeconds(300))
-                                               .WithDefaultOperationsDurationVariance(0.20)
-                                               .WithDefaultOperationsAmountMean(4)
-                                               .WithDefaultOperationsAmountVariance(0.20);
+            var rsAssembly = new ResourceGroup("Assembly")
+                .WithResourceuQuantity(4)
+                .WithTools(new List<ResourceTool> {
+                    new ResourceTool("Blade 4mm"),
+                    new ResourceTool("Blade 6mm"),
+                    new ResourceTool("Blade 8mm"),
+                    new ResourceTool("Blade 10mm"),
+                    new ResourceTool("Blade 12mm"),
+                    new ResourceTool("Blade 14mm")
+                });
+
+            var rsQuality = new ResourceGroup("Quality")
+                .WithResourceuQuantity(4)
+                .WithTools(new List<ResourceTool> {
+                    new ResourceTool("Blade 4mm"),
+                    new ResourceTool("Blade 6mm"),
+                    new ResourceTool("Blade 8mm"),
+                    new ResourceTool("Blade 10mm"),
+                    new ResourceTool("Blade 12mm"),
+                    new ResourceTool("Blade 14mm")
+                });
+
+            var resourceConfig = new ResourceConfig().WithResourceGroup(new List<ResourceGroup> { rsSaw, rsDrill, rsAssembly, rsQuality})
+                                                .WithDefaultOperationsDurationMean(TimeSpan.FromMinutes(10))
+                                                .WithDefaultOperationsDurationVariance(0.20)
+                                                .WithDefaultSetupDurationMean(TimeSpan.FromMinutes(30))
+                                                .WithDefaultOperationsAmountMean(5)
+                                                .WithDefaultOperationsAmountVariance(0.20);
 
             seedConfig.WithOption(resourceConfig);
 
             // Generator
-            materials = MaterialGenerator.WithConfiguration(materialConfig)
+            var materials = MaterialGenerator.WithConfiguration(materialConfig)
                                              .Generate();
 
             var randomizer = new RandomizerBase(materialConfig.StructureParameter.Seed);
@@ -79,29 +115,22 @@ namespace Mate.Test.SimulationEnvironment
             var operationDistributor = OperationDistributor.WithTransitionMatrix(transitionMatrix)
                                                             .WithRandomizerCollection(randomizerCollection)
                                                             .WithResourceConfig(resourceConfig)
-                                                            .WithMaterials(materials)
                                                             .Build();
 
             var operationGenerator = OperationGenerator.WithOperationDistributor(operationDistributor)
-                                                       .WithMaterials(materials.NodesWithoutPurchase())
+                                                       .WithMaterials(materials.NodesInUse.Where(x => x.IncomingEdgeIds.Any()).ToArray())
                                                        .Generate();
 
-            // 1. Create Ressources with resourceConfig --> return actual capabilities and use them for next step
 
-            MateDb mateDb = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext;
+            //Initilize DB
+
+            MateDb mateDb = Dbms.GetMateDataBase(dbName: mateDbName).DbContext;
             mateDb.Database.EnsureDeleted();
             mateDb.Database.EnsureCreated();
 
             var masterTableCapabilities = CapbilityTransformer.Transform(mateDb, resourceConfig);
 
-            // 2. Create Materials with materials.NodesInUse --> material
-
             MaterialTransformer.Transform(mateDb, materials, masterTableCapabilities);
-
-
-            // 3. Create BOMS with materials.Edges
-
-            // 4. Create Operations with materials.Operations
 
         }
 

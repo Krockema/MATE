@@ -163,7 +163,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             var elapsed = _stopWatch.ElapsedMilliseconds;
             _stopWatch.Restart();
             _runTime.Add(elapsed);
-            Collector.CreateKpi(Collector, elapsed.ToString(), "TimeCycleExecution", KpiType.ComputationalTime, true);
+            Collector.CreateKpi(Collector, elapsed.ToString(), "TimeCycleExecution", KpiType.ComputationalTime, false);
 
             if (finalCall) {
                 Collector.CreateKpi(Collector, _runTime.Sum().ToString(), "TotalTimeCycleExecution", KpiType.ComputationalTime, true);
@@ -173,6 +173,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 {
                     foreach (var timeKpi in _ComputationalTimes)
                     {
+                        //additional for WriteConfirmations, ExecuteGanttplan and Init
                         Collector.CreateKpi(Collector, timeKpi.duration.ToString() , timeKpi.timertype, KpiType.ComputationalTime, false, timeKpi.time);
                     }
 

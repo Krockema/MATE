@@ -31,23 +31,20 @@ namespace Mate.DataCore.Data.Seed
             // Articles
             var articles = new List<M_Article>();
 
-            // Purchase
-            foreach (var material in materials.NodesPurchaseOnly())
+            foreach(var material in materials.NodesInUse)
             {
-                var article = CreateArticleByMaterial(material, articleTypeTable.MATERIAL, units.Single(x => x.Name.Equals("Pieces")));
-                articles.Add(article);
-            }
-            // Sales
-            foreach(var sale in materials.NodesSalesOnly())
-            {
-                var article = CreateArticleByMaterial(sale, articleTypeTable.PRODUCT, units.Single(x => x.Name.Equals("Pieces")));
-                articles.Add(article);
-            }
-            // Assembly
-            var maxNodeLevel = materials.NodesInUse.Max(x => x.InitialLevel);
-            foreach (var sale in materials.NodesInUse.Where(x => x.InitialLevel != 0 && !x.InitialLevel.Equals(maxNodeLevel)))
-            {
-                var article = CreateArticleByMaterial(sale, articleTypeTable.ASSEMBLY, units.Single(x => x.Name.Equals("Pieces")));
+                // Purchase // Default
+                M_ArticleType materialtype = articleTypeTable.MATERIAL;
+
+                // Assembly // In and Out
+                if (material.IncomingEdgeIds.Any() && material.OutgoingEdgeIds.Any())
+                    materialtype = articleTypeTable.ASSEMBLY;
+                
+                // Sales only Out
+                if (material.IncomingEdgeIds.Any() && !material.OutgoingEdgeIds.Any())
+                    materialtype = articleTypeTable.PRODUCT;
+
+                var article = CreateArticleByMaterial(material, materialtype, units.Single(x => x.Name.Equals("Pieces")));
                 articles.Add(article);
             }
 

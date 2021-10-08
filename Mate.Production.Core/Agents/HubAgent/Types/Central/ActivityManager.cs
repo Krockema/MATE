@@ -16,19 +16,30 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
 
         public List<ActivityState> Activities = new List<ActivityState>();
 
-        public void AddOrUpdateActivity(GptblProductionorderOperationActivity activity, ResourceDefinition resourceDefinition)
+        public bool ActivityAlreadyFinished(string key)
+        {
+            var activity = Activities.FirstOrDefault(x => x.Activity.GetKey.Equals(key));
+
+            if (activity == null)
+                return false;
+            
+            return activity.ActivityIsFinished();
+
+        }
+
+        public void AddOrUpdateActivity(GptblProductionorderOperationActivity activity, ResourceDefinition resourceDefinition, int planVersion)
         {
             var currentActivityState = Activities.SingleOrDefault(x => x.Activity.GetKey.Equals(activity.GetKey));
 
-            //if this is the forst activity
+            //if this is the first activity
             if (currentActivityState == null)
             {
-                currentActivityState = new ActivityState(activity, resourceDefinition);
+                currentActivityState = new ActivityState(activity, resourceDefinition, planVersion);
                 Activities.Add(currentActivityState);
                 return;
             }
-
-            currentActivityState.AddResource(resourceDefinition);
+            
+            currentActivityState.AddResource(activity, resourceDefinition, planVersion);
 
         }
 
@@ -50,10 +61,17 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
 
         internal bool HasPreconditionsFullfilled(GptblProductionorderOperationActivity activity, List<ResourceState> resourceStates)
         {
-            if (Int32.Parse(activity.OperationId) > 10)
+            //TODO: Dangerous!
+            int operationId = int.Parse(activity.OperationId);
+            var allOperationIds = activity.Productionorder.ProductionorderOperationActivities.Select(x => int.Parse(x.OperationId)).Distinct().ToList();
+
+            if (operationId != allOperationIds.Min())
             {
+                allOperationIds.Sort();
+                int nextLowest = allOperationIds.LastOrDefault(x => x < operationId);
+
                 var predecessor = Activities.SingleOrDefault(x =>
-                    x.Activity.GetKey.Equals(activity.ProductionorderId + "|" + (Int32.Parse(activity.OperationId) - 10) + "|" + "3"));
+                    x.Activity.GetKey.Equals(activity.ProductionorderId + "|" + nextLowest.ToString() + "|" + "3"));
 
                 if (predecessor == null || !predecessor.ActivityIsFinished())
                 {

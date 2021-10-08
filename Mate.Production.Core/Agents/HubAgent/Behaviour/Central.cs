@@ -31,7 +31,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         private ConfirmationManager _confirmationManager { get; }
         private StockPostingManager _stockPostingManager { get; } 
         private List<GptblSalesorder> _salesOrder { get; set; } = new List<GptblSalesorder>();
-        private List<GptblMaterial> _products { get; } = new List<GptblMaterial>();
+        private List<GptblMaterial> _materials { get; } = new List<GptblMaterial>();
         private List<GptblSalesorderMaterialrelation> _SalesorderMaterialrelations { get; set;  } = new List<GptblSalesorderMaterialrelation>();
         private Dictionary<string, string> _prtResources { get; set; } = new Dictionary<string, string>();
 
@@ -45,7 +45,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             using (var localganttplanDB = GanttPlanDBContext.GetContext(_dbConnectionStringGanttPlan))
             {
-                _products = localganttplanDB.GptblMaterial.Where(x => x.Info1.Equals("Product")).ToList();
+                _materials = localganttplanDB.GptblMaterial.ToList();
             }
 
         }
@@ -72,12 +72,13 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
         private void LoadProductionOrders(IActorRef inboxActorRef)
         {
+            var agentDateTime = Agent.CurrentTime.ToDateTime();
             var timeStamps = new Dictionary<string, long>();
             long lastStep = 0;
             var stopwatch = Stopwatch.StartNew();
             stopwatch.Start();
 
-            _stockPostingManager.TransferStockPostings();
+            //_stockPostingManager.TransferStockPostings();
             _confirmationManager.TransferConfirmations();
 
             /*using (var localGanttPlanDbContext = GanttPlanDBContext.GetContext(_dbConnectionStringGanttPlan))
@@ -138,9 +139,9 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                                 .ThenInclude(x => x.ProductionorderOperationActivity)
                                     .ThenInclude(x => x.ProductionorderOperationActivityResources)
                             .Where(x => x.ResourceId.Equals(resourceState.ResourceDefinition.Id.ToString())
-                                        && x.IntervalAllocationType.Equals(1) 
-                                        && (x.ProductionorderOperationActivityResource.ProductionorderOperationActivity.Status != (int)GanttActivityState.Finished 
-                                            && x.ProductionorderOperationActivityResource.ProductionorderOperationActivity.Status != (int)GanttActivityState.Started))
+                                        && x.IntervalAllocationType.Equals(1)
+                                        && (x.ProductionorderOperationActivityResource.ProductionorderOperationActivity.Status != (int)GanttActivityState.Finished
+                                        && x.ProductionorderOperationActivityResource.ProductionorderOperationActivity.Status != (int)GanttActivityState.Started))
                             .OrderBy(x => x.DateFrom)
                             .ToList());
                 } // filter Done and in Progress?
@@ -198,7 +199,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
                 //CheckMaterial
                 
-                var featureActivity = new FCentralActivity(resourceState.ResourceDefinition.Id
+                var fActivity = new FCentralActivity(resourceState.ResourceDefinition.Id
                     , interval.ProductionorderId
                     , interval.OperationId
                     , interval.ActivityId
@@ -214,11 +215,11 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                 if (interval.ConvertedDateFrom > Agent.CurrentTime)
                 {
                    // only schedule activities that have not been scheduled
-                    if(_scheduledActivities.TryAdd(featureActivity.Key, featureActivity))
+                    if(_scheduledActivities.TryAdd(fActivity.Key, fActivity))
                     {   
                         var waitFor = interval.ConvertedDateFrom - Agent.CurrentTime;
-                        Agent.DebugMessage($"{featureActivity.Key} has been scheduled to {Agent.CurrentTime + waitFor} as planning interval {_planManager.PlanVersion}");
-                        Agent.Send(instruction: Hub.Instruction.Central.ScheduleActivity.Create(featureActivity, Agent.Context.Self)
+                        Agent.DebugMessage($"{interval.ProductionorderOperationActivityResource.ProductionorderOperationActivity.GetKey} has been scheduled to {Agent.CurrentTime + waitFor} as planning interval {_planManager.PlanVersion}");
+                        Agent.Send(instruction: Hub.Instruction.Central.ScheduleActivity.Create(fActivity, Agent.Context.Self)
                                             , waitFor);
                     }
                 }
@@ -226,11 +227,11 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                 {
                     if (interval.ConvertedDateFrom < Agent.CurrentTime)
                     {
-                        Agent.DebugMessage($"Activity {featureActivity.Key} at {resourceState.ResourceDefinition.Name} is delayed {interval.ConvertedDateFrom}");
+                        Agent.DebugMessage($"Activity {interval.ProductionorderOperationActivityResource.ProductionorderOperationActivity.GetKey} at {resourceState.ResourceDefinition.Name} is delayed {interval.ConvertedDateFrom}");
                     }
                     
                     // Activity is scheduled for now
-                    TryStartActivity(interval, featureActivity);
+                    TryStartActivity(interval, fActivity);
                 }
             }
         }
@@ -239,75 +240,66 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         /// Check if Feature is still active.
         /// 
         /// </summary>
-        /// <param name="featureActivity"></param>
-        private void ScheduleActivity(FCentralActivity featureActivity)
+        /// <param name="fActivity"></param>
+        private void ScheduleActivity(FCentralActivity fActivity)
         {
-            if (featureActivity.GanttPlanningInterval < _planManager.PlanVersion)
+            if (fActivity.GanttPlanningInterval < _planManager.PlanVersion)
             {
-                Agent.DebugMessage($"{featureActivity.Key} has new schedule from more recent planning interval {featureActivity.GanttPlanningInterval}");
+                Agent.DebugMessage($"{fActivity.Key} has new schedule from more recent planning interval {fActivity.GanttPlanningInterval}");
                 return;
             }
 
-            if (_activityManager.Activities.Any(x => x.Activity.GetKey.Equals(featureActivity.Key)))
+            if (_activityManager.Activities.Any(x => x.Activity.GetKey.Equals(fActivity.Key)))
             {
-                Agent.DebugMessage($"Actvity {featureActivity.Key} already in progress");
+                Agent.DebugMessage($"Actvity {fActivity.Key} already in progress");
                 return;
             }
 
-            //Agent.DebugMessage($"TryStart scheduled activity {featureActivity.Key}");
-            if (_scheduledActivities.ContainsKey(featureActivity.Key))
+            //Agent.DebugMessage($"TryStart scheduled activity {fActivity.Key}");
+            if (_scheduledActivities.ContainsKey(fActivity.Key))
             {
-
-                var resource = _resourceManager.resourceStateList.Single(x => x.ResourceDefinition.Id == featureActivity.ResourceId);
-                if (NextActivityIsEqual(resource, featureActivity.Key))
+                var resource = _resourceManager.resourceStateList.Single(x => x.ResourceDefinition.Id == fActivity.ResourceId);
+                if (NextActivityIsEqual(resource, fActivity.Key))
                 {
-                    //Agent.DebugMessage($"Activity {featureActivity.Key} is equal start now after been scheduled by {featureActivity.ResourceId}");
-                    _scheduledActivities.Remove(featureActivity.Key);
-                    TryStartActivity(resource.ActivityQueue.Peek(), featureActivity);
+                    Agent.DebugMessage($"Activity {fActivity.Key} is equal start now after been scheduled by {fActivity.ResourceId}");
+                    _scheduledActivities.Remove(fActivity.Key);
+                    TryStartActivity(resource.ActivityQueue.Peek(), fActivity);
                 }
             }
         }
 
         private void TryStartActivity(GptblProductionorderOperationActivityResourceInterval interval,FCentralActivity fActivity)
         {
-            // not sure if this works or if we just loop through resources and check even activities
             var resourcesForActivity = interval.ProductionorderOperationActivityResource
                                                 .ProductionorderOperationActivity
                                                 .ProductionorderOperationActivityResources;
 
             var resourceId = resourcesForActivity.SingleOrDefault(x => x.ResourceType.Equals(5))?.ResourceId;
-
             var requiredCapability = _prtResources[resourceId];
-
             var resource = _resourceManager.resourceStateList.Single(x => x.ResourceDefinition.Id.Equals(fActivity.ResourceId));
 
-            //Agent.DebugMessage($"{resource.ResourceDefinition.Name} try start activity {fActivity.Key}!");
+            Agent.DebugMessage($"{resource.ResourceDefinition.Name} try start activity {fActivity.Key}!");
 
             var requiredResources = new List<ResourceState>();
             var resourceCount = 0;
+
             //activity can be ignored as long any resource is working -> after finish work of the resource it will trigger anyways
             foreach (var resourceForActivity in resourcesForActivity)
             {
                 if (_prtResources.ContainsKey(resourceForActivity.ResourceId))
                 {
                     //do not request, because tool is infinity
+                    resourceCount++;
+                    Agent.DebugMessage($"{resourceCount} of {resourcesForActivity.Count} Resource for Activity {fActivity.Key} are ready");
                     continue;
                 }
                 var resourceState = _resourceManager.resourceStateList.Single(x => x.ResourceDefinition.Id == int.Parse(resourceForActivity.ResourceId));
 
-                //Agent.DebugMessage($"Try to start activity {fActivity.Key} at {resourceState.ResourceDefinition.Name}");
-                if (_resourceManager.ResourceIsWorking(int.Parse(resourceForActivity.ResourceId)))
+                if(!_resourceManager.ResourceReadyToWorkOn(int.Parse(resourceForActivity.ResourceId), fActivity.Key))
                 {
-                    //Agent.DebugMessage($"{resourceState.ResourceDefinition.Name} has current work{resourceState.GetCurrentProductionOperationActivity}. Stop TryStartActivity!");
-                    return;
-                }
+                    Agent.DebugMessage($"{resourceState.ResourceDefinition.Name} is working on {resourceState.GetCurrentProductionOperationActivity}. {fActivity.Key} stopped!");
 
-                if (!NextActivityIsEqual(resourceState, fActivity.Key))
-                {
-                    var nextActivity = resourceState.ActivityQueue.Peek();
-                    //Agent.DebugMessage($"{resourceState.ResourceDefinition.Name} has different work next {nextActivity.ProductionorderId}|{nextActivity.OperationId}|{nextActivity.ActivityId}. Stop TryStartActivity!");
                     return;
-
                 }
 
                 resourceCount++;
@@ -322,12 +314,11 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             {
                 Agent.DebugMessage($"Preconditions for {fActivity.Key} are not fulfilled!");
                 return;
-
             }
 
             StartActivity(requiredResources: requiredResources
                                 , interval: interval
-                                , featureActivity: fActivity
+                                , fActivity: fActivity
                                 , requiredCapability: requiredCapability);
         }
 
@@ -339,35 +330,36 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                 Agent.DebugMessage($"No next activity for {resourceState.ResourceDefinition.Name} in resource activity queue");
                 return false;
             }
-            Agent.DebugMessage($"Next activity is {nextActivity.GetKey} but should be {activityKey} ");
             return nextActivity.GetKey == activityKey;
         }
 
         
         private void StartActivity(List<ResourceState> requiredResources
             , GptblProductionorderOperationActivityResourceInterval interval
-            , FCentralActivity featureActivity
+            , FCentralActivity fActivity
             , string requiredCapability)
         {
-            if (_scheduledActivities.ContainsKey(featureActivity.Key))
+            if (_scheduledActivities.ContainsKey(fActivity.Key))
             {
-
-                Agent.DebugMessage($"Activity {featureActivity.Key} removed from _scheduledActivities");
-                _scheduledActivities.Remove(featureActivity.Key);
+                Agent.DebugMessage($"Activity {fActivity.Key} removed from _scheduledActivities");
+                _scheduledActivities.Remove(fActivity.Key);
             }
-
-            Agent.DebugMessage($"Start activity {featureActivity.ProductionOrderId}|{featureActivity.OperationId}|{featureActivity.ActivityId}!");
 
             var activity = interval.ProductionorderOperationActivityResource.ProductionorderOperationActivity;
 
+            Agent.DebugMessage($"Start activity {fActivity.ProductionOrderId}|{fActivity.OperationId}|{fActivity.ActivityId}!");
+
             WithdrawalMaterial(activity);
 
-            _confirmationManager.AddConfirmations(activity, GanttConfirmationState.Started, Agent.CurrentTime, Agent.CurrentTime);
+            _confirmationManager.AddConfirmations(activity: activity,
+                                                  confirmationType: GanttConfirmationState.Started,
+                                                  currentTime: Agent.CurrentTime,
+                                                  activityStart: Agent.CurrentTime);
 
             //Capability
             
 
-            var randomizedDuration = _workTimeGenerator.GetRandomWorkTime(featureActivity.Duration);
+            var randomizedDuration = _workTimeGenerator.GetRandomWorkTime(fActivity.Duration);
 
             CreateSimulationJob(activity, Agent.CurrentTime, randomizedDuration, requiredCapability);
 
@@ -375,31 +367,36 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             {
 
                 var fCentralActivity = new FCentralActivity(resourceId: resourceState.ResourceDefinition.Id
-                                                    ,productionOrderId: featureActivity.ProductionOrderId
-                                                          ,operationId:featureActivity.OperationId
-                                                    ,activityId:featureActivity.ActivityId
-                                                    , activityType: featureActivity.ActivityType
+                                                    , productionOrderId: fActivity.ProductionOrderId
+                                                    , operationId: fActivity.OperationId
+                                                    , activityId: fActivity.ActivityId
+                                                    , activityType: fActivity.ActivityType
                                                     , start: Agent.CurrentTime
                                                     , duration: randomizedDuration
-                                                    , name:featureActivity.Name
-                                                    , ganttPlanningInterval:featureActivity.GanttPlanningInterval
-                                                    , hub:featureActivity.Hub
+                                                    , name: fActivity.Name
+                                                    , ganttPlanningInterval:fActivity.GanttPlanningInterval
+                                                    , hub: fActivity.Hub
                                                     , capability: requiredCapability);
 
                 var startActivityInstruction = Resource.Instruction.Central
                                                 .ActivityStart.Create(activity: fCentralActivity
                                                                        , target: resourceState.ResourceDefinition.AgentRef);
-                if(resourceState.ActivityQueue.Peek().GetKey == featureActivity.Key)
+
+                if (resourceState.ActivityQueue.Peek().GetKey == fActivity.Key)
                 {
+                    Agent.DebugMessage($"{activity.GetKey} has been dequeued {resourceState.ResourceDefinition.Name}");
                     resourceState.ActivityQueue.Dequeue();
-                    _activityManager.AddOrUpdateActivity(activity, resourceState.ResourceDefinition);
+                    _activityManager.AddOrUpdateActivity(activity: activity,
+                                                         resourceDefinition: resourceState.ResourceDefinition,
+                                                         planVersion: _planManager.PlanVersion);
                     resourceState.StartActivityAtResource(activity);
                     Agent.Send(startActivityInstruction);
                 }
                 else
                 {
-                    Agent.DebugMessage($"{resourceState.ResourceDefinition.Name} has another activity");
+                    Agent.DebugMessage($"{activity.GetKey} cant start because {resourceState.ResourceDefinition.Name} has {resourceState.ActivityQueue.Peek().GetKey} next");
                 }
+
 
             }
 
@@ -411,14 +408,17 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             System.Diagnostics.Debug.WriteLine($"Finish {fActivity.ProductionOrderId}|{fActivity.OperationId}|{fActivity.ActivityId} with Duration: {fActivity.Duration} from {Agent.Sender.ToString()}");
 
             var activity = _resourceManager.GetCurrentActivity(fActivity.ResourceId);
-           
+
             // Add Confirmation
             _activityManager.FinishActivityForResource(activity, fActivity.ResourceId);
 
             if (_activityManager.ActivityIsFinished(activity.GetKey))
             {
                 //Check if productionorder finished
-                _confirmationManager.AddConfirmations(activity, GanttConfirmationState.Finished, Agent.CurrentTime, fActivity.Start);
+                _confirmationManager.AddConfirmations(activity: activity,
+                                                      confirmationType: GanttConfirmationState.Finished,
+                                                      currentTime: Agent.CurrentTime,
+                                                      activityStart: fActivity.Start);
 
                 ProductionOrderFinishCheck(activity);
             }
@@ -446,16 +446,21 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             Agent.DebugMessage($"Productionorder {productionOrder.ProductionorderId} with MaterialId {productionOrder.MaterialId} finished!");
 
-
             // Insert Material
+            _stockPostingManager.AddInsertStockPosting(
+                   materialId: productionOrder.MaterialId,
+                   quantity: productionOrder.QuantityNet.Value,
+                   materialQuantityUnitId: productionOrder.QuantityUnitId,
+                   stockPostingType: GanttStockPostingType.Relatively,
+                   CurrentTime: Agent.CurrentTime);
+
             var storagePosting = new FCentralStockPostings.FCentralStockPosting(productionOrder.MaterialId, (double)productionOrder.QuantityNet);
             Agent.Send(DirectoryAgent.Directory.Instruction.Central.ForwardInsertMaterial.Create(storagePosting, Agent.ActorPaths.StorageDirectory.Ref));
 
-            var product = _products.SingleOrDefault(x => x.MaterialId.Equals(productionOrder.MaterialId));
+            //only for products
+            var product = _materials.Where(x => x.Info1.Equals("Product")).SingleOrDefault(x => x.MaterialId.Equals(productionOrder.MaterialId));
             if (product != null)
             {
-                //_stockPostingManager.AddInsertStockPosting(product.MaterialId,productionOrder.QuantityNet.Value,productionOrder.QuantityUnitId,GanttStockPostingType.Relatively,Agent.CurrentTime);
-
                 var salesorderId = _SalesorderMaterialrelations.Single(x => x.ChildId.Equals(productionOrder.ProductionorderId)).SalesorderId;
 
                 var salesorder = _salesOrder.Single(x => x.SalesorderId.Equals(salesorderId));
@@ -482,7 +487,6 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         /// </summary>
         private void WithdrawalMaterial(GptblProductionorderOperationActivity activity)
         {
-
             var materialId = string.Empty;
 
             foreach (var material in activity.ProductionorderOperationActivityMaterialrelation)
@@ -501,10 +505,14 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                     default:
                             throw new Exception("materialrelationtype does not exits");
                 }
+
+                _stockPostingManager.AddWithdrawalStockPosting(materialId, (double)material.Quantity, material.QuantityUnitId, GanttStockPostingType.Relatively, Agent.CurrentTime);
+
                 var stockPosting = new FCentralStockPostings.FCentralStockPosting(materialId: materialId, (double)material.Quantity);
                 Agent.Send(DirectoryAgent.Directory.Instruction.Central.ForwardWithdrawMaterial.Create(stockPosting,Agent.ActorPaths.StorageDirectory.Ref));
 
             }
+
         }
 
         public override bool AfterInit()

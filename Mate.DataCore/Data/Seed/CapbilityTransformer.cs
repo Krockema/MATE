@@ -17,10 +17,17 @@ namespace Mate.DataCore.Data.Seed
             
             var resourceProperties = new List<ResourceProperty>();
 
-            foreach(var group in resourceConfig.ResourceGroupList)
-            { 
+            for(var i = 0; i < resourceConfig.ResourceGroupList.Count(); i++)
+            {
                 //TODO: take SetupTime from config after SEED Fix
-                resourceProperties.Add(new ResourceProperty { Name = group.Name, ToolCount = group.Tools.Count, ResourceCount = (int)group.ResourceQuantity, SetupTime = (int)group.SetupDurationDistributionParameter.Mean, OperatorCount = 0, IsBatchAble = false });
+                resourceProperties.Add(new ResourceProperty { 
+                    Name = resourceConfig.ResourceGroupList[i].Name, 
+                    ToolCount = resourceConfig.GetToolsFor(i).Count, 
+                    ResourceCount = (int)resourceConfig.ResourceGroupList[i].ResourceQuantity, 
+                    SetupTime = (int)resourceConfig.GetMeanSetupDurationFor(i, 0).TotalMinutes,
+                    OperatorCount = 2, 
+                    IsBatchAble = false
+                });
             
             }
 

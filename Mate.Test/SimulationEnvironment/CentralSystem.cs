@@ -82,13 +82,13 @@ namespace Mate.Test.SimulationEnvironment
         {
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Warn, LogLevel.Warn);
 
             var simtulationType = SimulationType.Central;
             var seed = 169;
             var throughput = 1920;
-            var arrivalRate = 0.015;
+            var arrivalRate = 0.04;
 
             //Create Mate Data Base
             //var masterPlanContext = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext;
@@ -98,9 +98,9 @@ namespace Mate.Test.SimulationEnvironment
 
             //Create Mate Result Database
             var masterPlanResultContext = Dbms.GetResultDataBase(TestMateResultDb).DbContext;
-            //masterPlanResultContext.Database.EnsureDeleted();
-            //masterPlanResultContext.Database.EnsureCreated();
-            //ResultDBInitializerBasic.DbInitialize(masterPlanResultContext);
+            masterPlanResultContext.Database.EnsureDeleted();
+            masterPlanResultContext.Database.EnsureCreated();
+            ResultDBInitializerBasic.DbInitialize(masterPlanResultContext);
 
             //Reset GanttPLan DB?
             // make sure SimContext has DataBaseConfiguration.GP
@@ -118,16 +118,17 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new SimulationKind(value: simtulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 141));
+            simConfig.ReplaceOption(new OrderQuantity(value: 10000));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
             simConfig.ReplaceOption(new Production.Core.Environment.Options.Seed(value: seed));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 4));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: 6));
-            simConfig.ReplaceOption(new SettlingStart(value: 2880));
-            simConfig.ReplaceOption(new SimulationEnd(value: 10080));
+            simConfig.ReplaceOption(new SettlingStart(value: 60));
+            simConfig.ReplaceOption(new SimulationEnd(value: 1440 * 21));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: false));
+            simConfig.ReplaceOption(new DebugAgents(value: false));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
@@ -152,9 +153,12 @@ namespace Mate.Test.SimulationEnvironment
             var _simNr = simNr;
             using (var _ctxResult = Dbms.GetResultDataBase(dbName).DbContext)
             {
-                var itemsToRemove =
+                var jobsToRemove =
                     _ctxResult.SimulationJobs.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)).ToList();
-                _ctxResult.RemoveRange(entities: itemsToRemove);
+                _ctxResult.RemoveRange(entities: jobsToRemove);
+                var tasksToRemove =
+                   _ctxResult.TaskItems.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)).ToList();
+                _ctxResult.RemoveRange(entities: tasksToRemove);
                 _ctxResult.RemoveRange(entities: _ctxResult.Kpis.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
                 _ctxResult.RemoveRange(entities: _ctxResult.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
                 _ctxResult.SaveChanges();
