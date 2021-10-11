@@ -214,21 +214,21 @@ namespace Mate.Test.SimulationEnvironment
         //public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule, int simNr, int maxBucketSize, long throughput, int seed , ModelSize resourceModelSize, ModelSize setupModelSize, double arrivalRate, bool distributeSetupsExponentially, bool createMeasurements = false)
         
         [Theory]
-        [InlineData(SimulationType.Default, 100, 0.0)]
-        [InlineData(SimulationType.Default, 101, 0.1)]
-        [InlineData(SimulationType.Default, 102, 0.2)]
-        [InlineData(SimulationType.Default, 103, 0.3)]
-        [InlineData(SimulationType.Central, 200, 0.0)]
-        [InlineData(SimulationType.Central, 201, 0.1)]
-        [InlineData(SimulationType.Central, 202, 0.2)]
-        [InlineData(SimulationType.Central, 203, 0.3)]
+        [InlineData(SimulationType.Default, 160, 0.0)]
+        [InlineData(SimulationType.Default, 161, 0.1)]
+        [InlineData(SimulationType.Default, 162, 0.2)]
+        [InlineData(SimulationType.Default, 163, 0.3)]
+        [InlineData(SimulationType.Central, 260, 0.0)]
+        [InlineData(SimulationType.Central, 261, 0.1)]
+        [InlineData(SimulationType.Central, 262, 0.2)]
+        [InlineData(SimulationType.Central, 263, 0.3)]
         public async Task AgentSystemTest(SimulationType simulationType, int simNr, double deviation)
         {
             //var simNr = 2;
             //var simulationType = SimulationType.Default;
             var seed = 169;
             var throughput = 1920;
-            var arrivalRate = 0.0325;
+            var arrivalRate = 0.035;
 
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
@@ -283,11 +283,10 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new DebugSystem(value: false));
             simConfig.ReplaceOption(new DebugAgents(value: false));
             simConfig.ReplaceOption(new WorkTimeDeviation(deviation));
-            simConfig.ReplaceOption(new MaxBucketSize(value: 480));
+            simConfig.ReplaceOption(new MaxBucketSize(value: 1920));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
             simConfig.ReplaceOption(new CreateQualityData(false));
             simConfig.ReplaceOption(new Mate.Production.Core.Environment.Options.PriorityRule(PriorityRule.LST));
-
 
             ClearResultDBby(simNr: simConfig.GetOption<SimulationNumber>(), dbName: TestMateResultDb);
 

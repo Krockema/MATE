@@ -356,10 +356,13 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                                                   currentTime: Agent.CurrentTime,
                                                   activityStart: Agent.CurrentTime);
 
-            //Capability
-            
+            var randomizedDuration = fActivity.Duration;
 
-            var randomizedDuration = _workTimeGenerator.GetRandomWorkTime(fActivity.Duration);
+            //only randomize ActivityType "Operation"
+            if (fActivity.ActivityId == 3)
+            { 
+                randomizedDuration = _workTimeGenerator.GetRandomWorkTime(fActivity.Duration);
+            }
 
             CreateSimulationJob(activity, Agent.CurrentTime, randomizedDuration, requiredCapability);
 
