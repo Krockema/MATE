@@ -115,7 +115,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             CreateComputationalTime("TimeWriteConfirmations", lastStep);
 
             System.Diagnostics.Debug.WriteLine("Start GanttPlan");
-            GanttPlanOptRunner.RunOptAndExport("Continuous", "D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe"); //changed to Init - merged configs
+            GanttPlanOptRunner.RunOptAndExport("Continuous", "C:\\Users\\admin\\GANTTPLAN\\GanttPlanOptRunner.exe"); //changed to Init - merged configs
             System.Diagnostics.Debug.WriteLine("Finish GanttPlan");
 
             lastStep = stopwatch.ElapsedMilliseconds - lastStep;
@@ -153,7 +153,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                     var newProductionOrderId = _SalesorderMaterialrelations.Single(x => x.SalesorderId.Equals(salesorder.SalesorderId)).ChildId;
                     if (newProductionOrderId != salesorder.ChildId)
                     {
-                        Agent.DebugMessage($"Productionorder for SalesOrderId {salesorder.SalesorderId} changed from {salesorder.ChildId} to {newProductionOrderId}");
+                        System.Diagnostics.Debug.WriteLine($"Productionorder for SalesOrderId {salesorder.SalesorderId} changed from {salesorder.ChildId} to {newProductionOrderId}");
                     }
                 }
                 
@@ -417,11 +417,14 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             if (_activityManager.ActivityIsFinished(activity.GetKey))
             {
+
                 //Check if productionorder finished
                 _confirmationManager.AddConfirmations(activity: activity,
                                                       confirmationType: GanttConfirmationState.Finished,
                                                       currentTime: Agent.CurrentTime,
                                                       activityStart: fActivity.Start);
+
+                Agent.DebugMessage($"All acvitivities for {activity.GetKey} are finished yet. Try finish ProductionOrder");
 
                 ProductionOrderFinishCheck(activity);
             }
@@ -433,7 +436,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             StartActivities();
         }
 
-        private void ProductionOrderFinishCheck(GptblProductionorderOperationActivity activity )
+        private void ProductionOrderFinishCheck(GptblProductionorderOperationActivity activity)
         {
             var productionOrder = activity.Productionorder;
 
@@ -441,13 +444,14 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             {
                 var prodactivity = _activityManager.Activities.SingleOrDefault(x => x.Activity.Equals(activityOfProductionOrder));
 
-                if (prodactivity == null || !prodactivity.ActivityIsFinishedDebug())
+                if (prodactivity == null || !prodactivity.ActivityIsFinished())
                 {
+                    Agent.DebugMessage($"Not all acvitivities for { productionOrder.ProductionorderId} are finished yet");
                     return;
                 }
             }
 
-            Agent.DebugMessage($"Productionorder {productionOrder.ProductionorderId} with MaterialId {productionOrder.MaterialId} finished!");
+            Agent.DebugMessage($"{activity.GetKey} was last activity of productionorder {productionOrder.ProductionorderId}. Finished MaterialId {productionOrder.MaterialId}!");
 
             // Insert Material
             _stockPostingManager.AddInsertStockPosting(
@@ -479,7 +483,9 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                                                                , salesOrderId: salesorderId
                                                          , materialFinishedAt: Agent.CurrentTime);
 
-                Agent.Send(DirectoryAgent.Directory.Instruction.Central.ForwardProvideOrder.Create(provideOrder, Agent.ActorPaths.StorageDirectory.Ref));
+                 Agent.Send(DirectoryAgent.Directory.Instruction.Central.ForwardProvideOrder.Create(provideOrder, Agent.ActorPaths.StorageDirectory.Ref));
+                
+
             }
 
         }

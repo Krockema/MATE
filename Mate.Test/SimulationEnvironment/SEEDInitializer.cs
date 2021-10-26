@@ -46,6 +46,8 @@ namespace Mate.Test.SimulationEnvironment
 
             seedConfig.WithOption(materialConfig);
 
+
+
             var rsSaw = new ResourceGroup("Saw")
                .WithResourceuQuantity(4)
                .WithTools(new List<ResourceTool> {

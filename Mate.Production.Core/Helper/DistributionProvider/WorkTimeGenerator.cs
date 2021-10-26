@@ -7,6 +7,9 @@ namespace Mate.Production.Core.Helper.DistributionProvider
 {
     public class WorkTimeGenerator
     {
+        Random _sourceRandom;
+        double _deviation;
+
         public static WorkTimeGenerator Create(Configuration configuration, int salt = 0)
         {
             return new WorkTimeGenerator(
@@ -17,11 +20,13 @@ namespace Mate.Production.Core.Helper.DistributionProvider
 
         public WorkTimeGenerator(int seed, double deviation, int simNumber)
         {
-            var source = new Random(Seed: seed 
+            _sourceRandom = new Random(Seed: seed 
                                           //TODO WARUM?
                                           //+ simNumber
                                           );
-            _distribution = new LogNormal(mu: 0, sigma: deviation, randomSource: source);
+            _deviation = deviation;
+
+            //_distribution = new LogNormal(mu: 0, sigma: deviation, randomSource: source);
         }
 
         private readonly LogNormal _distribution;
@@ -32,13 +37,15 @@ namespace Mate.Production.Core.Helper.DistributionProvider
         /// <returns></returns>
         public long GetRandomWorkTime(long duration)
         {
-            if (_distribution.Sigma == 0)
+            if (_deviation == 0.0)
                 return duration;
 
             long newDuration;
             while (true)
             {
-                newDuration = (long)Math.Round(value: duration * _distribution.Sample(), mode: MidpointRounding.AwayFromZero);
+                newDuration = (long)LogNormal.WithMeanVariance(duration, duration * _deviation, _sourceRandom).Sample();
+
+                //newDuration = (long)Math.Round(value: duration * _distribution.Sample(), mode: MidpointRounding.AwayFromZero);
                 if (newDuration <= 3 * duration) break;
             }
             return newDuration > 1 ? newDuration : 1;

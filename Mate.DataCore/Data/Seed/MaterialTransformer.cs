@@ -123,7 +123,7 @@ namespace Mate.DataCore.Data.Seed
                     {
                         ArticleId = article.Id,
                         Name = article.Name,
-                        Duration = (int)operation.Duration.TotalMinutes,
+                        Duration = (int)Math.Round(operation.Duration.TotalMinutes, 0, MidpointRounding.AwayFromZero),
                         ResourceCapabilityId = capability.Id,
                         HierarchyNumber = operation.SequenceNumber,
                     });

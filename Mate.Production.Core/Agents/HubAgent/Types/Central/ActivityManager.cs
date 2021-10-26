@@ -50,7 +50,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
 
         public bool ActivityIsFinished(string activityKey)
         {
-            return Activities.Single(x => x.Activity.GetKey.Equals(activityKey)).ActivityIsFinishedDebug();
+            return Activities.Single(x => x.Activity.GetKey.Equals(activityKey)).ActivityIsFinished();
         }
 
         public GptblProductionorderOperationActivity GetActivity(string activityKey)
