@@ -31,15 +31,15 @@ namespace Mate.DataCore.Data.DynamicInitializer.Tables
             List<M_Resource> resourceGroup = new List<M_Resource>();
             for (int i = 1; i <= numberOfResources; i++)
             {
-                var resource = CreateNewResource("Resource " + capability.Name, true, i);
+                var resource = CreateNewResource("Resource " + capability.Name, true, false, null, i);
                 resourceGroup.Add(resource);
             }
             CapabilityToResourceDict.Add(capability.Name, resourceGroup);
         }
 
-        private M_Resource CreateNewResource(string resourceName, bool isPhysical, int? number = null)
+        private M_Resource CreateNewResource(string resourceName, bool isPhysical, bool isBiological, string groupName, int? number = null)
         {
-            return new M_Resource() { Name = resourceName + " " + number?.ToString(), Capacity = 1, IsPhysical = isPhysical };
+            return new M_Resource() { Name = resourceName + " " + number?.ToString(), Capacity = 1, IsPhysical = isPhysical , IsBiological = isBiological, GroupName = groupName };
         }
 
         internal void CreateResourceTools(List<ResourceProperty> resourceProperties)
@@ -61,7 +61,7 @@ namespace Mate.DataCore.Data.DynamicInitializer.Tables
 
             for (int i = 1; i < 1 + numberOfOperators; i++)
             {
-                operators.Add(CreateNewResource(capability.Name + " Operator " + i, true));
+                operators.Add(CreateNewResource(capability.Name + " Operator " + i, true, true, capability.Name));
             }
 
             foreach (var resource in CapabilityToResourceDict.Single(x => x.Key == capability.Name).Value)
@@ -79,7 +79,7 @@ namespace Mate.DataCore.Data.DynamicInitializer.Tables
                                 Name = $"Provides {subCapability.Name} {resource.Name}",
                                 ResourceCapabilityId = subCapability.Id,
                             };
-                            var tool = CreateNewResource($"Tool {resource.Name} {subCapability.Name}", false);
+                            var tool = CreateNewResource($"Tool {resource.Name} {subCapability.Name}", false, false, null);
                             tools.Add(tool);
 
                             setups.Add(CreateNewSetup(op, capabilityProvider, false, true, 0));
@@ -100,7 +100,7 @@ namespace Mate.DataCore.Data.DynamicInitializer.Tables
                             Name = $"Provides {subCapability.Name} {resource.Name}",
                             ResourceCapabilityId = subCapability.Id,
                         };
-                        var tool = CreateNewResource($"Tool {resource.Name} {subCapability.Name}", false);
+                        var tool = CreateNewResource($"Tool {resource.Name} {subCapability.Name}", false, false, null);
                         tools.Add(tool);
 
                         setups.Add(CreateNewSetup(tool, capabilityProvider, true, true, setupTime));

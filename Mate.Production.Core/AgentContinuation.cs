@@ -30,6 +30,7 @@ namespace Mate.Production.Core
 
         public override void AfterSimulationStarted(Simulation sim)
         {
+
             //base.AfterSimulationStarted(sim);
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.GanttPlan;
 using Mate.DataCore.GanttPlan.GanttPlanModel;
@@ -25,7 +26,6 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
                 localGanttPlanDbContext.GptblConfirmation.AddRange(_confirmations);
                 localGanttPlanDbContext.GptblConfirmationResource.AddRange(_confirmationsResources);
                 localGanttPlanDbContext.SaveChanges();
-                
             }
 
             ResetConfirmations();
@@ -40,6 +40,16 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
         public void AddConfirmations(GptblProductionorderOperationActivity activity, GanttConfirmationState confirmationType, long currentTime, long activityStart)
         {
             var confirmationId = Guid.NewGuid().ToString();
+            if(
+                this._confirmations.Any(x => x.ProductionorderId.Equals(activity.ProductionorderId) 
+                && x.ProductionorderOperationId.Equals(activity.OperationId)
+                && x.ProductionorderActivityId.Equals(activity.ActivityId)
+                && x.ConfirmationType.Equals(confirmationType)
+            ))
+            {
+                throw new Exception("wrong!");
+            }
+
             AddConfirmation(activity, confirmationType, confirmationId, currentTime, activityStart);
             // only finish !?
             /*if (confirmationType.NotEqual(GanttState.Finished))
@@ -87,7 +97,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
             confirmationResource.GroupId = resource.GroupId;
             confirmationResource.Allocation = 100;
 
-        _confirmationsResources.Add(confirmationResource);
+            _confirmationsResources.Add(confirmationResource);
         }
 
     }

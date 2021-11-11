@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using AkkaSim;
 using Mate.DataCore.Data.Context;
+using Mate.DataCore.Nominal;
 using Mate.DataCore.ReportingModel;
 using Mate.DataCore.ReportingModel.Interface;
 using Mate.Production.Core.Agents.CollectorAgent.Types;
@@ -13,6 +15,7 @@ using Mate.Production.Core.Types;
 using Newtonsoft.Json;
 using static FAgentInformations;
 using static FBreakDowns;
+using static FComputationalTimers;
 using static FCreateSimulationJobs;
 using static FCreateSimulationResourceSetups;
 using static FThroughPutTimes;
@@ -26,9 +29,11 @@ namespace Mate.Production.Core.Agents.CollectorAgent
     {
         private CollectorAnalyticJob(ResourceDictionary resources) : base()
         {
+            _stopWatch.Start();
             _resources = resources;
         }
-
+        private Stopwatch _stopWatch { get; } = new Stopwatch();
+        List<long> _runTime { get; } = new List<long>();
         private List<Job> simulationJobs { get; } = new List<Job>();
         private List<Setup> simulationResourceSetups { get; } = new List<Setup>();
         private KpiManager kpiManager { get; } = new KpiManager();
@@ -37,6 +42,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         private List<FUpdateSimulationJob> _updatedSimulationJob { get; } = new List<FUpdateSimulationJob>();
         private List<FThroughPutTime> _ThroughPutTimes { get; } = new List<FThroughPutTime>();
+        private List<FComputationalTimer> _ComputationalTimes { get; } = new List<FComputationalTimer>();
         private ResourceDictionary _resources { get; set; } = new ResourceDictionary();
         public Collector Collector { get; set; }
         //
@@ -54,6 +60,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                                      typeof(FUpdateSimulationWorkProvider),
                                      typeof(UpdateLiveFeed),
                                      typeof(FThroughPutTime),
+                                     typeof(FComputationalTimer),
                                      typeof(Hub.Instruction.Default.AddResourceToHub),
                                      typeof(BasicInstruction.ResourceBrakeDown),
                                      typeof(FCreateSimulationResourceSetup)
@@ -77,6 +84,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 case FCreateSimulationResourceSetup m: CreateSetup(m); break;
                 case FUpdateSimulationWorkProvider m: UpdateProvider(uswp: m); break;
                 case FThroughPutTime m: UpdateThroughputTimes(m); break;
+                case FComputationalTimer m: UpdateComputationalTimes(m); break;
                 case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(finalCall: m.GetObjectFromMessage); break;
                 //case Hub.Instruction.AddResourceToHub m: RecoverFromBreak(item: m.GetObjectFromMessage); break;
                 //case BasicInstruction.ResourceBrakeDown m: BreakDwn(item: m.GetObjectFromMessage); break;
@@ -86,6 +94,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             return true;
         }
 
+       
         /// <summary>
         /// collect the resourceSetups of resource, cant be updated afterward
         /// </summary>
@@ -113,8 +122,13 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         {
             _ThroughPutTimes.Add(m);
         }
+        
+        private void UpdateComputationalTimes(FComputationalTimer m)
+        {
+            _ComputationalTimes.Add(m);
+        }
 
-#region breakdown
+        #region breakdown
         private void BreakDwn(FBreakDown item)
         {
             Collector.messageHub.SendToClient(listener: item.Resource + "_State", msg: "offline");
@@ -135,12 +149,44 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 lastIntervalStart = Collector.Time;
             }
             ThroughPut(finalCall);
+            ComputationalTimes(finalCall);
             CallTotal(finalCall);
             CallAverageIdle(finalCall);
 
             LogToDB(writeResultsToDB: finalCall);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from WorkSchedule");
+        }
+
+        private void ComputationalTimes(bool finalCall)
+        {
+            var elapsed = _stopWatch.ElapsedMilliseconds;
+            _stopWatch.Restart();
+            _runTime.Add(elapsed);
+            Collector.CreateKpi(Collector, elapsed.ToString(), "TimeCycleExecution", KpiType.ComputationalTime, false);
+
+            if (finalCall) {
+                Collector.CreateKpi(Collector, _runTime.Sum().ToString(), "TotalTimeCycleExecution", KpiType.ComputationalTime, true);
+                Collector.CreateKpi(Collector, _runTime.Average().ToString(), "AverageTimeCycleExecution", KpiType.ComputationalTime, true);
+
+                if (Collector.Config.GetOption<SimulationKind>().Value.Equals(SimulationType.Central))
+                {
+                    foreach (var timeKpi in _ComputationalTimes)
+                    {
+                        //additional for WriteConfirmations, ExecuteGanttplan and Init
+                        Collector.CreateKpi(Collector, timeKpi.duration.ToString() , timeKpi.timertype, KpiType.ComputationalTime, false, timeKpi.time);
+                    }
+
+                    foreach (var type in _ComputationalTimes.GroupBy(x => x.timertype))
+                    {
+                        Collector.CreateKpi(Collector, type.Sum(x => x.duration).ToString(), "Total" + type.Key, KpiType.ComputationalTime, true);
+                        Collector.CreateKpi(Collector, type.Average(x => x.duration).ToString(), "Average" + type.Key, KpiType.ComputationalTime, true);
+                    }
+
+                }
+
+            }
+
         }
 
         private void CallAverageIdle(bool finalCall)
@@ -209,13 +255,12 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             var thoughput = JsonConvert.SerializeObject(value: new { leadTime });
             Collector.messageHub.SendToClient(listener: "Throughput", msg: thoughput);
 
-            //TODO Add Leadtime for central planning
-            /*
-            if (finalCall)
+            if (finalCall && _ThroughPutTimes.Count > 0)
             {
-                Collector.CreateKpi(Collector, (leadTime.Average(x => x.Dlz.Average()) / leadTime.Count()).ToString() , "AverageLeadTime", KpiType.LeadTime, true);    
+                var finalThroughput = _ThroughPutTimes.Average(x => x.End - x.Start).ToString();
+                Collector.CreateKpi(Collector, finalThroughput, "AverageLeadTime", KpiType.LeadTime, true);    
             }
-            */
+            
             //foreach (var item in leadTime)
             //{
             //    var boxPlot = item.Dlz.FiveNumberSummary();

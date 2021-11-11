@@ -3,15 +3,16 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <LangVersion>9.0</LangVersion>
-	  <Platforms>AnyCPU;x64</Platforms>
+	  <Platforms>AnyCPU;x64;x86</Platforms>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <StartupObject />
-    <Configurations>Debug;Release;Debuger</Configurations>
+    <Configurations>Debug;Release;Debuger;Debugger</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AkkaSim" Version="0.6.0" />
+    <PackageReference Include="Mate.DataCore.GanttPlanApi" Version="1.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="3.8.0" />
   </ItemGroup>

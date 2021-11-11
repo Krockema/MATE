@@ -19,6 +19,26 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
             var resourceState = new ResourceState(resourceDefinition);
             resourceStateList.Add(resourceState);
         }
+        public bool ResourceReadyToWorkOn(int resourceId, string key)
+        {
+            var resource = resourceStateList.Single(x => x.ResourceDefinition.Id.Equals(resourceId));
+
+            if(resource.IsWorking)
+                return false;
+
+            var nextActivity = resource.ActivityQueue.Peek();
+            if (nextActivity == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"No next activity for {resource.ResourceDefinition.Name} in resource activity queue");
+                return false;
+            }
+            var isNextActivityEqual = nextActivity.GetKey == key;
+            if (!isNextActivityEqual)
+                System.Diagnostics.Debug.WriteLine($"Next activity on {resource.ResourceDefinition.Name} should be {key} but is {nextActivity.GetKey}");
+
+            return isNextActivityEqual;
+
+        }
 
         public bool ResourceIsWorking(int resourceId)
         {

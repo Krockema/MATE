@@ -17,7 +17,7 @@ namespace Mate.Production.CLI
             , new OrderArrivalRate()
             , new OrderQuantity()
             , new SaveToDB()
-            , new Seed()
+            , new Core.Environment.Options.Seed()
             , new SettlingStart()
             , new SimulationEnd()
             , new WorkTimeDeviation()

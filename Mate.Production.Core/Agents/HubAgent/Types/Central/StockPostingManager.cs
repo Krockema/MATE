@@ -12,11 +12,14 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
 
         private string _dbConnectionStringGanttPlan { get; }
 
+        private int _stockQuantityIndex { get; set; }
+
         private List<GptblStockquantityposting> _stockPostings { get; set; } = new List<GptblStockquantityposting>();
 
         public StockPostingManager(string dbConnectionStringGanttPlan)
         {
             _dbConnectionStringGanttPlan = dbConnectionStringGanttPlan;
+            _stockQuantityIndex = 0;
         }
 
 
@@ -37,11 +40,16 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
             _stockPostings.Clear();
         }
 
+        public int GetStockQuantityIndex()
+        {
+            return _stockQuantityIndex++;
+        }
+
         public void AddWithdrawalStockPosting(string materialId, double quantity, string materialQuantityUnitId, GanttStockPostingType stockPostingType, long CurrentTime)
         {
             var stockPosting = new GptblStockquantityposting();
 
-            stockPosting.StockquantitypostingId = Guid.NewGuid().ToString();
+            stockPosting.StockquantitypostingId = GetStockQuantityIndex().ToString();
             stockPosting.MaterialId = materialId;
             stockPosting.Name = materialId;
             stockPosting.Quantity = quantity * -1;
@@ -61,7 +69,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
         {
             var stockPosting = new GptblStockquantityposting();
 
-            stockPosting.StockquantitypostingId = Guid.NewGuid().ToString();
+            stockPosting.StockquantitypostingId = GetStockQuantityIndex().ToString();
             stockPosting.MaterialId = materialId;
             stockPosting.Name = materialId;
             stockPosting.Quantity = quantity;

@@ -46,7 +46,7 @@ namespace Mate.Test.SimulationEnvironment
                 new OrderArrivalRate(value: OrderArrivalRate), new OrderQuantity(value: Int32.MaxValue),
                 new TransitionFactor(value: 3), new EstimatedThroughPut(value: 1920), new DebugAgents(value: false),
                 new DebugSystem(value: false), new KpiTimeSpan(value: 480), new MaxBucketSize(value: MaxBucketSize),
-                new Seed(value: 1337), new MinDeliveryTime(value: 10), new MaxDeliveryTime(value: 15),
+                new Production.Core.Environment.Options.Seed(value: 1337), new MinDeliveryTime(value: 10), new MaxDeliveryTime(value: 15),
                 new TimePeriodForThroughputCalculation(value: 3840), new SettlingStart(value: 4320),
                 new SimulationEnd(value: 20160), new WorkTimeDeviation(value: 0.2), new SaveToDB(value: false)
             });

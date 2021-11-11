@@ -66,7 +66,7 @@ namespace Mate.Controllers
             simConfig.ReplaceOption(new OrderQuantity(value: orderAmount));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: 0));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
-            simConfig.ReplaceOption(new Seed(value: 169));
+            simConfig.ReplaceOption(new Mate.Production.Core.Environment.Options.Seed(value: 169));
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
             simConfig.ReplaceOption(new SimulationEnd(value: 10080));
             simConfig.ReplaceOption(new SaveToDB(value: true));
@@ -104,7 +104,7 @@ namespace Mate.Controllers
 
         public async void RunGanttSimulation(Configuration simConfig)
         {
-            GanttPlanDBContext.ClearDatabase(Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).ConnectionString.Value);
+            GanttPlanDBContext.ClearDatabase(Dbms.GetGanttDataBase(DataBaseConfiguration.GP).ConnectionString.Value);
             
             //Synchronisation GanttPlan
             GanttPlanOptRunner.Inizialize();

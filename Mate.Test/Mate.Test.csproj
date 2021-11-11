@@ -2,10 +2,30 @@
 	<PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <ServerGarbageCollection>true</ServerGarbageCollection>
-    <Configurations>Debug;Release;Azure;Debuger</Configurations>
-		<Platforms>AnyCPU;x64</Platforms>
+    <Configurations>Debug;Release;Azure;Debuger;Debugger</Configurations>
+		<Platforms>AnyCPU;x64;x86</Platforms>
     <LangVersion>9.0</LangVersion>
   </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	  <PlatformTarget>AnyCPU</PlatformTarget>
+	  <Optimize>False</Optimize>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <PlatformTarget>AnyCPU</PlatformTarget>
+	  <Optimize>True</Optimize>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Azure|AnyCPU'">
+	  <PlatformTarget>AnyCPU</PlatformTarget>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debuger|AnyCPU'">
+	  <PlatformTarget>AnyCPU</PlatformTarget>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+	  <Optimize>False</Optimize>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+	  <Optimize>True</Optimize>
+	</PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Online\Agents\Resource\**" />
@@ -27,8 +47,9 @@
 
   <ItemGroup>
     <PackageReference Include="Akka.TestKit.Xunit" Version="1.4.18" />
-    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
     <PackageReference Include="EfCore.InMemoryHelpers" Version="1.9.11" />
+    <PackageReference Include="Mate.DataCore.GanttPlanApi" Version="1.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.5" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="Microsoft.NETCore.Portable.Compatibility" Version="1.0.1" />

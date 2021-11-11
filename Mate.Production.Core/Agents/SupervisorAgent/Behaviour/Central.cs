@@ -48,7 +48,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             , List<FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime> estimatedThroughputTimes)
         {
             _ganttContext = Dbms.GetGanttDataBase(dbName: dbNameGantt).DbContext;
-            _productionContext = Dbms.GetMateDataBase(dbName: dbNameProduction).DbContext;
+            _productionContext = Dbms.GetMateDataBase(dbName: dbNameProduction, noTracking: false).DbContext;
             _dataBaseConnection = _ganttContext.Database.GetDbConnection();
             _messageHub = messageHub;
             _orderGenerator = new OrderGenerator(simConfig: configuration,
@@ -97,14 +97,17 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
 
         private void CreateContractAgent(T_CustomerOrder order)
         {
-
             _productionContext.CustomerOrders.Add(order);
             _productionContext.SaveChanges();
 
             var orderPart = order.CustomerOrderParts.First();
 
+            //var article = _productionContext.Articles.Single(x => x.Id.Equals(orderPart.ArticleId));
+
+            //orderPart.Article = article;
+
             _orderQueue.Enqueue(item: orderPart);
-            Agent.DebugMessage(msg: $"Creating Contract Agent for order {orderPart.CustomerOrderId} with {orderPart.Article.Name} DueTime {orderPart.CustomerOrder.DueTime}");
+            Agent.DebugMessage(msg: $"Creating Contract Agent for order {orderPart.CustomerOrderId} with {orderPart.ArticleId} DueTime {orderPart.CustomerOrder.DueTime}");
             var agentSetup = AgentSetup.Create(agent: Agent, behaviour: ContractAgent.Behaviour.Factory.Get(simType: _simulationType));
             var instruction = Instruction.CreateChild.Create(setup: agentSetup
                                                , target: Agent.ActorPaths.Guardians

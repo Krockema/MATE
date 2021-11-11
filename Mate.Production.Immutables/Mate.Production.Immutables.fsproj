@@ -2,12 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-	  <Platforms>AnyCPU;x64</Platforms>
-	  <Configurations>Debug;Release;Debuger</Configurations>
+	  <Platforms>AnyCPU;x64;x86</Platforms>
+	  <Configurations>Debug;Release;Debuger;Debugger</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="FunctionConverter.fs" />
+    <Compile Include="Message\FComputationalTimers.fs" />
     <Compile Include="Message\Central\FCentralGanttPlanInformations.fs" />
     <Compile Include="Message\Central\FCentralProvideOrders.fs" />
     <Compile Include="Message\Central\FCentralProvideMaterials.fs" />
@@ -77,6 +78,7 @@
 
   <ItemGroup>
     <PackageReference Include="Akka" Version="1.4.18" />
+    <PackageReference Include="Mate.DataCore.GanttPlanApi" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>

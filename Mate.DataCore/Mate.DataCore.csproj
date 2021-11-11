@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-	  <Platforms>AnyCPU;x64</Platforms>
+	  <Platforms>AnyCPU;x64;x86</Platforms>
     <StartupObject />
-    <Configurations>Debug;Release;Azure;Debuger</Configurations>
+    <Configurations>Debug;Release;Azure;Debuger;Debugger</Configurations>
     <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -31,6 +31,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.5" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.7.2" />
+    <PackageReference Include="Seed.MasterData" Version="1.1.0" />
     <PackageReference Include="sqlite" Version="3.13.0" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
