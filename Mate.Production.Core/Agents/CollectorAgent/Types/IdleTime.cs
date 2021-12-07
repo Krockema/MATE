@@ -2,56 +2,64 @@
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Util.Internal;
-using Mate.DataCore.Data.WrappersForPrimitives;
+using Mate.DataCore.Data.Helper;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.ReportingModel;
 
 namespace Mate.Production.Core.Agents.CollectorAgent.Types
 {
-    public class IdleTime
+    public class OperationInformationManager
     {
-        private readonly Dictionary<string, List<Quantity>> _idleDictionary;
-        private readonly Dictionary<string, List<Quantity>> _idleDictionaryTotals;
+        private readonly Dictionary<string, List<OperationInfo>> _operationsInfos;
+        private readonly Dictionary<string, List<OperationInfo>> _operationsInfosTotal;
 
-        public IdleTime()
+        public OperationInformationManager()
         {
-            _idleDictionary = new Dictionary<string, List<Quantity>>();
-            _idleDictionaryTotals = new Dictionary<string, List<Quantity>>();
+            _operationsInfos = new Dictionary<string, List<OperationInfo>>();
+            _operationsInfosTotal = new Dictionary<string, List<OperationInfo>>();
         }
 
-        public void Add(Job job)
+        public void WriteCSV()
         {
-            if(_idleDictionary.TryGetValue(job.CapabilityName, out List<Quantity> quantities))
+            foreach(var cap in _operationsInfos)
             {
-                quantities.Add(new Quantity(job.Start - job.ReadyAt));
-                return;
+                LinqExtensions.WriteCSV((IEnumerable<List<OperationInfo>>)cap.Value, " " + cap);
             }
-            _idleDictionary.Add(job.CapabilityName,new List<Quantity>() { new Quantity(job.Start - job.ReadyAt) });
         }
 
-        private void AddToTotals(string key, List<Quantity> idleList)
+        public void Add(OperationInfo operationInfo)
         {
-            if(_idleDictionaryTotals.TryGetValue(key, out List<Quantity> quantities))
+            if(_operationsInfos.TryGetValue(operationInfo.CapabilityName, out List<OperationInfo> operationInfos))
             {
-                quantities.AddRange(idleList);
+                operationInfos.Add(operationInfo);
                 return;
             }
-            _idleDictionaryTotals.Add(key, idleList);
+            _operationsInfos.Add(operationInfo.CapabilityName,new List<OperationInfo>() { operationInfo });
+        }
+
+        private void AddToTotals(string key, List<OperationInfo> operationInfo)
+        {
+            if(_operationsInfosTotal.TryGetValue(key, out List<OperationInfo> operationInfos))
+            {
+                operationInfos.AddRange(operationInfo);
+                return;
+            }
+            _operationsInfosTotal.Add(key, operationInfo);
         }
 
         public List<Kpi> GetKpis(Collector collector, bool finalCall)
         {
             List<Kpi> kpis = new();
             // change source on final call
-            var sourceDict = _idleDictionary;
+            var sourceDict = _operationsInfos;
             if (finalCall)
-                sourceDict = _idleDictionaryTotals;
+                sourceDict = _operationsInfosTotal;
             
             kpis.AddRange(
                 sourceDict.Select(x => new Kpi
                 {
                     Name = "Idle:" + x.Key,
-                    Value = (double) Math.Round(x.Value.Average(a => a.GetValue()), 2),
+                    Value = (double) Math.Round(x.Value.Average(a => a.GetIdleTime()), 2),
                     Time = (int) collector.Time,
                     KpiType = KpiType.CapabilityIdle,
                     SimulationConfigurationId = collector.simulationId.Value,
@@ -64,8 +72,8 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
             if (!finalCall)
             { 
                 // clear if more is coming.
-                _idleDictionary.ForEach(x => AddToTotals(x.Key, x.Value));
-                _idleDictionary.Clear();
+                _operationsInfos.ForEach(x => AddToTotals(x.Key, x.Value));
+                _operationsInfosTotal.Clear();
             }
             return kpis;
         }

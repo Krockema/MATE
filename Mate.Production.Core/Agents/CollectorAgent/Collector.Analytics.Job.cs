@@ -46,7 +46,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         private ResourceDictionary _resources { get; set; } = new ResourceDictionary();
         public Collector Collector { get; set; }
         //
-        IdleTime idleTime = new IdleTime();
+        OperationInformationManager operationInformationManager = new OperationInformationManager();
         
         /// <summary>
         /// Required to get Number output with . instead of ,
@@ -191,7 +191,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         private void CallAverageIdle(bool finalCall)
         {
-            var kpis = idleTime.GetKpis(Collector, finalCall);
+            var kpis = operationInformationManager.GetKpis(Collector, finalCall);
             Collector.Kpis.AddRange(kpis);
         }
 
@@ -338,7 +338,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 edit.Bucket = simJob.Bucket;
                 edit.ReadyAt = simJob.ReadyAt;
                 edit.SetupId = simJob.SetupId;
-                idleTime.Add(edit);
+                operationInformationManager.Add(simJob.OperationInfo);
                 return;
             }
             _updatedSimulationJob.Add(item: simJob);

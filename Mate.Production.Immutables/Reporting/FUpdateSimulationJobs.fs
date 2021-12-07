@@ -1,6 +1,7 @@
 ﻿module FUpdateSimulationJobs
 
 open IJobs
+open Mate.DataCore.ReportingModel
 
     type public FUpdateSimulationJob = {   
         Job : IJob
@@ -12,5 +13,6 @@ open IJobs
         ReadyAt : int64
         Bucket : string
         SetupId : int32
+        OperationInfo : OperationInfo
     } 
 

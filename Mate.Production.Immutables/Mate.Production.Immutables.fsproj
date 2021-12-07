@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Compile Include="FunctionConverter.fs" />
+   
     <Compile Include="Message\FComputationalTimers.fs" />
     <Compile Include="Message\Central\FCentralGanttPlanInformations.fs" />
     <Compile Include="Message\Central\FCentralProvideOrders.fs" />
@@ -35,11 +36,12 @@
     <Compile Include="Interface\IJob.fs" />
     <Compile Include="Interface\IJobResults.fs" />
     <Compile Include="Interface\IQueuingJob.fs" />
+	<Compile Include="Message\FFinishOperations.fs" />
     <Compile Include="Message\FOperation.fs" />
     <Compile Include="Message\FOperationResults.fs" />
     <Compile Include="Message\FArticle.fs" />
     <Compile Include="Message\FProductionResults.fs" />
-	  <Compile Include="Message\FBucket.fs" />
+	<Compile Include="Message\FBucket.fs" />
     <!--<Compile Include="Message\FSetup.fs" /> -->
     <Compile Include="Message\FRequestToRequeues.fs" />
     <Compile Include="Message\FBucketResults.fs" />
