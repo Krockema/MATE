@@ -46,7 +46,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         private ResourceDictionary _resources { get; set; } = new ResourceDictionary();
         public Collector Collector { get; set; }
         //
-        OperationInformationManager operationInformationManager = new OperationInformationManager();
+        private OperationInformationManager operationInformationManager = new OperationInformationManager();
         
         /// <summary>
         /// Required to get Number output with . instead of ,
@@ -338,7 +338,8 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 edit.Bucket = simJob.Bucket;
                 edit.ReadyAt = simJob.ReadyAt;
                 edit.SetupId = simJob.SetupId;
-                operationInformationManager.Add(simJob.OperationInfo);
+                if(simJob.OperationInfo != null)
+                    operationInformationManager.Add(simJob.OperationInfo);
                 return;
             }
             _updatedSimulationJob.Add(item: simJob);
