@@ -26,7 +26,7 @@ namespace Mate.Production.Core.Helper
         {
             var pub = new FUpdateSimulationJob(job: job
                 , duration: duration
-                , start: agent.CurrentTime
+                , start: agent.CurrentTime - duration
                 , capabilityProvider: capabilityProvider.Name
                 , capability: capabilityProvider.ResourceCapability.Name
                 , readyAt: job.StartConditions.WasSetReadyAt

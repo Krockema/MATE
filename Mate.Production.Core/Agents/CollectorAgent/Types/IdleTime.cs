@@ -54,20 +54,21 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
             var sourceDict = _operationsInfos;
             if (finalCall)
                 sourceDict = _operationsInfosTotal;
-            
-            kpis.AddRange(
-                sourceDict.Select(x => new Kpi
-                {
-                    Name = "Idle:" + x.Key,
-                    Value = (double) Math.Round(x.Value.Average(a => a.GetIdleTime()), 2),
-                    Time = (int) collector.Time,
-                    KpiType = KpiType.CapabilityIdle,
-                    SimulationConfigurationId = collector.simulationId.Value,
-                    SimulationNumber = collector.simulationNumber.Value,
-                    IsFinal = finalCall,
-                    IsKpi = true,
-                    SimulationType = collector.simulationKind.Value
-                }));
+
+            var avgIdleTime = sourceDict.Select(x => new Kpi
+            {
+                Name = "Idle:" + x.Key,
+                Value = (double)Math.Round(x.Value.Average(a => a.GetIdleTime()), 2),
+                Time = (int)collector.Time,
+                KpiType = KpiType.CapabilityIdle,
+                SimulationConfigurationId = collector.simulationId.Value,
+                SimulationNumber = collector.simulationNumber.Value,
+                IsFinal = finalCall,
+                IsKpi = true,
+                SimulationType = collector.simulationKind.Value
+            });
+
+            kpis.AddRange(avgIdleTime);
             
             if (!finalCall)
             { 

@@ -424,12 +424,13 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         private void ResultCreator(FFinishOperations.FFinishOperation finishOperation, OperationInfo operationInfo)
         {
             var operation = (FOperation)finishOperation.Job;
+            operationInfo.SetStartAndReadyAt(Agent.CurrentTime - finishOperation.Duration, operation.StartConditions.WasSetReadyAt);
             ResultStreamFactory.PublishJob(agent: Agent
                                            , job: finishOperation.Job
                                       , duration: finishOperation.Duration
                             , capabilityProvider: finishOperation.CapabilityProvider
                                     , bucketName: finishOperation.BucketName
-                                    , operationInfo: operationInfo);
+                                 , operationInfo: operationInfo);
 
             var fOperationResult = new FOperationResult(key: finishOperation.Job.Key
                 , creationTime: 0
