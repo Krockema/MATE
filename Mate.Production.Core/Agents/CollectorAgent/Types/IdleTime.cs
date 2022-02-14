@@ -47,7 +47,8 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
             _operationsInfosTotal.Add(key, operationInfo);
         }
 
-        public List<Kpi> GetKpis(Collector collector, bool finalCall)
+
+        public List<Kpi> GetIdleKpis(Collector collector, bool finalCall)
         {
             List<Kpi> kpis = new();
             // change source on final call
@@ -57,10 +58,10 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
 
             var avgIdleTime = sourceDict.Select(x => new Kpi
             {
-                Name = "Idle:" + x.Key,
+                Name = x.Key,
                 Value = (double)Math.Round(x.Value.Average(a => a.GetIdleTime()), 2),
                 Time = (int)collector.Time,
-                KpiType = KpiType.CapabilityIdle,
+                KpiType = KpiType.AvgIdleTimeCapability,
                 SimulationConfigurationId = collector.simulationId.Value,
                 SimulationNumber = collector.simulationNumber.Value,
                 IsFinal = finalCall,
@@ -70,13 +71,41 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
 
             kpis.AddRange(avgIdleTime);
             
-            if (!finalCall)
-            { 
-                // clear if more is coming.
-                _operationsInfos.ForEach(x => AddToTotals(x.Key, x.Value));
-                _operationsInfosTotal.Clear();
-            }
             return kpis;
+        }
+
+        public List<Kpi> GetAmountIdleOperationKpis(Collector collector, bool finalCall)
+        {
+            List<Kpi> kpis = new();
+            // change source on final call
+            var sourceDict = _operationsInfos;
+            if (finalCall)
+                sourceDict = _operationsInfosTotal;
+
+            var amountOperations = sourceDict.Select(x => new Kpi
+            {
+                Name = x.Key,
+                Value = x.Value.Count,
+                Time = (int)collector.Time,
+                KpiType = KpiType.AmountIdleOperationsCapability,
+                SimulationConfigurationId = collector.simulationId.Value,
+                SimulationNumber = collector.simulationNumber.Value,
+                IsFinal = finalCall,
+                IsKpi = true,
+                SimulationType = collector.simulationKind.Value
+            });
+
+            kpis.AddRange(amountOperations);
+
+            return kpis;
+        }
+
+
+        public void Clear()
+        {
+            // clear if more is coming.
+            _operationsInfos.ForEach(x => AddToTotals(x.Key, x.Value));
+            _operationsInfos.Clear();
         }
     }
 }

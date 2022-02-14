@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ML" Version="1.6.0" />
+    <PackageReference Include="Microsoft.ML.FastTree" Version="1.6.0" />
+    <PackageReference Include="Microsoft.ML.LightGbm" Version="1.6.0" />
+  </ItemGroup>
+  <ItemGroup Label="TransitionTimes">
+    <None Include="TransitionTimes.consumption.cs">
+      <DependentUpon>TransitionTimes.mbconfig</DependentUpon>
+    </None>
+    <None Include="TransitionTimes.training.cs">
+      <DependentUpon>TransitionTimes.mbconfig</DependentUpon>
+    </None>
+    <None Include="TransitionTimes.zip">
+      <DependentUpon>TransitionTimes.mbconfig</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

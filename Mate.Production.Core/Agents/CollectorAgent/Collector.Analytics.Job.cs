@@ -151,7 +151,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             ThroughPut(finalCall);
             ComputationalTimes(finalCall);
             CallTotal(finalCall);
-            CallAverageIdle(finalCall);
+            CallOperationsInfo(finalCall);
 
             LogToDB(writeResultsToDB: finalCall);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
@@ -189,10 +189,19 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         }
 
-        private void CallAverageIdle(bool finalCall)
+        private void CallOperationsInfo(bool finalCall)
         {
-            var kpis = operationInformationManager.GetKpis(Collector, finalCall);
-            Collector.Kpis.AddRange(kpis);
+            var idleKpis = operationInformationManager.GetIdleKpis(Collector, finalCall);
+            Collector.Kpis.AddRange(idleKpis);
+
+            var amountOperatonsKpis = operationInformationManager.GetAmountIdleOperationKpis(Collector, finalCall);
+            Collector.Kpis.AddRange(amountOperatonsKpis);
+
+            if (!finalCall)
+            {
+                operationInformationManager.Clear();
+            }
+
         }
 
 
