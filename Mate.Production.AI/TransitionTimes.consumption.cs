@@ -15,11 +15,17 @@ namespace Mate
         #region model input class
         public class ModelInput
         {
+            [ColumnName(@"PrePreviousIdleTime")]
+            public float PrePreviousIdleTime { get; set; }
+
+            [ColumnName(@"PreviousIdleTime")]
+            public float PreviousIdleTime { get; set; }
+
             [ColumnName(@"AverageIdleTime")]
             public float AverageIdleTime { get; set; }
 
-            [ColumnName(@"NextIdelTime")]
-            public float NextIdelTime { get; set; }
+            [ColumnName(@"NextIdleTime")]
+            public float NextIdleTime { get; set; }
 
             [ColumnName(@"CurrentAmount")]
             public float CurrentAmount { get; set; }

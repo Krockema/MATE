@@ -55,6 +55,8 @@ namespace Mate.Production.Core.Types
         {
             foreach (var operation in article.Operations)
             {
+                //double tranistiontime = TransitionTimes.Instance.GetTransitionTime(operation.ResourceCapability.ParentResourceCapability.Id);
+
                 operation.AverageTransitionDuration = Convert.ToInt32(value: Math.Round(d: operation.Duration * factor, decimals: 0, mode: MidpointRounding.AwayFromZero));
             }
         }

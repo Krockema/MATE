@@ -5,6 +5,7 @@ using Akka.Util.Internal;
 using Mate.DataCore.Data.Helper;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.ReportingModel;
+using Mate.Production.Core.Types;
 
 namespace Mate.Production.Core.Agents.CollectorAgent.Types
 {
@@ -69,6 +70,10 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
                 SimulationType = collector.simulationKind.Value
             });
 
+            foreach(var kpi in avgIdleTime)
+            { 
+                //TransitionTimes.Instance.SetTransitionTime(kpi.Name, kpi.Value);
+            }
             kpis.AddRange(avgIdleTime);
             
             return kpis;

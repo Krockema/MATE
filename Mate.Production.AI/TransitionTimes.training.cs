@@ -29,9 +29,9 @@ namespace Mate
         public static IEstimator<ITransformer> BuildPipeline(MLContext mlContext)
         {
             // Data process configuration with pipeline data transformations
-            var pipeline = mlContext.Transforms.ReplaceMissingValues(new []{new InputOutputColumnPair(@"AverageIdleTime", @"AverageIdleTime"),new InputOutputColumnPair(@"CurrentAmount", @"CurrentAmount"),new InputOutputColumnPair(@"OpenOrders", @"OpenOrders"),new InputOutputColumnPair(@"ResourceUtilization", @"ResourceUtilization")})      
-                                    .Append(mlContext.Transforms.Concatenate(@"Features", new []{@"AverageIdleTime",@"CurrentAmount",@"OpenOrders",@"ResourceUtilization"}))      
-                                    .Append(mlContext.Regression.Trainers.FastForest(new FastForestRegressionTrainer.Options(){NumberOfTrees=9,FeatureFraction=1F,LabelColumnName=@"NextIdelTime",FeatureColumnName=@"Features"}));
+            var pipeline = mlContext.Transforms.ReplaceMissingValues(new []{new InputOutputColumnPair(@"PrePreviousIdleTime", @"PrePreviousIdleTime"),new InputOutputColumnPair(@"PreviousIdleTime", @"PreviousIdleTime"),new InputOutputColumnPair(@"AverageIdleTime", @"AverageIdleTime"),new InputOutputColumnPair(@"CurrentAmount", @"CurrentAmount"),new InputOutputColumnPair(@"NewArrivaledOrders", @"NewArrivaledOrders"),new InputOutputColumnPair(@"OpenOrders", @"OpenOrders"),new InputOutputColumnPair(@"ResourceUtilization", @"ResourceUtilization")})      
+                                    .Append(mlContext.Transforms.Concatenate(@"Features", new []{@"PrePreviousIdleTime",@"PreviousIdleTime",@"AverageIdleTime",@"CurrentAmount",@"NewArrivaledOrders",@"OpenOrders",@"ResourceUtilization"}))      
+                                    .Append(mlContext.Regression.Trainers.FastForest(new FastForestRegressionTrainer.Options(){NumberOfTrees=14,FeatureFraction=1F,LabelColumnName=@"NextIdleTime",FeatureColumnName=@"Features"}));
 
             return pipeline;
         }

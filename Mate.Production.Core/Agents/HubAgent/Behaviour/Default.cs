@@ -9,6 +9,7 @@ using Mate.Production.Core.Agents.HubAgent.Types;
 using Mate.Production.Core.Agents.JobAgent;
 using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
+using Mate.Production.Core.Types;
 using NLog;
 using static FOperationResults;
 using static FOperations;
