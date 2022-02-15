@@ -59,6 +59,8 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             foreach (var capabilityProvider in resourceInformation.ResourceCapabilityProvider)
             {
+                TransitionTimes.Instance.AddKeyValue(capabilityProvider.ResourceCapability.Name, capabilityProvider.ResourceCapabilityId);
+                
                 var capabilityDefinition = _capabilityManager.GetCapabilityDefinition(capabilityProvider.ResourceCapability);
 
                 capabilityDefinition.AddResourceRef(resourceId: resourceInformation.ResourceId, resourceRef: resourceInformation.Ref);

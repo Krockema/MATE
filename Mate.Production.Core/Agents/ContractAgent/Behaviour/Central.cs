@@ -4,6 +4,7 @@ using Mate.Production.Core.Agents.SupervisorAgent;
 using Mate.Production.Core.Helper;
 using static FArticles;
 using static FCentralProvideOrders;
+using static FStartOrders;
 
 namespace Mate.Production.Core.Agents.ContractAgent.Behaviour
 {
@@ -31,11 +32,13 @@ namespace Mate.Production.Core.Agents.ContractAgent.Behaviour
         /// </summary>
         /// <param name="agent"></param>
         /// <param name="orderItem"></param>
-        public void StartOrder(T_CustomerOrderPart orderItem)
+        public void StartOrder(FStartOrder orderItem)
         {
+
+            System.Diagnostics.Debug.WriteLine($"{orderItem.customerOrderPart.CustomerOrderId}: {Agent.CurrentTime}");
             // create Request Item
-            _fArticle = orderItem.ToRequestItem(requester: Agent.Context.Self
-                                            , customerDue: orderItem.CustomerOrder.DueTime
+            _fArticle = orderItem.customerOrderPart.ToRequestItem(requester: Agent.Context.Self
+                                            , customerDue: orderItem.customerOrderPart.CustomerOrder.DueTime
                                             , remainingDuration: 0
                                             , currentTime: Agent.CurrentTime);
 

@@ -45,7 +45,12 @@ namespace Mate.Production.Core.Types
 
         internal double GetTransitionTime(int capability)
         {
-            transitionsDic.Value.TryGetValue(capability, out double value);
+            double value = 0.0;
+
+            if(transitionsDic.Value.TryGetValue(capability, out double entry))
+            {
+                value = entry;
+            }
 
             return value;
         }

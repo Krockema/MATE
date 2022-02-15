@@ -72,7 +72,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
 
             foreach(var kpi in avgIdleTime)
             { 
-                //TransitionTimes.Instance.SetTransitionTime(kpi.Name, kpi.Value);
+                TransitionTimes.Instance.SetTransitionTime(kpi.Name, kpi.Value);
             }
             kpis.AddRange(avgIdleTime);
             

@@ -4,6 +4,7 @@ using AkkaSim.Interfaces;
 using Mate.DataCore.DataModel;
 using static FArticles;
 using static FCentralProvideOrders;
+using static FStartOrders;
 
 namespace Mate.Production.Core.Agents.ContractAgent
 {
@@ -16,11 +17,11 @@ namespace Mate.Production.Core.Agents.ContractAgent
                 {
                 }
 
-                public static ISimulationMessage Create(T_CustomerOrderPart message, IActorRef target, bool logThis = false)
+                public static ISimulationMessage Create(FStartOrder message, IActorRef target, bool logThis = false)
                 {
                     return new StartOrder(message: message, target: target, logThis: logThis);
                 }
-                public T_CustomerOrderPart GetObjectFromMessage { get => Message as T_CustomerOrderPart; }
+                public FStartOrder GetObjectFromMessage { get => Message as FStartOrder; }
             }
 
             public class TryFinishOrder : SimulationMessage

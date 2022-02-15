@@ -14,6 +14,7 @@ namespace Mate.Production.Core.Helper.DistributionProvider
     {
         private bool _debug { get; set; }
         private List<int> _productIds { get; set; }
+        private long _creationTime { get; set; } = 0L;
         private Random _seededRandom { get; set; }
         private Exponential _exponential { get; set; }
         private DiscreteUniform _prodVariation { get; set; }
@@ -64,9 +65,9 @@ namespace Mate.Production.Core.Helper.DistributionProvider
         }
 
 
-        public T_CustomerOrder GetNewRandomOrder(long time)
+        public (T_CustomerOrder, long) GetNewRandomOrder(long time)
         {
-            var creationTime = (long)Math.Round(value: _exponential.Sample(), mode: MidpointRounding.AwayFromZero);
+            var NextCreationTime = (long)Math.Round(value: _exponential.Sample(), mode: MidpointRounding.AwayFromZero);
 
             //get which product is to be ordered
             var productId = _productIds.ElementAt(index: _prodVariation.Sample());
@@ -74,12 +75,15 @@ namespace Mate.Production.Core.Helper.DistributionProvider
             var due = ArticleStatistics.DeliveryDateEstimator(productId, _duetime.Sample(), _productionDomainContext);
             // The old way
             //create order and orderpart, duetime is creationtime + 1 day
-            due = time + creationTime + due;
+            due = time + due;
             System.Diagnostics.Debug.WriteLineIf(condition: _debug, message: "Product(" + productId + ")" + ";" + time + ";" + due);
 
             // only Returns new Order does not save context.
-            var order = _productionDomainContext.CreateNewOrder(articleId: productId, amount: 1, creationTime: time + creationTime, dueTime: due);
-            return order;
+            var order = _productionDomainContext.CreateNewOrder(articleId: productId, amount: 1, creationTime: time, dueTime: due);
+            
+            _creationTime = NextCreationTime;
+
+            return (order, NextCreationTime);
         }
     }
 }

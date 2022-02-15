@@ -12,6 +12,7 @@ namespace Mate.DataCore.DataModel
         public int DueTime { get; set; }
         public DateTime DueDateTime { get; set; }
         public int CreationTime { get; set; }
+        public long ReleaseTime { get; set; }
         public int FinishingTime { get; set; }
         public int BusinessPartnerId { get; set; }
         [JsonIgnore]
