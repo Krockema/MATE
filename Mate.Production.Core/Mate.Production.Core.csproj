@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Mate.DataCore\Mate.DataCore.csproj" />
+    <ProjectReference Include="..\Mate.Production.AI\Mate.Production.AI.csproj" />
     <ProjectReference Include="..\Mate.Production.Immutables\Mate.Production.Immutables.fsproj" />
   </ItemGroup>
 

@@ -19,6 +19,7 @@ using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
 using Mate.Production.Core.SignalR;
 using Mate.Production.Core.Types;
+using Mate_Production_AI;
 using static FArticles;
 using static FSetEstimatedThroughputTimes;
 using static FStartOrders;
@@ -33,6 +34,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         private int orderCount { get; set; } = 0;
         private long _simulationEnds { get; set; }
         private int _configID { get; set; }
+        private int _settlingStart { get; set; }
         private OrderCounter _orderCounter { get; set; }
         private int _createdOrders { get; set; } = 0;
         private SimulationType _simulationType { get; set; }
@@ -42,6 +44,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         private ThroughPutDictionary _estimatedThroughPuts { get; set; } = new ThroughPutDictionary();
         private Queue<T_CustomerOrderPart> _orderQueue { get; set; } = new Queue<T_CustomerOrderPart>();
         private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
+        private ThroughputTimeAnalyzer _throughputTimeAnalyzer { get; set; } = new();
         public  Default(string dbNameProduction
             , IMessageHub messageHub
             , Configuration configuration
@@ -54,6 +57,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
                 , productIds: estimatedThroughputTimes.Select(x => x.ArticleId).ToList());
             _orderCounter = new OrderCounter(maxQuantity: configuration.GetOption<OrderQuantity>().Value);
             _configID = configuration.GetOption<SimulationId>().Value;
+            _settlingStart = configuration.GetOption<SettlingStart>().Value;
             _simulationEnds = configuration.GetOption<SimulationEnd>().Value;
             _simulationType = configuration.GetOption<SimulationKind>().Value;
             _transitionFactor = configuration.GetOption<TransitionFactor>().Value;
@@ -168,14 +172,20 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             (var order, var nextCreation) = _orderGenerator.GetNewRandomOrder(time: Agent.CurrentTime);
 
             Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: nextCreation);
-            var eta = _estimatedThroughPuts.Get(name: order.Name);
-            Agent.DebugMessage(msg: $"EstimatedTransitionTime {eta.Value} for order {order.Name} {order.Id} , {order.DueTime}");
+            (order.TotalProcessingDuration, order.LongestPathProcessingDuration) = _throughputTimeAnalyzer.GetTimeForProduct(_articleCache, order.CustomerOrderParts.First().ArticleId, 0);
 
-            order.ReleaseTime = order.CreationTime;
-            if(eta.Value > 0)
+            order.KiReleaseTime = DoPrediction(order);
+
+            order.ReleaseTime = order.CreationTime; //order.DueTime - _estimatedThroughPuts.Get(name: order.Name).Value;
+            
+            if (Agent.CurrentTime > _settlingStart)
             {
-                order.ReleaseTime = order.DueTime - eta.Value;
+                order.ReleaseTime = order.KiReleaseTime;
             }
+
+            System.Diagnostics.Debug.WriteLine($"EstimatedTransitionTime {order.ReleaseTime} for order {order.Name} {order.Id} , {order.DueTime}");
+            Agent.DebugMessage(msg: $"EstimatedTransitionTime {order.ReleaseTime} for order {order.Name} {order.Id} , {order.DueTime}");
+                       
 
             if (order.ReleaseTime <= Agent.CurrentTime)
             {
@@ -185,6 +195,21 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             }
 
             _openOrders.Add(item: order);
+        }
+
+        private long DoPrediction(T_CustomerOrder order)
+        { 
+            var predictionData = new TransitionTimes.ModelInput()
+            {
+                TotalProcessingDuration = order.TotalProcessingDuration,
+                LongestPathProcessingDuration = order.LongestPathProcessingDuration,
+                TimeToRelease = order.DueTime - order.CreationTime,
+            };
+
+            //Load model and predict output
+            var result = TransitionTimes.Predict(predictionData);
+
+            return order.CreationTime + (long)result.Score;
         }
 
         private void SystemCheck()

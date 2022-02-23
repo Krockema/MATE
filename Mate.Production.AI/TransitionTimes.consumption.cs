@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.IO;
 using System.Collections.Generic;
-namespace Mate
+namespace Mate_Production_AI
 {
     public partial class TransitionTimes
     {
@@ -15,32 +15,20 @@ namespace Mate
         #region model input class
         public class ModelInput
         {
-            [ColumnName(@"PrePreviousIdleTime")]
-            public float PrePreviousIdleTime { get; set; }
+            [ColumnName(@"ThroughputTime")]
+            public float ThroughputTime { get; set; }
 
-            [ColumnName(@"PreviousIdleTime")]
-            public float PreviousIdleTime { get; set; }
+            [ColumnName(@"TotalProcessingDuration")]
+            public float TotalProcessingDuration { get; set; }
 
-            [ColumnName(@"AverageIdleTime")]
-            public float AverageIdleTime { get; set; }
+            [ColumnName(@"LongestPathProcessingDuration")]
+            public float LongestPathProcessingDuration { get; set; }
 
-            [ColumnName(@"NextIdleTime")]
-            public float NextIdleTime { get; set; }
+            [ColumnName(@"TimeToRelease")]
+            public float TimeToRelease { get; set; }
 
-            [ColumnName(@"CurrentAmount")]
-            public float CurrentAmount { get; set; }
-
-            [ColumnName(@"NewArrivaledOrders")]
-            public float NewArrivaledOrders { get; set; }
-
-            [ColumnName(@"OpenOrders")]
-            public float OpenOrders { get; set; }
-
-            [ColumnName(@"OverDueOrders")]
-            public float OverDueOrders { get; set; }
-
-            [ColumnName(@"ResourceUtilization")]
-            public float ResourceUtilization { get; set; }
+            [ColumnName(@"TimeBeforeFinish")]
+            public float TimeBeforeFinish { get; set; }
 
         }
 

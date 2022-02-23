@@ -44,7 +44,6 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Types
             {
                 emptyProviders.AddRange(provider.GetWithoutProvider());
             }
-
             return emptyProviders;
         }
 

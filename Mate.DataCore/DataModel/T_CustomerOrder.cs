@@ -13,7 +13,10 @@ namespace Mate.DataCore.DataModel
         public DateTime DueDateTime { get; set; }
         public int CreationTime { get; set; }
         public long ReleaseTime { get; set; }
+        public long KiReleaseTime { get; set; }
         public int FinishingTime { get; set; }
+        public long TotalProcessingDuration { get; set; }
+        public long LongestPathProcessingDuration { get; set; }
         public int BusinessPartnerId { get; set; }
         [JsonIgnore]
         public M_BusinessPartner BusinessPartner { get; set; }

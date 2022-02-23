@@ -9,7 +9,7 @@ using Microsoft.ML.Trainers.FastTree;
 using Microsoft.ML.Trainers;
 using Microsoft.ML;
 
-namespace Mate
+namespace Mate_Production_AI
 {
     public partial class TransitionTimes
     {
@@ -29,9 +29,9 @@ namespace Mate
         public static IEstimator<ITransformer> BuildPipeline(MLContext mlContext)
         {
             // Data process configuration with pipeline data transformations
-            var pipeline = mlContext.Transforms.ReplaceMissingValues(new []{new InputOutputColumnPair(@"PrePreviousIdleTime", @"PrePreviousIdleTime"),new InputOutputColumnPair(@"PreviousIdleTime", @"PreviousIdleTime"),new InputOutputColumnPair(@"AverageIdleTime", @"AverageIdleTime"),new InputOutputColumnPair(@"CurrentAmount", @"CurrentAmount"),new InputOutputColumnPair(@"NewArrivaledOrders", @"NewArrivaledOrders"),new InputOutputColumnPair(@"OpenOrders", @"OpenOrders"),new InputOutputColumnPair(@"ResourceUtilization", @"ResourceUtilization")})      
-                                    .Append(mlContext.Transforms.Concatenate(@"Features", new []{@"PrePreviousIdleTime",@"PreviousIdleTime",@"AverageIdleTime",@"CurrentAmount",@"NewArrivaledOrders",@"OpenOrders",@"ResourceUtilization"}))      
-                                    .Append(mlContext.Regression.Trainers.FastForest(new FastForestRegressionTrainer.Options(){NumberOfTrees=14,FeatureFraction=1F,LabelColumnName=@"NextIdleTime",FeatureColumnName=@"Features"}));
+            var pipeline = mlContext.Transforms.ReplaceMissingValues(new []{new InputOutputColumnPair(@"TotalProcessingDuration", @"TotalProcessingDuration"),new InputOutputColumnPair(@"LongestPathProcessingDuration", @"LongestPathProcessingDuration"),new InputOutputColumnPair(@"TimeToRelease", @"TimeToRelease")})      
+                                    .Append(mlContext.Transforms.Concatenate(@"Features", new []{@"TotalProcessingDuration",@"LongestPathProcessingDuration",@"TimeToRelease"}))      
+                                    .Append(mlContext.Regression.Trainers.FastForest(new FastForestRegressionTrainer.Options(){NumberOfTrees=581,FeatureFraction=1F,LabelColumnName=@"TimeBeforeFinish",FeatureColumnName=@"Features"}));
 
             return pipeline;
         }

@@ -51,11 +51,12 @@ namespace Mate.Production.Core.Types
             return obj;
         }
 
+
         public void UpdateTransitionTime(M_Article article, double factor)
         {
             foreach (var operation in article.Operations)
             {
-                double tranistiontime = TransitionTimes.Instance.GetTransitionTime(operation.ResourceCapabilityId);
+                double tranistiontime = TransitionTimesDic.Instance.GetTransitionTime((int)operation.ResourceCapability.ParentResourceCapabilityId);
 
                 if(tranistiontime == 0.0)
                 {

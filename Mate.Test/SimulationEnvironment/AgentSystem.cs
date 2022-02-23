@@ -28,7 +28,7 @@ namespace Mate.Test.SimulationEnvironment
         private SeedInitializer seedInitializer = new SeedInitializer();
 
         private readonly string TestMateDb = "Test" + DataBaseConfiguration.MateDb;
-        private readonly string TestMateResultDb = "New_Test" + DataBaseConfiguration.MateResultDb;
+        private readonly string TestMateResultDb = "Test" + DataBaseConfiguration.MateResultDb;
 
 
         [Fact]
@@ -215,7 +215,7 @@ namespace Mate.Test.SimulationEnvironment
         
         [Theory]
         //[InlineData(SimulationType.Default, 1700, 0.00)]
-        [InlineData(SimulationType.Default, 1, 0.05)]
+        [InlineData(SimulationType.Default, 12, 0.05)]
         //[InlineData(SimulationType.Default, 1710, 0.10)]
         //[InlineData(SimulationType.Default, 1715, 0.15)]
         //[InlineData(SimulationType.Default, 1720, 0.20)]
@@ -283,10 +283,10 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
             simConfig.ReplaceOption(new Production.Core.Environment.Options.Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 2880));
-            simConfig.ReplaceOption(new MinDeliveryTime(value: 10));
+            simConfig.ReplaceOption(new SettlingStart(value: 1440*3));
+            simConfig.ReplaceOption(new MinDeliveryTime(value: 15));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: 15));
-            simConfig.ReplaceOption(new SimulationEnd(value: 10080*1));
+            simConfig.ReplaceOption(new SimulationEnd(value: 10080*5));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: false));
             simConfig.ReplaceOption(new DebugAgents(value: false));

@@ -59,7 +59,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             foreach (var capabilityProvider in resourceInformation.ResourceCapabilityProvider)
             {
-                TransitionTimes.Instance.AddKeyValue(capabilityProvider.ResourceCapability.Name, capabilityProvider.ResourceCapabilityId);
+                TransitionTimesDic.Instance.AddKeyValue(capabilityProvider.ResourceCapability.ParentResourceCapability.Id.ToString(), capabilityProvider.ResourceCapability.ParentResourceCapability.Id);
                 
                 var capabilityDefinition = _capabilityManager.GetCapabilityDefinition(capabilityProvider.ResourceCapability);
 
@@ -102,7 +102,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         {
             var operation = (FOperations.FOperation)job;
 
-            _operationsInfoList.Add(new OperationInfo(operation.Key, operation.RequiredCapability.Name));
+            _operationsInfoList.Add(new OperationInfo(operation.Key, operation.RequiredCapability.ParentResourceCapabilityId.ToString()));
 
             Agent.DebugMessage(msg: $"Got New Item to Enqueue: {operation.Operation.Name} {operation.Key}" + 
                                     $"| with start condition: {operation.StartConditions.Satisfied} with Id: {operation.Key}" +

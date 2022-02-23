@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Mate.Production.Core.Types
 {
-    public sealed class TransitionTimes
+    public sealed class TransitionTimesDic
     {
-        private static readonly Lazy<TransitionTimes> lazy =
-            new Lazy<TransitionTimes>(() => new TransitionTimes());
+        private static readonly Lazy<TransitionTimesDic> lazy =
+            new Lazy<TransitionTimesDic>(() => new TransitionTimesDic());
 
         private Lazy<Dictionary<int, double>> transitionsDic =
         new Lazy<Dictionary<int, double>>(
@@ -19,9 +19,9 @@ namespace Mate.Production.Core.Types
         new Lazy<Dictionary<string, int>>(
             () => new Dictionary<string, int>());
 
-        public static TransitionTimes Instance { get { return lazy.Value; } }
+        public static TransitionTimesDic Instance { get { return lazy.Value; } }
 
-        private TransitionTimes()
+        private TransitionTimesDic()
         {
 
         }

@@ -12,6 +12,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mate.Production.CLI", "Mate.Production.CLI\Mate.Production.CLI.csproj", "{2A774D29-6D02-4F5A-88E3-69E5C8469837}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mate.Production.Core", "Mate.Production.Core\Mate.Production.Core.csproj", "{4AE71AC2-7C23-4D63-B6D7-E796A4D0E764}"
+	ProjectSection(ProjectDependencies) = postProject
+		{69A20080-721D-484F-B4AE-836AF9C7A571} = {69A20080-721D-484F-B4AE-836AF9C7A571}
+	EndProjectSection
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Mate.Production.Immutables", "Mate.Production.Immutables\Mate.Production.Immutables.fsproj", "{8842516A-909A-48A2-8062-CD87129DE81A}"
 EndProject
