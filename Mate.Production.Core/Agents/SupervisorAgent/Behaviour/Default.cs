@@ -39,6 +39,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         private int _createdOrders { get; set; } = 0;
         private SimulationType _simulationType { get; set; }
         private double _transitionFactor { get; set; }
+        private bool _useMLForTransitionTimes { get; set; }
         private OrderGenerator _orderGenerator { get; set; }
         private ArticleCache _articleCache { get; set; }
         private ThroughPutDictionary _estimatedThroughPuts { get; set; } = new ThroughPutDictionary();
@@ -61,6 +62,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             _simulationEnds = configuration.GetOption<SimulationEnd>().Value;
             _simulationType = configuration.GetOption<SimulationKind>().Value;
             _transitionFactor = configuration.GetOption<TransitionFactor>().Value;
+            _useMLForTransitionTimes = configuration.GetOption<EstimatedThroughPut>().Value == 0;
             estimatedThroughputTimes.ForEach(SetEstimatedThroughputTime);
 
         }
@@ -174,19 +176,20 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: nextCreation);
             (order.TotalProcessingDuration, order.LongestPathProcessingDuration) = _throughputTimeAnalyzer.GetTimeForProduct(_articleCache, order.CustomerOrderParts.First().ArticleId, 0);
 
-            order.KiReleaseTime = DoPrediction(order);
+            order.ReleaseTime = order.DueTime - _estimatedThroughPuts.Get(name: order.Name).Value;
 
-            order.ReleaseTime = order.CreationTime; //order.DueTime - _estimatedThroughPuts.Get(name: order.Name).Value;
-            
-            if (Agent.CurrentTime > _settlingStart)
-            {
+            if (_useMLForTransitionTimes)
+            { 
+                order.KiReleaseTime = DoPrediction(order);
                 order.ReleaseTime = order.KiReleaseTime;
             }
 
+            if (Agent.CurrentTime < _settlingStart)
+                order.ReleaseTime = order.CreationTime;
+
             System.Diagnostics.Debug.WriteLine($"EstimatedTransitionTime {order.ReleaseTime} for order {order.Name} {order.Id} , {order.DueTime}");
             Agent.DebugMessage(msg: $"EstimatedTransitionTime {order.ReleaseTime} for order {order.Name} {order.Id} , {order.DueTime}");
-                       
-
+            
             if (order.ReleaseTime <= Agent.CurrentTime)
             {
                 order.ReleaseTime = order.CreationTime;
