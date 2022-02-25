@@ -19,6 +19,7 @@ using Mate.Production.Core.Helper.DistributionProvider;
 using Mate.Production.Core.SignalR;
 using Mate.Production.Core.Types;
 using Microsoft.EntityFrameworkCore;
+using static FStartOrders;
 using static Mate.Production.Core.Agents.SupervisorAgent.Supervisor.Instruction;
 
 namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
@@ -35,7 +36,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         private OrderCounter _orderCounter { get; set; }
         private int _createdOrders { get; set; } = 0;
         private SimulationType _simulationType { get; set; }
-        private decimal _transitionFactor { get; set; }
+        private double _transitionFactor { get; set; }
         private OrderGenerator _orderGenerator { get; set; }
         private ArticleCache _articleCache { get; set; }
         private ThroughPutDictionary _estimatedThroughPuts { get; set; } = new ();
@@ -92,7 +93,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
 
         private void SetEstimatedThroughputTime(FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime getObjectFromMessage)
         {
-            _estimatedThroughPuts.UpdateOrCreate(name: getObjectFromMessage.ArticleName, time: getObjectFromMessage.Time);
+            _estimatedThroughPuts.UpdateOrCreate(name: getObjectFromMessage.ArticleId.ToString(), time: getObjectFromMessage.Time);
         }
 
         private void CreateContractAgent(T_CustomerOrder order)
@@ -126,7 +127,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         public override void OnChildAdd(IActorRef childRef)
         {
             Agent.VirtualChildren.Add(item: childRef);
-            Agent.Send(instruction: Contract.Instruction.StartOrder.Create(message: _orderQueue.Dequeue()
+            Agent.Send(instruction: Contract.Instruction.StartOrder.Create(message: new FStartOrder(_orderQueue.Dequeue(), Agent.CurrentTime)
                                                         , target: childRef
                                                        , logThis: true));
         }
@@ -168,16 +169,22 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         {
             if (!_orderCounter.TryAddOne()) return;
 
-            var order = _orderGenerator.GetNewRandomOrder(time: Agent.CurrentTime);
+            (var order, var nextCreation) = _orderGenerator.GetNewRandomOrder(time: Agent.CurrentTime);
 
             Agent.Send(
-                instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: order.CreationTime - Agent.CurrentTime);
+                instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: nextCreation );
             var eta = _estimatedThroughPuts.Get(name: order.Name);
             Agent.DebugMessage(msg: $"EstimatedTransitionTime {eta.Value} for order {order.Name} {order.Id}");
 
-            long period = order.DueTime - (eta.Value); // 1 Tag und 1 Schicht
-            if (period < 0 || eta.Value == 0)
+            order.ReleaseTime = order.CreationTime;
+            if (eta.Value > 0)
             {
+                order.ReleaseTime = order.DueTime - eta.Value;
+            }
+
+            if (order.ReleaseTime <= Agent.CurrentTime)
+            {
+                order.ReleaseTime = order.CreationTime;
                 CreateContractAgent(order);
                 return;
             }
@@ -189,7 +196,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: 1);
 
             // TODO Loop Through all CustomerOrderParts
-            var orders = _openOrders.Where(predicate: x => x.DueTime - _estimatedThroughPuts.Get(name: x.Name).Value <= Agent.CurrentTime).ToList();
+            var orders = _openOrders.Where(x => x.ReleaseTime <= Agent.CurrentTime).ToList();
             // Debug.WriteLine("SystemCheck(" + CurrentTime + "): " + orders.Count() + " of " + _openOrders.Count() + "found");
             foreach (var order in orders)
             {

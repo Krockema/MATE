@@ -46,7 +46,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         private ResourceDictionary _resources { get; set; } = new ResourceDictionary();
         public Collector Collector { get; set; }
         //
-        IdleTime idleTime = new IdleTime();
+        private OperationInformationManager operationInformationManager = new OperationInformationManager();
         
         /// <summary>
         /// Required to get Number output with . instead of ,
@@ -151,7 +151,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             ThroughPut(finalCall);
             ComputationalTimes(finalCall);
             CallTotal(finalCall);
-            CallAverageIdle(finalCall);
+            CallOperationsInfo(finalCall);
 
             LogToDB(writeResultsToDB: finalCall);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
@@ -189,10 +189,19 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         }
 
-        private void CallAverageIdle(bool finalCall)
+        private void CallOperationsInfo(bool finalCall)
         {
-            var kpis = idleTime.GetKpis(Collector, finalCall);
-            Collector.Kpis.AddRange(kpis);
+            var idleKpis = operationInformationManager.GetIdleKpis(Collector, finalCall);
+            Collector.Kpis.AddRange(idleKpis);
+
+            var amountOperatonsKpis = operationInformationManager.GetAmountIdleOperationKpis(Collector, finalCall);
+            Collector.Kpis.AddRange(amountOperatonsKpis);
+
+            if (!finalCall)
+            {
+                operationInformationManager.Clear();
+            }
+
         }
 
 
@@ -338,7 +347,8 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 edit.Bucket = simJob.Bucket;
                 edit.ReadyAt = simJob.ReadyAt;
                 edit.SetupId = simJob.SetupId;
-                idleTime.Add(edit);
+                if(simJob.OperationInfo != null)
+                    operationInformationManager.Add(simJob.OperationInfo);
                 return;
             }
             _updatedSimulationJob.Add(item: simJob);

@@ -4,6 +4,7 @@ using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.DispoAgent;
 using Mate.Production.Core.Agents.SupervisorAgent;
 using Mate.Production.Core.Helper;
+using static FStartOrders;
 
 namespace Mate.Production.Core.Agents.ContractAgent.Behaviour
 {
@@ -31,11 +32,11 @@ namespace Mate.Production.Core.Agents.ContractAgent.Behaviour
         /// </summary>
         /// <param name="agent"></param>
         /// <param name="orderItem"></param>
-        public void StartOrder(T_CustomerOrderPart orderItem)
+        public void StartOrder(FStartOrder orderItem)
         {
             // create Request Item
-            _fArticle = orderItem.ToRequestItem(requester: Agent.Context.Self
-                                            , customerDue: orderItem.CustomerOrder.DueTime
+            _fArticle = orderItem.customerOrderPart.ToRequestItem(requester: Agent.Context.Self
+                                            , customerDue: orderItem.customerOrderPart.CustomerOrder.DueTime
                                             , remainingDuration: 0
                                             , currentTime: Agent.CurrentTime);
             // Tell Guardian to create Dispo Agent
@@ -75,7 +76,6 @@ namespace Mate.Production.Core.Agents.ContractAgent.Behaviour
             Agent.DebugMessage(
                 msg:
                 $"Scheduling finished with earliest End at: {estimatedEnd}");
-
         }
         public override void OnChildAdd(IActorRef childRef)
         {

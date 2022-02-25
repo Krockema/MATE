@@ -24,6 +24,7 @@ using Mate.Production.Core.Helper.DistributionProvider;
 using Mate.Production.Core.Interfaces;
 using Mate.Production.Core.Reporting;
 using Mate.Production.Core.SignalR;
+using Mate.Production.Core.Types;
 using Microsoft.EntityFrameworkCore;
 using static FCapabilityProviderDefinitions;
 using static FSetEstimatedThroughputTimes;

@@ -19,8 +19,10 @@ using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
 using Mate.Production.Core.SignalR;
 using Mate.Production.Core.Types;
+using Mate_Production_AI;
 using static FArticles;
 using static FSetEstimatedThroughputTimes;
+using static FStartOrders;
 using static Mate.Production.Core.Agents.SupervisorAgent.Supervisor.Instruction;
 
 namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
@@ -32,15 +34,18 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         private int orderCount { get; set; } = 0;
         private long _simulationEnds { get; set; }
         private int _configID { get; set; }
+        private int _settlingStart { get; set; }
         private OrderCounter _orderCounter { get; set; }
         private int _createdOrders { get; set; } = 0;
         private SimulationType _simulationType { get; set; }
-        private decimal _transitionFactor { get; set; }
+        private double _transitionFactor { get; set; }
+        private bool _useMLForTransitionTimes { get; set; }
         private OrderGenerator _orderGenerator { get; set; }
         private ArticleCache _articleCache { get; set; }
         private ThroughPutDictionary _estimatedThroughPuts { get; set; } = new ThroughPutDictionary();
         private Queue<T_CustomerOrderPart> _orderQueue { get; set; } = new Queue<T_CustomerOrderPart>();
         private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
+        private ThroughputTimeAnalyzer _throughputTimeAnalyzer { get; set; } = new();
         public  Default(string dbNameProduction
             , IMessageHub messageHub
             , Configuration configuration
@@ -53,9 +58,11 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
                 , productIds: estimatedThroughputTimes.Select(x => x.ArticleId).ToList());
             _orderCounter = new OrderCounter(maxQuantity: configuration.GetOption<OrderQuantity>().Value);
             _configID = configuration.GetOption<SimulationId>().Value;
+            _settlingStart = configuration.GetOption<SettlingStart>().Value;
             _simulationEnds = configuration.GetOption<SimulationEnd>().Value;
             _simulationType = configuration.GetOption<SimulationKind>().Value;
             _transitionFactor = configuration.GetOption<TransitionFactor>().Value;
+            _useMLForTransitionTimes = configuration.GetOption<EstimatedThroughPut>().Value == 0;
             estimatedThroughputTimes.ForEach(SetEstimatedThroughputTime);
 
         }
@@ -89,11 +96,12 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
 
         private void SetEstimatedThroughputTime(FSetEstimatedThroughputTime getObjectFromMessage)
         {
-            _estimatedThroughPuts.UpdateOrCreate(name: getObjectFromMessage.ArticleName, time: getObjectFromMessage.Time);
+            _estimatedThroughPuts.UpdateOrCreate(name: getObjectFromMessage.ArticleId.ToString(), time: getObjectFromMessage.Time);
         }
 
         private void CreateContractAgent(T_CustomerOrder order)
         {
+            System.Diagnostics.Debug.WriteLine($"CreateContractAgent | {order.Id}: {Agent.CurrentTime}");
             dbProduction.DbContext.CustomerOrders.Add(order);
             dbProduction.DbContext.SaveChanges();
 
@@ -117,8 +125,11 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         /// <param name="childRef"></param>
         public override void OnChildAdd(IActorRef childRef)
         {
+
+            var order = _orderQueue.Dequeue();
+            System.Diagnostics.Debug.WriteLine($"{order.CustomerOrderId}: {Agent.CurrentTime}");
             Agent.VirtualChildren.Add(item: childRef);
-            Agent.Send(instruction: Contract.Instruction.StartOrder.Create(message: _orderQueue.Dequeue()
+            Agent.Send(instruction: Contract.Instruction.StartOrder.Create(message: new FStartOrder(order, Agent.CurrentTime)
                                                         , target: childRef
                                                       , logThis: true));
         }
@@ -160,19 +171,48 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         {
             if (!_orderCounter.TryAddOne()) return;
 
-            var order = _orderGenerator.GetNewRandomOrder(time: Agent.CurrentTime);
+            (var order, var nextCreation) = _orderGenerator.GetNewRandomOrder(time: Agent.CurrentTime);
 
-            Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: order.CreationTime - Agent.CurrentTime);
-            var eta = _estimatedThroughPuts.Get(name: order.Name);
-            Agent.DebugMessage(msg: $"EstimatedTransitionTime {eta.Value} for order {order.Name} {order.Id} , {order.DueTime}");
+            Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: nextCreation);
+            (order.TotalProcessingDuration, order.LongestPathProcessingDuration) = _throughputTimeAnalyzer.GetTimeForProduct(_articleCache, order.CustomerOrderParts.First().ArticleId, 0);
 
-            long period = order.DueTime - (eta.Value); // 1 Tag und 1 Schicht
-            if (period < 0 || eta.Value == 0)
+            order.ReleaseTime = order.DueTime - _estimatedThroughPuts.Get(name: order.Name).Value;
+
+            if (_useMLForTransitionTimes)
+            { 
+                order.KiReleaseTime = DoPrediction(order);
+                order.ReleaseTime = order.KiReleaseTime;
+            }
+
+            if (Agent.CurrentTime < _settlingStart)
+                order.ReleaseTime = order.CreationTime;
+
+            System.Diagnostics.Debug.WriteLine($"EstimatedTransitionTime {order.ReleaseTime} for order {order.Name} {order.Id} , {order.DueTime}");
+            Agent.DebugMessage(msg: $"EstimatedTransitionTime {order.ReleaseTime} for order {order.Name} {order.Id} , {order.DueTime}");
+            
+            if (order.ReleaseTime <= Agent.CurrentTime)
             {
+                order.ReleaseTime = order.CreationTime;
                 CreateContractAgent(order);
                 return;
             }
+
             _openOrders.Add(item: order);
+        }
+
+        private long DoPrediction(T_CustomerOrder order)
+        { 
+            var predictionData = new TransitionTimes.ModelInput()
+            {
+                TotalProcessingDuration = order.TotalProcessingDuration,
+                LongestPathProcessingDuration = order.LongestPathProcessingDuration,
+                TimeToRelease = order.DueTime - order.CreationTime,
+            };
+
+            //Load model and predict output
+            var result = TransitionTimes.Predict(predictionData);
+
+            return order.CreationTime + (long)result.Score;
         }
 
         private void SystemCheck()
@@ -180,7 +220,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: 1);
 
             // TODO Loop Through all CustomerOrderParts
-            var orders = _openOrders.Where(predicate: x => x.DueTime - _estimatedThroughPuts.Get(name: x.Name).Value <= Agent.CurrentTime).ToList();
+            var orders = _openOrders.Where(x => x.ReleaseTime <= Agent.CurrentTime).ToList();
             // Debug.WriteLine("SystemCheck(" + CurrentTime + "): " + orders.Count() + " of " + _openOrders.Count() + "found");
             foreach (var order in orders)
             {

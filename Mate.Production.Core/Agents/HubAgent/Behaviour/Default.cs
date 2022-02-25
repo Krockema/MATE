@@ -4,11 +4,15 @@ using System.Linq;
 using Akka.Actor;
 using Akka.Util.Internal;
 using Mate.DataCore.Nominal;
+using Mate.DataCore.ReportingModel;
 using Mate.Production.Core.Agents.HubAgent.Types;
 using Mate.Production.Core.Agents.JobAgent;
 using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
+using Mate.Production.Core.Types;
 using NLog;
+using static FOperationResults;
+using static FOperations;
 
 namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 {
@@ -23,6 +27,8 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         internal ProposalManager _proposalManager { get; set; } = new ProposalManager();
         private BucketManager _bucketManager { get; }
         private WorkTimeGenerator _workTimeGenerator { get; }
+
+        private OperationInfoList _operationsInfoList { get; set; } = new OperationInfoList();
         public override bool Action(object message)
         {
             var success = true;
@@ -36,6 +42,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                 case Hub.Instruction.BucketScope.EnqueueBucket msg: EnqueueBucket(msg.GetObjectFromMessage); break;
                 case Hub.Instruction.BucketScope.DissolveBucket msg: DissolveBucket(msg.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateStartConditions msg: UpdateAndForwardStartConditions(msg.GetObjectFromMessage); break;
+                case Hub.Instruction.Default.FinishOperation msg: FinishOperation(msg.GetObjectFromMessage); break;
 
                 //Communication with Resource
                 case Hub.Instruction.Default.ProposalFromResource msg: ProposalFromResource(fProposal: msg.GetObjectFromMessage); break;
@@ -52,6 +59,8 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             foreach (var capabilityProvider in resourceInformation.ResourceCapabilityProvider)
             {
+                TransitionTimesDic.Instance.AddKeyValue(capabilityProvider.ResourceCapability.ParentResourceCapability.Id.ToString(), capabilityProvider.ResourceCapability.ParentResourceCapability.Id);
+                
                 var capabilityDefinition = _capabilityManager.GetCapabilityDefinition(capabilityProvider.ResourceCapability);
 
                 capabilityDefinition.AddResourceRef(resourceId: resourceInformation.ResourceId, resourceRef: resourceInformation.Ref);
@@ -80,7 +89,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                 _proposalManager.Remove(bucket.Key);
                 RequeueOperations(bucket.Operations.ToList());
 
-                Agent.Send(Job.Instruction.TerminateJob.Create(Agent.Sender));
+                Agent.Send(JobAgent.Job.Instruction.TerminateJob.Create(Agent.Sender));
             }
             else
             {
@@ -92,6 +101,8 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         private void AssignJob(IJobs.IJob job)
         {
             var operation = (FOperations.FOperation)job;
+
+            _operationsInfoList.Add(new OperationInfo(operation.Key, operation.RequiredCapability.ParentResourceCapabilityId.ToString()));
 
             Agent.DebugMessage(msg: $"Got New Item to Enqueue: {operation.Operation.Name} {operation.Key}" + 
                                     $"| with start condition: {operation.StartConditions.Satisfied} with Id: {operation.Key}" +
@@ -164,7 +175,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
                     bucket.IsRequestedToDissolve = true;
                     Agent.DebugMessage(msg: $"Asking Job Agent to start dissolve {bucket.Job.Key}");
-                    Agent.Send(Job.Instruction.RequestDissolve.Create(bucket.JobAgentRef));
+                    Agent.Send(JobAgent.Job.Instruction.RequestDissolve.Create(bucket.JobAgentRef));
                 }
             }
         }
@@ -274,7 +285,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                     jobResourceConfirmation.ScopeConfirmations.Add(resourceRef, pos);
 
                 }
-                Agent.Send(Job.Instruction.AcknowledgeJob.Create(jobResourceConfirmation, jobConfirmation.JobAgentRef));
+                Agent.Send(JobAgent.Job.Instruction.AcknowledgeJob.Create(jobResourceConfirmation, jobConfirmation.JobAgentRef));
                 Agent.DebugMessage($"Send Acknwoledge Job for {jobResourceConfirmation.JobConfirmation.Job.Name}"
                                    , CustomLogger.PROPOSAL, LogLevel.Warn);
                 _proposalManager.Remove(bucket.Key);
@@ -346,6 +357,10 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                                     $"to job agent {jobConfirmation.JobAgentRef}");
 
             Agent.Send(instruction: BasicInstruction.UpdateJob.Create(message: bucket, target: jobConfirmation.JobAgentRef));
+
+            //OperationInfo
+            _operationsInfoList.SetOperationsCount(startCondition.OperationKey);
+
         }
         
         internal void RequeueOperations(List<FOperations.FOperation> operations)
@@ -375,7 +390,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             Agent.DebugMessage($"{((FBuckets.FBucket)jobConfirmation.Job).Name} has been set fix, but can still add more operations.", CustomLogger.JOB, LogLevel.Warn);
 
-            Agent.Send(Job.Instruction.BucketIsFixed.Create(jobConfirmation.JobAgentRef));
+            Agent.Send(JobAgent.Job.Instruction.BucketIsFixed.Create(jobConfirmation.JobAgentRef));
         }
 
         private void SendFinalBucket(Guid bucketKey)
@@ -398,6 +413,37 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             Agent.Send(BasicInstruction.FinalBucket.Create(jobConfirmation.ToImmutable(), jobConfirmation.JobAgentRef));
 
+        }
+
+        private void FinishOperation(FFinishOperations.FFinishOperation finishOperation)
+        {
+            var operationInfo = _operationsInfoList.Single(x => x.OperationKey == ((FOperation)finishOperation.Job).Key);
+            _operationsInfoList.Remove(operationInfo);
+
+            ResultCreator(finishOperation, operationInfo);
+
+        }
+
+        private void ResultCreator(FFinishOperations.FFinishOperation finishOperation, OperationInfo operationInfo)
+        {
+            var operation = (FOperation)finishOperation.Job;
+            operationInfo.SetStartAndReadyAt(Agent.CurrentTime - finishOperation.Duration, operation.StartConditions.WasSetReadyAt);
+            ResultStreamFactory.PublishJob(agent: Agent
+                                           , job: finishOperation.Job
+                                      , duration: finishOperation.Duration
+                            , capabilityProvider: finishOperation.CapabilityProvider
+                                    , bucketName: finishOperation.BucketName
+                                 , operationInfo: operationInfo);
+
+            var fOperationResult = new FOperationResult(key: finishOperation.Job.Key
+                , creationTime: 0
+                , start: Agent.CurrentTime - operation.Operation.Duration
+                , end: Agent.CurrentTime
+                , originalDuration: operation.Operation.Duration
+                , productionAgent: operation.ProductionAgent
+                , capabilityProvider: finishOperation.CapabilityProvider.Name);
+
+            Agent.Send(BasicInstruction.FinishJob.Create(fOperationResult, operation.ProductionAgent));
         }
     }
 }

@@ -1,8 +1,9 @@
 language: csharp
+arch: amd64
 os: linux
 mono: none
 dist: bionic
-dotnet: 5.0
+dotnet: 6.0
 
 services:
   - docker

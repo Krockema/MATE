@@ -1,7 +1,9 @@
 ﻿using Akka.Actor;
 using Mate.DataCore.DataModel;
 using Mate.DataCore.Nominal;
+using Mate.DataCore.ReportingModel;
 using Mate.Production.Core.Agents;
+using Mate.Production.Core.Agents.HubAgent.Types;
 using static FArticles;
 using static FBucketResults;
 using static FCreateSimulationResourceSetups;
@@ -15,22 +17,23 @@ namespace Mate.Production.Core.Helper
     public static class ResultStreamFactory
     {
 
-        public static void PublishJob(Agent agent, IJob job, long duration, M_ResourceCapabilityProvider capabilityProvider)
+        public static void PublishJob(Agent agent, IJob job, long duration, M_ResourceCapabilityProvider capabilityProvider, OperationInfo operationInfo = null)
         {
-            PublishJob(agent, job, duration, capabilityProvider, job.Bucket);
+            PublishJob(agent, job, duration, capabilityProvider, job.Bucket, operationInfo);
         }
 
-        public static void PublishJob(Agent agent, IJob job, long duration, M_ResourceCapabilityProvider capabilityProvider, string bucketName)
+        public static void PublishJob(Agent agent, IJob job, long duration, M_ResourceCapabilityProvider capabilityProvider, string bucketName, OperationInfo operationInfo = null)
         {
             var pub = new FUpdateSimulationJob(job: job
                 , duration: duration
-                , start: agent.CurrentTime
+                , start: agent.CurrentTime - duration
                 , capabilityProvider: capabilityProvider.Name
                 , capability: capabilityProvider.ResourceCapability.Name
                 , readyAt: job.StartConditions.WasSetReadyAt
                 , jobType: JobType.OPERATION
                 , bucket: bucketName
-                , setupId: capabilityProvider.Id);
+                , setupId: capabilityProvider.Id
+                , operationInfo: operationInfo);
             agent.Context.System.EventStream.Publish(@event: pub);
         }
 

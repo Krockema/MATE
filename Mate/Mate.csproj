@@ -1,14 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <UseRazorBuildServer>false</UseRazorBuildServer>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <Configurations>Debug;Release;Azure;Debuger;Debugger</Configurations>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
-
   </PropertyGroup>
-
   <PropertyGroup>
     <AssemblyName>Mate</AssemblyName>
     <ApplicationIcon>wwwroot\favicon.ico</ApplicationIcon>
@@ -17,17 +15,11 @@
     <LangVersion>9.0</LangVersion>
     <UserSecretsId>8704d405-f8e4-4ac1-bc7f-a240f95a29a5</UserSecretsId>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="wwwroot\lib\**" />
     <EmbeddedResource Remove="wwwroot\lib\**" />
     <None Remove="wwwroot\lib\**" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="ChartJSCore" Version="1.5.8" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.7.22" />
@@ -35,6 +27,9 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.5" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="5.0.0" />
+    <PackageReference Include="Microsoft.ML" Version="1.6.0" />
+    <PackageReference Include="Microsoft.ML.FastTree" Version="1.6.0" />
+    <PackageReference Include="Microsoft.ML.LightGbm" Version="1.6.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
     <PackageReference Include="System.Composition" Version="5.0.1" />
   </ItemGroup>
@@ -47,5 +42,17 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mate.Production.CLI\Mate.Production.CLI.csproj" />
+  </ItemGroup>
+  <ItemGroup Label="TransitionTimes">
+    <None Include="TransitionTimes.consumption.cs">
+      <DependentUpon>TransitionTimes.mbconfig</DependentUpon>
+    </None>
+    <None Include="TransitionTimes.training.cs">
+      <DependentUpon>TransitionTimes.mbconfig</DependentUpon>
+    </None>
+    <None Include="TransitionTimes.zip">
+      <DependentUpon>TransitionTimes.mbconfig</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

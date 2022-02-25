@@ -3,6 +3,7 @@ using AkkaSim.Definitions;
 using static FProposals;
 using static FResourceInformations;
 using static IJobs;
+using static Mate.Production.Core.Agents.BasicInstruction;
 
 namespace Mate.Production.Core.Agents.HubAgent
 {
@@ -54,6 +55,19 @@ namespace Mate.Production.Core.Agents.HubAgent
 
                     }
                     public FProposal GetObjectFromMessage { get => Message as FProposal; }
+                }
+
+                public class FinishOperation : SimulationMessage
+                {
+                    public static FinishOperation Create(FFinishOperations.FFinishOperation message, IActorRef target)
+                    {
+                        return new FinishOperation(message: message, target: target);
+                    }
+                    private FinishOperation(object message, IActorRef target) : base(message: message, target: target)
+                    {
+
+                    }
+                    public FFinishOperations.FFinishOperation GetObjectFromMessage { get => Message as FFinishOperations.FFinishOperation; }
                 }
 
 

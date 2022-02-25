@@ -24,7 +24,7 @@ namespace Mate.Test.Online.Agents.Types
         {
             var _articleCache = new Mate.Production.Core.Types.ArticleCache(connectionString: _contextDataBase.ConnectionString);
 
-            var article = _articleCache.GetArticleById(id: 10081, transitionFactor: 3);
+            var article = _articleCache.GetArticleById(id: 10081, transitionFactor: 3.0);
             Assert.Equal(actual: article.Name, expected: "Dump-Truck");
 
         }
@@ -36,7 +36,7 @@ namespace Mate.Test.Online.Agents.Types
 
             InitializeTestModel();
             var _articleCache = new Mate.Production.Core.Types.ArticleCache(connectionString: _contextDataBase.ConnectionString);
-            var article = _articleCache.GetArticleById(id: 10456, transitionFactor: 3);
+            var article = _articleCache.GetArticleById(id: 10456, transitionFactor: 3.0);
             Assert.Equal(actual: article.Name, expected: "Wheel");
 
         }

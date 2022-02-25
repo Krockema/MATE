@@ -10,6 +10,7 @@ namespace Mate.DataCore.ReportingModel
         public int OriginId { get; set; }
         public int DueTime { get; set; }
         public int CreationTime { get; set; }
+        public long ReleaseTime { get; set; }
         public int ProductionFinishedTime { get; set; }
         public int FinishingTime { get; set; }
         public int BusinessPartnerId { get; set; }

@@ -9,6 +9,7 @@ using Mate.Production.Core.Agents.HubAgent.Types;
 using Mate.Production.Core.Agents.JobAgent.Types;
 using Mate.Production.Core.Helper;
 using static FBuckets;
+using static FFinishOperations;
 using static FJobConfirmations;
 using static FJobResourceConfirmations;
 using static FMeasurementInformations;
@@ -447,34 +448,32 @@ namespace Mate.Production.Core.Agents.JobAgent.Behaviour
 
         private void CreateOperationResults()
         {
-            ResultCreator(_currentOperation, _currentOperation.Operation.RandomizedDuration);
+            Agent.Send(Hub.Instruction.Default.FinishOperation.Create(message: new FFinishOperation(
+                                                                            job: _currentOperation
+                                                                            , duration: _currentOperation.Operation.RandomizedDuration
+                                                                            , capabilityProvider: _jobConfirmation.CapabilityProvider
+                                                                            , bucketName: _jobConfirmation.Job.Name
+                                                                            )
+                                                                       , target: _jobConfirmation.Job.HubAgent));
 
             if (_jobConfirmation.Job.RequiredCapability.IsBatchAble) { 
                 while(_finalOperations.Count() != 0)
                 {
                     var operation = _finalOperations.Dequeue();
-                    ResultCreator(operation, _currentOperation.Operation.RandomizedDuration);
+
+                    Agent.Send(Hub.Instruction.Default.FinishOperation.Create(message: new FFinishOperation(
+                                                                            job: operation
+                                                                            , duration: _currentOperation.Operation.RandomizedDuration
+                                                                            , capabilityProvider: _jobConfirmation.CapabilityProvider
+                                                                            , bucketName: _jobConfirmation.Job.Name
+                                                                            )
+                                                                       , target: _jobConfirmation.Job.HubAgent));
+
                 }
             }
         }
 
-        private void ResultCreator(FOperation operation, long duration) {
-            ResultStreamFactory.PublishJob(agent: Agent
-                                           , job: operation
-                                      , duration: duration
-                            , capabilityProvider: _jobConfirmation.CapabilityProvider
-                                    , bucketName: _jobConfirmation.Job.Name);
-
-            var fOperationResult = new FOperationResult(key: operation.Key
-                , creationTime: 0
-                , start: Agent.CurrentTime - duration
-                , end: Agent.CurrentTime
-                , originalDuration: operation.Operation.Duration
-                , productionAgent: operation.ProductionAgent
-                , capabilityProvider: _jobConfirmation.CapabilityProvider.Name);
-
-            Agent.Send(BasicInstruction.FinishJob.Create(fOperationResult, operation.ProductionAgent));
-        }
+      
 
 
         internal void CreateMeasurement()

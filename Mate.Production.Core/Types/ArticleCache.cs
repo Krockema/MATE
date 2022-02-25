@@ -18,7 +18,7 @@ namespace Mate.Production.Core.Types
         private Dictionary<int, M_Article> _cache = new ();
         private readonly DbConnectionString _connectionString = new DbConnectionString(string.Empty);
 
-        public M_Article GetArticleById(int id, decimal transitionFactor)
+        public M_Article GetArticleById(int id, double transitionFactor)
         {
             if (!_cache.TryGetValue(key: id,value: out M_Article obj))
             {
@@ -51,11 +51,19 @@ namespace Mate.Production.Core.Types
             return obj;
         }
 
-        public void UpdateTransitionTime(M_Article article, decimal factor)
+
+        public void UpdateTransitionTime(M_Article article, double factor)
         {
             foreach (var operation in article.Operations)
             {
-                operation.AverageTransitionDuration = Convert.ToInt32(value: Math.Round(d: operation.Duration * factor, decimals: 0, mode: MidpointRounding.AwayFromZero));
+                double tranistiontime = TransitionTimesDic.Instance.GetTransitionTime((int)operation.ResourceCapability.ParentResourceCapabilityId);
+
+                if(tranistiontime == 0.0)
+                {
+                    tranistiontime = operation.Duration * factor;
+                }
+
+                operation.AverageTransitionDuration = Convert.ToInt32(value: Math.Round(tranistiontime, 0, mode: MidpointRounding.AwayFromZero));
             }
         }
     }

@@ -214,29 +214,13 @@ namespace Mate.Test.SimulationEnvironment
         //public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule, int simNr, int maxBucketSize, long throughput, int seed , ModelSize resourceModelSize, ModelSize setupModelSize, double arrivalRate, bool distributeSetupsExponentially, bool createMeasurements = false)
         
         [Theory]
-        //[InlineData(SimulationType.Default, 1700, 0.00)]
-        [InlineData(SimulationType.Default, 1705, 0.05)]
-        [InlineData(SimulationType.Default, 1710, 0.10)]
-        [InlineData(SimulationType.Default, 1715, 0.15)]
-        //[InlineData(SimulationType.Default, 1720, 0.20)]
-        [InlineData(SimulationType.Default, 1725, 0.25)]
-        [InlineData(SimulationType.Default, 1730, 0.30)]
-        [InlineData(SimulationType.Default, 1735, 0.35)]
-        [InlineData(SimulationType.Central, 2700, 0.00)]
-        [InlineData(SimulationType.Central, 2705, 0.05)]
-        [InlineData(SimulationType.Central, 2710, 0.10)]
-        [InlineData(SimulationType.Central, 2715, 0.15)]
-        [InlineData(SimulationType.Central, 2720, 0.20)]
-        [InlineData(SimulationType.Central, 2725, 0.25)]
-        [InlineData(SimulationType.Central, 2730, 0.30)]
-        [InlineData(SimulationType.Central, 2735, 0.35)]
-        public async Task AgentSystemTest(SimulationType simulationType, int simNr, double deviation)
+        [InlineData(SimulationType.Default, 34, 0.025, 0)]
+        public async Task AgentSystemTest(SimulationType simulationType, int simNr, double unittest_arrivalRate, long unittest_throughputTime)
         {
-            //var simNr = 2;
-            //var simulationType = SimulationType.Default;
             var seed = 169;
-            var throughput = 1920;
-            var arrivalRate = 0.035;
+            var throughputTime = unittest_throughputTime;
+            var arrivalRate = unittest_arrivalRate;
+            var deviation = 0.04;
 
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
@@ -280,13 +264,13 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: 10000));
-            simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
+            simConfig.ReplaceOption(new EstimatedThroughPut(value: throughputTime));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
             simConfig.ReplaceOption(new Production.Core.Environment.Options.Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 2880));
+            simConfig.ReplaceOption(new SettlingStart(value: 1440*3));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 10));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: 15));
-            simConfig.ReplaceOption(new SimulationEnd(value: 10080*3));
+            simConfig.ReplaceOption(new SimulationEnd(value: 10080*10));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: false));
             simConfig.ReplaceOption(new DebugAgents(value: false));
@@ -294,7 +278,7 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new MaxBucketSize(value: 1920));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
             simConfig.ReplaceOption(new CreateQualityData(false));
-            simConfig.ReplaceOption(new Mate.Production.Core.Environment.Options.PriorityRule(PriorityRule.LST));
+            simConfig.ReplaceOption(new Production.Core.Environment.Options.PriorityRule(PriorityRule.LST));
 
             ClearResultDBby(simNr: simConfig.GetOption<SimulationNumber>(), dbName: TestMateResultDb);
 

@@ -12,6 +12,7 @@ using Mate.Production.Core.Environment.Options;
 using Mate.Production.Core.Types;
 using Newtonsoft.Json;
 using static FArticles;
+using static FStartOrders;
 using static Mate.Production.Core.Agents.CollectorAgent.Collector.Instruction;
 
 namespace Mate.Production.Core.Agents.CollectorAgent
@@ -48,7 +49,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         {
             switch (message)
             {
-                case Contract.Instruction.StartOrder m: AddOrder(m: m); break;
+                case Contract.Instruction.StartOrder m: AddOrder(m: m.GetObjectFromMessage); break;
                 case Supervisor.Instruction.OrderProvided m: ProvideOrder(finishedArticle: m.GetObjectFromMessage); break;
                 case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(finalCall: m.GetObjectFromMessage); break;
                 default: return false;
@@ -199,11 +200,12 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         }
 
 
-        private void AddOrder(Contract.Instruction.StartOrder m)
+        private void AddOrder(FStartOrder m)
         {
-            var op = m.GetObjectFromMessage;
+            var op = m.customerOrderPart;
             var order = new SimulationOrder() { CreationTime = op.CustomerOrder.CreationTime
-                                                ,DueTime = op.CustomerOrder.DueTime
+                                                , DueTime = op.CustomerOrder.DueTime
+                                                , ReleaseTime = m.currentTime
                                                 , State = State.Created
                                                 , BusinessPartnerId = op.CustomerOrder.BusinessPartnerId
                                                 , Name = op.CustomerOrder.Name
@@ -237,7 +239,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         private void WriteToDb(Collector agent, bool finalCall)
         {
             if (finalCall)
-                Collector.messageHub.ProcessingUpdate((int)orderDictionary[OrderKpi.OrderState.Finished].GetValue(), (int)orderDictionary[OrderKpi.OrderState.Finished].GetValue(), 
+                 Collector.messageHub.ProcessingUpdate((int)orderDictionary[OrderKpi.OrderState.Finished].GetValue(), (int)orderDictionary[OrderKpi.OrderState.Finished].GetValue(), 
                     $"Progress({100} %) Finalizing Steps. Write to DB and Shutdown!" 
                     , (int)orderDictionary[OrderKpi.OrderState.Total].GetValue());
             

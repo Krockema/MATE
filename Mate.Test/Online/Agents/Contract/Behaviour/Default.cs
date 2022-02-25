@@ -5,6 +5,7 @@ using Mate.Production.Core.Agents.ContractAgent.Behaviour;
 using Mate.Production.Core.Agents.Guardian;
 using Mate.Test.Online.Preparations;
 using Xunit;
+using static FStartOrders;
 
 namespace Mate.Test.Online.Agents.Contract.Behaviour
 {
@@ -16,7 +17,7 @@ namespace Mate.Test.Online.Agents.Contract.Behaviour
             var contractAgentRef = CreateTestProbe();
             var order = new T_CustomerOrder() { DueTime = 0, Id = 1 };
             var orderPart = new T_CustomerOrderPart() { Article = new M_Article { Name = "Bear" }, Quantity = 1, Id = 1, CustomerOrderId = 1, CustomerOrder = order };
-            var message = Mate.Production.Core.Agents.ContractAgent.Contract.Instruction.StartOrder.Create(message: orderPart, target: contractAgentRef);
+            var message = Mate.Production.Core.Agents.ContractAgent.Contract.Instruction.StartOrder.Create(message: new FStartOrder(orderPart, 0L), target: contractAgentRef);
             var behave = Factory.Get(simType: DataCore.Nominal.SimulationType.None);
             var simContext = CreateTestProbe();
             var actorPaths = AgentMoc.CreateActorPaths(testKit: this, simContext: simContext);
