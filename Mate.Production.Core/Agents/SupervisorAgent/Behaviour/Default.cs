@@ -178,10 +178,14 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
 
             order.ReleaseTime = order.DueTime - _estimatedThroughPuts.Get(name: order.Name).Value;
 
+            // 1. Approach UseTransitionTimes (without prediction yet)
+            order.ReleaseTime = Math.Min(order.ReleaseTime, order.DueTime - order.TotalProcessingDuration);
+
+            // 2. Approach PredictTimeToEarly with Buffer
             if (_useMLForTransitionTimes)
             { 
-                order.KiReleaseTime = DoPrediction(order);
-                order.ReleaseTime = order.KiReleaseTime;
+                order.KiReleaseTime = PredictIdleTimeWithDirectRelease(order);
+                order.ReleaseTime = Math.Min(order.DueTime - order.TotalProcessingDuration, order.KiReleaseTime);
             }
 
             if (Agent.CurrentTime < _settlingStart)
@@ -200,9 +204,12 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             _openOrders.Add(item: order);
         }
 
-        private long DoPrediction(T_CustomerOrder order)
-        { 
-            var predictionData = new TransitionTimes.ModelInput()
+        private long PredictIdleTimeWithDirectRelease(T_CustomerOrder order)
+        {
+            //Predicted idle time would lead to many late orders, buffer should shift the distribution
+            var buffer = 0.25;
+
+            var predictionData = new Predict_IdleTimeWithDirectRelease.ModelInput()
             {
                 TotalProcessingDuration = order.TotalProcessingDuration,
                 LongestPathProcessingDuration = order.LongestPathProcessingDuration,
@@ -210,9 +217,9 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             };
 
             //Load model and predict output
-            var result = TransitionTimes.Predict(predictionData);
+            var result = Predict_IdleTimeWithDirectRelease.Predict(predictionData);
 
-            return order.CreationTime + (long)result.Score;
+            return order.CreationTime + (long)(result.Score * (1-buffer));
         }
 
         private void SystemCheck()

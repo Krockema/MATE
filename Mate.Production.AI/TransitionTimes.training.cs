@@ -31,7 +31,8 @@ namespace Mate_Production_AI
             // Data process configuration with pipeline data transformations
             var pipeline = mlContext.Transforms.ReplaceMissingValues(new []{new InputOutputColumnPair(@"TotalProcessingDuration", @"TotalProcessingDuration"),new InputOutputColumnPair(@"LongestPathProcessingDuration", @"LongestPathProcessingDuration"),new InputOutputColumnPair(@"TimeToRelease", @"TimeToRelease")})      
                                     .Append(mlContext.Transforms.Concatenate(@"Features", new []{@"TotalProcessingDuration",@"LongestPathProcessingDuration",@"TimeToRelease"}))      
-                                    .Append(mlContext.Regression.Trainers.FastForest(new FastForestRegressionTrainer.Options(){NumberOfTrees=2048,FeatureFraction=0.211464615990194F,LabelColumnName=@"TimeBeforeFinish",FeatureColumnName=@"Features"}));
+                                    .Append(mlContext.Transforms.NormalizeMinMax(@"Features", @"Features"))      
+                                    .Append(mlContext.Regression.Trainers.FastTreeTweedie(new FastTreeTweedieTrainer.Options(){NumberOfLeaves=24,MinimumExampleCountPerLeaf=22,NumberOfTrees=46,MaximumBinCountPerFeature=152,LearningRate=0.000600181099819822F,FeatureFraction=0.700569014461289F,LabelColumnName=@"TimeBeforeFinish",FeatureColumnName=@"Features"}));
 
             return pipeline;
         }

@@ -8,6 +8,11 @@
     <PackageReference Include="Microsoft.ML.FastTree" Version="1.6.0" />
     <PackageReference Include="Microsoft.ML.LightGbm" Version="1.6.0" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Predict_IdleTimeWithDirectRelease.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <ItemGroup Label="TransitionTimes">
     <None Include="TransitionTimes.consumption.cs">
       <DependentUpon>TransitionTimes.mbconfig</DependentUpon>
@@ -17,6 +22,30 @@
     </None>
     <None Include="TransitionTimes.zip">
       <DependentUpon>TransitionTimes.mbconfig</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup Label="Predict_IdleTimeWithDirectRelease">
+    <None Include="Predict_IdleTimeWithDirectRelease.consumption.cs">
+      <DependentUpon>Predict_IdleTimeWithDirectRelease.mbconfig</DependentUpon>
+    </None>
+    <None Include="Predict_IdleTimeWithDirectRelease.training.cs">
+      <DependentUpon>Predict_IdleTimeWithDirectRelease.mbconfig</DependentUpon>
+    </None>
+    <None Include="Predict_IdleTimeWithDirectRelease.zip">
+      <DependentUpon>Predict_IdleTimeWithDirectRelease.mbconfig</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup Label="Predict_IdleTimes">
+    <None Include="Predict_IdleTimes.consumption.cs">
+      <DependentUpon>Predict_IdleTimes.mbconfig</DependentUpon>
+    </None>
+    <None Include="Predict_IdleTimes.training.cs">
+      <DependentUpon>Predict_IdleTimes.mbconfig</DependentUpon>
+    </None>
+    <None Include="Predict_IdleTimes.zip">
+      <DependentUpon>Predict_IdleTimes.mbconfig</DependentUpon>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

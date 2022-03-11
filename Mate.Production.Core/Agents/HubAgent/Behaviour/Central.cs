@@ -115,7 +115,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             CreateComputationalTime("TimeWriteConfirmations", lastStep);
 
             System.Diagnostics.Debug.WriteLine("Start GanttPlan");
-            GanttPlanOptRunner.RunOptAndExport("Continuous", "C:\\Users\\admin\\GANTTPLAN\\GanttPlanOptRunner.exe"); //changed to Init - merged configs
+            GanttPlanOptRunner.RunOptAndExport("Continuous", "D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe"); //changed to Init - merged configs
             System.Diagnostics.Debug.WriteLine("Finish GanttPlan");
 
             lastStep = stopwatch.ElapsedMilliseconds - lastStep;

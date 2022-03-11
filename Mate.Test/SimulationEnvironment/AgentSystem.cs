@@ -28,7 +28,7 @@ namespace Mate.Test.SimulationEnvironment
         private SeedInitializer seedInitializer = new SeedInitializer();
 
         private readonly string TestMateDb = "Test" + DataBaseConfiguration.MateDb;
-        private readonly string TestMateResultDb = "Test" + DataBaseConfiguration.MateResultDb;
+        private readonly string TestMateResultDb = "Test3" + DataBaseConfiguration.MateResultDb;
 
 
         [Fact]
@@ -195,9 +195,9 @@ namespace Mate.Test.SimulationEnvironment
                     SimulationType.Default, //simulationType
                     PriorityRule.LST, //priorityRule
                     simNumber++, 
-                    960, 
-                    throughput, 
-                    594, 
+                    960,
+                    throughput,
+                    594,
                     ModelSize.Medium, 
                     ModelSize.Medium, 
                     0.0153, 
@@ -214,10 +214,11 @@ namespace Mate.Test.SimulationEnvironment
         //public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule, int simNr, int maxBucketSize, long throughput, int seed , ModelSize resourceModelSize, ModelSize setupModelSize, double arrivalRate, bool distributeSetupsExponentially, bool createMeasurements = false)
         
         [Theory]
-        [InlineData(SimulationType.Default, 34, 0.025, 0)]
-        public async Task AgentSystemTest(SimulationType simulationType, int simNr, double unittest_arrivalRate, long unittest_throughputTime)
+        [InlineData(SimulationType.Central, 61, 0.025, 0, 169)]
+        public async Task AgentSystemTest(SimulationType simulationType, int simNr, double unittest_arrivalRate, long unittest_throughputTime, int unittest_seed)
         {
-            var seed = 169;
+            var seed = unittest_seed; // 169
+            var seedWorkTime = 171;
             var throughputTime = unittest_throughputTime;
             var arrivalRate = unittest_arrivalRate;
             var deviation = 0.04;
@@ -267,13 +268,14 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughputTime));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
             simConfig.ReplaceOption(new Production.Core.Environment.Options.Seed(value: seed));
+            simConfig.ReplaceOption(new SeedWorkTime(value: seedWorkTime));
             simConfig.ReplaceOption(new SettlingStart(value: 1440*3));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 10));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: 15));
-            simConfig.ReplaceOption(new SimulationEnd(value: 10080*10));
+            simConfig.ReplaceOption(new SimulationEnd(value: 10080*5));
             simConfig.ReplaceOption(new SaveToDB(value: true));
-            simConfig.ReplaceOption(new DebugSystem(value: false));
-            simConfig.ReplaceOption(new DebugAgents(value: false));
+            simConfig.ReplaceOption(new DebugSystem(value: true));
+            simConfig.ReplaceOption(new DebugAgents(value: true));
             simConfig.ReplaceOption(new WorkTimeDeviation(deviation));
             simConfig.ReplaceOption(new MaxBucketSize(value: 1920));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
@@ -294,7 +296,7 @@ namespace Mate.Test.SimulationEnvironment
                 ganttPlanContext.DbContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
 
                 //Synchronisation GanttPlan
-                GanttPlanOptRunner.RunOptAndExport("Init", "C:\\Users\\admin\\GANTTPLAN\\GanttPlanOptRunner.exe");
+                GanttPlanOptRunner.RunOptAndExport("Init", "D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe");
 
                 simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new ConsoleHub());
 
