@@ -214,7 +214,7 @@ namespace Mate.Test.SimulationEnvironment
         //public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule, int simNr, int maxBucketSize, long throughput, int seed , ModelSize resourceModelSize, ModelSize setupModelSize, double arrivalRate, bool distributeSetupsExponentially, bool createMeasurements = false)
         
         [Theory]
-        [InlineData(SimulationType.Central, 61, 0.025, 0, 169)]
+        [InlineData(SimulationType.Default, 61, 0.025, 0, 169)]
         public async Task AgentSystemTest(SimulationType simulationType, int simNr, double unittest_arrivalRate, long unittest_throughputTime, int unittest_seed)
         {
             var seed = unittest_seed; // 169
