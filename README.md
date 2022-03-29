@@ -28,3 +28,18 @@ Code Structure
 
 
 ![Mate Interface](/Mate_Overview.gif)
+
+
+## How to install
+
+Setup:
+* Install Visual Studio (works with Visual Studio Community 2022 17.1) with default components and also make sure to have:   
+  * .NET 5.0 / 6.0 Runtime
+  * F#
+  * SQL Server Express 2019 LocalDB
+  * other components
+
+1. Clone repository
+2. If localDb shall be used (which is the default case) - set it via command line with: setx UseLocalDb true"
+3. Run the unit test: Mate.Test.SimulationEnvironment.AgentSystem.ResetAllDatabase (Delete and Create all DBs)
+4. Check your installation by running the unit test: Mate.Test.SimulationEnvironment.AgentSystem.AgentSystemTest (this can take a while)
