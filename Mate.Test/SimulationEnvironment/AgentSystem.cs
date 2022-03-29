@@ -208,18 +208,24 @@ namespace Mate.Test.SimulationEnvironment
             }
         }
 
-        //[Theory]
-
         //[MemberData(nameof(GetTestData))]
         //public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule, int simNr, int maxBucketSize, long throughput, int seed , ModelSize resourceModelSize, ModelSize setupModelSize, double arrivalRate, bool distributeSetupsExponentially, bool createMeasurements = false)
-        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="simulationType"></param>
+        /// <param name="simNr"></param>
+        /// <param name="unittest_arrivalRate"></param>
+        /// <param name="unittest_throughputTime">parameter determinates the release time of customer orders (order.duetime - ThroughputTime = order.releasetime) 0: use ML to predict; >0: use this value; with int.max: release directly (with order creation)</param>
+        /// <param name="unittest_seed"></param>
+        /// <returns></returns>
         [Theory]
-        [InlineData(SimulationType.Default, 61, 0.025, 0, 169)]
+        [InlineData(SimulationType.Default, 62, 0.025, 1920, 169)]
         public async Task AgentSystemTest(SimulationType simulationType, int simNr, double unittest_arrivalRate, long unittest_throughputTime, int unittest_seed)
         {
-            var seed = unittest_seed; // 169
-            var seedWorkTime = 171;
-            var throughputTime = unittest_throughputTime;
+            var seed = unittest_seed; //169
+            var seedWorkTime = 171;               
+            var throughputTime = unittest_throughputTime; 
             var arrivalRate = unittest_arrivalRate;
             var deviation = 0.04;
 
@@ -272,7 +278,7 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new SettlingStart(value: 1440*3));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 10));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: 15));
-            simConfig.ReplaceOption(new SimulationEnd(value: 10080*5));
+            simConfig.ReplaceOption(new SimulationEnd(value: 10080*2));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new DebugAgents(value: true));

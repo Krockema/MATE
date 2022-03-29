@@ -19,7 +19,6 @@ using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
 using Mate.Production.Core.SignalR;
 using Mate.Production.Core.Types;
-using Mate_Production_AI;
 using static FArticles;
 using static FSetEstimatedThroughputTimes;
 using static FStartOrders;
@@ -167,6 +166,9 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             Agent.ActorPaths.SimulationContext.Ref.Tell(message: SimulationMessage.SimulationState.Finished);
         }
 
+        /// <summary>
+        /// Create a new order with one random product from the data model
+        /// </summary>
         private void PopOrder()
         {
             if (!_orderCounter.TryAddOne()) return;
@@ -181,11 +183,11 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             // 1. Approach UseTransitionTimes (without prediction yet)
             order.ReleaseTime = Math.Min(order.ReleaseTime, order.DueTime - order.TotalProcessingDuration);
 
-            // 2. Approach PredictTimeToEarly with Buffer
+            // Approach PredictTimeToEarly with Buffer
             if (_useMLForTransitionTimes)
-            { 
-                order.KiReleaseTime = PredictIdleTimeWithDirectRelease(order);
-                order.ReleaseTime = Math.Min(order.DueTime - order.TotalProcessingDuration, order.KiReleaseTime);
+            {
+                //order.KiReleaseTime
+                //order.ReleaseTime
             }
 
             if (Agent.CurrentTime < _settlingStart)
@@ -193,7 +195,8 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
 
             System.Diagnostics.Debug.WriteLine($"EstimatedTransitionTime {order.ReleaseTime} for order {order.Name} {order.Id} , {order.DueTime}");
             Agent.DebugMessage(msg: $"EstimatedTransitionTime {order.ReleaseTime} for order {order.Name} {order.Id} , {order.DueTime}");
-            
+
+            //Release order immediately 
             if (order.ReleaseTime <= Agent.CurrentTime)
             {
                 order.ReleaseTime = order.CreationTime;
@@ -204,23 +207,6 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             _openOrders.Add(item: order);
         }
 
-        private long PredictIdleTimeWithDirectRelease(T_CustomerOrder order)
-        {
-            //Predicted idle time would lead to many late orders, buffer should shift the distribution
-            var buffer = 0.25;
-
-            var predictionData = new Predict_IdleTimeWithDirectRelease.ModelInput()
-            {
-                TotalProcessingDuration = order.TotalProcessingDuration,
-                LongestPathProcessingDuration = order.LongestPathProcessingDuration,
-                TimeToRelease = order.DueTime - order.CreationTime,
-            };
-
-            //Load model and predict output
-            var result = Predict_IdleTimeWithDirectRelease.Predict(predictionData);
-
-            return order.CreationTime + (long)(result.Score * (1-buffer));
-        }
 
         private void SystemCheck()
         {

@@ -1,10 +1,6 @@
-﻿using Mate.DataCore.Data.Helper.Types;
-using Mate.Production.Core.Types;
+﻿using Mate.Production.Core.Types;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Mate.Production.Core.Agents.SupervisorAgent.Types
 {
@@ -14,6 +10,13 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Types
         {
         }
 
+        /// <summary>
+        /// Method return totalDuration and longest duration (which is ultimalty the critical path of the bom)
+        /// </summary>
+        /// <param name="articleCache">ArticleCache</param>
+        /// <param name="articleId">Head ArticleId for the tree search</param>
+        /// <param name="level">Level (product default 0) </param>
+        /// <returns></returns>
         public (long, long) GetTimeForProduct(ArticleCache articleCache, int articleId, int level)
         {
             var article = articleCache.GetArticleById(articleId, 3.0);
@@ -34,7 +37,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Types
             {
                 (var total, var longest) = GetTimeForProduct(articleCache, bom.ArticleChildId, level + 1);
 
-                totalDuration += total;
+                totalDuration += (long)(bom.Quantity * total);
 
                 if(longest > longestChild)
                     longestChild = longest;
