@@ -34,7 +34,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Types
             {
                 (var total, var longest) = GetTimeForProduct(articleCache, bom.ArticleChildId, level + 1);
 
-                totalDuration += total;
+                totalDuration += (long)bom.Quantity * total;
 
                 if(longest > longestChild)
                     longestChild = longest;
