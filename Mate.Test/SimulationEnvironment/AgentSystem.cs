@@ -28,7 +28,7 @@ namespace Mate.Test.SimulationEnvironment
         private SeedInitializer seedInitializer = new SeedInitializer();
 
         private readonly string TestMateDb = "Test" + DataBaseConfiguration.MateDb;
-        private readonly string TestMateResultDb = "Test3" + DataBaseConfiguration.MateResultDb;
+        private readonly string TestMateResultDb = "Test" + DataBaseConfiguration.MateResultDb;
 
 
         [Fact]
