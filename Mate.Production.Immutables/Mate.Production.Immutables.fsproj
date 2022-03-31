@@ -80,7 +80,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Akka" Version="1.4.18" />
+    <PackageReference Include="Akka" Version="1.4.35" />
     <PackageReference Include="Mate.DataCore.GanttPlanApi" Version="1.0.1" />
   </ItemGroup>
 
@@ -89,7 +89,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="5.0.1" />
+    <PackageReference Update="FSharp.Core" Version="6.0.3" />
   </ItemGroup>
 
 </Project>
