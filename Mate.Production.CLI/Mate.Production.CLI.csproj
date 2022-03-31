@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <Configurations>Debug;Release;Azure;Debuger;Debugger</Configurations>
 	<Platforms>AnyCPU;x64;x86</Platforms>
@@ -14,11 +14,11 @@
   </PropertyGroup>
   <ItemGroup>
         <PackageReference Include="Hangfire.Console" Version="1.4.2" />
-        <PackageReference Include="HangFire.Core" Version="1.7.22" />
-        <PackageReference Include="HangFire.SqlServer" Version="1.7.22" />
+        <PackageReference Include="HangFire.Core" Version="1.7.28" />
+        <PackageReference Include="HangFire.SqlServer" Version="1.7.28" />
         <PackageReference Include="Mate.DataCore.GanttPlanApi" Version="1.0.1" />
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="5.0.5" />
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.3" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mate.Production.Core\Mate.Production.Core.csproj" />
