@@ -68,6 +68,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
                 type: activity.ActivityType
                 , resource: _resourceDefinition.ResourceName
                 , resourceId: _resourceDefinition.ResourceId
+                , readyAt: 0
                 , start: Agent.CurrentTime
                 , end: Agent.CurrentTime + activity.Duration
                 , capability: activity.Capability

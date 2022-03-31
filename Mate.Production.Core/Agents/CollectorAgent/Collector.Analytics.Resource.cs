@@ -82,6 +82,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 Type = task.Type,
                 Resource = task.Resource,
                 ResourceType =  _resources.Single(x => x.Key.Equals(task.ResourceId)).Value.ResourceType,
+                ReadyAt = task.ReadyAt,
                 Start = task.Start,
                 End = task.End,
                 CapabilityName = task.Capability,

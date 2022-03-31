@@ -462,6 +462,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
                 type: JobType.OPERATION
                 , resource: Agent.Name.Replace("Resource(", "").Replace(")", "")
                 , resourceId: _resourceId
+                , readyAt: item.StartConditions.WasSetReadyAt
                 , start: Agent.CurrentTime
                 , end: Agent.CurrentTime + item.Operation.RandomizedDuration
                 , capability: _jobInProgress.RequiredCapabilityName
@@ -478,6 +479,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
                 type
                 , resource: Agent.Name.Replace("Resource(", "").Replace(")", "")
                 , resourceId: _resourceId
+                , readyAt: 0
                 , start: Agent.CurrentTime
                 , end: Agent.CurrentTime + gap
                 , capability: _capabilityProviderManager.GetCurrentUsedCapability().Name

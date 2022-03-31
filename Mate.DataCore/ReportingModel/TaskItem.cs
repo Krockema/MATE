@@ -12,6 +12,7 @@ namespace Mate.DataCore.ReportingModel
         public string Type { get; set; } //Processing or Setup
         public string Resource { get; set; }
         public ResourceType ResourceType { get; set; }
+        public long ReadyAt { get; set; }
         public long Start { get; set; }
         public long End { get; set; }
         public string CapabilityName { get; set; }

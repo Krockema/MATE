@@ -278,7 +278,7 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new SettlingStart(value: 1440*3));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 10));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: 15));
-            simConfig.ReplaceOption(new SimulationEnd(value: 10080*2));
+            simConfig.ReplaceOption(new SimulationEnd(value: 1440));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new DebugAgents(value: true));

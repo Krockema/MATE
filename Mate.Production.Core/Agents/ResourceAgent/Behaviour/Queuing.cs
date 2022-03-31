@@ -83,6 +83,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
                 type: job.JobType
                 , resource: Agent.Name.Replace("Resource(", "").Replace(")", "")
                 , resourceId: _resourceId
+                , readyAt: 0
                 , start: Agent.CurrentTime
                 , end: Agent.CurrentTime + job.Duration
                 , capability: job.CapabilityProvider.ResourceCapability.Name
