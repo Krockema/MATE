@@ -27,9 +27,9 @@ namespace Mate.Test.SimulationEnvironment
     {
         private SeedInitializer seedInitializer = new SeedInitializer();
 
-        private static string pre = "KI_new";
-        private readonly string TestMateDb = "Test"+ pre + DataBaseConfiguration.MateDb;
-        private readonly string TestMateResultDb = "Test" + pre + DataBaseConfiguration.MateResultDb;
+        private readonly string TestMateDb = "Test" + DataBaseConfiguration.MateDb;
+        private readonly string TestMateResultDb = "Test" + DataBaseConfiguration.MateResultDb;
+
 
         [Fact]
         public void TestRawSQL()
@@ -214,7 +214,7 @@ namespace Mate.Test.SimulationEnvironment
         //public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule, int simNr, int maxBucketSize, long throughput, int seed , ModelSize resourceModelSize, ModelSize setupModelSize, double arrivalRate, bool distributeSetupsExponentially, bool createMeasurements = false)
         
         [Theory]
-        [InlineData(SimulationType.Default, 71, 0.025, 0, 169)]
+        [InlineData(SimulationType.Default, 63, 0.025, 1920, 169)]
         public async Task AgentSystemTest(SimulationType simulationType, int simNr, double unittest_arrivalRate, long unittest_throughputTime, int unittest_seed)
         {
             var seed = unittest_seed; // 169
@@ -272,7 +272,7 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new SettlingStart(value: 1440*3));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 10));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: 15));
-            simConfig.ReplaceOption(new SimulationEnd(value: 10080*3));
+            simConfig.ReplaceOption(new SimulationEnd(value: 10080*2));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new DebugAgents(value: true));
