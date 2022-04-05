@@ -31,7 +31,6 @@ namespace Mate.Production.Core.Types
             keyValuePairs.Value.TryAdd(key, value);
         }
 
-
         public void SetTransitionTime(string capability, double value)
         {
             int capabilityId = keyValuePairs.Value[capability];

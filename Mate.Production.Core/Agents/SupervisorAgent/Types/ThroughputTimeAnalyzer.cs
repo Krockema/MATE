@@ -17,30 +17,28 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Types
         public (long, long) GetTimeForProduct(ArticleCache articleCache, int articleId, int level)
         {
             var article = articleCache.GetArticleById(articleId, 3.0);
-            
-            // totalduration 
-            long totalDuration = 0L;
+
             long longestDuration = 0L;
             var articleDuration = 0L;
 
             foreach (var operation in article.Operations.OrderByDescending(x => x.HierarchyNumber))
             {
-                articleDuration = operation.Duration + operation.AverageTransitionDuration;
+                articleDuration += operation.Duration + operation.AverageTransitionDuration;
             }
+
+            var totalDuration = articleDuration;
 
             var longestChild = 0L;
 
             foreach(var bom in article.ArticleBoms)
             {
-                (var total, var longest) = GetTimeForProduct(articleCache, bom.ArticleChildId, level + 1);
+                (var childDuration, var longest) = GetTimeForProduct(articleCache, bom.ArticleChildId, level + 1);
 
-                totalDuration += (long)bom.Quantity * total;
+                totalDuration = totalDuration + (long)bom.Quantity * childDuration;
 
                 if(longest > longestChild)
                     longestChild = longest;
             }
-
-            totalDuration += articleDuration;
 
             longestDuration = articleDuration + longestChild;
 

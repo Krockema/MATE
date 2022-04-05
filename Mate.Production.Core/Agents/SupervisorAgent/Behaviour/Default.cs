@@ -8,6 +8,7 @@ using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Helper;
 using Mate.DataCore.Data.Helper.Types;
 using Mate.DataCore.DataModel;
+using Mate.DataCore.GanttPlan;
 using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.ContractAgent;
 using Mate.Production.Core.Agents.DispoAgent;
@@ -183,9 +184,20 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
 
             // 2. Approach PredictTimeToEarly with Buffer
             if (_useMLForTransitionTimes)
-            { 
-                order.KiReleaseTime = PredictIdleTimeWithDirectRelease(order);
-                order.ReleaseTime = Math.Min(order.DueTime - order.TotalProcessingDuration, order.KiReleaseTime);
+            {
+                var buffer = 0.25;
+                var idleTime = PredictIdleTimeWithDirectRelease(order);
+                order.KiReleaseTime = order.CreationTime + (int)(Convert.ToDouble(idleTime) * (1 - buffer));
+                //order.ReleaseTime = Math.Min(order.DueTime - order.TotalProcessingDuration, order.KiReleaseTime);
+                order.KiDueTime = order.DueTime - (int)idleTime;
+
+                order.ReleaseTime = order.CreationTime;
+
+                var _setDueDateByML = true;
+                if (_setDueDateByML && Agent.CurrentTime > _settlingStart)
+                {
+                    order.DueTime = Math.Max((int)order.ReleaseTime + (int)order.LongestPathProcessingDuration, order.KiDueTime);
+                }
             }
 
             if (Agent.CurrentTime < _settlingStart)
@@ -207,8 +219,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         private long PredictIdleTimeWithDirectRelease(T_CustomerOrder order)
         {
             //Predicted idle time would lead to many late orders, buffer should shift the distribution
-            var buffer = 0.25;
-
+            
             var predictionData = new Predict_IdleTimeWithDirectRelease.ModelInput()
             {
                 TotalProcessingDuration = order.TotalProcessingDuration,
@@ -219,7 +230,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             //Load model and predict output
             var result = Predict_IdleTimeWithDirectRelease.Predict(predictionData);
 
-            return order.CreationTime + (long)(result.Score * (1-buffer));
+            return (long)(result.Score);
         }
 
         private void SystemCheck()
