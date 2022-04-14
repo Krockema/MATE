@@ -306,17 +306,4 @@ paket-files/
 
 bin/
 obj/
-**/Mate/wwwroot/lib/
-**/Mate/wwwroot/lib
-/Mate/wwwroot/lib
-Mate/wwwroot/lib
-Mate/wwwroot/lib/
-
-**wwwroot/lib**
-wwwroot/lib/
-**/wwwroot/lib/
 **/wwwroot/lib
-
-
-/Mate/wwwroot/lib/*
-/wwwroot/lib/*
