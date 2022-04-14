@@ -42,6 +42,15 @@ namespace Mate.Controllers
             return View(model: resources);
         }
 
+        [HttpGet(template: "[Controller]/InitalizeAR")]
+        public void InitalizeAR()
+        {
+            var resources = _context.Resources.Where(x => x.IsPhysical && !x.IsBiological)
+                                                .Select(x => new { Name = x.Name.Substring(0, 3), Id = x.Id.ToString() });
+
+            _messageHub.SendToClient("AR",System.Text.Json.JsonSerializer.Serialize(resources));
+        }    
+
         [HttpGet(template: "[Controller]/RunAsync/{simulationType}/orderAmount/{orderAmount}/arivalRate/{arivalRate}/estimatedThroughputTime/{estimatedThroughputTime}")]
         public void RunAsync(int simulationType, int orderAmount, double arivalRate,int estimatedThroughputTime)
         {
@@ -51,20 +60,22 @@ namespace Mate.Controllers
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(_resultCtx.Database.GetDbConnection().ConnectionString));
             simConfig.ReplaceOption(new KpiTimeSpan(240));
-            simConfig.ReplaceOption(new TimeToAdvance(value: TimeSpan.FromMilliseconds(50)));
+            simConfig.ReplaceOption(new TimeToAdvance(value: TimeSpan.FromMilliseconds(1000 * 0.2)));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: orderAmount));
-            simConfig.ReplaceOption(new EstimatedThroughPut(value: estimatedThroughputTime));
+            simConfig.ReplaceOption(new EstimatedThroughPut(value: 0));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
-            simConfig.ReplaceOption(new Seed(value: 169));
+            simConfig.ReplaceOption(new Mate.Production.Core.Environment.Options.Seed(value: 169));
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
-            simConfig.ReplaceOption(new SimulationEnd(value: 10080));
-            simConfig.ReplaceOption(new SaveToDB(value: false));
+            simConfig.ReplaceOption(new SimulationEnd(value: 20160));
+            simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: false));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
+            simConfig.ReplaceOption(new MaxBucketSize(480));
             simConfig.ReplaceOption(new MinDeliveryTime(10));
             simConfig.ReplaceOption(new MaxDeliveryTime(15));
+            simConfig.ReplaceOption(new Mate.Production.Core.Environment.Options.PriorityRule(value: DataCore.Nominal.PriorityRule.LST));
             
 
             switch (simulationType)
@@ -93,7 +104,7 @@ namespace Mate.Controllers
 
         public async void RunGanttSimulation(Configuration simConfig)
         {
-            GanttPlanDBContext.ClearDatabase(Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).ConnectionString.Value);
+            GanttPlanDBContext.ClearDatabase(Dbms.GetGanttDataBase(DataBaseConfiguration.GP).ConnectionString.Value);
             
             //Synchronisation GanttPlan
             GanttPlanOptRunner.Inizialize();

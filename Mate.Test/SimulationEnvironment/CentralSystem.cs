@@ -33,7 +33,7 @@ namespace Mate.Test.SimulationEnvironment
         {
             GanttPlanOptRunner.RunOptAndExport("Init");
 
-            var ganttPlanDataBase = Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB);
+            var ganttPlanDataBase = Dbms.GetGanttDataBase(DataBaseConfiguration.GP);
             var ganttPlanContext = ganttPlanDataBase.DbContext;
 
             var modelparameter = ganttPlanContext.GptblModelparameter.FirstOrDefault();
@@ -72,7 +72,7 @@ namespace Mate.Test.SimulationEnvironment
         public void ResetGanttPlanDB()
         {
             //Reset GanttPLan DB?
-            var ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).DbContext;
+            var ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GP).DbContext;
             ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
         }
 
@@ -82,56 +82,58 @@ namespace Mate.Test.SimulationEnvironment
         {
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Warn, LogLevel.Warn);
 
             var simtulationType = SimulationType.Central;
             var seed = 169;
             var throughput = 1920;
-            var arrivalRate = 0.015;
+            var arrivalRate = 0.04;
 
             //Create Mate Data Base
-            var masterPlanContext = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext;
-            masterPlanContext.Database.EnsureDeleted();
-            masterPlanContext.Database.EnsureCreated();
-            MasterDBInitializerTruck.DbInitialize(masterPlanContext, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3, false, false);
+            //var masterPlanContext = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext;
+            //masterPlanContext.Database.EnsureDeleted();
+            //masterPlanContext.Database.EnsureCreated();
+            //MasterDBInitializerTruck.DbInitialize(masterPlanContext, ModelSize.Medium, ModelSize.Medium, ModelSize.Small, 3, false, false);
 
             //Create Mate Result Database
             var masterPlanResultContext = Dbms.GetResultDataBase(TestMateResultDb).DbContext;
             masterPlanResultContext.Database.EnsureDeleted();
             masterPlanResultContext.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(masterPlanResultContext);
-            
+
             //Reset GanttPLan DB?
-            var ganttPlanContext = GanttPlanDBContext.GetContext(DataBaseConfiguration.GPDB);
-            ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
-            
+            // make sure SimContext has DataBaseConfiguration.GP
+            var ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GP); 
+            ganttPlanContext.DbContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
+
             //Synchronisation GanttPlan
-            GanttPlanOptRunner.RunOptAndExport("Init");
+            GanttPlanOptRunner.RunOptAndExport("Init", "D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe");
 
             var simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new ConsoleHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
             // update customized Items
-            simConfig.AddOption(new ResultsDbConnectionString(ganttPlanContext.Database.GetConnectionString()));
+            simConfig.AddOption(new ResultsDbConnectionString(masterPlanResultContext.Database.GetConnectionString()));
             simConfig.ReplaceOption(new KpiTimeSpan(240));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
             simConfig.ReplaceOption(new SimulationKind(value: simtulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 141));
+            simConfig.ReplaceOption(new OrderQuantity(value: 10000));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
-            simConfig.ReplaceOption(new Seed(value: seed));
+            simConfig.ReplaceOption(new Production.Core.Environment.Options.Seed(value: seed));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 4));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: 6));
-            simConfig.ReplaceOption(new SettlingStart(value: 2880));
-            simConfig.ReplaceOption(new SimulationEnd(value: 10080));
+            simConfig.ReplaceOption(new SettlingStart(value: 60));
+            simConfig.ReplaceOption(new SimulationEnd(value: 1440 * 21));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: false));
+            simConfig.ReplaceOption(new DebugAgents(value: false));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 
-            //emtpyResultDBbySimulationNumber(simNr: simConfig.GetOption<SimulationNumber>());
+            ClearResultDBby(simNr: simConfig.GetOption<SimulationNumber>(), dbName: TestMateResultDb);
 
             var simWasReady = false;
             if (simulation.IsReady())
@@ -146,8 +148,24 @@ namespace Mate.Test.SimulationEnvironment
 
             Assert.True(condition: simWasReady);
         }
+        private void ClearResultDBby(SimulationNumber simNr, string dbName)
+        {
+            var _simNr = simNr;
+            using (var _ctxResult = Dbms.GetResultDataBase(dbName).DbContext)
+            {
+                var jobsToRemove =
+                    _ctxResult.SimulationJobs.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)).ToList();
+                _ctxResult.RemoveRange(entities: jobsToRemove);
+                var tasksToRemove =
+                   _ctxResult.TaskItems.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)).ToList();
+                _ctxResult.RemoveRange(entities: tasksToRemove);
+                _ctxResult.RemoveRange(entities: _ctxResult.Kpis.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctxResult.RemoveRange(entities: _ctxResult.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctxResult.SaveChanges();
+            }
+        }
 
-       
+
         [Fact(Skip = "Offline")]
         public void AggreteResults()
         {
@@ -163,7 +181,7 @@ namespace Mate.Test.SimulationEnvironment
         {
            // MateProductionDb mateCtx = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext;
 
-            GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).DbContext;
+            GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GP).DbContext;
              var prod = ganttPlanContext.GptblProductionorder
                  .Include(x => x.ProductionorderOperationActivities)
                      .ThenInclude(x => x.ProductionorderOperationActivityMaterialrelation)
@@ -231,7 +249,6 @@ namespace Mate.Test.SimulationEnvironment
         [Fact]
         public void GanttPlanInsertConfirmationAndReplan()
         {
-
             MateProductionDb mateCtx = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext;
             mateCtx.CustomerOrders.RemoveRange(mateCtx.CustomerOrders);
             mateCtx.CustomerOrderParts.RemoveRange(mateCtx.CustomerOrderParts);
@@ -240,7 +257,7 @@ namespace Mate.Test.SimulationEnvironment
             mateCtx.CreateNewOrder(10115, 1, 0, 250);
             mateCtx.SaveChanges();
 
-            GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).DbContext;
+            GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GP).DbContext;
 
             ganttPlanContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
             GanttPlanOptRunner.RunOptAndExport("Init");
@@ -315,7 +332,7 @@ namespace Mate.Test.SimulationEnvironment
         [Fact]
         public void TestMaterialRelations()
         {
-            using (var localGanttPlanDbContext =  Dbms.GetGanttDataBase(DataBaseConfiguration.GPDB).DbContext)
+            using (var localGanttPlanDbContext =  Dbms.GetGanttDataBase(DataBaseConfiguration.GP).DbContext)
             {
 
                 var materialId = "10115";
@@ -336,7 +353,6 @@ namespace Mate.Test.SimulationEnvironment
                                     && x.IntervalAllocationType.Equals(1))
                         .OrderBy(x => x.DateFrom)
                         .ToList());
-
 
             } // filter Done and in Progress?
         }

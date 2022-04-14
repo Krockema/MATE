@@ -34,6 +34,7 @@ namespace Mate.Production.Core
     public class GanttSimulation : BaseSimulation, ISimulation
     {
         public DataBase<GanttPlanDBContext> dbGantt { get; }
+        public string dbMate { get;}
         private ResourceDictionary _resourceDictionary { get; }
         /// <summary>
         /// Prepare Simulation Environment
@@ -41,7 +42,8 @@ namespace Mate.Production.Core
         /// <param name="debug">Enables AKKA-Global message Debugging</param>
         public GanttSimulation(string dbName, IMessageHub messageHub) : base(dbName, messageHub)
         {
-            dbGantt = Dbms.GetGanttDataBase("DBGP");
+            dbGantt = Dbms.GetGanttDataBase(DataBaseConfiguration.GP);
+            dbMate = dbName;
             _resourceDictionary = new ResourceDictionary();
         }
         public override Task<Simulation> InitializeSimulation(Configuration configuration)
@@ -61,13 +63,27 @@ namespace Mate.Production.Core
                 {
                     var workergroup = dbGantt.DbContext.GptblWorkergroupWorker.Single(x => x.WorkerId.Equals(worker.Id));
 
-                    _resourceDictionary.Add(int.Parse(worker.Id), new ResourceDefinition(worker.Name, int.Parse(worker.Id), ActorRefs.Nobody, workergroup.WorkergroupId, resourceType: ResourceType.Worker));
+                    _resourceDictionary.Add(int.Parse(worker.Id), new ResourceDefinition(name: worker.Name,
+                        id: int.Parse(worker.Id),
+                        actorRef: ActorRefs.Nobody,
+                        groupId: workergroup.WorkergroupId,
+                        resourceType: ResourceType.Worker));
                 }
-                dbGantt.DbContext.GptblPrt.Where(x => !x.CapacityType.Equals(1)).Select(x => new { x.Id, x.Name}).ToList().ForEach(x => _resourceDictionary.Add(int.Parse(x.Id),new ResourceDefinition(x.Name, int.Parse(x.Id), ActorRefs.Nobody,"1", resourceType: ResourceType.Tool)));
-                dbGantt.DbContext.GptblWorkcenter.Select(x => new { x.Id, x.Name }).ToList().ForEach(x => _resourceDictionary.Add(int.Parse(x.Id), new ResourceDefinition(x.Name, int.Parse(x.Id), ActorRefs.Nobody, string.Empty, resourceType: ResourceType.Workcenter)));
+                dbGantt.DbContext.GptblPrt.Where(x => !x.CapacityType.Equals(1)).Select(x => new { x.Id, x.Name}).ToList().ForEach(x => _resourceDictionary.Add(int.Parse(x.Id),new ResourceDefinition(
+                    name: x.Name,
+                    id: int.Parse(x.Id),
+                    actorRef: ActorRefs.Nobody,
+                    groupId: "1",
+                    resourceType: ResourceType.Tool)));
+                dbGantt.DbContext.GptblWorkcenter.Select(x => new { x.Id, x.Name }).ToList().ForEach(x => _resourceDictionary.Add(int.Parse(x.Id), new ResourceDefinition(
+                    name: x.Name,
+                    id: int.Parse(x.Id),
+                    actorRef: ActorRefs.Nobody,
+                    groupId: string.Empty,
+                    resourceType: ResourceType.Workcenter)));
 
-            // Create DataCollectors
-            CreateCollectorAgents(configuration: configuration);
+                // Create DataCollectors
+                CreateCollectorAgents(configuration: configuration);
                 //if (DebugAgents) 
                 AddDeadLetterMonitor();
                 AddTimeMonitor();
@@ -132,7 +148,7 @@ namespace Mate.Production.Core
 
             var behave = Agents.SupervisorAgent.Behaviour.Factory.Central(
                 dbNameGantt: dbGantt.DataBaseName.Value,
-                dbNameProduction: base.DbProduction.DataBaseName.Value,
+                dbNameProduction: dbMate,
                 messageHub: MessageHub,
                 configuration: configuration,
                 estimatedThroughputTimes: estimatedThroughPuts);

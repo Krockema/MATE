@@ -5,6 +5,7 @@ using Akka.Actor;
 using Akka.Util.Internal;
 using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.HubAgent;
+using Mate.Production.Core.Agents.HubAgent.Types;
 using Mate.Production.Core.Agents.JobAgent.Types;
 using Mate.Production.Core.Helper;
 using static FBuckets;
@@ -393,7 +394,6 @@ namespace Mate.Production.Core.Agents.JobAgent.Behaviour
             _currentOperation = _finalOperations.Dequeue();
 
             UpdateOperationKpi();
-
             // Create Measurement and set it to MeasurementAgent
             CreateMeasurement();
 
@@ -406,7 +406,7 @@ namespace Mate.Production.Core.Agents.JobAgent.Behaviour
             _resourceProcessingStates.ForEach(x =>
             {
                 Agent.Send(Resource.Instruction.Default.DoWork.Create( message: _currentOperation
-                                                                                , target: x.Key));
+                                                                       ,target: x.Key));
                 x.Value.CurrentState = JobState.InProcess;
 
             });
@@ -432,6 +432,10 @@ namespace Mate.Production.Core.Agents.JobAgent.Behaviour
 
         private void UpdateOperationKpi()
         {
+            if (_jobConfirmation.Job.RequiredCapability.IsBatchAble)
+                foreach (var item in _finalOperations)
+                    ResultStreamFactory.PublishJob(Agent, item, _currentOperation.Operation.RandomizedDuration, _jobConfirmation.CapabilityProvider, _jobConfirmation.Job.Name);
+                        
             ResultStreamFactory.PublishJob(Agent, _currentOperation, _currentOperation.Operation.RandomizedDuration, _jobConfirmation.CapabilityProvider, _jobConfirmation.Job.Name);
         }
 
@@ -443,22 +447,36 @@ namespace Mate.Production.Core.Agents.JobAgent.Behaviour
 
         private void CreateOperationResults()
         {
-            ResultStreamFactory.PublishJob(agent: Agent
-                , job: _currentOperation
-                , duration: _currentOperation.Operation.RandomizedDuration
-                , capabilityProvider: _jobConfirmation.CapabilityProvider
-                , bucketName: _jobConfirmation.Job.Name);
+            ResultCreator(_currentOperation, _currentOperation.Operation.RandomizedDuration);
 
-            var fOperationResult = new FOperationResult(key: _currentOperation.Key
+            if (_jobConfirmation.Job.RequiredCapability.IsBatchAble) { 
+                while(_finalOperations.Count() != 0)
+                {
+                    var operation = _finalOperations.Dequeue();
+                    ResultCreator(operation, _currentOperation.Operation.RandomizedDuration);
+                }
+            }
+        }
+
+        private void ResultCreator(FOperation operation, long duration) {
+            ResultStreamFactory.PublishJob(agent: Agent
+                                           , job: operation
+                                      , duration: duration
+                            , capabilityProvider: _jobConfirmation.CapabilityProvider
+                                    , bucketName: _jobConfirmation.Job.Name);
+
+            var fOperationResult = new FOperationResult(key: operation.Key
                 , creationTime: 0
-                , start: Agent.CurrentTime
-                , end: Agent.CurrentTime + _currentOperation.Operation.RandomizedDuration
-                , originalDuration: _currentOperation.Operation.Duration
-                , productionAgent: _currentOperation.ProductionAgent
+                , start: Agent.CurrentTime - duration
+                , end: Agent.CurrentTime
+                , originalDuration: operation.Operation.Duration
+                , productionAgent: operation.ProductionAgent
                 , capabilityProvider: _jobConfirmation.CapabilityProvider.Name);
 
-            Agent.Send(BasicInstruction.FinishJob.Create(fOperationResult, _currentOperation.ProductionAgent));
+            Agent.Send(BasicInstruction.FinishJob.Create(fOperationResult, operation.ProductionAgent));
         }
+
+
         internal void CreateMeasurement()
         {
             if (!_currentOperation.Operation.Characteristics.Any()) return;

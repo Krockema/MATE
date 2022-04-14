@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Akka.Actor;
@@ -35,7 +36,7 @@ namespace Mate.Production.Core
             /// <summary>
             /// Prepare Simulation Environment
             /// </summary>
-            /// <param name="debug">Enables AKKA-Global message Debugging</param>
+            /// <param name="debug">Enables AKKA-Global message Debugging</paSram>
         public AgentSimulation(string dbName, IMessageHub messageHub) : base(dbName, messageHub)
         {
         }
@@ -311,7 +312,7 @@ namespace Mate.Production.Core
 
             Simulation.SimulationContext.Tell(message:
                 BasicInstruction.Initialize.Create(target: ActorPaths.MeasurementAgent.Ref,
-                    message: Agents.ResourceAgent.Behaviour.Measurement.Get(configuration.GetOption<Seed>())));
+                    message: Agents.ResourceAgent.Behaviour.Measurement.Get(configuration.GetOption<Environment.Options.Seed>())));
 
             MeasurementCollector = Simulation.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsMeasurements.Get()
                 , msgHub: MessageHub, configuration: configuration, time: 0, debug: DebugAgents

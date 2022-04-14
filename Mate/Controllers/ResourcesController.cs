@@ -53,6 +53,20 @@ namespace Mate.Controllers
                                             background-color: rgb(108, 117, 125, 0.4);
                                            
                                         }
+                                        .imgPress {
+                                            background-image: url(/images/Production/press.svg);
+                                            background-color: rgb(108, 117, 125, 0.4);
+                                           
+                                        }
+                                        .imgMould {
+                                            background-image: url(/images/Production/moulding.svg);
+                                            background-color: rgb(108, 117, 125, 0.4);
+                                        }
+                                        .imgWrap {
+                                            background-image: url(/images/Production/wrapping.svg);
+                                            background-color: rgb(108, 117, 125, 0.4);
+                                           
+                                        }
                                         .imgAssembly {
                                             background-image: url(/images/Production/assemblys.svg);
                                             background-color: rgb(108, 117, 125, 0.6);
@@ -82,7 +96,10 @@ namespace Mate.Controllers
                                 : resource.Name.Contains("Cut") ?  "imgSaw"
                                     : resource.Name.Contains("Drill") ? "imgDrill"
                                         : resource.Name.Contains("Worker") ? "imgWorker"
-                                            : "imgWaterJet";
+                                            : resource.Name.Contains("Heat") ? "imgPress"
+                                                : resource.Name.Contains("Desma") ? "imgMould"
+                                                    : resource.Name.Contains("Wrapper") ? "imgWrap"
+                                                        : "imgWaterJet";
                     ;
 
                 mermaid += @"<li class='hex'>

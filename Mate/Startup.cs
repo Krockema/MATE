@@ -5,6 +5,7 @@ using Hangfire.Console;
 using Mate.DataCore;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Initializer;
+using Mate.DataCore.Nominal.Model;
 using Mate.Models;
 using Mate.Production.CLI;
 using Mate.Production.CLI.HangfireConfiguration;
@@ -65,13 +66,17 @@ namespace Mate
 
             services.AddTransient<HangfireJob>();
 
-            services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
+
+
+            services.AddCors(options => options.AddDefaultPolicy(builder =>
             {
                 // Not recommended for productive use
                 builder
                     .AllowAnyMethod()
                     .AllowAnyHeader()
-                    .AllowAnyOrigin();
+                    .AllowAnyOrigin()
+                    .WithOrigins("https://www2.htw-dresden.de").AllowCredentials();
+
             }));
 
             GlobalJobFilters.Filters.Add(new KeepJobInStore());
@@ -104,10 +109,15 @@ namespace Mate
             , IWebHostEnvironment env
             , HangfireDBContext hangfireContext
             , MateDb context
-            , MateResultDb contextResults
-            , MateProductionDb productionDomainContext)
+            , MateResultDb contextResults)
         {
-            MasterDbInitializerTable.DbInitialize(context: context);
+            MasterDBInitializerTruck.DbInitialize(context: context
+                                                , resourceModelSize: ModelSize.Medium
+                                                , setupModelSize: ModelSize.Medium
+                                                , operatorsModelSize: ModelSize.Small
+                                                , numberOfWorkersForProcessing: 3
+                                                , secondResource: false
+                                                , createMeasurements: false);
             ResultDBInitializerBasic.DbInitialize(context: contextResults);
 
             #region Hangfire
@@ -134,7 +144,7 @@ namespace Mate
                 app.UseExceptionHandler(errorHandlingPath: "/Home/Error");
             }
 
-            app.UseCors("CorsPolicy");
+            app.UseCors();
             app.UseFileServer();
             app.UseStaticFiles();
             app.UseRouting();

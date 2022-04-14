@@ -117,10 +117,12 @@ namespace Mate.DataCore.Data.Context
         public T_CustomerOrder CreateNewOrder(int articleId, int amount, long creationTime, long dueTime)
         {
             var article = Articles.Single(x => x.Id == articleId);
+            //var efState = this.Entry(article);
+            //efState.State = EntityState.Detached;
             var olist = new List<T_CustomerOrderPart>();
             var orderPart = new T_CustomerOrderPart
             {
-                Article = article,
+                //Article = article,
                 ArticleId = articleId,
                 IsPlanned = false,
                 Quantity = amount,
@@ -134,9 +136,10 @@ namespace Mate.DataCore.Data.Context
                 DueTime = (int)dueTime,
                 CreationTime = (int)creationTime,
                 DueDateTime = dueTime.ToDateTime(),
-                Name = Articles.Single(predicate: x => x.Id == articleId).Name,
+                Name = articleId.ToString(),//.Name,
                 CustomerOrderParts = olist
             };
+            
             return order;
         }
 

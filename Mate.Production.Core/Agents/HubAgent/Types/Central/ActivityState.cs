@@ -12,16 +12,16 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
         public List<Confirmation> Confirmations { get; private set; } = new List<Confirmation>();
         public bool ActivityIsFinished() => Confirmations.TrueForAll(x => x.IsFinished);
 
-        public ActivityState(GptblProductionorderOperationActivity activity, ResourceDefinition resourceDefinition)
+        public ActivityState(GptblProductionorderOperationActivity activity, ResourceDefinition resourceDefinition, int planVersion)
         {
-            var confirmation = new Confirmation(resourceDefinition);
+            var confirmation = new Confirmation(activity, resourceDefinition, planVersion);
             Confirmations.Add(confirmation);
             Activity = activity;
         }
 
-        public void AddResource(ResourceDefinition resourceDefinition)
+        public void AddResource(GptblProductionorderOperationActivity activity, ResourceDefinition resourceDefinition, int planVersion)
         {
-            var confirmation = new Confirmation(resourceDefinition);
+            var confirmation = new Confirmation(activity, resourceDefinition, planVersion);
             Confirmations.Add(confirmation);
         }
 

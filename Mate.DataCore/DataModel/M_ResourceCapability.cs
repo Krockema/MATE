@@ -10,6 +10,8 @@ namespace Mate.DataCore.DataModel
     {
         public string Name { get; set; }
         public int? ParentResourceCapabilityId { get; set; }
+        public double BatchSize { get; set;}
+        public bool IsBatchAble { get; set; }
         public M_ResourceCapability ParentResourceCapability { get; set; }
         public ICollection<M_ResourceCapability> ChildResourceCapabilities { get; set; }
         public ICollection<M_ResourceCapabilityProvider> ResourceCapabilityProvider { get; set; }

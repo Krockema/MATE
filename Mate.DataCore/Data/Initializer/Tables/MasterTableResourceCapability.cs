@@ -53,7 +53,10 @@ namespace Mate.DataCore.Data.Initializer.Tables
                 var capability = new M_ResourceCapability
                 {
                     Name = parent.Name + " Tool Nr " + i,
-                    ParentResourceCapabilityId = parent.Id
+                    ParentResourceCapabilityId = parent.Id,
+                    IsBatchAble = false,
+                    BatchSize = 1
+                    
                 };
 
                 Capabilities.Add(capability);
