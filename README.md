@@ -7,10 +7,12 @@ The Project build status [![Build Status](https://app.travis-ci.com/Krockema/MAT
 [![GitHub forks](https://img.shields.io/github/forks/Krockema/MATE)](https://github.com/Krockema/MATE/network)
 [![GitHub stars](https://img.shields.io/github/stars/Krockema/MATE)](https://github.com/Krockema/MATE/stargazers)
 ![GitHub issues](https://img.shields.io/github/issues-raw/krockema/Mate)
-![Twitter URL](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2FKrockema)
+[![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2FKrockema)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2FKrockema%2FMATE)
 
 </p>
 This project is part of a research project to evalutate self-organizing concepts in an industrial production planning and control application.
+
+Short troduction into the topic of self-organizing production planning and controll and showcase of MATE. [Comunity Standup of Akka.Net on youtube.com from 13.04.2021](https://youtu.be/9pnVQHZYgNQ?t=1163)
 
 
 #Project structure
@@ -63,9 +65,20 @@ To reset database: run the unit test: Mate.Test.SimulationEnvironment.AgentSyste
 ## Releated Papers
 
 <ul>
-<li><p>2018 -  [An Approach to a Self-organizing Production 
-in Comparison to a Centrally Planned Production](https://www.sne-journal.org/fileadmin/user_upload_sne/SNE_Issues_OA/SNE_30_1/articles/sne.30.1.10506.tn.OA.pdf)</p></li>
-<li><p>2020 - [SOBA: A Self-Organizing Bucket Architecture to Reduce Setup Times in an Event-Driven Production](https://www.semanticscholar.org/paper/SOBA%3A-A-Self-Organizing-Bucket-Architecture-to-in-Krockert-Matthes/8051f9cc34666a169d25f644063241b2d1603065)</p></li>
-<li><p>2021 - [Agent-based Decentral Production Planning and Control: A New Approach for Multi-resource Scheduling](https://www.scitepress.org/Link.aspx?doi=10.5220/0010436204420451)</p></li>
-<li><p>2021 - [Suitability of Self-Organization for Different Types of Production](https://www.sciencedirect.com/science/article/pii/S2351978921001542)</p></li>
+<li>2018 - <a href="https://www.sne-journal.org/fileadmin/user_upload_sne/SNE_Issues_OA/SNE_30_1/articles/sne.30.1.10506.tn.OA.pdf" target="_blank">An Approach to a Self-organizing Production in Comparison to a Centrally Planned Production</a></li>
+<li>2020 - <a href="https://www.semanticscholar.org/paper/SOBA%3A-A-Self-Organizing-Bucket-Architecture-to-in-Krockert-Matthes/8051f9cc34666a169d25f644063241b2d1603065" target="_blank">SOBA: A Self-Organizing Bucket Architecture to Reduce Setup Times in an Event-Driven Production</a></li>
+<li>2021 - <a href="https://www.scitepress.org/Link.aspx?doi=10.5220/0010436204420451" target="_blank">Agent-based Decentral Production Planning and Control: A New Approach for Multi-resource Scheduling</a></li>
+<li>2021 - <a href="https://www.sciencedirect.com/science/article/pii/S2351978921001542" target="_blank">Suitability of Self-Organization for Different Types of Production</a>
+</li>
 </ul>
+
+## Releated Projects
+
+<ul>
+<li><a href="https://www.sne-journal.org/fileadmin/user_upload_sne/SNE_Issues_OA/SNE_30_1/articles/sne.30.1.10506.tn.OA.pdf" target="_blank">Akka.Hive</a> 
+<p><blockquote>An Agent Simulation Framework based on Akka.Net</blockquote></p>
+</li>
+<li><a href="https://github.com/Krockema/Seed" target="_blank">SEED</a> - Sintesizer for Enterprise Experimentation Data
+<p><blockquote>An Framework to populate Primary-Data, like Material, BOM, Operations. . . based on statistical indicators</blockquote></p></li>
+</ul>
+
