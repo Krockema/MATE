@@ -29,7 +29,6 @@ namespace Mate.Production.Core.Helper.DistributionProvider
             //_distribution = new LogNormal(mu: 0, sigma: deviation, randomSource: source);
         }
 
-        private readonly LogNormal _distribution;
         /// <summary>
         /// Returns LogNormal-distributed worktime.
         /// </summary>
