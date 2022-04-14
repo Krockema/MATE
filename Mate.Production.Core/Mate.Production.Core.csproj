@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <LangVersion>9.0</LangVersion>
 	  <Platforms>AnyCPU;x64;x86</Platforms>
     <ApplicationIcon />
@@ -14,7 +14,6 @@
     <PackageReference Include="AkkaSim" Version="0.6.0" />
     <PackageReference Include="Mate.DataCore.GanttPlanApi" Version="1.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="3.8.0" />
   </ItemGroup>
 
   <ItemGroup>
