@@ -60,20 +60,20 @@ Temporary Items
 *.userprefs
 
 # Build results
-Master40/[Dd]ebug/
-Master40/[Dd]ebugPublic/
-Master40/[Rr]elease/
-Master40/[Rr]eleases/
-Master40/x64/
-Master40/x86/
-Master40/bld/
-Master40/[Bb]in/
-Master40/[Oo]bj/
-Master40/[Ll]og/
+Mate/[Dd]ebug/
+Mate/[Dd]ebugPublic/
+Mate/[Rr]elease/
+Mate/[Rr]eleases/
+Mate/x64/
+Mate/x86/
+Mate/bld/
+Mate/[Bb]in/
+Mate/[Oo]bj/
+Mate/[Ll]og/
 
 # Visual Studio 2015 cache/options directory
-Master40/.vscode/
-Master40/.vs/
+Mate/.vscode/
+Mate/.vs/
 .vscode/
 .vs/
 .idea/
@@ -300,12 +300,23 @@ paket-files/
 
 *.cache
 
-/Master40/appsettings.Azure.json
+/Mate/appsettings.Azure.json
 
 *.pyperf
 
 bin/
 obj/
-/Master40/wwwroot/lib/
-/Master40.XUnitTest/Zpp/Ordergraphs/GanttChart/*.json
-/Master40.XUnitTest/Zpp/Ordergraphs/*.txt
+**/Mate/wwwroot/lib/
+**/Mate/wwwroot/lib
+/Mate/wwwroot/lib
+Mate/wwwroot/lib
+Mate/wwwroot/lib/
+
+**wwwroot/lib**
+wwwroot/lib/
+**/wwwroot/lib/
+**/wwwroot/lib
+
+
+/Mate/wwwroot/lib/*
+/wwwroot/lib/*
