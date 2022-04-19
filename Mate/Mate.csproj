@@ -46,16 +46,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Mate.Production.CLI\Mate.Production.CLI.csproj" />
   </ItemGroup>
-  <ItemGroup Label="TransitionTimes">
-    <None Include="TransitionTimes.consumption.cs">
-      <DependentUpon>TransitionTimes.mbconfig</DependentUpon>
-    </None>
-    <None Include="TransitionTimes.training.cs">
-      <DependentUpon>TransitionTimes.mbconfig</DependentUpon>
-    </None>
-    <None Include="TransitionTimes.zip">
-      <DependentUpon>TransitionTimes.mbconfig</DependentUpon>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 </Project>
