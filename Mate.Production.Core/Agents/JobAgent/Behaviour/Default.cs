@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
@@ -448,33 +448,34 @@ namespace Mate.Production.Core.Agents.JobAgent.Behaviour
 
         private void CreateOperationResults()
         {
-            Agent.Send(Hub.Instruction.Default.FinishOperation.Create(message: new FFinishOperation(
-                                                                            job: _currentOperation
-                                                                            , duration: _currentOperation.Operation.RandomizedDuration
-                                                                            , capabilityProvider: _jobConfirmation.CapabilityProvider
-                                                                            , bucketName: _jobConfirmation.Job.Name
-                                                                            )
-                                                                       , target: _jobConfirmation.Job.HubAgent));
+            ResultCreator(_currentOperation, _currentOperation.Operation.RandomizedDuration);
 
             if (_jobConfirmation.Job.RequiredCapability.IsBatchAble) { 
                 while(_finalOperations.Count() != 0)
                 {
                     var operation = _finalOperations.Dequeue();
-
-                    Agent.Send(Hub.Instruction.Default.FinishOperation.Create(message: new FFinishOperation(
-                                                                            job: operation
-                                                                            , duration: _currentOperation.Operation.RandomizedDuration
-                                                                            , capabilityProvider: _jobConfirmation.CapabilityProvider
-                                                                            , bucketName: _jobConfirmation.Job.Name
-                                                                            )
-                                                                       , target: _jobConfirmation.Job.HubAgent));
-
+                    ResultCreator(operation, _currentOperation.Operation.RandomizedDuration);
                 }
             }
         }
 
-      
+        private void ResultCreator(FOperation operation, long duration) {
+            ResultStreamFactory.PublishJob(agent: Agent
+                                           , job: operation
+                                      , duration: duration
+                            , capabilityProvider: _jobConfirmation.CapabilityProvider
+                                    , bucketName: _jobConfirmation.Job.Name);
 
+            var fOperationResult = new FOperationResult(key: operation.Key
+                , creationTime: 0
+                , start: Agent.CurrentTime - duration
+                , end: Agent.CurrentTime
+                , originalDuration: operation.Operation.Duration
+                , productionAgent: operation.ProductionAgent
+                , capabilityProvider: _jobConfirmation.CapabilityProvider.Name);
+
+            Agent.Send(BasicInstruction.FinishJob.Create(fOperationResult, operation.ProductionAgent));
+        }
 
         internal void CreateMeasurement()
         {

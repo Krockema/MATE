@@ -189,6 +189,37 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         }
 
+        private void CallAverageIdle(bool finalCall)
+        {
+            var elapsed = _stopWatch.ElapsedMilliseconds;
+            _stopWatch.Restart();
+            _runTime.Add(elapsed);
+            Collector.CreateKpi(Collector, elapsed.ToString(), "TimeCycleExecution", KpiType.ComputationalTime, false);
+
+            if (finalCall) {
+                Collector.CreateKpi(Collector, _runTime.Sum().ToString(), "TotalTimeCycleExecution", KpiType.ComputationalTime, true);
+                Collector.CreateKpi(Collector, _runTime.Average().ToString(), "AverageTimeCycleExecution", KpiType.ComputationalTime, true);
+
+                if (Collector.Config.GetOption<SimulationKind>().Value.Equals(SimulationType.Central))
+                {
+                    foreach (var timeKpi in _ComputationalTimes)
+                    {
+                        //additional for WriteConfirmations, ExecuteGanttplan and Init
+                        Collector.CreateKpi(Collector, timeKpi.duration.ToString() , timeKpi.timertype, KpiType.ComputationalTime, false, timeKpi.time);
+                    }
+
+                    foreach (var type in _ComputationalTimes.GroupBy(x => x.timertype))
+                    {
+                        Collector.CreateKpi(Collector, type.Sum(x => x.duration).ToString(), "Total" + type.Key, KpiType.ComputationalTime, true);
+                        Collector.CreateKpi(Collector, type.Average(x => x.duration).ToString(), "Average" + type.Key, KpiType.ComputationalTime, true);
+                    }
+
+                }
+
+            }
+
+        }
+
         private void CallOperationsInfo(bool finalCall)
         {
             var idleKpis = operationInformationManager.GetIdleKpis(Collector, finalCall);

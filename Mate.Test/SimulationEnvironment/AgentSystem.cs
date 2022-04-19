@@ -195,9 +195,9 @@ namespace Mate.Test.SimulationEnvironment
                     SimulationType.Default, //simulationType
                     PriorityRule.LST, //priorityRule
                     simNumber++, 
-                    960,
-                    throughput,
-                    594,
+                    960, 
+                    throughput, 
+                    594, 
                     ModelSize.Medium, 
                     ModelSize.Medium, 
                     0.0153, 
@@ -280,7 +280,7 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new MaxBucketSize(value: 1920));
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
             simConfig.ReplaceOption(new CreateQualityData(false));
-            simConfig.ReplaceOption(new Production.Core.Environment.Options.PriorityRule(PriorityRule.LST));
+            simConfig.ReplaceOption(new Mate.Production.Core.Environment.Options.PriorityRule(PriorityRule.LST));
 
             ClearResultDBby(simNr: simConfig.GetOption<SimulationNumber>(), dbName: TestMateResultDb);
 
@@ -297,7 +297,6 @@ namespace Mate.Test.SimulationEnvironment
 
                 //Synchronisation GanttPlan
                 GanttPlanOptRunner.RunOptAndExport("Init", "D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe");
-
                 simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new ConsoleHub());
 
             }

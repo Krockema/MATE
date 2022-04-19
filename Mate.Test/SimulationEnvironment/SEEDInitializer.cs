@@ -33,10 +33,10 @@ namespace Mate.Test.SimulationEnvironment
             var materialConfig = new MaterialConfig()
             {
                 StructureParameter = new StructureParameter() {
-                    ComplexityRatio = 1.9, //1.9
-                    ReuseRatio = 1.3, //1.3
+                    ComplexityRatio = 1.9,
+                    ReuseRatio = 1.3,
                     NumberOfSalesMaterials = 100, 
-                    VerticalIntegration = 4 //4
+                    VerticalIntegration = 4
                 },
                 TransitionMatrixParameter = new TransitionMatrixParameter() { 
                     Lambda = 2,

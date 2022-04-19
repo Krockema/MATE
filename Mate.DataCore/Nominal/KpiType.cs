@@ -16,6 +16,7 @@
         Ooe,
         AvgIdleTimeCapability,
         AmountIdleOperationsCapability,
+        CapabilityIdle,
         ComputationalTime,
         AverageResult = 999
     }
