@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-	  <Platforms>AnyCPU;x64;x86</Platforms>
+	  <Platforms>AnyCPU;x64</Platforms>
     <StartupObject />
     <Configurations>Debug;Release;Azure;Debuger;Debugger</Configurations>
     <LangVersion>9.0</LangVersion>
