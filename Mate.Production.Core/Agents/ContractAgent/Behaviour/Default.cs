@@ -76,6 +76,7 @@ namespace Mate.Production.Core.Agents.ContractAgent.Behaviour
             Agent.DebugMessage(
                 msg:
                 $"Scheduling finished with earliest End at: {estimatedEnd}");
+
         }
         public override void OnChildAdd(IActorRef childRef)
         {

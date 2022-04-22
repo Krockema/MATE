@@ -278,7 +278,9 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
                     $"Precondition test: {operation.Name} | {fJob.StartConditions.PreCondition} ? {operationCounter} == {numberOfOperations} " +
                     $"| Key: {fJob.Key}  ArticleKey: {fArticle.Key}", CustomLogger.SCHEDULING, LogLevel.Warn);
                 sumOperationDurations += operation.Duration;
-                lastDue = fJob.BackwardStart - operation.AverageTransitionDuration;
+                double tranistiontime = TransitionTimesDic.Instance.GetTransitionTime((int)operation.ResourceCapability.ParentResourceCapabilityId);
+                lastDue = fJob.BackwardStart - (int)tranistiontime;
+                //lastDue = fJob.BackwardStart - operation.AverageTransitionDuration;
                 OperationManager.AddOperation(fJob);
 
                 // send update to collector
@@ -339,7 +341,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
                     $"EarliestForwardStart| {newOperation.ForwardStart} | End: {newOperation.ForwardEnd} | Prio { newOperation.Priority.Invoke(Agent.CurrentTime)} " +
                     $"| for Operation {newOperation.Operation.Name} |Key: {newOperation.Key} | of Article {_articleToProduce.Article.Name}",
                     CustomLogger.SCHEDULING, LogLevel.Warn);
-
+                
             }
 
             Agent.DebugMessage(msg:
