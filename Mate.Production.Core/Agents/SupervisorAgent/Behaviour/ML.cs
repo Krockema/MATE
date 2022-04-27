@@ -8,6 +8,7 @@ using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Helper;
 using Mate.DataCore.Data.Helper.Types;
 using Mate.DataCore.DataModel;
+using Mate.DataCore.GanttPlan;
 using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.ContractAgent;
 using Mate.Production.Core.Agents.DispoAgent;
@@ -19,6 +20,7 @@ using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
 using Mate.Production.Core.SignalR;
 using Mate.Production.Core.Types;
+using Mate_Production_AI;
 using static FArticles;
 using static FSetEstimatedThroughputTimes;
 using static FStartOrders;
@@ -26,7 +28,7 @@ using static Mate.Production.Core.Agents.SupervisorAgent.Supervisor.Instruction;
 
 namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
 {
-    public class Default : Core.Types.Behaviour
+    public class ML : Core.Types.Behaviour
     {
         private DataBase<MateProductionDb> dbProduction { get; set; }
         private IMessageHub _messageHub { get; set; }
@@ -44,7 +46,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         private Queue<T_CustomerOrderPart> _orderQueue { get; set; } = new Queue<T_CustomerOrderPart>();
         private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
         private ThroughputTimeAnalyzer _throughputTimeAnalyzer { get; set; } = new();
-        public  Default(string dbNameProduction
+        public  ML(string dbNameProduction
             , IMessageHub messageHub
             , Configuration configuration
             , List<FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime> estimatedThroughputTimes)
@@ -178,6 +180,21 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             // 1. Approach UseTransitionTimes (without prediction yet)
             order.ReleaseTime = Math.Min(order.ReleaseTime, order.DueTime - order.TotalProcessingDuration);
 
+            // 2. Approach PredictTimeToEarly with Buffer
+            var buffer = 0.25;
+            var idleTime = PredictIdleTimeWithDirectRelease(order);
+            order.KiReleaseTime = order.CreationTime + (int)(Convert.ToDouble(idleTime) * (1 - buffer));
+            //order.ReleaseTime = Math.Min(order.DueTime - order.TotalProcessingDuration, order.KiReleaseTime);
+            order.KiDueTime = order.DueTime - (int)idleTime;
+
+            order.ReleaseTime = order.CreationTime;
+
+            var _setDueDateByML = true;
+            if (_setDueDateByML && Agent.CurrentTime > _settlingStart)
+            {
+                order.DueTime = Math.Max((int)order.ReleaseTime + (int)order.LongestPathProcessingDuration, order.KiDueTime);
+            }
+
             if (Agent.CurrentTime < _settlingStart)
                 order.ReleaseTime = order.CreationTime;
 
@@ -192,6 +209,23 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             }
 
             _openOrders.Add(item: order);
+        }
+
+        private long PredictIdleTimeWithDirectRelease(T_CustomerOrder order)
+        {
+            //Predicted idle time would lead to many late orders, buffer should shift the distribution
+            
+            var predictionData = new Predict_IdleTimeWithDirectRelease.ModelInput()
+            {
+                TotalProcessingDuration = order.TotalProcessingDuration,
+                LongestPathProcessingDuration = order.LongestPathProcessingDuration,
+                TimeToRelease = order.DueTime - order.CreationTime,
+            };
+
+            //Load model and predict output
+            var result = Predict_IdleTimeWithDirectRelease.Predict(predictionData);
+
+            return (long)(result.Score);
         }
 
         private void SystemCheck()

@@ -209,12 +209,11 @@ namespace Mate.Test.SimulationEnvironment
         }
 
         //[Theory]
-
         //[MemberData(nameof(GetTestData))]
         //public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule, int simNr, int maxBucketSize, long throughput, int seed , ModelSize resourceModelSize, ModelSize setupModelSize, double arrivalRate, bool distributeSetupsExponentially, bool createMeasurements = false)
         
         [Theory]
-        [InlineData(SimulationType.Default, 1, 0.025, 10000, 169)]
+        [InlineData(SimulationType.Default, 5, 0.025, 10000, 169)]
         public async Task AgentSystemTest(SimulationType simulationType, int simNr, double unittest_arrivalRate, long unittest_throughputTime, int unittest_seed)
         {
             var seed = unittest_seed; // 169
@@ -286,11 +285,7 @@ namespace Mate.Test.SimulationEnvironment
 
             BaseSimulation simContext = null;
 
-            if (simulationType == SimulationType.Default)
-            {
-                simContext = new AgentSimulation(TestMateDb, messageHub: new ConsoleHub());
-            }
-            else
+            if (simulationType == SimulationType.Central)
             {
                 var ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GP);
                 ganttPlanContext.DbContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
@@ -300,6 +295,11 @@ namespace Mate.Test.SimulationEnvironment
                 simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new ConsoleHub());
 
             }
+            else
+            {
+                simContext = new AgentSimulation(TestMateDb, messageHub: new ConsoleHub());
+            }
+            
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
 

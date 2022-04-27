@@ -14,12 +14,38 @@ namespace Mate.Test.SimulationEnvironment
         private ContinuousPrediction continousPrediction = new();
 
         [Fact]
+        public void Train_Model_ProductionData()
+        {
+            //For test only
+            var referenceDataPoint = GenerateRandomDataPoints(1).First();
+
+            var datapoints = GenerateRandomDataPoints(800);
+            continousPrediction.RetrainModel(datapoints);
+            var score = continousPrediction.Predict(referenceDataPoint);
+
+            var listOfScores = new List<float>();
+            //Retrain 
+            for (var i = 0; i < 10; i++)
+            {
+                var newScore = RetrainModel(referenceDataPoint);
+                System.Diagnostics.Debug.WriteLine($"++++++++++++++++++++++ {score.Score} to {newScore}+++++++++++++++++++++");
+                listOfScores.Add(newScore);
+            }
+
+            foreach (var newScores in listOfScores)
+            {
+                Assert.NotEqual(score.Score, newScores);
+            }
+
+        }
+
+        [Fact]
         public void Train_Model()
         {
             //For test only
             var referenceDataPoint = GenerateRandomDataPoints(1).First();
             
-            var datapoints = GenerateRandomDataPoints(10000);
+            var datapoints = GenerateRandomDataPoints(800);
             continousPrediction.RetrainModel(datapoints);
             var score = continousPrediction.Predict(referenceDataPoint);
 
@@ -41,7 +67,7 @@ namespace Mate.Test.SimulationEnvironment
 
         public float RetrainModel(DataPoint referenceDataPoint)
         {
-            var newdatapoints = GenerateRandomDataPoints(500, new Random().Next());
+            var newdatapoints = GenerateRandomDataPoints(800);
 
             continousPrediction.RetrainModel(newdatapoints);
             continousPrediction.UpdatePredictionEngine();
@@ -66,6 +92,7 @@ namespace Mate.Test.SimulationEnvironment
                 };
             }
         }
+
 
 
 

@@ -98,7 +98,8 @@ namespace Mate.Production.Core
             var estimatedThroughPuts = products.Select(a => new FSetEstimatedThroughputTime(a.Id, initialTime, a.Name))
                 .ToList();
 
-            var behave = Agents.SupervisorAgent.Behaviour.Factory.Default(
+            var behave = Agents.SupervisorAgent.Behaviour.Factory.Get(
+                                    simType: SimulationType,
                                     dbNameProduction: DbProduction.DataBaseName.Value,
                                     messageHub: MessageHub,
                                     configuration: configuration,

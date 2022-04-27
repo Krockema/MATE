@@ -146,7 +146,8 @@ namespace Mate.Production.Core
                         principal: ActorRefs.Nobody),
                     name: "Supervisor"));
 
-            var behave = Agents.SupervisorAgent.Behaviour.Factory.Central(
+            var behave = Agents.SupervisorAgent.Behaviour.Factory.Get(
+                simType: SimulationType,
                 dbNameGantt: dbGantt.DataBaseName.Value,
                 dbNameProduction: dbMate,
                 messageHub: MessageHub,
