@@ -5,13 +5,16 @@ using Akka.Actor;
 using Mate.DataCore.DataModel;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.Nominal.Model;
+using Mate.Production.Core.Agents.CollectorAgent.Types;
 using Mate.Production.Core.Agents.HubAgent;
+using Mate.Production.Core.Agents.HubAgent.Types;
 using Mate.Production.Core.Agents.JobAgent;
 using Mate.Production.Core.Agents.ResourceAgent.Types;
 using Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue;
 using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
 using Mate.Production.Core.Types;
+using static FBuckets;
 using static FResourceInformations;
 using Directory = Mate.Production.Core.Agents.DirectoryAgent.Directory;
 using LogLevel = NLog.LogLevel;
@@ -114,9 +117,10 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 
         private void RevokeJob(Guid jobKey)
         {
-            var revokedJob = _jobInProgress.RevokeJob(jobKey);
+            var (position, revokedJob) = _jobInProgress.RevokeJob(jobKey);
             if (revokedJob != null)
             {
+                AddToStabilityManager(revokedJob, position, Process.Dequeue);
                 Agent.DebugMessage(msg: $"Revoking Job from Processing {revokedJob.Job.Name} {revokedJob.Job.Key}", CustomLogger.JOB, LogLevel.Warn);
                 Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(message: Agent.Context.Self, target: revokedJob.JobAgentRef));
                 UpdateProcessingItem();
@@ -217,6 +221,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 
             this.UpdateAndRequeuePlanedJobs(jobConfirmation);
             _scopeQueue.Enqueue(jobConfirmation);
+            JobToStabilityManager(new List<IConfirmations.IConfirmation>() { jobConfirmation }, Process.Enqueue);
 
             Agent.DebugMessage(msg: $"Accepted proposal on resource {Agent.Context.Self.Path.Name} and " +
                                     $"start enqueue {jobConfirmation.Job.Name} {jobConfirmation.Key} queueCount: {_scopeQueue.Count}" +
@@ -445,16 +450,21 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
         {
             Agent.DebugMessage(msg: $"Remove {toRequeue.Count} from {Agent.Context.Self.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
 
+            if(toRequeue.Count > 0)
+                JobToStabilityManager(toRequeue.ToList(), Process.Dequeue);
+
             foreach (var job in toRequeue)
             {
                 Agent.DebugMessage(msg: $"Remove for requeue {job.Job.Name} {job.Key} from {Agent.Context.Self.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
+                
                 _scopeQueue.RemoveJob(job);
                 Agent.Send(instruction: Job.Instruction.StartRequeue.Create(target: job.JobAgentRef));
             }
         }
-#endregion
 
-#region Reporting
+        #endregion
+
+        #region Reporting
 
         void CreateProcessingTask(FOperations.FOperation item)
         {
@@ -488,7 +498,34 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
             Agent.Context.System.EventStream.Publish(@event: pub);
         }
 
-#endregion
+        private void JobToStabilityManager(List<IConfirmations.IConfirmation> jobs, Process process)
+        {
+            foreach (var job in jobs)
+            {
+                int position = _jobInProgress.GetTotalOperationsOfJobInProgress + ((TimeConstraintQueue)_scopeQueue).IndexOfKey(job.ScopeConfirmation.GetScopeStart());
+                AddToStabilityManager(job, position, process);
+            }
+        }
+        private void AddToStabilityManager(IConfirmations.IConfirmation job, int position, Process process)
+        {
+            if (_resourceType != ResourceType.Workcenter)
+                return;
+
+            var operationKeys = ((FBucket)job.Job).Operations.Select(o => o.Key.ToString()).ToList();
+            var pub = new FCreateStabilityMeasurements.FCreateStabilityMeasurement(
+                keys: operationKeys
+                , time: Agent.CurrentTime
+                , position: position
+                , resource: Agent.Name.ToString()
+                , start: job.ScopeConfirmation.GetScopeStart()
+                , process: process.ToString()
+                ); 
+
+            Agent.Context.System.EventStream.Publish(@event: pub);
+
+        }
+
+        #endregion
 
     }
 }

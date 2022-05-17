@@ -16,6 +16,7 @@
         Ooe,
         CapabilityIdle,
         ComputationalTime,
+        Stability,
         AverageResult = 999
     }
 }

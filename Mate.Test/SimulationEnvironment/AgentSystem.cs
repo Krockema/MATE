@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using Mate.DataCore.Nominal;
 using Mate.DataCore.Nominal.Model;
 using Mate.Production.CLI;
 using Mate.Production.Core;
+using Mate.Production.Core.Agents.CollectorAgent.Types;
 using Mate.Production.Core.Environment.Options;
 using Mate.Production.Core.Helper;
 using Microsoft.EntityFrameworkCore;
@@ -104,6 +106,14 @@ namespace Mate.Test.SimulationEnvironment
                 }
             }
 
+        }
+
+        [Fact]
+        public void TestStatistics()
+        {
+            StabilityManager.Instance.ReadFile();
+
+            Assert.True(true, "yes");
         }
 
         // [Fact(Skip = "MANUAL USE ONLY --> to reset Remote DB")]
@@ -215,28 +225,30 @@ namespace Mate.Test.SimulationEnvironment
         
         [Theory]
         //[InlineData(SimulationType.Default, 1700, 0.00)]
-        [InlineData(SimulationType.Default, 1705, 0.05)]
-        [InlineData(SimulationType.Default, 1710, 0.10)]
-        [InlineData(SimulationType.Default, 1715, 0.15)]
-        //[InlineData(SimulationType.Default, 1720, 0.20)]
-        [InlineData(SimulationType.Default, 1725, 0.25)]
-        [InlineData(SimulationType.Default, 1730, 0.30)]
-        [InlineData(SimulationType.Default, 1735, 0.35)]
-        [InlineData(SimulationType.Central, 2700, 0.00)]
-        [InlineData(SimulationType.Central, 2705, 0.05)]
-        [InlineData(SimulationType.Central, 2710, 0.10)]
-        [InlineData(SimulationType.Central, 2715, 0.15)]
-        [InlineData(SimulationType.Central, 2720, 0.20)]
-        [InlineData(SimulationType.Central, 2725, 0.25)]
-        [InlineData(SimulationType.Central, 2730, 0.30)]
-        [InlineData(SimulationType.Central, 2735, 0.35)]
+        //[InlineData(SimulationType.Default, 11, 0.00)]
+        //[InlineData(SimulationType.Default, 12, 0.05)]
+        //[InlineData(SimulationType.Default, 13, 0.10)]
+        //[InlineData(SimulationType.Default, 14, 0.15)]
+        //[InlineData(SimulationType.Default, 15, 0.20)]
+        //[InlineData(SimulationType.Default, 16, 0.25)]
+        //[InlineData(SimulationType.Default, 17, 0.30)]
+        //[InlineData(SimulationType.Default, 18, 0.35)]
+
+        //[InlineData(SimulationType.Central, 21, 0.00)]
+        //[InlineData(SimulationType.Central, 22, 0.05)]
+        //[InlineData(SimulationType.Central, 23, 0.10)]
+        [InlineData(SimulationType.Central, 24, 0.15)]
+        //[InlineData(SimulationType.Central, 25, 0.20)]
+        //[InlineData(SimulationType.Central, 26, 0.25)]
+        //[InlineData(SimulationType.Central, 27, 0.30)]
+        [InlineData(SimulationType.Central, 28, 0.35)]
         public async Task AgentSystemTest(SimulationType simulationType, int simNr, double deviation)
         {
-            //var simNr = 2;
+            //var simNr = Random.Shared.Next();
             //var simulationType = SimulationType.Default;
             var seed = 169;
             var throughput = 1920;
-            var arrivalRate = 0.035;
+            var arrivalRate = 0.030;
 
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
@@ -257,7 +269,7 @@ namespace Mate.Test.SimulationEnvironment
             //dbResult.DbContext.Database.EnsureDeleted();
             //dbResult.DbContext.Database.EnsureCreated();
             //ResultDBInitializerBasic.DbInitialize(dbResult.DbContext);
-
+            
             seedInitializer.GenerateTestData(TestMateDb);
             
             //dbMaster.DbContext.Database.EnsureDeleted();
@@ -310,7 +322,7 @@ namespace Mate.Test.SimulationEnvironment
                 ganttPlanContext.DbContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
 
                 //Synchronisation GanttPlan
-                GanttPlanOptRunner.RunOptAndExport("Init", "C:\\Users\\admin\\GANTTPLAN\\GanttPlanOptRunner.exe");
+                GanttPlanOptRunner.RunOptAndExport("Init", "D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe");
 
                 simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new ConsoleHub());
 
@@ -364,7 +376,6 @@ namespace Mate.Test.SimulationEnvironment
                 _ctxResult.SaveChanges();
             }
         }
-
 
         [Fact]
         private void TestDbms()

@@ -11,12 +11,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AkkaSim" Version="0.6.0" />
     <PackageReference Include="Mate.DataCore.GanttPlanApi" Version="1.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\AkkaSim\AkkaSim\AkkaSim.csproj" />
     <ProjectReference Include="..\Mate.DataCore\Mate.DataCore.csproj" />
     <ProjectReference Include="..\Mate.Production.Immutables\Mate.Production.Immutables.fsproj" />
   </ItemGroup>

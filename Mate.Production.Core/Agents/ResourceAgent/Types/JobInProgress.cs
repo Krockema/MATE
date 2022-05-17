@@ -24,8 +24,9 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
         public bool IsWorking {get; private set; } = false;
         private Queue<FOperation> _finalOperations { get; set; } = new Queue<FOperation>();
         public bool ResetIsWorking() => IsWorking = false;
+        public int HasCurrent=> Current != null ? 1 : 0;
 
-    #region Passthrough Properties
+        #region Passthrough Properties
         public long JobDuration => Current.Job.Duration;
         public long JobMaxDuration => ((FBucket) Current.Job).MaxBucketSize;
         public int ResourceCapabilityId => Current.CapabilityProvider.ResourceCapabilityId;
@@ -38,6 +39,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
         public List<IConfirmation> GanttItems => this.ReadyElements.Values.ToList();
         public bool IsCurrentDelayed(long currentTime) => Current.ScopeConfirmation.GetScopeStart() < currentTime;
         public M_ResourceCapabilityProvider CapabilityProvider => Current.CapabilityProvider;
+        public int GetTotalOperationsOfJobInProgress => ReadyElements.Count + HasCurrent;
         #endregion
 
         public void StartProcessing(long currentTime, long duration)
@@ -101,19 +103,28 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
             _finalOperations = new ();
         }
 
-        public IConfirmation RevokeJob(Guid confirmationKey)
+        public (int, IConfirmation) RevokeJob(Guid confirmationKey)
         {
             if (IsSet && Current.Key.Equals(confirmationKey))
             {
                 var rev = Current;
                 Reset();
-                return rev;
+                return (0, rev);
             }
 
             var (key, revoked) = ReadyElements.FirstOrDefault(x => x.Value.Key.Equals(confirmationKey));
-            if (revoked == null) return null;
+            if (revoked == null) return (0, null);
             ReadyElements.Remove(key);
-            return revoked;
+            return (JobPosition(revoked), revoked);
+        }
+
+        public int JobPosition(IConfirmation job)
+        {
+            var position = 0;
+            if (IsSet) 
+                position = position + 1;
+            position = position + ReadyElements.IndexOfKey(job.ScopeConfirmation.GetScopeStart());
+            return position;
         }
 
         public void Add(IConfirmation confirmation)

@@ -21,8 +21,6 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         }
         internal CapabilityManager _capabilityManager { get; set; } = new CapabilityManager();
         internal ProposalManager _proposalManager { get; set; } = new ProposalManager();
-
-        internal StabilityManager _stabilityManager { get; set; } = new StabilityManager();
         private BucketManager _bucketManager { get; }
         private WorkTimeGenerator _workTimeGenerator { get; }
         public override bool Action(object message)
