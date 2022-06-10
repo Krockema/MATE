@@ -99,6 +99,8 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         private void CreateStabilityMeasurements(FCreateStabilityMeasurement m)
         {
+            StabilityManager.Instance.AddEntryForOperation(operationKey: m.Keys.First(), time: m.Time, position: m.Position, resource: m.Resource, start: m.Start, process: m.Process);
+
             StabilityManager.Instance.AddEntryForBucket(m.Keys, time: m.Time, position: m.Position, resource: m.Resource, start: m.Start, process: m.Process);
         }
 
@@ -205,12 +207,11 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         private void WriteOperationKeys(bool finalCall)
         {
-            if (finalCall)
+            if (finalCall && StabilityManager.Instance.HasEntries)
             {
-                var keyValueDic =  StabilityManager.Instance.DoSomeStatistics(Collector.Config.GetOption<SimulationNumber>().Value, Collector.Config.GetOption<SimulationKind>().Value);
-
-                Collector.Kpis.AddRange(keyValueDic);
                 //StabilityManager.Instance.WriteFile(Collector.Config.GetOption<SimulationNumber>().Value);
+                var keyValueDic =  StabilityManager.Instance.DoSomeStatistics(Collector.Config.GetOption<SimulationNumber>().Value, Collector.Config.GetOption<SimulationKind>().Value);
+                Collector.Kpis.AddRange(keyValueDic);
             }
         }
 

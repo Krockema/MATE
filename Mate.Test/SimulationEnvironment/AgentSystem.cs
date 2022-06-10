@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Akka.TestKit.Xunit;
 using AkkaSim.Logging;
@@ -224,29 +225,28 @@ namespace Mate.Test.SimulationEnvironment
         //public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule, int simNr, int maxBucketSize, long throughput, int seed , ModelSize resourceModelSize, ModelSize setupModelSize, double arrivalRate, bool distributeSetupsExponentially, bool createMeasurements = false)
         
         [Theory]
-        //[InlineData(SimulationType.Default, 1700, 0.00)]
-        //[InlineData(SimulationType.Default, 11, 0.00)]
-        //[InlineData(SimulationType.Default, 12, 0.05)]
-        //[InlineData(SimulationType.Default, 13, 0.10)]
-        //[InlineData(SimulationType.Default, 14, 0.15)]
-        //[InlineData(SimulationType.Default, 15, 0.20)]
-        //[InlineData(SimulationType.Default, 16, 0.25)]
-        //[InlineData(SimulationType.Default, 17, 0.30)]
-        //[InlineData(SimulationType.Default, 18, 0.35)]
+        [InlineData(SimulationType.Queuing, 613, 0.05)]
+        //[InlineData(SimulationType.Default, 502, 0.10)]
+        //[InlineData(SimulationType.Default, 503, 0.15)]
+        //[InlineData(SimulationType.Default, 204, 0.10)]
+        //[InlineData(SimulationType.Default, 205, 0.10)]
+        //[InlineData(SimulationType.Default, 206, 0.10)]
+        //[InlineData(SimulationType.Default, 207, 0.10)]
+        //[InlineData(SimulationType.Default, 208, 0.10)]
 
-        //[InlineData(SimulationType.Central, 21, 0.00)]
-        //[InlineData(SimulationType.Central, 22, 0.05)]
-        //[InlineData(SimulationType.Central, 23, 0.10)]
-        [InlineData(SimulationType.Central, 24, 0.15)]
-        //[InlineData(SimulationType.Central, 25, 0.20)]
-        //[InlineData(SimulationType.Central, 26, 0.25)]
-        //[InlineData(SimulationType.Central, 27, 0.30)]
-        [InlineData(SimulationType.Central, 28, 0.35)]
+        //[InlineData(SimulationType.Central, 201, 0.00)]
+        //[InlineData(SimulationType.Central, 202, 0.05)]
+        //[InlineData(SimulationType.Central, 203, 0.10)]
+        //[InlineData(SimulationType.Central, 204, 0.15)]
+        //[InlineData(SimulationType.Central, 205, 0.20)]
+        //[InlineData(SimulationType.Central, 206, 0.25)]
+        //[InlineData(SimulationType.Central, 207, 0.30)]
+        //[InlineData(SimulationType.Central, 208, 0.35)]
         public async Task AgentSystemTest(SimulationType simulationType, int simNr, double deviation)
         {
             //var simNr = Random.Shared.Next();
             //var simulationType = SimulationType.Default;
-            var seed = 169;
+            var seed = simNr;
             var throughput = 1920;
             var arrivalRate = 0.030;
 
@@ -312,11 +312,7 @@ namespace Mate.Test.SimulationEnvironment
 
             BaseSimulation simContext = null;
 
-            if (simulationType == SimulationType.Default)
-            {
-                simContext = new AgentSimulation(TestMateDb, messageHub: new ConsoleHub());
-            }
-            else
+            if (simulationType == SimulationType.Central)
             {
                 var ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GP);
                 ganttPlanContext.DbContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
@@ -325,7 +321,10 @@ namespace Mate.Test.SimulationEnvironment
                 GanttPlanOptRunner.RunOptAndExport("Init", "D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe");
 
                 simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new ConsoleHub());
-
+            }
+            else
+            {
+                simContext = new AgentSimulation(TestMateDb, messageHub: new ConsoleHub());
             }
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);

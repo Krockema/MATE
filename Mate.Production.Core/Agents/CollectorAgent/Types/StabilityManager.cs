@@ -17,6 +17,8 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
 
         private Dictionary<string, List<OperationPosition>> OperationDictionary = new Dictionary<string, List<OperationPosition>>();
 
+        public bool HasEntries => OperationDictionary.Count > 0;
+
         public void AddEntryForBucket(List<string> keys, long time, int position, string resource, long start, string process)
         {
             foreach (var key in keys)
@@ -67,6 +69,8 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
 
             Dictionary<int, int> averagePosition = new();
 
+            Dictionary<int, List<double>> averageDistanctPosition = new();
+
             //Central
 
             foreach (KeyValuePair<string, List<OperationPosition>> entry in OperationDictionary)
@@ -82,14 +86,18 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
 
 
                     result++;
-                    averageList.Add(Math.Abs(actual.Start - next.Start));
+                    var distance = Math.Abs(actual.Start - next.Start);
+                    averageList.Add(distance);
+
                     if(averagePosition.TryGetValue(actual.Position, out var amount))
                     {
                         averagePosition[actual.Position] = amount+1;
+                        averageDistanctPosition[actual.Position].Add(distance);
                     }
                     else
                     {
                         averagePosition.Add(actual.Position, 1);
+                        averageDistanctPosition.Add(actual.Position, new List<double>() { distance});
                     }
 
 
@@ -106,13 +114,19 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
 
             keyValuePairs.Add(CreateKpi("RatioUselessReplan", Math.Round(((double)counter / (double)result) * 100, 2), simNum, simType));
             keyValuePairs.Add(CreateKpi("AverageTimeSpan", averageList.Average(), simNum, simType));
-            System.Diagnostics.Debug.WriteLine($"{counter} entries of {result}: {Math.Round(((double)counter/(double)result)*100,2)}%");
-            System.Diagnostics.Debug.WriteLine($"Average timespan change {averageList.Average()}");
+            //System.Diagnostics.Debug.WriteLine($"{counter} entries of {result}: {Math.Round(((double)counter/(double)result)*100,2)}%");
+            //System.Diagnostics.Debug.WriteLine($"Average timespan change {averageList.Average()}");
 
             foreach (var positon in averagePosition.OrderBy(x => x.Key))
             {
                 keyValuePairs.Add((CreateKpi($"Position: {positon.Key}", positon.Value, simNum, simType)));
-                System.Diagnostics.Debug.WriteLine($"Position: {positon.Key} | {positon.Value}");
+                //System.Diagnostics.Debug.WriteLine($"Position: {positon.Key} | {positon.Value}");
+            }
+
+            foreach (var distance in averageDistanctPosition.OrderBy(x => x.Key))
+            {
+                keyValuePairs.Add((CreateKpi($"DistancePosition: {distance.Key}", distance.Value.Average(), simNum, simType)));
+                //System.Diagnostics.Debug.WriteLine($"DIstancePosition: {distance.Key} | {distance.Value.Average()}");
             }
 
             return keyValuePairs;

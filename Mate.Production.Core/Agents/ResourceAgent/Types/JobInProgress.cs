@@ -6,6 +6,7 @@ using Mate.DataCore.DataModel;
 using static FBuckets;
 using static FOperations;
 using static IConfirmations;
+using static IJobs;
 
 namespace Mate.Production.Core.Agents.ResourceAgent.Types
 {
@@ -39,7 +40,78 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
         public List<IConfirmation> GanttItems => this.ReadyElements.Values.ToList();
         public bool IsCurrentDelayed(long currentTime) => Current.ScopeConfirmation.GetScopeStart() < currentTime;
         public M_ResourceCapabilityProvider CapabilityProvider => Current.CapabilityProvider;
-        public int GetTotalOperationsOfJobInProgress => ReadyElements.Count + HasCurrent;
+        public int GetTotalOperationsOfJobInProgress()
+        {
+            int operations = 0;
+            int durationOperations = 0;
+            if (ReadyElements.Count > 0)
+            {
+                foreach (var element in ReadyElements)
+                {
+                    operations += ((FBucket)element.Value.Job).Operations.Count();
+                }
+            }
+            if(HasCurrent == 1)
+            {
+                operations += ((FBucket)Current.Job).Operations.Count();
+            }
+
+            return operations;
+        }
+
+        public (int, int) GetTotalOperationsOfJobInProgress(Guid operationId, long currentTime)
+        {
+            int operations = 0;
+            int durationOperations = 0;
+            IJob operation = null;
+
+            if (HasCurrent == 1)
+                operation = ((FBucket)Current.Job).Operations.SingleOrDefault(x => x.Key.Equals(operationId)) as IJob;
+            
+            //Wenn es in dem aktuellen Element ist
+            if (operation != null)
+            {
+                var jobPrio = operation.Priority(currentTime);
+                operations += ((FBucket)Current.Job).Operations.Count(x => ((IJob)x).Priority(currentTime) < jobPrio);
+                durationOperations += ((FBucket)Current.Job).Operations.Where(x => ((IJob)x).Priority(currentTime) < jobPrio).Sum(y => y.Operation.Duration);
+            }
+            //Ansonsten, wenn es in den ReadyElementen ist
+            else
+            {
+                if (HasCurrent == 1)
+                {
+                    operations += ((FBucket)Current.Job).Operations.Count();
+                }
+                IJob element = null;
+                for (int i = 0; i < ReadyElements.Count(); i++)
+                {
+                    //Gehe solange über die Liste, bis du das Element in den Operationen gefunden hast
+                    while(element == null)
+                    {
+                        element = ((FBucket)ReadyElements[i].Job).Operations.SingleOrDefault(x => x.Key.Equals(operationId));
+
+                        //Wenn das Element noch nicht in der Liste ist, nimm alle Operationen aus dieser Liste
+                        if (element == null)
+                        { 
+                            operations += ((FBucket)ReadyElements[i].Job).Operations.Count();
+                            continue;
+                        }
+
+                        var jobPrio = element.Priority(currentTime);
+                        operations += ((FBucket)ReadyElements[i].Job).Operations.Count(x => ((IJob)x).Priority(currentTime) < jobPrio);
+                        durationOperations += ((FBucket)ReadyElements[i].Job).Operations.Where(x => ((IJob)x).Priority(currentTime) < jobPrio).Sum(y => y.Operation.Duration);
+
+                    }
+
+                }
+
+            }
+
+            return (durationOperations, operations);
+        }
+
+
+
         #endregion
 
         public void StartProcessing(long currentTime, long duration)
@@ -122,7 +194,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
         {
             var position = 0;
             if (IsSet) 
-                position = position + 1;
+                position = position + ((FBucket)Current.Job).Operations.Count();
             position = position + ReadyElements.IndexOfKey(job.ScopeConfirmation.GetScopeStart());
             return position;
         }

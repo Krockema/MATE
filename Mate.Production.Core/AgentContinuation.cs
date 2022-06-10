@@ -53,7 +53,7 @@ namespace Mate.Production.Core
             foreach (var item in _collectorRefs)
             {
                 item.Ask(message: UpdateLiveFeed.Create(setup: true, target: _inbox.Receiver)
-                       , timeout: TimeSpan.FromHours(value: 1)).Wait();
+                       , timeout: TimeSpan.FromMinutes(value: 5)).Wait();
             }
             sim.ActorSystem.Terminate().Wait();
             _logger.Log(LogLevel.Info, $"Simulation run for { sim.ActorSystem.Uptime } and ended!");
