@@ -246,7 +246,7 @@ namespace Mate.Test.SimulationEnvironment
         {
             //var simNr = Random.Shared.Next();
             //var simulationType = SimulationType.Default;
-            var seed = simNr;
+            var seed = 169;
             var throughput = 1920;
             var arrivalRate = 0.035;
 
