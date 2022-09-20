@@ -25,7 +25,7 @@ namespace Mate.DataCore.Data.Seed
                     ToolCount = resourceConfig.GetToolsFor(i).Count, 
                     ResourceCount = (int)resourceConfig.ResourceGroupList[i].ResourceQuantity, 
                     SetupTime = (int)resourceConfig.GetMeanSetupDurationFor(i, 0).TotalMinutes,
-                    OperatorCount = 2, 
+                    OperatorCount = 1, 
                     IsBatchAble = false
                 });
             

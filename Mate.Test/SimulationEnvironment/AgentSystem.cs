@@ -225,7 +225,7 @@ namespace Mate.Test.SimulationEnvironment
         //public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule, int simNr, int maxBucketSize, long throughput, int seed , ModelSize resourceModelSize, ModelSize setupModelSize, double arrivalRate, bool distributeSetupsExponentially, bool createMeasurements = false)
         
         [Theory]
-        [InlineData(SimulationType.Queuing, 613, 0.05)]
+        //[InlineData(SimulationType.Queuing, 613, 0.05)]
         //[InlineData(SimulationType.Default, 502, 0.10)]
         //[InlineData(SimulationType.Default, 503, 0.15)]
         //[InlineData(SimulationType.Default, 204, 0.10)]
@@ -234,21 +234,21 @@ namespace Mate.Test.SimulationEnvironment
         //[InlineData(SimulationType.Default, 207, 0.10)]
         //[InlineData(SimulationType.Default, 208, 0.10)]
 
-        //[InlineData(SimulationType.Central, 201, 0.00)]
-        //[InlineData(SimulationType.Central, 202, 0.05)]
-        //[InlineData(SimulationType.Central, 203, 0.10)]
-        //[InlineData(SimulationType.Central, 204, 0.15)]
-        //[InlineData(SimulationType.Central, 205, 0.20)]
-        //[InlineData(SimulationType.Central, 206, 0.25)]
-        //[InlineData(SimulationType.Central, 207, 0.30)]
-        //[InlineData(SimulationType.Central, 208, 0.35)]
+        [InlineData(SimulationType.Queuing, 221, 0.00)]
+        [InlineData(SimulationType.Queuing, 222, 0.05)]
+        [InlineData(SimulationType.Queuing, 223, 0.10)]
+        [InlineData(SimulationType.Queuing, 224, 0.15)]
+        [InlineData(SimulationType.Queuing, 225, 0.20)]
+        [InlineData(SimulationType.Queuing, 226, 0.25)]
+        [InlineData(SimulationType.Queuing, 227, 0.30)]
+        [InlineData(SimulationType.Queuing, 228, 0.35)]
         public async Task AgentSystemTest(SimulationType simulationType, int simNr, double deviation)
         {
             //var simNr = Random.Shared.Next();
             //var simulationType = SimulationType.Default;
             var seed = simNr;
             var throughput = 1920;
-            var arrivalRate = 0.030;
+            var arrivalRate = 0.035;
 
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
