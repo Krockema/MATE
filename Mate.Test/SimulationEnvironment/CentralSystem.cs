@@ -237,10 +237,16 @@ namespace Mate.Test.SimulationEnvironment
         [Fact]
         public void GenerateRandomLogNormal()
         {
-            var _distribution = new LogNormal(mu: 2.5, sigma: 0.2);
+            var _sourceRandom = new Random(Seed: 169
+                                         //TODO WARUM?
+                                         //+ simNumber
+                                         );
+
+            var sampler = LogNormal.WithMeanVariance(10, 10 * 0.2, _sourceRandom);
             for (int i = 0; i < 10000; i++)
             {
-                System.Diagnostics.Debug.WriteLine(_distribution.Sample());
+                
+                System.Diagnostics.Debug.WriteLine(Math.Round(sampler.Sample()));
                 
             }
         }

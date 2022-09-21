@@ -42,7 +42,7 @@ namespace Mate.Production.Core.Helper.DistributionProvider
             long newDuration;
             while (true)
             {
-                newDuration = (long)LogNormal.WithMeanVariance(duration, duration * _deviation, _sourceRandom).Sample();
+                newDuration = (long)Math.Round(LogNormal.WithMeanVariance(duration, duration * _deviation, _sourceRandom).Sample());
 
                 //newDuration = (long)Math.Round(value: duration * _distribution.Sample(), mode: MidpointRounding.AwayFromZero);
                 if (newDuration <= 3 * duration) break;
