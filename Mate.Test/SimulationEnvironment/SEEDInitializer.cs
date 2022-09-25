@@ -35,8 +35,9 @@ namespace Mate.Test.SimulationEnvironment
                 StructureParameter = new StructureParameter() {
                     ComplexityRatio = 1.9,
                     ReuseRatio = 1.3,
-                    NumberOfSalesMaterials = 100, 
-                    VerticalIntegration = 4
+                    NumberOfSalesMaterials = 100,
+                    VerticalIntegration = 4,
+                    // Seed = 3
                 },
                 TransitionMatrixParameter = new TransitionMatrixParameter() { 
                     Lambda = 2,
