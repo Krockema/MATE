@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
 using Mate.DataCore.Nominal;
+using Mate.Production.Core.Agents.CollectorAgent.Types;
 using Mate.Production.Core.Agents.HubAgent.Types;
 using Mate.Production.Core.Agents.HubAgent.Types.Queuing;
 using Mate.Production.Core.Agents.ResourceAgent;
@@ -89,10 +91,36 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             operation.UpdateHubAgent(hub: Agent.Context.Self);
 
+            //Dequeue behind the new jobs prio
+
+            (var followingJobs, var counterPreviousJobs , var durationPreviousJobs) = _jobManager.GetPostionOfJob(job, Agent.CurrentTime);
+            
+            foreach (var followingJob in followingJobs.OrderBy(x => x.Priority(Agent.CurrentTime)))
+            {
+                if (followingJobs.Count() == 0)
+                    break;
+
+                if (followingJob.Key.Equals(job.Key))
+                    continue;
+
+                AddToStabilityManager(followingJob.Key, durationPreviousJobs, counterPreviousJobs, String.Empty, Process.Dequeue);
+                
+                AddToStabilityManager(followingJob.Key, durationPreviousJobs + operation.Operation.Duration, counterPreviousJobs + 1, String.Empty, Process.Enqueue);
+
+                //add current job to counters for next jobs in followingjobs
+                counterPreviousJobs += 1;
+                durationPreviousJobs += followingJob.Duration;
+
+            }
+
             _jobManager.SetJob(job, Agent.CurrentTime);
+
+            //Enqueue behing the new jobs prio
 
             StartNext();
         }
+
+
 
         private void StartNext()
         {
@@ -225,9 +253,22 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         {
             var jobQueue = _jobManager.GetActiveJob(queueKey);
 
+            //var fristJobInQueue = jobQueue.Peek(Agent.CurrentTime);
+            //
+            //foreach (var rescheduledJob in jobQueue.JobQueue)
+            //{
+            //    if (rescheduledJob.Key.Equals(job.Key))
+            //        continue;
+            //    var jobpostion = _jobManager.GetPositionFromActiveJob(jobQueue, job, Agent.CurrentTime);
+            //    AddToStabilityManager(rescheduledJob.Key, jobpostion.Item1, jobpostion.Item2, String.Empty, Process.Dequeue);
+            //
+            //    AddToStabilityManager(rescheduledJob.Key, jobpostion.Item1 - fristJobInQueue.Duration, jobpostion.Item2 - 1, String.Empty, Process.Enqueue);
+            //}
             var nextJob = jobQueue.Dequeue(Agent.CurrentTime);
+
+            var operation = nextJob as FOperation;
             
-            var randomizedDuration = _workTimeGenerator.GetRandomWorkTime(nextJob.Duration);
+            var randomizedDuration = _workTimeGenerator.GetRandomWorkTime(nextJob.Duration, (operation.ProductionAgent.GetHashCode() + operation.Operation.HierarchyNumber).GetHashCode());
 
             Agent.DebugMessage($"Start DoWork for {jobQueue.QueueId} with job {nextJob.Name} and randomized duration of {randomizedDuration}");
 
@@ -248,6 +289,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                     capabilityProvider: jobQueue.ResourceCapabilityProvider,
                     jobType: JobType.OPERATION
                     );
+
 
                 Agent.Send(Resource.Instruction.Queuing.DoJob.Create(fQueuingJob, (IActorRef)resource.IResourceRef));
             }
@@ -334,6 +376,23 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             Agent.Send(BasicInstruction.FinishJob.Create(fOperationResult, job.ProductionAgent));
         }
+
+        private void AddToStabilityManager(Guid key, long scopeStart, int position, string resource, Process process)
+        {
+            var operationKeys = new List<string>() { key.ToString() };
+            var pub = new FCreateStabilityMeasurements.FCreateStabilityMeasurement(
+                keys: operationKeys
+                , time: Agent.CurrentTime
+                , position: position
+                , resource: resource
+                , start: scopeStart
+                , process: process.ToString()
+                );
+
+            Agent.Context.System.EventStream.Publish(@event: pub);
+
+        }
+
     }
-    
+
 }

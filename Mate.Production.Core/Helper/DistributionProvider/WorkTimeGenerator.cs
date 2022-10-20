@@ -49,5 +49,23 @@ namespace Mate.Production.Core.Helper.DistributionProvider
             }
             return newDuration > 1 ? newDuration : 1;
         }
+
+        public long GetRandomWorkTime(long duration, int hash)
+        {
+            if (_deviation == 0.0)
+                return duration;
+
+            _sourceRandom = new Random(Seed: hash );
+
+            long newDuration;
+            while (true)
+            {
+                newDuration = (long)Math.Round(LogNormal.WithMeanVariance(duration, duration * _deviation, _sourceRandom).Sample());
+
+                //newDuration = (long)Math.Round(value: duration * _distribution.Sample(), mode: MidpointRounding.AwayFromZero);
+                if (newDuration <= 3 * duration) break;
+            }
+            return newDuration > 1 ? newDuration : 1;
+        }
     }
 }

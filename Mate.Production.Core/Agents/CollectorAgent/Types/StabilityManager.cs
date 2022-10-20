@@ -101,7 +101,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
                     }
 
 
-                    if (next.Position.Equals(actual.Position) && next.Resource.Equals(actual.Resource))
+                    if ((actual.Resource.Equals(String.Empty) || next.Resource.Equals(String.Empty)) || next.Position.Equals(actual.Position) && next.Resource.Equals(actual.Resource))
                         counter++;
 
                     // wieviele Jobs haben tatsächlich die Maschine gewechselt?
@@ -114,8 +114,8 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
 
             keyValuePairs.Add(CreateKpi("RatioUselessReplan", Math.Round(((double)counter / (double)result) * 100, 2), simNum, simType));
             keyValuePairs.Add(CreateKpi("AverageTimeSpan", averageList.Average(), simNum, simType));
-            //System.Diagnostics.Debug.WriteLine($"{counter} entries of {result}: {Math.Round(((double)counter/(double)result)*100,2)}%");
-            //System.Diagnostics.Debug.WriteLine($"Average timespan change {averageList.Average()}");
+            System.Diagnostics.Debug.WriteLine($"{counter} entries of {result}: {Math.Round(((double)counter/(double)result)*100,2)}%");
+            System.Diagnostics.Debug.WriteLine($"Average timespan change {averageList.Average()}");
 
             foreach (var positon in averagePosition.OrderBy(x => x.Key))
             {

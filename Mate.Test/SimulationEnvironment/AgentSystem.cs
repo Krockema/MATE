@@ -10,6 +10,7 @@ using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Helper;
 using Mate.DataCore.Data.Helper.Types;
 using Mate.DataCore.Data.Initializer;
+using Mate.DataCore.Data.WrappersForPrimitives;
 using Mate.DataCore.DataModel;
 using Mate.DataCore.GanttPlan;
 using Mate.DataCore.Nominal;
@@ -19,6 +20,7 @@ using Mate.Production.Core;
 using Mate.Production.Core.Agents.CollectorAgent.Types;
 using Mate.Production.Core.Environment.Options;
 using Mate.Production.Core.Helper;
+using MathNet.Numerics.Distributions;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using Xunit;
@@ -28,8 +30,6 @@ namespace Mate.Test.SimulationEnvironment
 {
     public class AgentSystem : TestKit, IClassFixture<SeedInitializer>
     {
-        private SeedInitializer seedInitializer = new SeedInitializer();
-
         private readonly string TestMateDb = "Test" + DataBaseConfiguration.MateDb;
         private readonly string TestMateResultDb = "Test" + DataBaseConfiguration.MateResultDb;
 
@@ -164,6 +164,28 @@ namespace Mate.Test.SimulationEnvironment
             }
 
         }
+
+        [Fact]
+        private void GeneratorForWorkdeviations()
+        {
+            string path = @"D:\Work\Stability\MyTest2.csv";
+            double _deviation = 0.2;
+            int duration = 10;
+            var listOfInts = new List<int>();
+            for (int i = 0; i < 100000; i++)
+            {
+
+                var _sourceRandom = new Random(Seed: Guid.NewGuid().GetHashCode());
+                listOfInts.Add((int)Math.Round(LogNormal.WithMeanVariance(duration, duration * _deviation, _sourceRandom).Sample()));
+
+            }
+
+            if (!System.IO.File.Exists(path))
+            {
+                System.IO.File.WriteAllLines(path, listOfInts.Select(x => string.Join(",", x)));
+            }
+
+        }
         
         private void GetSetups(M_Resource resource, MateProductionDb masterCtx)
         {
@@ -197,7 +219,7 @@ namespace Mate.Test.SimulationEnvironment
         public static IEnumerable<object[]> GetTestData()
         {
             var simNumber = 0;
-            var throughput = 1920;
+            var throughput = 10080;
 
             for (int i = 0; i < 1; i++)
             {
@@ -223,9 +245,9 @@ namespace Mate.Test.SimulationEnvironment
 
         //[MemberData(nameof(GetTestData))]
         //public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule, int simNr, int maxBucketSize, long throughput, int seed , ModelSize resourceModelSize, ModelSize setupModelSize, double arrivalRate, bool distributeSetupsExponentially, bool createMeasurements = false)
-        
+
         //[Theory]
-        //[InlineData(SimulationType.Queuing, 613, 0.05)]
+        //[InlineData(SimulationType.Queuing, 10, 0.20)]
         //[InlineData(SimulationType.Default, 502, 0.10)]
         //[InlineData(SimulationType.Default, 503, 0.15)]
         //[InlineData(SimulationType.Default, 204, 0.10)]
@@ -246,7 +268,7 @@ namespace Mate.Test.SimulationEnvironment
         //[InlineData(SimulationType.Queuing, 20004, 0.20)]
         //[InlineData(SimulationType.Default, 20005, 0.20)]
         //[InlineData(SimulationType.Default, 20001, 0.05)]
-        
+
         //[InlineData(SimulationType.Default, 33111, 0.00)]
         //[InlineData(SimulationType.Queuing, 20112, 0.00)]
         //[InlineData(SimulationType.Queuing, 20113, 0.00)]
@@ -310,47 +332,55 @@ namespace Mate.Test.SimulationEnvironment
         //[InlineData(SimulationType.Queuing, 23017, 0.30)]
         //[InlineData(SimulationType.Queuing, 23018, 0.30)]
         //
-        //[InlineData(SimulationType.Default, 33511, 0.35)]
-        //[InlineData(SimulationType.Queuing, 23512, 0.35)]
-        //[InlineData(SimulationType.Queuing, 23513, 0.35)]
-        //[InlineData(SimulationType.Queuing, 23514, 0.35)]
-        //[InlineData(SimulationType.Queuing, 23515, 0.35)]
+        [Theory]
+        [InlineData(SimulationType.Central, 2500, 0.00, 0.035)]
+        [InlineData(SimulationType.Central, 2505, 0.05, 0.035)]
+        [InlineData(SimulationType.Central, 2510, 0.10, 0.035)]
+        [InlineData(SimulationType.Central, 2515, 0.15, 0.035)]
+        [InlineData(SimulationType.Central, 2520, 0.20, 0.035)]
+        [InlineData(SimulationType.Central, 2525, 0.25, 0.035)]
+        [InlineData(SimulationType.Central, 2530, 0.30, 0.035)]
+        [InlineData(SimulationType.Central, 2535, 0.35, 0.035)]
+
+        //[InlineData(SimulationType.Default, 72, 2, 0.20, 0.0185)]
+        //[InlineData(SimulationType.Default, 74, 4, 0.20, 0.037)]
+        //[InlineData(SimulationType.Default, 76, 6, 0.20, 0.0555)]
+        //[InlineData(SimulationType.Default, 80, 8, 0.20, 0.074)]
         //[InlineData(SimulationType.Queuing, 23516, 0.35)]
         //[InlineData(SimulationType.Queuing, 23517, 0.35)]
         //[InlineData(SimulationType.Queuing, 23518, 0.35)]
 
-        public static IEnumerable<object[]> GetEvalData(SimulationType simulationType)
-        {
-            var simNumber = Convert.ToInt32(string.Concat((int)simulationType, "000"));
-            // central 1000
-            // default 3000 
-            // queue 4000 
-            var deviation = 0.0;
-            for (int i = 0; i < 8; i++)  // run from 0.0 to 0.35
-            {
-                for (int y = 0; y < 3; y++) // three runs each config
-                {
-                    yield return new object[]
-                    {
-                        simulationType, //simulationType
-                        simNumber++,
-                        deviation
-                    };
-                    simNumber++;
-                }
-                deviation += 0.05;
-                simNumber =  (int)Math.Round((decimal)simNumber / 10) * 10 + 100; // make simnumber jump 100
-            }
-        }
-        [Theory]
-        [MemberData(nameof(GetEvalData), SimulationType.Central)]
-        public async Task AgentSystemTest(SimulationType simulationType, int simNr, double deviation)
+        //public static IEnumerable<object[]> GetEvalData(SimulationType simulationType)
+        //{
+        //    var simNumber = 1000;
+        //    // central 1000
+        //    // default 3000 
+        //    // queue 4000 
+        //    var deviation = 0.0;
+        //    for (int i = 0; i < 8; i++)  // run from 0.0 to 0.35
+        //    {
+        //        for (int y = 0; y < 1; y++) // three runs each config
+        //        {
+        //            yield return new object[]
+        //            {
+        //                simulationType, //simulationType
+        //                simNumber++,
+        //                Math.Round(deviation,2)
+        //            };
+        //        }
+        //        deviation += 0.05;
+        //        simNumber =  (int)Math.Round((decimal)simNumber + 10) ; // make simnumber jump 100
+        //    }
+        //}
+        //[Theory]
+        //[MemberData(nameof(GetEvalData), SimulationType.Default)]
+        public async Task AgentSystemTest(SimulationType simulationType, int simNr, double deviation, double arrivalRateRun)
         {
             //var simNr = Random.Shared.Next();
             //var simulationType = SimulationType.Default;
             var seed = 169;
             var throughput = 10080;
-            var arrivalRate = 0.037;
+            var arrivalRate = arrivalRateRun;
 
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
@@ -371,8 +401,9 @@ namespace Mate.Test.SimulationEnvironment
             //dbResult.DbContext.Database.EnsureDeleted();
             //dbResult.DbContext.Database.EnsureCreated();
             //ResultDBInitializerBasic.DbInitialize(dbResult.DbContext);
-            
-            seedInitializer.GenerateTestData(TestMateDb);
+
+            SeedInitializer seedInitializer = new SeedInitializer();
+            seedInitializer.GenerateTestData(TestMateDb, machineCount: 4, toolCount: 6);
             
             //dbMaster.DbContext.Database.EnsureDeleted();
             //dbMaster.DbContext.Database.EnsureCreated();
@@ -400,10 +431,10 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new SettlingStart(value: 2880));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 10));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: 15));
-            simConfig.ReplaceOption(new SimulationEnd(value: 10080*3));
+            simConfig.ReplaceOption(new SimulationEnd(value: 10080 * 3));
             simConfig.ReplaceOption(new SaveToDB(value: true));
-            simConfig.ReplaceOption(new DebugSystem(value: false));
-            simConfig.ReplaceOption(new DebugAgents(value: false));
+            simConfig.ReplaceOption(new DebugSystem(value: true));
+            simConfig.ReplaceOption(new DebugAgents(value: true));
             simConfig.ReplaceOption(new WorkTimeDeviation(deviation));
             simConfig.ReplaceOption(new MaxBucketSize(value: 480 * 6 * 2)); // = schicht * setups * x
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));

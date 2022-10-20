@@ -25,9 +25,9 @@ namespace Mate.Test.SimulationEnvironment
         {
         }
 
-        public void GenerateTestData(string mateDbName)
+        public void GenerateTestData(string mateDbName, int machineCount, int toolCount)
         {
-            
+
             //Generate Config
             var seedConfig = new Configuration();
             var materialConfig = new MaterialConfig()
@@ -37,11 +37,11 @@ namespace Mate.Test.SimulationEnvironment
                     ReuseRatio = 1.3,
                     NumberOfSalesMaterials = 100,
                     VerticalIntegration = 4,
-                    // Seed = 3
+                    Seed = 5
                 },
-                TransitionMatrixParameter = new TransitionMatrixParameter() { 
+                TransitionMatrixParameter = new TransitionMatrixParameter() {
                     Lambda = 2,
-                    OrganizationalDegree = 0.7 
+                    OrganizationalDegree = 0.7
                 }
             };
 
@@ -50,50 +50,22 @@ namespace Mate.Test.SimulationEnvironment
 
 
             var rsSaw = new ResourceGroup("Saw")
-               .WithResourceuQuantity(4)
-               .WithTools(new List<ResourceTool> {
-                    new ResourceTool("Blade 4mm"),
-                    new ResourceTool("Blade 6mm"),
-                    new ResourceTool("Blade 8mm"),
-                    new ResourceTool("Blade 10mm"),
-                    new ResourceTool("Blade 12mm"),
-                    new ResourceTool("Blade 14mm")
-               });
+               .WithResourceuQuantity(machineCount)
+               .WithTools(GenerateTools(toolCount));
 
             var rsDrill = new ResourceGroup("Drill")
-                .WithResourceuQuantity(4)
-                .WithTools(new List<ResourceTool> {
-                    new ResourceTool("Blade 4mm"),
-                    new ResourceTool("Blade 6mm"),
-                    new ResourceTool("Blade 8mm"),
-                    new ResourceTool("Blade 10mm"),
-                    new ResourceTool("Blade 12mm"),
-                    new ResourceTool("Blade 14mm")
-                });
+                .WithResourceuQuantity(machineCount)
+                .WithTools(GenerateTools(toolCount));
 
             var rsAssembly = new ResourceGroup("Assembly")
-                .WithResourceuQuantity(4)
-                .WithTools(new List<ResourceTool> {
-                    new ResourceTool("Blade 4mm"),
-                    new ResourceTool("Blade 6mm"),
-                    new ResourceTool("Blade 8mm"),
-                    new ResourceTool("Blade 10mm"),
-                    new ResourceTool("Blade 12mm"),
-                    new ResourceTool("Blade 14mm")
-                });
+                .WithResourceuQuantity(machineCount)
+                .WithTools(GenerateTools(toolCount));
 
             var rsQuality = new ResourceGroup("Quality")
-                .WithResourceuQuantity(4)
-                .WithTools(new List<ResourceTool> {
-                    new ResourceTool("Blade 4mm"),
-                    new ResourceTool("Blade 6mm"),
-                    new ResourceTool("Blade 8mm"),
-                    new ResourceTool("Blade 10mm"),
-                    new ResourceTool("Blade 12mm"),
-                    new ResourceTool("Blade 14mm")
-                });
+                .WithResourceuQuantity(machineCount)
+                .WithTools(GenerateTools(toolCount));
 
-            var resourceConfig = new ResourceConfig().WithResourceGroup(new List<ResourceGroup> { rsSaw, rsDrill, rsAssembly, rsQuality})
+            var resourceConfig = new ResourceConfig().WithResourceGroup(new List<ResourceGroup> { rsSaw, rsDrill, rsAssembly, rsQuality })
                                                 .WithDefaultOperationsDurationMean(TimeSpan.FromMinutes(10))
                                                 .WithDefaultOperationsDurationVariance(0.20)
                                                 .WithDefaultSetupDurationMean(TimeSpan.FromMinutes(30))
@@ -137,5 +109,25 @@ namespace Mate.Test.SimulationEnvironment
 
         }
 
+
+        private List<ResourceTool> GenerateTools(int amount)
+        {
+            var listOfTools = new List<ResourceTool>();
+            var counter = 2;
+            
+
+            for (int i = 0; i < amount; i++)
+            {
+
+                var nameOfTool = "Blade" + counter.ToString() + "mm";
+                listOfTools.Add(new ResourceTool(nameOfTool));
+                counter += 2;
+            }
+
+
+            return listOfTools;
+
+        }
     }
+
 }

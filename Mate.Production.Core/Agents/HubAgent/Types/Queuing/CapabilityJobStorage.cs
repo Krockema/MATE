@@ -17,6 +17,15 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
 
         }
 
+        public JobQueue GetJobQueue(int requiredCapabilityId)
+        {
+            if (_jobStorage.TryGetValue(requiredCapabilityId, out var jobQueue))
+            {
+                return jobQueue;
+            }
+            return null;
+        }
+
         public void Add(IJob job, long currentTime)
         {
             if (_jobStorage.TryGetValue(job.RequiredCapability.Id, out var jobQueue))

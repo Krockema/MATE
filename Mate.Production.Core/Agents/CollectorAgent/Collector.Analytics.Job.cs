@@ -210,8 +210,8 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             if (finalCall && StabilityManager.Instance.HasEntries)
             {
                 //StabilityManager.Instance.WriteFile(Collector.Config.GetOption<SimulationNumber>().Value);
-                var keyValueDic =  StabilityManager.Instance.DoSomeStatistics(Collector.Config.GetOption<SimulationNumber>().Value, Collector.Config.GetOption<SimulationKind>().Value);
-                Collector.Kpis.AddRange(keyValueDic);
+                //var keyValueDic =  StabilityManager.Instance.DoSomeStatistics(Collector.Config.GetOption<SimulationNumber>().Value, Collector.Config.GetOption<SimulationKind>().Value);
+                //Collector.Kpis.AddRange(keyValueDic);
             }
         }
 

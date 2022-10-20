@@ -394,8 +394,9 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             //only randomize ActivityType "Operation"
             if (fActivity.ActivityId == 3)
-            { 
-                randomizedDuration = _workTimeGenerator.GetRandomWorkTime(fActivity.Duration);
+            {
+                
+                randomizedDuration = _workTimeGenerator.GetRandomWorkTime(fActivity.Duration, fActivity.Key.GetHashCode());
             }
 
             CreateSimulationJob(activity, Agent.CurrentTime, randomizedDuration, requiredCapability);
