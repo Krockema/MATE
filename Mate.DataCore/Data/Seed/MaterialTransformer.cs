@@ -13,6 +13,7 @@ namespace Mate.DataCore.Data.Seed
     public class MaterialTransformer
     {
         public static string BUSINESS_PARTNER_1 { get; private set; } = "BUSINESS_PARTNER_1";
+        public static string BUSINESS_PARTNER_2 { get; private set; } = "BUSINESS_PARTNER_2";
 
         public static void Transform(MateDb mateDb, Materials materials, DynamicInitializer.Tables.MasterTableResourceCapability masterTableCapabilities)
         {
@@ -87,7 +88,8 @@ namespace Mate.DataCore.Data.Seed
         {
             var businessPartners = new M_BusinessPartner[]
             {
-                new M_BusinessPartner() {Debitor = true, Kreditor = false, Name = BUSINESS_PARTNER_1}
+                new M_BusinessPartner() {Debitor = true, Kreditor = false, Name = BUSINESS_PARTNER_1},
+                new M_BusinessPartner() {Debitor = false, Kreditor = true, Name = BUSINESS_PARTNER_2}
             };
             mateDb.BusinessPartners.AddRange(businessPartners);
             mateDb.SaveChanges();
@@ -161,18 +163,18 @@ namespace Mate.DataCore.Data.Seed
                     {
                         ArticleForeignKey = article.Id,
                         Name = "Stock: " + article.Name,
-                        Min = article.ToPurchase ? 500 : 0,
+                        Min = article.ToPurchase ? 5000 : 0,
                         Max = 10000,
-                        Current = article.ToPurchase ? 1000 : 0,
-                        StartValue = article.ToPurchase ? 1000 : 0,
+                        Current = article.ToPurchase ? 10000 : 0,
+                        StartValue = article.ToPurchase ? 10000 : 0,
                     });
                 articleToBusinessPartners.Add(
                     new M_ArticleToBusinessPartner
                     {
                         BusinessPartnerId = businessPartners.Id,
                         ArticleId = article.Id,
-                        PackSize = 1000,
-                        Price = 1000 * article.Price,
+                        PackSize = 5000,
+                        Price = 5000 * article.Price,
                         TimeToDelivery = 1440
                     });
             }
