@@ -25,7 +25,8 @@ namespace Mate.Test.SimulationEnvironment
         {
         }
 
-        public void GenerateTestData(string mateDbName, int machineCount, int toolCount)
+        public void GenerateTestData(string mateDbName, int machineCount, int toolCount
+                                    , int seed, double reuseRatio, double complexityRatio, double organizationalDegree)
         {
 
             //Generate Config
@@ -33,15 +34,15 @@ namespace Mate.Test.SimulationEnvironment
             var materialConfig = new MaterialConfig()
             {
                 StructureParameter = new StructureParameter() {
-                    ComplexityRatio = 1.9,
-                    ReuseRatio = 1.3,
+                    ComplexityRatio = complexityRatio, // 1.9,
+                    ReuseRatio = reuseRatio, // 1.3,
                     NumberOfSalesMaterials = 100,
                     VerticalIntegration = 4,
-                    Seed = 5
+                    Seed = seed // 7
                 },
                 TransitionMatrixParameter = new TransitionMatrixParameter() {
                     Lambda = 2,
-                    OrganizationalDegree = 0.7
+                    OrganizationalDegree = organizationalDegree // 0.7
                 }
             };
 

@@ -246,140 +246,124 @@ namespace Mate.Test.SimulationEnvironment
         //[MemberData(nameof(GetTestData))]
         //public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule, int simNr, int maxBucketSize, long throughput, int seed , ModelSize resourceModelSize, ModelSize setupModelSize, double arrivalRate, bool distributeSetupsExponentially, bool createMeasurements = false)
 
-        //[Theory]
-        //[InlineData(SimulationType.Queuing, 10, 0.20)]
-        //[InlineData(SimulationType.Default, 502, 0.10)]
-        //[InlineData(SimulationType.Default, 503, 0.15)]
-        //[InlineData(SimulationType.Default, 204, 0.10)]
-        //[InlineData(SimulationType.Default, 205, 0.10)]
-        //[InlineData(SimulationType.Default, 206, 0.10)]
-        //[InlineData(SimulationType.Default, 207, 0.10)]
-        //[InlineData(SimulationType.Default, 208, 0.10)]
 
-        //[InlineData(SimulationType.Queuing, 10001, 0.00)]
-        //[InlineData(SimulationType.Queuing, 10002, 0.05)]
-        //[InlineData(SimulationType.Queuing, 10003, 0.10)]
-        //[InlineData(SimulationType.Queuing, 10004, 0.15)]
-        //[InlineData(SimulationType.Queuing, 10005, 0.20)]
-        //[InlineData(SimulationType.Queuing, 10006, 0.25)]
-        //[InlineData(SimulationType.Queuing, 10007, 0.30)]
-        //[InlineData(SimulationType.Queuing, 10008, 0.35)]
-
-        //[InlineData(SimulationType.Queuing, 20004, 0.20)]
-        //[InlineData(SimulationType.Default, 20005, 0.20)]
-        //[InlineData(SimulationType.Default, 20001, 0.05)]
-
-        //[InlineData(SimulationType.Default, 33111, 0.00)]
-        //[InlineData(SimulationType.Queuing, 20112, 0.00)]
-        //[InlineData(SimulationType.Queuing, 20113, 0.00)]
-        //[InlineData(SimulationType.Queuing, 20114, 0.00)]
-        //[InlineData(SimulationType.Queuing, 20115, 0.00)]
-        //[InlineData(SimulationType.Queuing, 20116, 0.00)]
-        //[InlineData(SimulationType.Queuing, 20117, 0.00)]
-        //[InlineData(SimulationType.Queuing, 20118, 0.00)]
-        //
-        //[InlineData(SimulationType.Default, 511, 0.05)]
-        //[InlineData(SimulationType.Queuing, 20512, 0.05)]
-        //[InlineData(SimulationType.Queuing, 20513, 0.05)]
-        //[InlineData(SimulationType.Queuing, 20514, 0.05)]
-        //[InlineData(SimulationType.Queuing, 20515, 0.05)]
-        //[InlineData(SimulationType.Queuing, 20516, 0.05)]
-        //[InlineData(SimulationType.Queuing, 20517, 0.05)]
-        //[InlineData(SimulationType.Queuing, 20518, 0.05)]
-        //
-        //[InlineData(SimulationType.Default, 1011, 0.10)]
-        //[InlineData(SimulationType.Queuing, 21012, 0.10)]
-        //[InlineData(SimulationType.Queuing, 21013, 0.10)]
-        //[InlineData(SimulationType.Queuing, 21014, 0.10)]
-        //[InlineData(SimulationType.Queuing, 21015, 0.10)]
-        //[InlineData(SimulationType.Queuing, 21016, 0.10)]
-        //[InlineData(SimulationType.Queuing, 21017, 0.10)]
-        //[InlineData(SimulationType.Queuing, 21018, 0.10)]
-        //
-        //[InlineData(SimulationType.Default, 1511, 0.15)]
-        //[InlineData(SimulationType.Queuing, 21512, 0.15)]
-        //[InlineData(SimulationType.Queuing, 21513, 0.15)]
-        //[InlineData(SimulationType.Queuing, 21514, 0.15)]
-        //[InlineData(SimulationType.Queuing, 21515, 0.15)]
-        //[InlineData(SimulationType.Queuing, 21516, 0.15)]
-        //[InlineData(SimulationType.Queuing, 21517, 0.15)]
-        //[InlineData(SimulationType.Queuing, 21518, 0.15)]
-        //
-        //[InlineData(SimulationType.Default, 2011, 0.20)]
-        //[InlineData(SimulationType.Queuing, 22012, 0.20)]
-        //[InlineData(SimulationType.Queuing, 22013, 0.20)]
-        //[InlineData(SimulationType.Queuing, 22014, 0.20)]
-        //[InlineData(SimulationType.Queuing, 22015, 0.20)]
-        //[InlineData(SimulationType.Queuing, 22016, 0.20)]
-        //[InlineData(SimulationType.Queuing, 22017, 0.20)]
-        //[InlineData(SimulationType.Queuing, 22018, 0.20)]
-        //
-        //[InlineData(SimulationType.Default, 2511, 0.25)]
-        //[InlineData(SimulationType.Queuing, 22512, 0.25)]
-        //[InlineData(SimulationType.Queuing, 22513, 0.25)]
-        //[InlineData(SimulationType.Queuing, 22514, 0.25)]
-        //[InlineData(SimulationType.Queuing, 22515, 0.25)]
-        //[InlineData(SimulationType.Queuing, 22516, 0.25)]
-        //[InlineData(SimulationType.Queuing, 22517, 0.25)]
-        //[InlineData(SimulationType.Queuing, 22518, 0.25)]
-        //
-        //[InlineData(SimulationType.Default, 3011, 0.30)]
-        //[InlineData(SimulationType.Queuing, 23012, 0.30)]
-        //[InlineData(SimulationType.Queuing, 23013, 0.30)]
-        //[InlineData(SimulationType.Queuing, 23014, 0.30)]
-        //[InlineData(SimulationType.Queuing, 23015, 0.30)]
-        //[InlineData(SimulationType.Queuing, 23016, 0.30)]
-        //[InlineData(SimulationType.Queuing, 23017, 0.30)]
-        //[InlineData(SimulationType.Queuing, 23018, 0.30)]
-        //
         [Theory]
-        [InlineData(SimulationType.Central, 2500, 0.00, 0.035)]
-        [InlineData(SimulationType.Central, 2505, 0.05, 0.035)]
-        [InlineData(SimulationType.Central, 2510, 0.10, 0.035)]
-        [InlineData(SimulationType.Central, 2515, 0.15, 0.035)]
-        [InlineData(SimulationType.Central, 2520, 0.20, 0.035)]
-        [InlineData(SimulationType.Central, 2525, 0.25, 0.035)]
-        [InlineData(SimulationType.Central, 2530, 0.30, 0.035)]
-        [InlineData(SimulationType.Central, 2535, 0.35, 0.035)]
+        // [x] [InlineData(SimulationType.Default, 110, 0.00, 0.035, 1337)] // throughput dynamic ruled
+        [InlineData(SimulationType.Default, 111, 0.00, 0.035, 169)]
+        [InlineData(SimulationType.Default, 112, 0.00, 0.035, 169)]
+        [InlineData(SimulationType.Default, 113, 0.00, 0.035, 169)]
+        [InlineData(SimulationType.Default, 114, 0.00, 0.035, 169)]
+        [InlineData(SimulationType.Default, 115, 0.00, 0.035, 169)]
+        [InlineData(SimulationType.Default, 116, 0.00, 0.035, 169)]
+        [InlineData(SimulationType.Default, 117, 0.00, 0.035, 169)]
+        [InlineData(SimulationType.Default, 118, 0.00, 0.035, 169)]
+        [InlineData(SimulationType.Default, 119, 0.00, 0.035, 169)]
+                                                              
+        [InlineData(SimulationType.Default, 121, 0.05, 0.035, 169)]
+        [InlineData(SimulationType.Default, 122, 0.05, 0.035, 169)]
+        [InlineData(SimulationType.Default, 123, 0.05, 0.035, 169)]
+        [InlineData(SimulationType.Default, 124, 0.05, 0.035, 169)]
+        [InlineData(SimulationType.Default, 125, 0.05, 0.035, 169)]
+        [InlineData(SimulationType.Default, 126, 0.05, 0.035, 169)]
+        [InlineData(SimulationType.Default, 127, 0.05, 0.035, 169)]
+        [InlineData(SimulationType.Default, 128, 0.05, 0.035, 169)]
+        [InlineData(SimulationType.Default, 129, 0.05, 0.035, 169)]
+                                                              
+        [InlineData(SimulationType.Default, 131, 0.10, 0.035, 169)]
+        [InlineData(SimulationType.Default, 141, 0.15, 0.035, 169)]
+        [InlineData(SimulationType.Default, 151, 0.20, 0.035, 169)]
+        [InlineData(SimulationType.Default, 161, 0.25, 0.035, 169)]
+        [InlineData(SimulationType.Default, 171, 0.30, 0.035, 169)]
+        [InlineData(SimulationType.Default, 181, 0.35, 0.035, 169)]
 
-        //[InlineData(SimulationType.Default, 72, 2, 0.20, 0.0185)]
-        //[InlineData(SimulationType.Default, 74, 4, 0.20, 0.037)]
-        //[InlineData(SimulationType.Default, 76, 6, 0.20, 0.0555)]
-        //[InlineData(SimulationType.Default, 80, 8, 0.20, 0.074)]
-        //[InlineData(SimulationType.Queuing, 23516, 0.35)]
-        //[InlineData(SimulationType.Queuing, 23517, 0.35)]
-        //[InlineData(SimulationType.Queuing, 23518, 0.35)]
+        [InlineData(SimulationType.Default, 1011, 0.00, 0.035, 169)]
+        [InlineData(SimulationType.Default, 1031, 0.10, 0.035, 169)]
+        [InlineData(SimulationType.Default, 1041, 0.15, 0.035, 169)]
+        [InlineData(SimulationType.Default, 1051, 0.20, 0.035, 169)]
+        [InlineData(SimulationType.Default, 1061, 0.25, 0.035, 169)]
+        [InlineData(SimulationType.Default, 1071, 0.30, 0.035, 169)]
+        [InlineData(SimulationType.Default, 1081, 0.35, 0.035, 169)]
 
-        //public static IEnumerable<object[]> GetEvalData(SimulationType simulationType)
-        //{
-        //    var simNumber = 1000;
-        //    // central 1000
-        //    // default 3000 
-        //    // queue 4000 
-        //    var deviation = 0.0;
-        //    for (int i = 0; i < 8; i++)  // run from 0.0 to 0.35
-        //    {
-        //        for (int y = 0; y < 1; y++) // three runs each config
-        //        {
-        //            yield return new object[]
-        //            {
-        //                simulationType, //simulationType
-        //                simNumber++,
-        //                Math.Round(deviation,2)
-        //            };
-        //        }
-        //        deviation += 0.05;
-        //        simNumber =  (int)Math.Round((decimal)simNumber + 10) ; // make simnumber jump 100
-        //    }
-        //}
-        //[Theory]
-        //[MemberData(nameof(GetEvalData), SimulationType.Default)]
-        public async Task AgentSystemTest(SimulationType simulationType, int simNr, double deviation, double arrivalRateRun)
+
+        [InlineData(SimulationType.Default, 10010, 0.20, 0.035, 169, 5, 5, 2, 0.0)]
+        [InlineData(SimulationType.Default, 10011, 0.20, 0.035, 169, 5, 5, 2, 0.1)]
+        [InlineData(SimulationType.Default, 10012, 0.20, 0.035, 169, 5, 5, 2, 0.2)]
+        [InlineData(SimulationType.Default, 10013, 0.20, 0.035, 169, 5, 5, 2, 0.3)]
+        [InlineData(SimulationType.Default, 10014, 0.20, 0.035, 169, 5, 5, 2, 0.4)]
+        [InlineData(SimulationType.Default, 10015, 0.20, 0.035, 169, 5, 5, 2, 0.5)]
+        [InlineData(SimulationType.Default, 10016, 0.20, 0.035, 169, 5, 5, 2, 0.6)]
+        [InlineData(SimulationType.Default, 10017, 0.20, 0.035, 169, 5, 5, 2, 0.7)]
+        [InlineData(SimulationType.Default, 10018, 0.20, 0.035, 169, 5, 5, 2, 0.8)]
+        [InlineData(SimulationType.Default, 10019, 0.20, 0.035, 169, 5, 5, 2, 0.9)]
+        [InlineData(SimulationType.Default, 10020, 0.20, 0.035, 169, 5, 5, 2, 1)]
+
+        [InlineData(SimulationType.Default, 10110, 0.20, 0.035, 169, 5, 1, 1.41, 0.0)]
+        [InlineData(SimulationType.Default, 10111, 0.20, 0.035, 169, 5, 1, 1.41, 0.1)]
+        [InlineData(SimulationType.Default, 10112, 0.20, 0.035, 169, 5, 1, 1.41, 0.2)]
+        [InlineData(SimulationType.Default, 10113, 0.20, 0.035, 169, 5, 1, 1.41, 0.3)]
+        [InlineData(SimulationType.Default, 10114, 0.20, 0.035, 169, 5, 1, 1.41, 0.4)]
+        [InlineData(SimulationType.Default, 10115, 0.20, 0.035, 169, 5, 1, 1.41, 0.5)]
+        [InlineData(SimulationType.Default, 10116, 0.20, 0.035, 169, 5, 1, 1.41, 0.6)]
+        [InlineData(SimulationType.Default, 10117, 0.20, 0.035, 169, 5, 1, 1.41, 0.7)]
+        [InlineData(SimulationType.Default, 10118, 0.20, 0.035, 169, 5, 1, 1.41, 0.8)]
+        [InlineData(SimulationType.Default, 10119, 0.20, 0.035, 169, 5, 1, 1.41, 0.9)]
+        [InlineData(SimulationType.Default, 10120, 0.20, 0.035, 169, 5, 1, 1.41, 1)]
+
+        [InlineData(SimulationType.Queuing, 20010, 0.20, 0.035, 169, 5, 5, 2, 0.0)]
+        [InlineData(SimulationType.Queuing, 20011, 0.20, 0.035, 169, 5, 5, 2, 0.1)]
+        [InlineData(SimulationType.Queuing, 20012, 0.20, 0.035, 169, 5, 5, 2, 0.2)]
+        [InlineData(SimulationType.Queuing, 20013, 0.20, 0.035, 169, 5, 5, 2, 0.3)]
+        [InlineData(SimulationType.Queuing, 20014, 0.20, 0.035, 169, 5, 5, 2, 0.4)]
+        [InlineData(SimulationType.Queuing, 20015, 0.20, 0.035, 169, 5, 5, 2, 0.5)]
+        [InlineData(SimulationType.Queuing, 20016, 0.20, 0.035, 169, 5, 5, 2, 0.6)]
+        [InlineData(SimulationType.Queuing, 20017, 0.20, 0.035, 169, 5, 5, 2, 0.7)]
+        [InlineData(SimulationType.Queuing, 20018, 0.20, 0.035, 169, 5, 5, 2, 0.8)]
+        [InlineData(SimulationType.Queuing, 20019, 0.20, 0.035, 169, 5, 5, 2, 0.9)]
+        [InlineData(SimulationType.Queuing, 20020, 0.20, 0.035, 169, 5, 5, 2, 1)]
+                                            
+        [InlineData(SimulationType.Queuing, 20110, 0.20, 0.035, 169, 5, 1, 1.41, 0.0)]
+        [InlineData(SimulationType.Queuing, 20111, 0.20, 0.035, 169, 5, 1, 1.41, 0.1)]
+        [InlineData(SimulationType.Queuing, 20112, 0.20, 0.035, 169, 5, 1, 1.41, 0.2)]
+        [InlineData(SimulationType.Queuing, 20113, 0.20, 0.035, 169, 5, 1, 1.41, 0.3)]
+        [InlineData(SimulationType.Queuing, 20114, 0.20, 0.035, 169, 5, 1, 1.41, 0.4)]
+        [InlineData(SimulationType.Queuing, 20115, 0.20, 0.035, 169, 5, 1, 1.41, 0.5)]
+        [InlineData(SimulationType.Queuing, 20116, 0.20, 0.035, 169, 5, 1, 1.41, 0.6)]
+        [InlineData(SimulationType.Queuing, 20117, 0.20, 0.035, 169, 5, 1, 1.41, 0.7)]
+        [InlineData(SimulationType.Queuing, 20118, 0.20, 0.035, 169, 5, 1, 1.41, 0.8)]
+        [InlineData(SimulationType.Queuing, 20119, 0.20, 0.035, 169, 5, 1, 1.41, 0.9)]
+        [InlineData(SimulationType.Queuing, 20120, 0.20, 0.035, 169, 5, 1, 1.41, 1)]
+
+        [InlineData(SimulationType.Central, 30010, 0.20, 0.035, 169, 5, 5, 2, 0.0)]
+        [InlineData(SimulationType.Central, 30011, 0.20, 0.035, 169, 5, 5, 2, 0.1)]
+        [InlineData(SimulationType.Central, 30012, 0.20, 0.035, 169, 5, 5, 2, 0.2)]
+        [InlineData(SimulationType.Central, 30013, 0.20, 0.035, 169, 5, 5, 2, 0.3)]
+        [InlineData(SimulationType.Central, 30014, 0.20, 0.035, 169, 5, 5, 2, 0.4)]
+        [InlineData(SimulationType.Central, 30015, 0.20, 0.035, 169, 5, 5, 2, 0.5)]
+        [InlineData(SimulationType.Central, 30016, 0.20, 0.035, 169, 5, 5, 2, 0.6)]
+        [InlineData(SimulationType.Central, 30017, 0.20, 0.035, 169, 5, 5, 2, 0.7)]
+        [InlineData(SimulationType.Central, 30018, 0.20, 0.035, 169, 5, 5, 2, 0.8)]
+        [InlineData(SimulationType.Central, 30019, 0.20, 0.035, 169, 5, 5, 2, 0.9)]
+        [InlineData(SimulationType.Central, 30020, 0.20, 0.035, 169, 5, 5, 2, 1)]
+                                            
+        [InlineData(SimulationType.Central, 30110, 0.20, 0.035, 169, 5, 1, 1.41, 0.0)]
+        [InlineData(SimulationType.Central, 30111, 0.20, 0.035, 169, 5, 1, 1.41, 0.1)]
+        [InlineData(SimulationType.Central, 30112, 0.20, 0.035, 169, 5, 1, 1.41, 0.2)]
+        [InlineData(SimulationType.Central, 30113, 0.20, 0.035, 169, 5, 1, 1.41, 0.3)]
+        [InlineData(SimulationType.Central, 30114, 0.20, 0.035, 169, 5, 1, 1.41, 0.4)]
+        [InlineData(SimulationType.Central, 30115, 0.20, 0.035, 169, 5, 1, 1.41, 0.5)]
+        [InlineData(SimulationType.Central, 30116, 0.20, 0.035, 169, 5, 1, 1.41, 0.6)]
+        [InlineData(SimulationType.Central, 30117, 0.20, 0.035, 169, 5, 1, 1.41, 0.7)]
+        [InlineData(SimulationType.Central, 30118, 0.20, 0.035, 169, 5, 1, 1.41, 0.8)]
+        [InlineData(SimulationType.Central, 30119, 0.20, 0.035, 169, 5, 1, 1.41, 0.9)]
+        [InlineData(SimulationType.Central, 30120, 0.20, 0.035, 169, 5, 1, 1.41, 1)]
+
+        public async Task AgentSystemTest(SimulationType simulationType, int simNr, double deviation, double arrivalRateRun, int seed
+            , int seedDataGen = 5, double reuse = 1.3, double complxity = 1.9, double organziationaldegree = 0.7)
         {
             //var simNr = Random.Shared.Next();
             //var simulationType = SimulationType.Default;
-            var seed = 169;
-            var throughput = 10080;
+            
+            var throughput = 1440 * 5;
             var arrivalRate = arrivalRateRun;
 
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
@@ -403,7 +387,11 @@ namespace Mate.Test.SimulationEnvironment
             //ResultDBInitializerBasic.DbInitialize(dbResult.DbContext);
 
             SeedInitializer seedInitializer = new SeedInitializer();
-            seedInitializer.GenerateTestData(TestMateDb, machineCount: 4, toolCount: 6);
+            seedInitializer.GenerateTestData(TestMateDb, machineCount: 4, toolCount: 6
+                                             , seed: seedDataGen
+                                             , reuseRatio: reuse
+                                             , complexityRatio: complxity
+                                             , organizationalDegree: organziationaldegree);
             
             //dbMaster.DbContext.Database.EnsureDeleted();
             //dbMaster.DbContext.Database.EnsureCreated();

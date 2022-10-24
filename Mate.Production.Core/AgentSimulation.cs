@@ -7,6 +7,8 @@ using Akka.Actor;
 using Akka.Event;
 using AkkaSim;
 using AkkaSim.SpecialActors;
+using Mate.DataCore.Data.Initializer.StoredProcedures;
+using Mate.DataCore.Data.WrappersForPrimitives;
 using Mate.DataCore.DataModel;
 using Mate.DataCore.Nominal.Model;
 using Mate.Production.Core.Agents;
@@ -16,6 +18,7 @@ using Mate.Production.Core.Agents.DirectoryAgent;
 using Mate.Production.Core.Agents.Guardian;
 using Mate.Production.Core.Agents.Guardian.Options;
 using Mate.Production.Core.Agents.HubAgent.Types.Central;
+using Mate.Production.Core.Agents.ProductionAgent;
 using Mate.Production.Core.Agents.SupervisorAgent;
 using Mate.Production.Core.Environment;
 using Mate.Production.Core.Environment.Options;
@@ -89,13 +92,24 @@ namespace Mate.Production.Core
             });
         }
 
+        private long GetCustomOrderTime(int productId)
+        {
+            return ArticleStatistics.DeliveryDateEstimator(productId, 10, DbProduction.DbContext);
+        } 
+
+
         private void CreateSupervisor(Configuration configuration)
         {
             var products = DbProduction.DbContext.GetProducts();
-            var initialTime = configuration.GetOption<EstimatedThroughPut>().Value;
+            // var initialTime = configuration.GetOption<EstimatedThroughPut>().Value;
 
-            var estimatedThroughPuts = products.Select(a => new FSetEstimatedThroughputTime(a.Id, initialTime, a.Name))
-                .ToList();
+            var estimatedThroughPuts = products.Select(a => new FSetEstimatedThroughputTime(a.Id
+                                , GetCustomOrderTime(a.Id)
+                                , a.Name))
+                                .ToList();
+
+
+
 
             var behave = Agents.SupervisorAgent.Behaviour.Factory.Default(
                                     dbNameProduction: DbProduction.DataBaseName.Value,
