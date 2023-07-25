@@ -8,6 +8,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
 {
     public class JobManager
     {
+        JobTracker _jobTracker = new ();
         private List<IJob> _pendingJobList { get; set; } = new List<IJob>();
         private CapabilityJobStorage _capabilityJobStorage { get; }
         private List<ActiveJobQueue> _activeJobList { get; } = new List<ActiveJobQueue>();
@@ -29,17 +30,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
             }
 
             _pendingJobList.Add(job);
-
-        }
-
-        public void Add(IJob job)
-        {
-            _pendingJobList.Add(job);
-        }
-
-        public List<JobQueue> GetNextJobQueues(long currentTime)
-        {
-            return _capabilityJobStorage.GetJobQueues(currentTime);
+            _jobTracker.Add(job, currentTime);
         }
 
         public List<JobQueue> GetAllJobQueues(long currentTime, List<int> availableCapabilities)
@@ -75,38 +66,13 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
             _capabilityJobStorage.Remove(jobQueue);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="job"></param>
-        /// <param name="currentTime"></param>
-        /// <returns>
-        /// List<Jobs> followingJobs</Jobs>
-        /// int counterPreviousJobs
-        /// long durationPreviousJobs
-        /// </returns>
-        public (List<IJob>, int, long) GetPostionOfJob(IJob job, long currentTime)
+        internal void RemoveFromJobTracker(IJob job, long time) {
+            _jobTracker.Remove(job, time);
+        }
+
+        internal void TrackJobs(long time)
         {
-            //int counterPreviousJobs = _activeJobList.Sum(x => x.JobQueue.Count());
-            //long durationPreviousJobs = _activeJobList.Sum(x => x.JobQueue.Sum(y => y.Duration));
-            var counterPreviousJobs = 0;
-            var durationPreviousJobs = 0L;
-            var followingJobs = new List<IJob>();
-
-            var capabilityQueue = _capabilityJobStorage.GetJobQueue(job.RequiredCapability.Id);
-
-            if(capabilityQueue != null)
-            { 
-                var previousJobs = capabilityQueue.Where(x => x.Priority(currentTime) <= job.Priority(currentTime));
-
-                counterPreviousJobs = previousJobs.Count();
-                durationPreviousJobs = previousJobs.Sum(x => x.Duration);
-
-                followingJobs = capabilityQueue.Where(x => x.Priority(currentTime) > job.Priority(currentTime)).ToList();
-            }
-            return (followingJobs, counterPreviousJobs, durationPreviousJobs);
-
-
+            _jobTracker.TrackJobs(time);
         }
 
     }

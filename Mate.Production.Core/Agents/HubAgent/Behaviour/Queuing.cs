@@ -93,26 +93,6 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             //Dequeue behind the new jobs prio
 
-            (var followingJobs, var counterPreviousJobs , var durationPreviousJobs) = _jobManager.GetPostionOfJob(job, Agent.CurrentTime);
-            
-            foreach (var followingJob in followingJobs.OrderBy(x => x.Priority(Agent.CurrentTime)))
-            {
-                if (followingJobs.Count() == 0)
-                    break;
-
-                if (followingJob.Key.Equals(job.Key))
-                    continue;
-
-                AddToStabilityManager(followingJob.Key, durationPreviousJobs, counterPreviousJobs, String.Empty, Process.Dequeue);
-                
-                AddToStabilityManager(followingJob.Key, durationPreviousJobs + operation.Operation.Duration, counterPreviousJobs + 1, String.Empty, Process.Enqueue);
-
-                //add current job to counters for next jobs in followingjobs
-                counterPreviousJobs += 1;
-                durationPreviousJobs += followingJob.Duration;
-
-            }
-
             _jobManager.SetJob(job, Agent.CurrentTime);
 
             //Enqueue behing the new jobs prio
@@ -265,6 +245,8 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             //    AddToStabilityManager(rescheduledJob.Key, jobpostion.Item1 - fristJobInQueue.Duration, jobpostion.Item2 - 1, String.Empty, Process.Enqueue);
             //}
             var nextJob = jobQueue.Dequeue(Agent.CurrentTime);
+            _jobManager.RemoveFromJobTracker(nextJob, this.Agent.CurrentTime);
+
 
             var operation = nextJob as FOperation;
             
@@ -376,23 +358,5 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             Agent.Send(BasicInstruction.FinishJob.Create(fOperationResult, job.ProductionAgent));
         }
-
-        private void AddToStabilityManager(Guid key, long scopeStart, int position, string resource, Process process)
-        {
-            var operationKeys = new List<string>() { key.ToString() };
-            var pub = new FCreateStabilityMeasurements.FCreateStabilityMeasurement(
-                keys: operationKeys
-                , time: Agent.CurrentTime
-                , position: position
-                , resource: resource
-                , start: scopeStart
-                , process: process.ToString()
-                );
-
-            Agent.Context.System.EventStream.Publish(@event: pub);
-
-        }
-
     }
-
 }

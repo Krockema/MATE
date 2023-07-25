@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
 using Mate.DataCore.DataModel;
+using MathNet.Numerics.Statistics;
 using static FBuckets;
 using static FOperations;
 using static IConfirmations;
@@ -83,30 +84,29 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
                     operations += ((FBucket)Current.Job).Operations.Count();
                 }
                 IJob element = null;
-                for (int i = 0; i < ReadyElements.Count(); i++)
+                foreach (var item in ReadyElements)
                 {
                     //Gehe solange über die Liste, bis du das Element in den Operationen gefunden hast
-                    while(element == null)
+                    while (element == null)
                     {
-                        element = ((FBucket)ReadyElements[i].Job).Operations.SingleOrDefault(x => x.Key.Equals(operationId));
+                        var tmp = item.Value.Job as FBucket;
+                        element = tmp.Operations.SingleOrDefault(x => x.Key.Equals(operationId));
+                        //((FBucket)ReadyElements.ToArray()[i].Job).Operations.SingleOrDefault(x => x.Key.Equals(operationId));
 
                         //Wenn das Element noch nicht in der Liste ist, nimm alle Operationen aus dieser Liste
                         if (element == null)
-                        { 
-                            operations += ((FBucket)ReadyElements[i].Job).Operations.Count();
-                            continue;
+                        {
+                            operations += tmp.Operations.Count;
+                            break;
                         }
 
                         var jobPrio = element.Priority(currentTime);
-                        operations += ((FBucket)ReadyElements[i].Job).Operations.Count(x => ((IJob)x).Priority(currentTime) < jobPrio);
-                        durationOperations += ((FBucket)ReadyElements[i].Job).Operations.Where(x => ((IJob)x).Priority(currentTime) < jobPrio).Sum(y => y.Operation.Duration);
+                        operations += tmp.Operations.Count(x => ((IJob)x).Priority(currentTime) < jobPrio);
+                        durationOperations += tmp.Operations.Where(x => ((IJob)x).Priority(currentTime) < jobPrio).Sum(y => y.Operation.Duration);
 
                     }
-
                 }
-
             }
-
             return (durationOperations, operations);
         }
 
