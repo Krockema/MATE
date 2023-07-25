@@ -45,14 +45,14 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
 
         public void WriteFile(int simNum)
         {
-            string fileName = $"F:\\Work\\Data\\OperationDictionary{simNum}.json";
+            string fileName = $"D:\\Work\\Data\\OperationDictionary{simNum}.json";
             string jsonString = JsonSerializer.Serialize(OperationDictionary);
             File.WriteAllText(fileName, jsonString);
         }
 
         public void ReadFile()
         {
-            string fileName = "F:\\Work\\Data\\OperationDictionary.json";
+            string fileName = "D:\\Work\\Data\\OperationDictionary.json";
             string jsonString = File.ReadAllText(fileName);
             OperationDictionary = JsonSerializer.Deserialize<Dictionary<string, List<OperationPosition>>>(jsonString)!;
 

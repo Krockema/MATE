@@ -19,7 +19,7 @@ namespace Mate.DataCore.DataModel
         [JsonIgnore]
         public virtual ICollection<T_CustomerOrderPart> CustomerOrderParts { get; set; }
         public State State { get; set; }
-
+        
         public override string ToString()
         {
             return $"{Id}: {Name}; {DueTime}";

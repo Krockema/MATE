@@ -249,7 +249,7 @@ namespace Mate.Test.SimulationEnvironment
 
         [Theory]
         // [x] [InlineData(SimulationType.Default, 110, 0.00, 0.035, 1337)] // throughput dynamic ruled
-        [InlineData(SimulationType.Default, 6, 0.20, 0.035, 169)]
+        [InlineData(SimulationType.Queuing, 12, 0.20, 0.005, 169)]
         //[InlineData(SimulationType.Default, 91000, 0.00, 0.035, 169)]
         //[InlineData(SimulationType.Default, 91010, 0.10, 0.035, 169)]
         //[InlineData(SimulationType.Default, 91020, 0.15, 0.035, 169)]
@@ -646,7 +646,7 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new SettlingStart(value: 1440));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 10));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: 15));
-            simConfig.ReplaceOption(new SimulationEnd(value: 1440 * 2));
+            simConfig.ReplaceOption(new SimulationEnd(value: 1440 * 14));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new DebugAgents(value: true));
