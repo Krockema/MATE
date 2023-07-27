@@ -75,7 +75,7 @@ namespace Mate.Test.Online.Integration
             _testOutputHelper.WriteLine("MateDB Initialization finished");
             ResultDBInitializerBasic.DbInitialize(_resultContextDataBase.DbContext);
             _testOutputHelper.WriteLine("ResultD Basic Initialization finished");
-            var messageHub = new ConsoleHub();
+            var messageHub = new LoggingHub();
             var simConfig = ArgumentConverter.ConfigurationConverter(_resultContextDataBase.DbContext, 1);
             simConfig.AddOption(new ResultsDbConnectionString(_resultContextDataBase.ConnectionString.Value));
             simConfig.ReplaceOption(new TimeToAdvance(new TimeSpan(0L)));

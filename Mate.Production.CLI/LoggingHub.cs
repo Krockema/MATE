@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AkkaSim.Logging;
-using JetBrains.Annotations;
 using Mate.Production.Core.SignalR;
 using Mate.Production.Core.SignalR.Messages;
 using Newtonsoft.Json;
@@ -9,18 +7,11 @@ using NLog;
 
 namespace Mate.Production.CLI
 {
-    public class ConsoleHub: IMessageHub
+    public class LoggingHub: IMessageHub
     {
         Logger _logger = LogManager.GetLogger(TargetNames.LOG_AGENTS);
 
         public List<string> Logs= new List<string>();
-
-        public Action<string,string> _streamWriter ;
-
-        public ConsoleHub(Action<string,string> streamWriter)
-        {
-            _streamWriter = streamWriter; 
-        }
 
         public void SendToAllClients(string msg, MessageType msgType)
         {
@@ -30,7 +21,7 @@ namespace Mate.Production.CLI
 
         public void SendToClient(string listener, string msg, MessageType msgType)
         {
-            _streamWriter(listener, msg);
+            _logger.Log(LogLevel.Info, $" {listener}: { msg } ");
         }
 
         public string ReturnMsgBox(string msg, MessageType type)

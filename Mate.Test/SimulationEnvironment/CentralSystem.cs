@@ -110,7 +110,7 @@ namespace Mate.Test.SimulationEnvironment
             //Synchronisation GanttPlan
             GanttPlanOptRunner.RunOptAndExport("Init", "D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe");
 
-            var simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new ConsoleHub());
+            var simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new LoggingHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(masterPlanResultContext.Database.GetConnectionString()));
