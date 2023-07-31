@@ -4,6 +4,7 @@ using AkkaSim.Logging;
 using JetBrains.Annotations;
 using Mate.Production.Core.SignalR;
 using Mate.Production.Core.SignalR.Messages;
+using Mate.Production.Core.Types;
 using Newtonsoft.Json;
 using NLog;
 
@@ -24,7 +25,7 @@ namespace Mate.Production.CLI
 
         public void SendToAllClients(string msg, MessageType msgType)
         {
-            _logger.Log(LogLevel.Info, msgType.ToString() + ": " + msg);
+             _logger.Log(LogLevel.Info, msgType.ToString() + ": " + msg);
             //Console.WriteLine(msg);
         }
 
@@ -44,9 +45,9 @@ namespace Mate.Production.CLI
             _logger.Log(LogLevel.Info, "Start Simulation (id:" + simId + " | simNumber:" + simNumber + ")");
         }
 
-        public void ProcessingUpdate(int simId, int finished, string simType, int max)
+        public void ProcessingUpdate(int finished, int finishedPercent, string progress, int total)
         {
-            _logger.Log(LogLevel.Info, $"msg");
+            _logger.Log(LogLevel.Info, $"Finished: " + finished +" ("+ finishedPercent + "%) from total " + total + " | "+ progress);
         }
 
         public void GuardianState(object msg)
