@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Akka.TestKit.Xunit;
@@ -22,15 +24,23 @@ using MathNet.Numerics.Distributions;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using Xunit;
+using Xunit.Abstractions;
+using static Akka.IO.Tcp;
 using PriorityRule = Mate.DataCore.Nominal.PriorityRule;
 
 namespace Mate.Test.SimulationEnvironment
 {
-    public class AgentSystem : TestKit, IClassFixture<SeedInitializer>
+    public class AgentSystem : TestKit//, IClassFixture<SeedInitializer>
     {
         private readonly string TestMateDb = "Test" + DataBaseConfiguration.MateDb;
         private readonly string TestMateResultDb = "Test" + DataBaseConfiguration.MateResultDb;
+        private readonly string logPath = @"C:\temp\TestTracker.txt";
 
+        StreamWriter _streamWriter;
+
+        public AgentSystem() {
+            _streamWriter = new StreamWriter(logPath);
+        }
 
         [Fact]
         public void TestRawSQL()
@@ -247,344 +257,9 @@ namespace Mate.Test.SimulationEnvironment
 
         [Theory]
         // [x] [InlineData(SimulationType.Default, 110, 0.00, 0.035, 1337)] // throughput dynamic ruled
-        [InlineData(SimulationType.Default, 2000, 0.20, 0.03, 169)]
-        [InlineData(SimulationType.Queuing, 9, 0.20, 0.03, 169)]
-        //[InlineData(SimulationType.Default, 91000, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91010, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91020, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91030, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91040, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91050, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91060, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91070, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Default, 91001, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91011, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91021, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91031, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91041, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91051, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91061, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91071, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Default, 91002, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91012, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91022, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91032, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91042, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91052, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91062, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91072, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Default, 91003, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91013, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91023, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91033, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91043, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91053, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91063, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91073, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Default, 91004, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91014, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91024, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91034, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91044, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91054, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91064, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91074, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Default, 91005, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91015, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91025, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91035, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91045, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91055, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91065, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91075, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Default, 91006, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91016, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91026, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91036, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91046, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91056, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91066, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91076, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Default, 91007, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91017, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91027, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91037, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91047, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91057, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91067, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91077, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Default, 91008, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91018, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91028, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91038, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91048, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91058, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91068, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91078, 0.05, 0.035, 169)]
-        //
-        //
-        //
-        //[InlineData(SimulationType.Default, 91009, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91019, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91029, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91039, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91049, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91059, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91069, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Default, 91079, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Queuing, 91000, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 91010, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 91020, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 91030, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 91040, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 91050, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 91060, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 91070, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Queuing, 92001, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92011, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92021, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92031, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92041, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92051, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92061, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 91071, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Queuing, 92002, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92012, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92022, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92032, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92042, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92052, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92062, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 91072, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Queuing, 92003, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92013, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92023, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92033, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92043, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92053, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92063, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 91073, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Queuing, 92004, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92014, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92024, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92034, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92044, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92054, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92064, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 91074, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Queuing, 92005, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92015, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92025, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92035, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92045, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92055, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92065, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 91075, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Queuing, 92006, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92016, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92026, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92036, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92046, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92056, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92066, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 91076, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Queuing, 92007, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92017, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92027, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92037, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92047, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92057, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92067, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 91077, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Queuing, 92008, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92018, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92028, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92038, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92048, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92058, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92068, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 91078, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Queuing, 92009, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92019, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92029, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92039, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92049, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92059, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 92069, 0.35, 0.035, 169)]
-        //[InlineData(SimulationType.Queuing, 91079, 0.05, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Central, 93000, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93010, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93020, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93030, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93040, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93050, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93060, 0.35, 0.035, 169)]
-        //                                    
-        //[InlineData(SimulationType.Central, 93001, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93011, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93021, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93031, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93041, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93051, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93061, 0.35, 0.035, 169)]
-        //                                    
-        //[InlineData(SimulationType.Central, 93002, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93012, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93022, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93032, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93042, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93052, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93062, 0.35, 0.035, 169)]
-        //                                    
-        //[InlineData(SimulationType.Central, 93003, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93013, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93023, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93033, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93043, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93053, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93063, 0.35, 0.035, 169)]
-        //                                    
-        //[InlineData(SimulationType.Central, 93004, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93014, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93024, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93034, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93044, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93054, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93064, 0.35, 0.035, 169)]
-        //                                    
-        //[InlineData(SimulationType.Central, 93005, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93015, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93025, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93035, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93045, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93055, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93065, 0.35, 0.035, 169)]
-        //                                    
-        //[InlineData(SimulationType.Central, 93006, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93016, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93026, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93036, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93046, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93056, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93066, 0.35, 0.035, 169)]
-        //                                    
-        //[InlineData(SimulationType.Central, 93007, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93017, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93027, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93037, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93047, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93057, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93067, 0.35, 0.035, 169)]
-        //                                    
-        //[InlineData(SimulationType.Central, 93008, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93018, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93028, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93038, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93048, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93058, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93068, 0.35, 0.035, 169)]
-        //                                    
-        //[InlineData(SimulationType.Central, 93009, 0.00, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93019, 0.10, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93029, 0.15, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93039, 0.20, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93049, 0.25, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93059, 0.30, 0.035, 169)]
-        //[InlineData(SimulationType.Central, 93069, 0.35, 0.035, 169)]
-        //
-        //[InlineData(SimulationType.Default, 10010, 0.20, 0.035, 169, 5, 5, 2, 0.0)]
-        //[InlineData(SimulationType.Default, 10011, 0.20, 0.035, 169, 5, 5, 2, 0.1)]
-        //[InlineData(SimulationType.Default, 10012, 0.20, 0.035, 169, 5, 5, 2, 0.2)]
-        //[InlineData(SimulationType.Default, 10013, 0.20, 0.035, 169, 5, 5, 2, 0.3)]
-        //[InlineData(SimulationType.Default, 10014, 0.20, 0.035, 169, 5, 5, 2, 0.4)]
-        //[InlineData(SimulationType.Default, 10015, 0.20, 0.035, 169, 5, 5, 2, 0.5)]
-        //[InlineData(SimulationType.Default, 10016, 0.20, 0.035, 169, 5, 5, 2, 0.6)]
-        //[InlineData(SimulationType.Default, 10017, 0.20, 0.035, 169, 5, 5, 2, 0.7)]
-        //[InlineData(SimulationType.Default, 10018, 0.20, 0.035, 169, 5, 5, 2, 0.8)]
-        //[InlineData(SimulationType.Default, 10019, 0.20, 0.035, 169, 5, 5, 2, 0.9)]
-        //[InlineData(SimulationType.Default, 10020, 0.20, 0.035, 169, 5, 5, 2, 1)]
-        //
-        //[InlineData(SimulationType.Default, 10110, 0.20, 0.035, 169, 5, 1, 1.41, 0.0)]
-        //[InlineData(SimulationType.Default, 10111, 0.20, 0.035, 169, 5, 1, 1.41, 0.1)]
-        //[InlineData(SimulationType.Default, 10112, 0.20, 0.035, 169, 5, 1, 1.41, 0.2)]
-        //[InlineData(SimulationType.Default, 10113, 0.20, 0.035, 169, 5, 1, 1.41, 0.3)]
-        //[InlineData(SimulationType.Default, 10114, 0.20, 0.035, 169, 5, 1, 1.41, 0.4)]
-        //[InlineData(SimulationType.Default, 10115, 0.20, 0.035, 169, 5, 1, 1.41, 0.5)]
-        //[InlineData(SimulationType.Default, 10116, 0.20, 0.035, 169, 5, 1, 1.41, 0.6)]
-        //[InlineData(SimulationType.Default, 10117, 0.20, 0.035, 169, 5, 1, 1.41, 0.7)]
-        //[InlineData(SimulationType.Default, 10118, 0.20, 0.035, 169, 5, 1, 1.41, 0.8)]
-        //[InlineData(SimulationType.Default, 10119, 0.20, 0.035, 169, 5, 1, 1.41, 0.9)]
-        //[InlineData(SimulationType.Default, 10120, 0.20, 0.035, 169, 5, 1, 1.41, 1)]
-        //
-        //[InlineData(SimulationType.Queuing, 20010, 0.20, 0.035, 169, 5, 5, 2, 0.0)]
-        //[InlineData(SimulationType.Queuing, 20011, 0.20, 0.035, 169, 5, 5, 2, 0.1)]
-        //[InlineData(SimulationType.Queuing, 20012, 0.20, 0.035, 169, 5, 5, 2, 0.2)]
-        //[InlineData(SimulationType.Queuing, 20013, 0.20, 0.035, 169, 5, 5, 2, 0.3)]
-        //[InlineData(SimulationType.Queuing, 20014, 0.20, 0.035, 169, 5, 5, 2, 0.4)]
-        //[InlineData(SimulationType.Queuing, 20015, 0.20, 0.035, 169, 5, 5, 2, 0.5)]
-        //[InlineData(SimulationType.Queuing, 20016, 0.20, 0.035, 169, 5, 5, 2, 0.6)]
-        //[InlineData(SimulationType.Queuing, 20017, 0.20, 0.035, 169, 5, 5, 2, 0.7)]
-        //[InlineData(SimulationType.Queuing, 20018, 0.20, 0.035, 169, 5, 5, 2, 0.8)]
-        //[InlineData(SimulationType.Queuing, 20019, 0.20, 0.035, 169, 5, 5, 2, 0.9)]
-        //[InlineData(SimulationType.Queuing, 20020, 0.20, 0.035, 169, 5, 5, 2, 1)]
-        //                                    
-        //[InlineData(SimulationType.Queuing, 20110, 0.20, 0.035, 169, 5, 1, 1.41, 0.0)]
-        //[InlineData(SimulationType.Queuing, 20111, 0.20, 0.035, 169, 5, 1, 1.41, 0.1)]
-        //[InlineData(SimulationType.Queuing, 20112, 0.20, 0.035, 169, 5, 1, 1.41, 0.2)]
-        //[InlineData(SimulationType.Queuing, 20113, 0.20, 0.035, 169, 5, 1, 1.41, 0.3)]
-        //[InlineData(SimulationType.Queuing, 20114, 0.20, 0.035, 169, 5, 1, 1.41, 0.4)]
-        //[InlineData(SimulationType.Queuing, 20115, 0.20, 0.035, 169, 5, 1, 1.41, 0.5)]
-        //[InlineData(SimulationType.Queuing, 20116, 0.20, 0.035, 169, 5, 1, 1.41, 0.6)]
-        //[InlineData(SimulationType.Queuing, 20117, 0.20, 0.035, 169, 5, 1, 1.41, 0.7)]
-        //[InlineData(SimulationType.Queuing, 20118, 0.20, 0.035, 169, 5, 1, 1.41, 0.8)]
-        //[InlineData(SimulationType.Queuing, 20119, 0.20, 0.035, 169, 5, 1, 1.41, 0.9)]
-        //[InlineData(SimulationType.Queuing, 20120, 0.20, 0.035, 169, 5, 1, 1.41, 1)]
-        //
-        //[InlineData(SimulationType.Central, 30010, 0.20, 0.035, 169, 5, 5, 2, 0.0)]
-        //[InlineData(SimulationType.Central, 30011, 0.20, 0.035, 169, 5, 5, 2, 0.1)]
-        //[InlineData(SimulationType.Central, 30012, 0.20, 0.035, 169, 5, 5, 2, 0.2)]
-        //[InlineData(SimulationType.Central, 30013, 0.20, 0.035, 169, 5, 5, 2, 0.3)]
-        //[InlineData(SimulationType.Central, 30014, 0.20, 0.035, 169, 5, 5, 2, 0.4)]
-        //[InlineData(SimulationType.Central, 30015, 0.20, 0.035, 169, 5, 5, 2, 0.5)]
-        //[InlineData(SimulationType.Central, 30016, 0.20, 0.035, 169, 5, 5, 2, 0.6)]
-        //[InlineData(SimulationType.Central, 30017, 0.20, 0.035, 169, 5, 5, 2, 0.7)]
-        //[InlineData(SimulationType.Central, 30018, 0.20, 0.035, 169, 5, 5, 2, 0.8)]
-        //[InlineData(SimulationType.Central, 30019, 0.20, 0.035, 169, 5, 5, 2, 0.9)]
-        //[InlineData(SimulationType.Central, 30020, 0.20, 0.035, 169, 5, 5, 2, 1)]
-        //                                    
-        //[InlineData(SimulationType.Central, 30110, 0.20, 0.035, 169, 5, 1, 1.41, 0.0)]
-        //[InlineData(SimulationType.Central, 30111, 0.20, 0.035, 169, 5, 1, 1.41, 0.1)]
-        //[InlineData(SimulationType.Central, 30112, 0.20, 0.035, 169, 5, 1, 1.41, 0.2)]
-        //[InlineData(SimulationType.Central, 30113, 0.20, 0.035, 169, 5, 1, 1.41, 0.3)]
-        //[InlineData(SimulationType.Central, 30114, 0.20, 0.035, 169, 5, 1, 1.41, 0.4)]
-        //[InlineData(SimulationType.Central, 30115, 0.20, 0.035, 169, 5, 1, 1.41, 0.5)]
-        //[InlineData(SimulationType.Central, 30116, 0.20, 0.035, 169, 5, 1, 1.41, 0.6)]
-        //[InlineData(SimulationType.Central, 30117, 0.20, 0.035, 169, 5, 1, 1.41, 0.7)]
-        //[InlineData(SimulationType.Central, 30118, 0.20, 0.035, 169, 5, 1, 1.41, 0.8)]
-        //[InlineData(SimulationType.Central, 30119, 0.20, 0.035, 169, 5, 1, 1.41, 0.9)]
-        //[InlineData(SimulationType.Central, 30120, 0.20, 0.035, 169, 5, 1, 1.41, 1)]
-
+        [InlineData(SimulationType.Central, 41, 0.0, 0.020, 169)]
         public async Task AgentSystemTest(SimulationType simulationType, int simNr, double deviation, double arrivalRateRun, int seed
-            , int seedDataGen = 5, double reuse = 1.3, double complxity = 1.9, double organziationaldegree = 0.7)
+            , int seedDataGen = 5, double reuse = 1.0, double complxity = 1.0, double organziationaldegree = 0.8, int numberOfSalesMaterials = 50, int verticalIntegration = 2)
         {
             //var simNr = Random.Shared.Next();
             //var simulationType = SimulationType.Default;
@@ -612,30 +287,35 @@ namespace Mate.Test.SimulationEnvironment
             //dbResult.DbContext.Database.EnsureCreated();
             //ResultDBInitializerBasic.DbInitialize(dbResult.DbContext);
 
-            SeedInitializer seedInitializer = new SeedInitializer();
+            DataCore.Data.Seed.SeedInitializer seedInitializer = new ();
             seedInitializer.GenerateTestData(TestMateDb, machineCount: 4, toolCount: 6
                                              // , number of Worker
                                              // , number of Products
                                              , seed: seedDataGen
                                              , reuseRatio: reuse
                                              , complexityRatio: complxity
-                                             , organizationalDegree: organziationaldegree);
+                                             , organizationalDegree: organziationaldegree
+                                             , numberOfSalesMaterials: numberOfSalesMaterials
+                                             , verticalIntegration: verticalIntegration);
             
             var simConfig = Production.CLI.ArgumentConverter.ConfigurationConverter(dbResult.DbContext, 1);
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(dbResult.ConnectionString.Value));
-            simConfig.ReplaceOption(new KpiTimeSpan(240));
+            simConfig.ReplaceOption(new GANTTPLANOptRunnerPath("D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe"));
+            simConfig.ReplaceOption(new KpiTimeSpan(1440));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480 * 6 * 2)); // = schicht * setups * x
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 10000));
+            simConfig.ReplaceOption(new OrderQuantity(value: 1));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
             simConfig.ReplaceOption(new Production.Core.Environment.Options.Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 2880));
-            simConfig.ReplaceOption(new MinDeliveryTime(value: 10));
-            simConfig.ReplaceOption(new MaxDeliveryTime(value: 15));
-            simConfig.ReplaceOption(new SimulationEnd(value: 10080 * 3));
+            simConfig.ReplaceOption(new SettlingStart(value: 1440));
+            simConfig.ReplaceOption(new MinQuantity(value: 1));
+            simConfig.ReplaceOption(new MaxQuantity(value: 5));
+            simConfig.ReplaceOption(new MinDeliveryTime(value: 11));
+            simConfig.ReplaceOption(new MaxDeliveryTime(value: 18));
+            simConfig.ReplaceOption(new SimulationEnd(value: 1440 * 5));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new DebugAgents(value: true));
@@ -649,19 +329,23 @@ namespace Mate.Test.SimulationEnvironment
 
             BaseSimulation simContext;
 
+            Action<string,string> consoleWriter = (listnerToWrite, msgToWrite) => { if (listnerToWrite == "Contracts") { _streamWriter.WriteLine(msgToWrite); } };
+
             if (simulationType == SimulationType.Central)
             {
                 var ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GP);
                 ganttPlanContext.DbContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
 
                 //Synchronisation GanttPlan
-                GanttPlanOptRunner.RunOptAndExport("Init", "C:\\tools\\Ganttplan\\GanttPlanOptRunner.exe");
+                GanttPlanOptRunner.RunOptAndExport("Init", simConfig.GetOption<GANTTPLANOptRunnerPath>().Value);
 
-                simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new ConsoleHub());
+                //simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new LoggingHub());
+                simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new ConsoleHub(consoleWriter));
             }
             else
             {
-                simContext = new AgentSimulation(TestMateDb, messageHub: new ConsoleHub());
+                //simContext = new AgentSimulation(TestMateDb, messageHub: new LoggingHub());
+                simContext = new AgentSimulation(TestMateDb, messageHub: new ConsoleHub(consoleWriter));
             }
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);

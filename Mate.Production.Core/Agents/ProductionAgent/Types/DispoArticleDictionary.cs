@@ -9,7 +9,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Types
 {
     public class DispoArticleDictionary
     {
-        public List<ArticleProvider> DispoToArticleRelation = new List<ArticleProvider>();
+        private List<ArticleProvider> DispoToArticleRelation = new List<ArticleProvider>();
         public FOperation Operation { get; set; }
         internal List<ArticleProvider> GetAll => DispoToArticleRelation.ToList();
 
@@ -19,10 +19,20 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Types
 
         }
         
+        public List<IActorRef> GetProviderList => 
+             DispoToArticleRelation.Select(x => x.Provider).ToList();
+        
+
         public void Add(IActorRef dispoRef, FArticle fArticle)
         {
             DispoToArticleRelation.Add(new ArticleProvider(dispoRef, fArticle));
         }
+
+        public void Add(ArticleProvider provider)
+        {
+            DispoToArticleRelation.Add(provider);
+        }
+
 
         internal bool AllProvided()
         {

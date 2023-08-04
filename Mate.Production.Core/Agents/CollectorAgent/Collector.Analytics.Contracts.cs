@@ -203,8 +203,9 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         {
             var op = m.GetObjectFromMessage;
             var order = new SimulationOrder() { CreationTime = op.CustomerOrder.CreationTime
-                                                ,DueTime = op.CustomerOrder.DueTime
+                                                , DueTime = op.CustomerOrder.DueTime
                                                 , State = State.Created
+                                                , Quantity = op.CustomerOrder.CustomerOrderParts.ToArray()[0].Quantity
                                                 , BusinessPartnerId = op.CustomerOrder.BusinessPartnerId
                                                 , Name = op.CustomerOrder.Name
                                                 , OriginId  = op.CustomerOrder.Id

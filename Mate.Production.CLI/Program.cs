@@ -96,7 +96,7 @@ namespace Mate.Production.CLI
             try
             {
                 Console.WriteLine(value: "Starting AkkaSim.");
-                var agentCore = new AgentCore(dbName, messageHub: new ConsoleHub());
+                var agentCore = new AgentCore(dbName, messageHub: new LoggingHub());
                 await agentCore.RunAkkaSimulation(configuration: config);
                 
             }

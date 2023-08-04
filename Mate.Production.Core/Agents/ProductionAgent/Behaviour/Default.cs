@@ -222,7 +222,9 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
             
             Agent.DebugMessage(msg: $"Article {fArticleProvider.ArticleName} {fArticleProvider.ArticleKey} for {_articleToProduce.Article.Name} {_articleToProduce.Key} has been provided");
 
-            _articleToProduce.ProviderList.AddRange(fArticleProvider.Provider);
+            var cpy = _articleToProduce.ProviderList.ToArray().ToList();
+            cpy.AddRange(fArticleProvider.Provider);
+            _articleToProduce = _articleToProduce.UpdateProviderList(cpy);
             
             if(articleDictionary.AllProvided())
             {

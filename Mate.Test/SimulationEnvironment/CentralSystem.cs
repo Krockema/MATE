@@ -110,7 +110,7 @@ namespace Mate.Test.SimulationEnvironment
             //Synchronisation GanttPlan
             GanttPlanOptRunner.RunOptAndExport("Init", "C:\\tools\\Ganttplan\\GanttPlanOptRunner.exe");
 
-            var simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new ConsoleHub());
+            var simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new LoggingHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(masterPlanResultContext.Database.GetConnectionString()));
@@ -122,6 +122,8 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
             simConfig.ReplaceOption(new Production.Core.Environment.Options.Seed(value: seed));
+            simConfig.ReplaceOption(new MinQuantity(value: 1));
+            simConfig.ReplaceOption(new MaxQuantity(value: 1));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 4));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: 6));
             simConfig.ReplaceOption(new SettlingStart(value: 60));

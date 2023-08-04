@@ -7,6 +7,7 @@ namespace Mate.DataCore.ReportingModel
     public class SimulationOrder : ResultBaseEntity, IOrder
     {
         public string Name { get; set; }
+        public int Quantity { get; set; }
         public int OriginId { get; set; }
         public int DueTime { get; set; }
         public int CreationTime { get; set; }

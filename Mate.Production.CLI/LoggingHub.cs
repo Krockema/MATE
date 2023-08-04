@@ -1,37 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AkkaSim.Logging;
-using JetBrains.Annotations;
 using Mate.Production.Core.SignalR;
 using Mate.Production.Core.SignalR.Messages;
-using Mate.Production.Core.Types;
 using Newtonsoft.Json;
 using NLog;
 
 namespace Mate.Production.CLI
 {
-    public class ConsoleHub: IMessageHub
+    public class LoggingHub: IMessageHub
     {
         Logger _logger = LogManager.GetLogger(TargetNames.LOG_AGENTS);
 
         public List<string> Logs= new List<string>();
 
-        public Action<string,string> _streamWriter ;
-
-        public ConsoleHub(Action<string,string> streamWriter)
-        {
-            _streamWriter = streamWriter; 
-        }
-
         public void SendToAllClients(string msg, MessageType msgType)
         {
-             _logger.Log(LogLevel.Info, msgType.ToString() + ": " + msg);
+            _logger.Log(LogLevel.Info, msgType.ToString() + ": " + msg);
             //Console.WriteLine(msg);
         }
 
         public void SendToClient(string listener, string msg, MessageType msgType)
         {
-            _streamWriter(listener, msg);
+            _logger.Log(LogLevel.Info, $" {listener}: { msg } ");
         }
 
         public string ReturnMsgBox(string msg, MessageType type)
@@ -45,9 +35,9 @@ namespace Mate.Production.CLI
             _logger.Log(LogLevel.Info, "Start Simulation (id:" + simId + " | simNumber:" + simNumber + ")");
         }
 
-        public void ProcessingUpdate(int finished, int finishedPercent, string progress, int total)
+        public void ProcessingUpdate(int simId, int finished, string simType, int max)
         {
-            _logger.Log(LogLevel.Info, $"Finished: " + finished +" ("+ finishedPercent + "%) from total " + total + " | "+ progress);
+            _logger.Log(LogLevel.Info, $"msg");
         }
 
         public void GuardianState(object msg)
