@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Akka.TestKit.Xunit;
 using AkkaSim.Logging;
@@ -10,7 +9,6 @@ using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Helper;
 using Mate.DataCore.Data.Helper.Types;
 using Mate.DataCore.Data.Initializer;
-using Mate.DataCore.Data.WrappersForPrimitives;
 using Mate.DataCore.DataModel;
 using Mate.DataCore.GanttPlan;
 using Mate.DataCore.Nominal;
@@ -249,7 +247,8 @@ namespace Mate.Test.SimulationEnvironment
 
         [Theory]
         // [x] [InlineData(SimulationType.Default, 110, 0.00, 0.035, 1337)] // throughput dynamic ruled
-        [InlineData(SimulationType.Default, 6, 0.20, 0.035, 169)]
+        [InlineData(SimulationType.Default, 2000, 0.20, 0.03, 169)]
+        [InlineData(SimulationType.Queuing, 9, 0.20, 0.03, 169)]
         //[InlineData(SimulationType.Default, 91000, 0.00, 0.035, 169)]
         //[InlineData(SimulationType.Default, 91010, 0.10, 0.035, 169)]
         //[InlineData(SimulationType.Default, 91020, 0.15, 0.035, 169)]
@@ -615,23 +614,13 @@ namespace Mate.Test.SimulationEnvironment
 
             SeedInitializer seedInitializer = new SeedInitializer();
             seedInitializer.GenerateTestData(TestMateDb, machineCount: 4, toolCount: 6
+                                             // , number of Worker
+                                             // , number of Products
                                              , seed: seedDataGen
                                              , reuseRatio: reuse
                                              , complexityRatio: complxity
                                              , organizationalDegree: organziationaldegree);
             
-            //dbMaster.DbContext.Database.EnsureDeleted();
-            //dbMaster.DbContext.Database.EnsureCreated();
-            //MasterDBInitializerTruck.DbInitialize(context: dbMaster.DbContext
-            //    , resourceModelSize: resourceModelSize
-            //    , setupModelSize: setupModelSize
-            //    , operatorsModelSize: ModelSize.Small
-            //    , numberOfWorkersForProcessing: 3
-            //    , secondResource: false
-            //    , createMeasurements: createMeasurements
-            //    , distributeSetupsExponentially: distributeSetupsExponentially);
-            //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
-
             var simConfig = Production.CLI.ArgumentConverter.ConfigurationConverter(dbResult.DbContext, 1);
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(dbResult.ConnectionString.Value));
@@ -643,10 +632,10 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
             simConfig.ReplaceOption(new Production.Core.Environment.Options.Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 1440));
+            simConfig.ReplaceOption(new SettlingStart(value: 2880));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 10));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: 15));
-            simConfig.ReplaceOption(new SimulationEnd(value: 1440 * 2));
+            simConfig.ReplaceOption(new SimulationEnd(value: 10080 * 3));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new DebugAgents(value: true));
