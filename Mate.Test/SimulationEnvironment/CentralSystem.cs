@@ -108,7 +108,7 @@ namespace Mate.Test.SimulationEnvironment
             ganttPlanContext.DbContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
 
             //Synchronisation GanttPlan
-            GanttPlanOptRunner.RunOptAndExport("Init", "D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe");
+            GanttPlanOptRunner.RunOptAndExport("Init", "C:\\tools\\Ganttplan\\GanttPlanOptRunner.exe");
 
             var simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new LoggingHub());
             var simConfig = ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);

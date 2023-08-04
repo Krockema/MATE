@@ -63,12 +63,12 @@ namespace Mate.DataCore.Data.DynamicInitializer.Tables
 
             for (int i = 1; i < 1 + numberOfOperators; i++)
             {
-                operators.Add(CreateNewResource(capability.Name + " Operator " + i, true, true, capability.Name));
+                operators.Add(CreateNewResource(capability.Name + " Operator " + i, true, true, capability.Name + "O"));
             }
 
             for (int i = 1; i < 1 + numberOfWorker; i++)
             {
-                workers.Add(CreateNewResource(capability.Name + " Worker " + i, true, true, capability.Name));
+                workers.Add(CreateNewResource(capability.Name + " Worker " + i, true, true, capability.Name + "W"));
             }
 
             var numberOfTools = _capability.Capabilities

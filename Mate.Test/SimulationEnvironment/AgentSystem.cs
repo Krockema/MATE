@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Akka.TestKit.Xunit;
 using AkkaSim.Logging;
@@ -12,7 +11,6 @@ using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Helper;
 using Mate.DataCore.Data.Helper.Types;
 using Mate.DataCore.Data.Initializer;
-using Mate.DataCore.Data.WrappersForPrimitives;
 using Mate.DataCore.DataModel;
 using Mate.DataCore.GanttPlan;
 using Mate.DataCore.Nominal;
@@ -291,6 +289,8 @@ namespace Mate.Test.SimulationEnvironment
 
             DataCore.Data.Seed.SeedInitializer seedInitializer = new ();
             seedInitializer.GenerateTestData(TestMateDb, machineCount: 4, toolCount: 6
+                                             // , number of Worker
+                                             // , number of Products
                                              , seed: seedDataGen
                                              , reuseRatio: reuse
                                              , complexityRatio: complxity
@@ -298,18 +298,6 @@ namespace Mate.Test.SimulationEnvironment
                                              , numberOfSalesMaterials: numberOfSalesMaterials
                                              , verticalIntegration: verticalIntegration);
             
-            //dbMaster.DbContext.Database.EnsureDeleted();
-            //dbMaster.DbContext.Database.EnsureCreated();
-            //MasterDBInitializerTruck.DbInitialize(context: dbMaster.DbContext
-            //    , resourceModelSize: resourceModelSize
-            //    , setupModelSize: setupModelSize
-            //    , operatorsModelSize: ModelSize.Small
-            //    , numberOfWorkersForProcessing: 3
-            //    , secondResource: false
-            //    , createMeasurements: createMeasurements
-            //    , distributeSetupsExponentially: distributeSetupsExponentially);
-            //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
-
             var simConfig = Production.CLI.ArgumentConverter.ConfigurationConverter(dbResult.DbContext, 1);
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(dbResult.ConnectionString.Value));
@@ -348,7 +336,7 @@ namespace Mate.Test.SimulationEnvironment
                 ganttPlanContext.DbContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
 
                 //Synchronisation GanttPlan
-                GanttPlanOptRunner.RunOptAndExport("Init", "D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe");
+                GanttPlanOptRunner.RunOptAndExport("Init", "C:\\tools\\Ganttplan\\GanttPlanOptRunner.exe");
 
                 //simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new LoggingHub());
                 simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new ConsoleHub(consoleWriter));
