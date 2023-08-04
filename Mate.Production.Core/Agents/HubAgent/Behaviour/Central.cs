@@ -131,8 +131,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             {
                 foreach (var resourceState in _resourceManager.resourceStateList)
                 {
-                    JobToStabilityManager(resourceState.ActivityQueue, resourceState, Mate.Production.Core.Agents.CollectorAgent.Types.Process.Dequeue);
-
+                   
                     // put to an sorted Queue on each Resource
                     resourceState.ActivityQueue = new Queue<GptblProductionorderOperationActivityResourceInterval>(
                         localGanttPlanDbContext.GptblProductionorderOperationActivityResourceInterval
@@ -152,7 +151,6 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                             .OrderBy(x => x.DateFrom)
                             .ToList());
 
-                    JobToStabilityManager(resourceState.ActivityQueue, resourceState, Mate.Production.Core.Agents.CollectorAgent.Types.Process.Enqueue);
                 } // filter Done and in Progress?
 
                 var tempsalesorder = _SalesorderMaterialrelations;
@@ -194,36 +192,6 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             inboxActorRef.Tell(new FCentralGanttPlanInformations.FCentralGanttPlanInformation(JsonConvert.SerializeObject(timeStamps), "Plan"), this.Agent.Context.Self);
         }
-
-        private void JobToStabilityManager(Queue<GptblProductionorderOperationActivityResourceInterval> queue, ResourceState resource, Mate.Production.Core.Agents.CollectorAgent.Types.Process process)
-        {
-            if (queue == null || queue.Count == 0 )
-                return;
-
-            for (int i = 0; i < queue.Count; i++)
-            {
-                AddToStabilityManager(queue.ElementAt(i), i, resource, process);
-            }
-        }
-        private void AddToStabilityManager(GptblProductionorderOperationActivityResourceInterval job, int position, ResourceState resource, Mate.Production.Core.Agents.CollectorAgent.Types.Process process)
-        {
-            if (resource.ResourceDefinition.ResourceType != ResourceType.Workcenter)
-                return;
-
-            var operationKeys = new List<string>(){ job.GetKey};
-            var pub = new FCreateStabilityMeasurements.FCreateStabilityMeasurement(
-                keys: operationKeys
-                , time: Agent.CurrentTime
-                , position: position
-                , resource: resource.ResourceDefinition.Name
-                , start: job.DateFrom.ToSimulationTime()
-                , process: process.ToString()
-                );
-
-            Agent.Context.System.EventStream.Publish(@event: pub);
-
-        }
-
 
         private void StartActivities()
         {

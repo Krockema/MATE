@@ -233,20 +233,8 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         {
             var jobQueue = _jobManager.GetActiveJob(queueKey);
 
-            //var fristJobInQueue = jobQueue.Peek(Agent.CurrentTime);
-            //
-            //foreach (var rescheduledJob in jobQueue.JobQueue)
-            //{
-            //    if (rescheduledJob.Key.Equals(job.Key))
-            //        continue;
-            //    var jobpostion = _jobManager.GetPositionFromActiveJob(jobQueue, job, Agent.CurrentTime);
-            //    AddToStabilityManager(rescheduledJob.Key, jobpostion.Item1, jobpostion.Item2, String.Empty, Process.Dequeue);
-            //
-            //    AddToStabilityManager(rescheduledJob.Key, jobpostion.Item1 - fristJobInQueue.Duration, jobpostion.Item2 - 1, String.Empty, Process.Enqueue);
-            //}
             var nextJob = jobQueue.Dequeue(Agent.CurrentTime);
             _jobManager.RemoveFromJobTracker(nextJob, this.Agent.CurrentTime);
-
 
             var operation = nextJob as FOperation;
             

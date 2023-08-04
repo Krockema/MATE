@@ -18,7 +18,6 @@ using static FBreakDowns;
 using static FComputationalTimers;
 using static FCreateSimulationJobs;
 using static FCreateSimulationResourceSetups;
-using static FCreateStabilityMeasurements;
 using static FThroughPutTimes;
 using static FUpdateSimulationJobs;
 using static FUpdateSimulationWorkProviders;
@@ -64,8 +63,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                                      typeof(FComputationalTimer),
                                      typeof(Hub.Instruction.Default.AddResourceToHub),
                                      typeof(BasicInstruction.ResourceBrakeDown),
-                                     typeof(FCreateSimulationResourceSetup),
-                                     typeof(FCreateStabilityMeasurement)
+                                     typeof(FCreateSimulationResourceSetup)
 
             };
         }
@@ -87,7 +85,6 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 case FUpdateSimulationWorkProvider m: UpdateProvider(uswp: m); break;
                 case FThroughPutTime m: UpdateThroughputTimes(m); break;
                 case FComputationalTimer m: UpdateComputationalTimes(m); break;
-                case FCreateStabilityMeasurement m: CreateStabilityMeasurements(m); break;
                 case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(finalCall: m.GetObjectFromMessage); break;
                 //case Hub.Instruction.AddResourceToHub m: RecoverFromBreak(item: m.GetObjectFromMessage); break;
                 //case BasicInstruction.ResourceBrakeDown m: BreakDwn(item: m.GetObjectFromMessage); break;
@@ -97,12 +94,6 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             return true;
         }
 
-        private void CreateStabilityMeasurements(FCreateStabilityMeasurement m)
-        {
-            StabilityManager.Instance.AddEntryForOperation(operationKey: m.Keys.First(), time: m.Time, position: m.Position, resource: m.Resource, start: m.Start, process: m.Process);
-
-            StabilityManager.Instance.AddEntryForBucket(m.Keys, time: m.Time, position: m.Position, resource: m.Resource, start: m.Start, process: m.Process);
-        }
 
         /// <summary>
         /// collect the resourceSetups of resource, cant be updated afterward
@@ -160,7 +151,6 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             ThroughPut(finalCall);
             ComputationalTimes(finalCall);
             CallTotal(finalCall);
-            WriteOperationKeys(finalCall);
             CallAverageIdle(finalCall);
 
             LogToDB(writeResultsToDB: finalCall);
@@ -203,16 +193,6 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         {
             var kpis = idleTime.GetKpis(Collector, finalCall);
             Collector.Kpis.AddRange(kpis);
-        }
-
-        private void WriteOperationKeys(bool finalCall)
-        {
-            if (finalCall && StabilityManager.Instance.HasEntries)
-            {
-                //StabilityManager.Instance.WriteFile(Collector.Config.GetOption<SimulationNumber>().Value);
-                var keyValueDic =  StabilityManager.Instance.DoSomeStatistics(Collector.Config.GetOption<SimulationNumber>().Value, Collector.Config.GetOption<SimulationKind>().Value);
-                Collector.Kpis.AddRange(keyValueDic);
-            }
         }
 
         private void CallTotal(bool finalCall)

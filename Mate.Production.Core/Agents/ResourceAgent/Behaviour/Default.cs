@@ -123,7 +123,6 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
                 foreach(var element in ((FBucket)revokedJob.Job).Operations)
                 {
                     (var duration, var opPosition) = _jobInProgress.GetTotalOperationsOfJobInProgress(element.Key,Agent.CurrentTime);
-                    AddToStabilityManager(element.Key, revokedJob.ScopeConfirmation.GetScopeStart() + duration, opPosition, Process.Dequeue);
                 }
                 Agent.DebugMessage(msg: $"Revoking Job from Processing {revokedJob.Job.Name} {revokedJob.Job.Key}", CustomLogger.JOB, LogLevel.Warn);
                 Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(message: Agent.Context.Self, target: revokedJob.JobAgentRef));
@@ -225,7 +224,6 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 
             this.UpdateAndRequeuePlanedJobs(jobConfirmation);
             _scopeQueue.Enqueue(jobConfirmation);
-            JobToStabilityManager(new List<IConfirmations.IConfirmation>() { jobConfirmation }, Process.Enqueue);
 
             Agent.DebugMessage(msg: $"Accepted proposal on resource {Agent.Context.Self.Path.Name} and " +
                                     $"start enqueue {jobConfirmation.Job.Name} {jobConfirmation.Key} queueCount: {_scopeQueue.Count}" +
@@ -454,9 +452,6 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
         {
             Agent.DebugMessage(msg: $"Remove {toRequeue.Count} from {Agent.Context.Self.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
 
-            if(toRequeue.Count > 0)
-                JobToStabilityManager(toRequeue.ToList(), Process.Dequeue);
-
             foreach (var job in toRequeue)
             {
                 Agent.DebugMessage(msg: $"Remove for requeue {job.Job.Name} {job.Key} from {Agent.Context.Self.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
@@ -500,43 +495,6 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 
             //TODO NO tracking
             Agent.Context.System.EventStream.Publish(@event: pub);
-        }
-
-        private void JobToStabilityManager(List<IConfirmations.IConfirmation> jobs, Process process)
-        {
-            foreach (var job in jobs)
-            {
-                foreach (var op in ((FBucket)job.Job).Operations)
-                {
-                    (var duration, var opposition) = ((TimeConstraintQueue)_scopeQueue).GetPositionOfJobInJob(job.ScopeConfirmation.GetScopeStart(), operationId: op.Key, currentTime:Agent.CurrentTime);
-
-
-                    int position =
-                        _jobInProgress.GetTotalOperationsOfJobInProgress() +
-                        ((TimeConstraintQueue)_scopeQueue).GetAmountOfPreviousOperations(job.ScopeConfirmation.GetScopeStart()) +
-                        opposition;
-                    AddToStabilityManager(op.Key, job.ScopeConfirmation.GetScopeStart() + duration, position, process);
-
-                }
-            }
-        }
-        private void AddToStabilityManager(Guid key, long scopeStart, int position, Process process)
-        {
-            if (_resourceType != ResourceType.Workcenter)
-                return;
-
-            var operationKeys = new List<string>() { key.ToString() };
-            var pub = new FCreateStabilityMeasurements.FCreateStabilityMeasurement(
-                keys: operationKeys
-                , time: Agent.CurrentTime
-                , position: position
-                , resource: Agent.Name.ToString()
-                , start: scopeStart
-                , process: process.ToString()
-                ); 
-
-            Agent.Context.System.EventStream.Publish(@event: pub);
-
         }
 
         #endregion

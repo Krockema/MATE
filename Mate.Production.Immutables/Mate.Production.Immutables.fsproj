@@ -59,7 +59,6 @@
     <Compile Include="Message\FConfirmationSlots.fs" />
     <Compile Include="Message\FScopeConfirmations.fs" />
     <Compile Include="Message\FQueueingScope.fs" />
-    <Compile Include="Reporting\FCreateStabilityMeasurements.fs" />
     <Compile Include="Reporting\FCreateTaskItems.fs" />
     <Compile Include="Reporting\FUpdateSimulationWorkProvider.fs" />
     <Compile Include="Reporting\FCreateSimulationResourceSetup.fs" />
