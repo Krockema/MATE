@@ -259,7 +259,7 @@ namespace Mate.Test.SimulationEnvironment
 
         [Theory]
         // [x] [InlineData(SimulationType.Default, 110, 0.00, 0.035, 1337)] // throughput dynamic ruled
-        [InlineData(SimulationType.Queuing, 22, 0.0, 0.020, 169)]
+        [InlineData(SimulationType.Default, 35, 0.0, 0.020, 169)]
         public async Task AgentSystemTest(SimulationType simulationType, int simNr, double deviation, double arrivalRateRun, int seed
             , int seedDataGen = 5, double reuse = 1.0, double complxity = 1.0, double organziationaldegree = 0.8, int numberOfSalesMaterials = 50, int verticalIntegration = 2)
         {
@@ -322,9 +322,11 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
             simConfig.ReplaceOption(new Production.Core.Environment.Options.Seed(value: seed));
             simConfig.ReplaceOption(new SettlingStart(value: 1440));
+            simConfig.ReplaceOption(new MinQuantity(value: 1));
+            simConfig.ReplaceOption(new MaxQuantity(value: 1));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 11));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: 18));
-            simConfig.ReplaceOption(new SimulationEnd(value: 1440 * 30));
+            simConfig.ReplaceOption(new SimulationEnd(value: 1440 * 10));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new DebugAgents(value: true));

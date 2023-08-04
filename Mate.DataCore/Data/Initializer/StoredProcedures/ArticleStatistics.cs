@@ -129,10 +129,10 @@ namespace Mate.DataCore.Data.Initializer.StoredProcedures
 				{
 					while (reader.Read())
 					{
-						System.Diagnostics.Debug.WriteLine(string.Format("Summe der Dauer {0}; Summe der Operationen {1}; Summe der Prodktionsaufträge {2}", reader[0], reader[1], reader[2]));
+						System.Diagnostics.Debug.WriteLine(string.Format("Summe der Dauer {0}; Anzahl der Operationen {1}; Summe der Produktionsaufträge {2}", reader[0], reader[1], int.Parse(reader[2].ToString()) + 1));
 						// TODO Catch false informations
 						estimatedProductDelivery = (long)(System.Convert.ToInt64(reader[0]) * factor);
-						System.Diagnostics.Debug.WriteLine("Estimated Product Delivery{0}", estimatedProductDelivery);
+						System.Diagnostics.Debug.WriteLine("Estimated Product Delivery {0}", estimatedProductDelivery);
 					}
 
 				}

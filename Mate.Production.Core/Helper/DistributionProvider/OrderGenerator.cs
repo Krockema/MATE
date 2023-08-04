@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Mate.DataCore.Data.Context;
+﻿using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Initializer.StoredProcedures;
 using Mate.DataCore.DataModel;
 using Mate.Production.Core.Environment;
 using Mate.Production.Core.Environment.Options;
 using MathNet.Numerics.Distributions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Mate.Production.Core.Helper.DistributionProvider
 {
@@ -37,7 +37,9 @@ namespace Mate.Production.Core.Helper.DistributionProvider
             _prodVariation = new DiscreteUniform(lower: 0, upper: _productIds.Count() - 1, randomSource: _seededRandom);
 
             //get equal distribution from 0 to 1
-            _amountVariation = new DiscreteUniform(lower: 1, upper: 10, randomSource: _seededRandom);
+            _amountVariation = new DiscreteUniform(lower: simConfig.GetOption<MinQuantity>().Value
+                                                    , upper: simConfig.GetOption<MaxQuantity>().Value
+                                                    , randomSource: _seededRandom);
 
             //get equal distribution for duetime
             //TODO: Change Option from int to double
