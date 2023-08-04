@@ -31,9 +31,9 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         }
 
 
-        public static IBehaviour Central(string dbConnectionStringGanttPlan, string dbConnectionStringMaster, WorkTimeGenerator workTimeGenerator)
+        public static IBehaviour Central(string dbConnectionStringGanttPlan, string dbConnectionStringMaster, string pathToGANTTPLANOptRunner, WorkTimeGenerator workTimeGenerator)
         {
-            return new Central(dbConnectionStringGanttPlan, dbConnectionStringMaster, workTimeGenerator);
+            return new Central(dbConnectionStringGanttPlan, dbConnectionStringMaster, pathToGANTTPLANOptRunner, workTimeGenerator);
         }
 
         private static IBehaviour Queuing(long maxBucketSize, WorkTimeGenerator workTimeGenerator)

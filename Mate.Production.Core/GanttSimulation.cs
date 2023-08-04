@@ -174,6 +174,7 @@ namespace Mate.Production.Core
             var hubInfo = new FResourceHubInformation(resourceList: _resourceDictionary
                                               , dbConnectionString: dbGantt.ConnectionString.Value
                                          , masterDbConnectionString: base.DbProduction.ConnectionString.Value
+                                         , pathToGANTTPLANOptRunner: configuration.GetOption<GANTTPLANOptRunnerPath>().Value
                                                , workTimeGenerator: randomWorkTime);
             Simulation.SimulationContext.Tell(
                 message: Directory.Instruction.Central.CreateHubAgent.Create(hubInfo, directory),

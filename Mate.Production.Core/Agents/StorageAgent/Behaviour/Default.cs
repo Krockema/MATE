@@ -52,6 +52,7 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
             var stockReservation = MakeReservationFor(request: item);
             if (!stockReservation.IsInStock || item.Article.ToBuild)
             {
+                item = item.UpdateProviderList(p: new List<FStockProvider>());
                 // add to Request queue if not in Stock
                 _requestedArticles.Add(item: item);
             }
@@ -177,7 +178,7 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
                                                                                                            , stockExchangeId: article.StockExchangeId
                                                                                                            , articleFinishedAt: article.FinishedAt
                                                                                                            , customerDue: article.CustomerDue
-                                                                                                           , provider: article.ProviderList)
+                                                                                                           , provider: article.ProviderList.ToArray().ToList())
                                                                               , target: article.DispoRequester
                                                                               , logThis: false));
 

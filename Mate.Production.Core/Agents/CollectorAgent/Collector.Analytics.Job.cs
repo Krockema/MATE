@@ -94,7 +94,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             return true;
         }
 
-       
+
         /// <summary>
         /// collect the resourceSetups of resource, cant be updated afterward
         /// </summary>
@@ -194,7 +194,6 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             var kpis = idleTime.GetKpis(Collector, finalCall);
             Collector.Kpis.AddRange(kpis);
         }
-
 
         private void CallTotal(bool finalCall)
         {

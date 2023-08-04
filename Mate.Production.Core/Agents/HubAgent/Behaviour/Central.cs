@@ -5,6 +5,7 @@ using System.Linq;
 using Akka.Actor;
 using Akka.Util.Internal;
 using Mate.DataCore.Data.Context;
+using Mate.DataCore.Data.WrappersForPrimitives;
 using Mate.DataCore.GanttPlan;
 using Mate.DataCore.GanttPlan.GanttPlanModel;
 using Mate.DataCore.Nominal;
@@ -14,7 +15,9 @@ using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using static FArticles;
 using static FCentralActivities;
+using static Mate.Production.Core.Agents.ResourceAgent.Resource.Instruction.Central;
 using Resource = Mate.Production.Core.Agents.ResourceAgent.Resource;
 
 namespace Mate.Production.Core.Agents.HubAgent.Behaviour
@@ -24,6 +27,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         private Dictionary<string, FCentralActivity> _scheduledActivities { get; } = new Dictionary<string, FCentralActivity>();
         private string _dbConnectionStringGanttPlan { get; }
         private string _dbConnectionStringMaster { get; }
+        private string _pathToGANTTPLANOptRunner { get; }
         private WorkTimeGenerator _workTimeGenerator { get; }
         private PlanManager _planManager { get; } = new PlanManager();
         private ResourceManager _resourceManager { get; } = new ResourceManager();
@@ -35,11 +39,12 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         private List<GptblSalesorderMaterialrelation> _SalesorderMaterialrelations { get; set;  } = new List<GptblSalesorderMaterialrelation>();
         private Dictionary<string, string> _prtResources { get; set; } = new Dictionary<string, string>();
 
-        public Central(string dbConnectionStringGanttPlan, string dbConnectionStringMaster, WorkTimeGenerator workTimeGenerator, SimulationType simulationType = SimulationType.Default) : base(childMaker: null, simulationType: simulationType)
+        public Central(string dbConnectionStringGanttPlan, string dbConnectionStringMaster, string pathToGANTTPLANOptRunner, WorkTimeGenerator workTimeGenerator, SimulationType simulationType = SimulationType.Default) : base(childMaker: null, simulationType: simulationType)
         {
             _workTimeGenerator = workTimeGenerator;
             _dbConnectionStringGanttPlan = dbConnectionStringGanttPlan;
             _dbConnectionStringMaster = dbConnectionStringMaster;
+            _pathToGANTTPLANOptRunner = pathToGANTTPLANOptRunner;
             _confirmationManager = new ConfirmationManager(dbConnectionStringGanttPlan);
             _stockPostingManager = new StockPostingManager(dbConnectionStringGanttPlan);
 
@@ -115,7 +120,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             CreateComputationalTime("TimeWriteConfirmations", lastStep);
 
             System.Diagnostics.Debug.WriteLine("Start GanttPlan");
-            GanttPlanOptRunner.RunOptAndExport("Continuous", "C:\\Users\\admin\\GANTTPLAN\\GanttPlanOptRunner.exe"); //changed to Init - merged configs
+            GanttPlanOptRunner.RunOptAndExport("Continuous", _pathToGANTTPLANOptRunner); //changed to Init - merged configs
             System.Diagnostics.Debug.WriteLine("Finish GanttPlan");
 
             lastStep = stopwatch.ElapsedMilliseconds - lastStep;
@@ -126,6 +131,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             {
                 foreach (var resourceState in _resourceManager.resourceStateList)
                 {
+                   
                     // put to an sorted Queue on each Resource
                     resourceState.ActivityQueue = new Queue<GptblProductionorderOperationActivityResourceInterval>(
                         localGanttPlanDbContext.GptblProductionorderOperationActivityResourceInterval
@@ -144,6 +150,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                                         && x.ProductionorderOperationActivityResource.ProductionorderOperationActivity.Status != (int)GanttActivityState.Started))
                             .OrderBy(x => x.DateFrom)
                             .ToList());
+
                 } // filter Done and in Progress?
 
                 var tempsalesorder = _SalesorderMaterialrelations;
@@ -360,8 +367,9 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             //only randomize ActivityType "Operation"
             if (fActivity.ActivityId == 3)
-            { 
-                randomizedDuration = _workTimeGenerator.GetRandomWorkTime(fActivity.Duration);
+            {
+                
+                randomizedDuration = _workTimeGenerator.GetRandomWorkTime(fActivity.Duration, fActivity.Key.GetHashCode());
             }
 
             CreateSimulationJob(activity, Agent.CurrentTime, randomizedDuration, requiredCapability);
@@ -533,8 +541,13 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         #region Reporting
 
         public void CreateSimulationJob(GptblProductionorderOperationActivity activity, long start, long duration, string requiredCapabilityName)
-        {
-            var pub = activity.ToSimulationJob(start, duration, requiredCapabilityName);
+        { 
+            var pub = MessageFactory.ToSimulationJob(activity,
+                        start, 
+                        duration,
+                        requiredCapabilityName
+                    );
+            //var pub = activity.ToSimulationJob(start, duration, requiredCapabilityName);
             Agent.Context.System.EventStream.Publish(@event: pub);
         }
 

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Xunit;
-
 using Seed;
 using Seed.Parameter;
 using Seed.Parameter.TransitionMatrix;
@@ -9,20 +7,13 @@ using Seed.Parameter.Operation;
 using Seed.Generator.Material;
 using Seed.Distributions;
 using Seed.Generator.Operation;
-using Mate.DataCore.Data.Seed;
 using Mate.DataCore.Data.Context;
-using Mate.DataCore;
 using System.Linq;
 
-namespace Mate.Test.SimulationEnvironment
+namespace Mate.DataCore.Data.Seed
 {
-    public class SeedInitializer : IDisposable
+    public class SeedInitializer
     {
-
-        public void Dispose()
-        {
-        }
-
         public void GenerateTestData(string mateDbName, int machineCount, int toolCount
                                     , int seed, double reuseRatio, double complexityRatio, double organizationalDegree
                                     , int numberOfSalesMaterials, int verticalIntegration, int lambda = 2)

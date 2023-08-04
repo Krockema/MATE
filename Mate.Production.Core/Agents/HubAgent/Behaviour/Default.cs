@@ -386,7 +386,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             bucket.Operations.ForEach(operation =>
             {
                 operation.Operation.RandomizedDuration =
-                    _workTimeGenerator.GetRandomWorkTime(operation.Operation.Duration);
+                    _workTimeGenerator.GetRandomWorkTime(operation.Operation.Duration, (operation.ProductionAgent.GetHashCode() + operation.Operation.HierarchyNumber).GetHashCode());
 
                 Agent.DebugMessage($"{operation.Operation.Name} {operation.Key} from {((FBuckets.FBucket)jobConfirmation.Job).Name} has new work time of {operation.Operation.RandomizedDuration}.", CustomLogger.JOB, LogLevel.Warn);
 

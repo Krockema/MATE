@@ -5,13 +5,16 @@ using Akka.Actor;
 using Mate.DataCore.DataModel;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.Nominal.Model;
+using Mate.Production.Core.Agents.CollectorAgent.Types;
 using Mate.Production.Core.Agents.HubAgent;
+using Mate.Production.Core.Agents.HubAgent.Types;
 using Mate.Production.Core.Agents.JobAgent;
 using Mate.Production.Core.Agents.ResourceAgent.Types;
 using Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue;
 using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
 using Mate.Production.Core.Types;
+using static FBuckets;
 using static FResourceInformations;
 using Directory = Mate.Production.Core.Agents.DirectoryAgent.Directory;
 using LogLevel = NLog.LogLevel;
@@ -114,9 +117,13 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 
         private void RevokeJob(Guid jobKey)
         {
-            var revokedJob = _jobInProgress.RevokeJob(jobKey);
+            var (position, revokedJob) = _jobInProgress.RevokeJob(jobKey);
             if (revokedJob != null)
             {
+                foreach(var element in ((FBucket)revokedJob.Job).Operations)
+                {
+                    (var duration, var opPosition) = _jobInProgress.GetTotalOperationsOfJobInProgress(element.Key,Agent.CurrentTime);
+                }
                 Agent.DebugMessage(msg: $"Revoking Job from Processing {revokedJob.Job.Name} {revokedJob.Job.Key}", CustomLogger.JOB, LogLevel.Warn);
                 Agent.Send(instruction: Job.Instruction.AcknowledgeRevoke.Create(message: Agent.Context.Self, target: revokedJob.JobAgentRef));
                 UpdateProcessingItem();
@@ -448,13 +455,15 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
             foreach (var job in toRequeue)
             {
                 Agent.DebugMessage(msg: $"Remove for requeue {job.Job.Name} {job.Key} from {Agent.Context.Self.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
+                
                 _scopeQueue.RemoveJob(job);
                 Agent.Send(instruction: Job.Instruction.StartRequeue.Create(target: job.JobAgentRef));
             }
         }
-#endregion
 
-#region Reporting
+        #endregion
+
+        #region Reporting
 
         void CreateProcessingTask(FOperations.FOperation item)
         {
@@ -488,7 +497,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
             Agent.Context.System.EventStream.Publish(@event: pub);
         }
 
-#endregion
+        #endregion
 
     }
 }

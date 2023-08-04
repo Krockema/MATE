@@ -9,6 +9,7 @@ using static FRequestProposalForCapabilityProviders;
 using static FScopes;
 using static IConfirmations;
 using static IJobs;
+using static FScopeConfirmations;
 
 namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
 {
@@ -16,6 +17,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
     {
         public long Limit { get; set; }
         public long Workload => this.Values.Sum(x => x.Job.Duration);
+
         public TimeConstraintQueue(long limit)
         {
             Limit = limit;
@@ -346,6 +348,35 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
         }
 
         
+        public int GetAmountOfPreviousOperations(long scopeStart)
+        {
+            int operations = 0;
+            var index = this.IndexOfKey(scopeStart);
+
+            foreach(var element in this.Where(x => x.Key < index))
+            {
+                operations += ((FBucket)element.Value.Job).Operations.Count();
+
+            }
+
+            return operations;
+        }
+
+        public (long, int) GetPositionOfJobInJob(long scopeStart, Guid operationId, long currentTime)
+        {
+            int operations = 0;
+            long duration = 0;
+            var bucket = ((FBucket)this[scopeStart].Job);
+            var operation = bucket.Operations.Single(x => x.Key == operationId) as IJob;
+            foreach (var element in bucket.Operations.Cast<IJob>().Where(x => x.Priority(currentTime) < operation.Priority(currentTime)))
+            {
+                operations++;
+                duration += element.Duration;
+            }
+
+            return (duration, operations);
+        }
+
     }
 }
 

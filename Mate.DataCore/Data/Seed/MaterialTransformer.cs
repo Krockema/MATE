@@ -6,6 +6,7 @@ using Seed.Data;
 using Seed.Generator.Material;
 using System;
 using System.Collections.Generic;
+using System.Data.HashFunction.xxHash;
 using System.Linq;
 
 namespace Mate.DataCore.Data.Seed
@@ -13,6 +14,7 @@ namespace Mate.DataCore.Data.Seed
     public class MaterialTransformer
     {
         public static string BUSINESS_PARTNER_1 { get; private set; } = "BUSINESS_PARTNER_1";
+        public static string BUSINESS_PARTNER_2 { get; private set; } = "BUSINESS_PARTNER_2";
 
         public static void Transform(MateDb mateDb, Materials materials, DynamicInitializer.Tables.MasterTableResourceCapability masterTableCapabilities)
         {
@@ -79,7 +81,7 @@ namespace Mate.DataCore.Data.Seed
             mateDb.ArticleBoms.AddRange(boms);
             mateDb.SaveChanges();
 
-            CreateStocks(mateDb, businessPartners.First()); ;
+            CreateStocks(mateDb, businessPartners.ToList());
 
         }
 
@@ -87,7 +89,8 @@ namespace Mate.DataCore.Data.Seed
         {
             var businessPartners = new M_BusinessPartner[]
             {
-                new M_BusinessPartner() {Debitor = true, Kreditor = false, Name = BUSINESS_PARTNER_1}
+                new M_BusinessPartner() {Debitor = true, Kreditor = false, Name = BUSINESS_PARTNER_1},
+                new M_BusinessPartner() {Debitor = false, Kreditor = true, Name = BUSINESS_PARTNER_2}
             };
             mateDb.BusinessPartners.AddRange(businessPartners);
             mateDb.SaveChanges();
@@ -146,7 +149,7 @@ namespace Mate.DataCore.Data.Seed
 
         }
 
-        private static void CreateStocks(MateDb mateDb, M_BusinessPartner businessPartners)
+        private static void CreateStocks(MateDb mateDb, List<M_BusinessPartner> businessPartners)
         {
             // get the name -> id mappings
             var dbArticles = mateDb.Articles.ToList();
@@ -161,18 +164,18 @@ namespace Mate.DataCore.Data.Seed
                     {
                         ArticleForeignKey = article.Id,
                         Name = "Stock: " + article.Name,
-                        Min = article.ToPurchase ? 500 : 0,
-                        Max = 10000,
+                        Min = article.ToPurchase ? 100 : 0,
+                        Max = 1000,
                         Current = article.ToPurchase ? 1000 : 0,
                         StartValue = article.ToPurchase ? 1000 : 0,
                     });
                 articleToBusinessPartners.Add(
                     new M_ArticleToBusinessPartner
                     {
-                        BusinessPartnerId = businessPartners.Id,
+                        BusinessPartnerId = article.ToPurchase ? businessPartners.Single(x => x.Kreditor).Id : businessPartners.Single(x => x.Debitor).Id,
                         ArticleId = article.Id,
-                        PackSize = 1000,
-                        Price = 1000 * article.Price,
+                        PackSize = 5000,
+                        Price = 5000 * article.Price,
                         TimeToDelivery = 1440
                     });
             }

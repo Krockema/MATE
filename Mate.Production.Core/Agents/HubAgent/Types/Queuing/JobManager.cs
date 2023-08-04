@@ -8,6 +8,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
 {
     public class JobManager
     {
+        JobTracker _jobTracker = new ();
         private List<IJob> _pendingJobList { get; set; } = new List<IJob>();
         private CapabilityJobStorage _capabilityJobStorage { get; }
         private List<ActiveJobQueue> _activeJobList { get; } = new List<ActiveJobQueue>();
@@ -29,17 +30,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
             }
 
             _pendingJobList.Add(job);
-
-        }
-
-        public void Add(IJob job)
-        {
-            _pendingJobList.Add(job);
-        }
-
-        public List<JobQueue> GetNextJobQueues(long currentTime)
-        {
-            return _capabilityJobStorage.GetJobQueues(currentTime);
+            _jobTracker.Add(job, currentTime);
         }
 
         public List<JobQueue> GetAllJobQueues(long currentTime, List<int> availableCapabilities)
@@ -74,5 +65,15 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
         {
             _capabilityJobStorage.Remove(jobQueue);
         }
+
+        internal void RemoveFromJobTracker(IJob job, long time) {
+            _jobTracker.Remove(job, time);
+        }
+
+        internal void TrackJobs(long time)
+        {
+            _jobTracker.TrackJobs(time);
+        }
+
     }
 }

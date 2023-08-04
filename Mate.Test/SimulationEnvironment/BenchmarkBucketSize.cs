@@ -35,7 +35,7 @@ namespace Mate.Test.SimulationEnvironment
         public async Task BucketSizeTest()
         {
             //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
-            var simContext = new AgentSimulation(dbName: TestMateDb, messageHub: new ConsoleHub());
+            var simContext = new AgentSimulation(dbName: TestMateDb, messageHub: new LoggingHub());
 
             var simConfig = Production.Core.Environment.Configuration.Create(args: new object[]
             {

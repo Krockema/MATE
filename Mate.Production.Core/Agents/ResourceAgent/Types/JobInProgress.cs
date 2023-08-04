@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
 using Mate.DataCore.DataModel;
+using MathNet.Numerics.Statistics;
 using static FBuckets;
 using static FOperations;
 using static IConfirmations;
+using static IJobs;
 
 namespace Mate.Production.Core.Agents.ResourceAgent.Types
 {
@@ -24,8 +26,9 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
         public bool IsWorking {get; private set; } = false;
         private Queue<FOperation> _finalOperations { get; set; } = new Queue<FOperation>();
         public bool ResetIsWorking() => IsWorking = false;
+        public int HasCurrent=> Current != null ? 1 : 0;
 
-    #region Passthrough Properties
+        #region Passthrough Properties
         public long JobDuration => Current.Job.Duration;
         public long JobMaxDuration => ((FBucket) Current.Job).MaxBucketSize;
         public int ResourceCapabilityId => Current.CapabilityProvider.ResourceCapabilityId;
@@ -38,6 +41,77 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
         public List<IConfirmation> GanttItems => this.ReadyElements.Values.ToList();
         public bool IsCurrentDelayed(long currentTime) => Current.ScopeConfirmation.GetScopeStart() < currentTime;
         public M_ResourceCapabilityProvider CapabilityProvider => Current.CapabilityProvider;
+        public int GetTotalOperationsOfJobInProgress()
+        {
+            int operations = 0;
+            int durationOperations = 0;
+            if (ReadyElements.Count > 0)
+            {
+                foreach (var element in ReadyElements)
+                {
+                    operations += ((FBucket)element.Value.Job).Operations.Count();
+                }
+            }
+            if(HasCurrent == 1)
+            {
+                operations += ((FBucket)Current.Job).Operations.Count();
+            }
+
+            return operations;
+        }
+
+        public (int, int) GetTotalOperationsOfJobInProgress(Guid operationId, long currentTime)
+        {
+            int operations = 0;
+            int durationOperations = 0;
+            IJob operation = null;
+
+            if (HasCurrent == 1)
+                operation = ((FBucket)Current.Job).Operations.SingleOrDefault(x => x.Key.Equals(operationId)) as IJob;
+            
+            //Wenn es in dem aktuellen Element ist
+            if (operation != null)
+            {
+                var jobPrio = operation.Priority(currentTime);
+                operations += ((FBucket)Current.Job).Operations.Count(x => ((IJob)x).Priority(currentTime) < jobPrio);
+                durationOperations += ((FBucket)Current.Job).Operations.Where(x => ((IJob)x).Priority(currentTime) < jobPrio).Sum(y => y.Operation.Duration);
+            }
+            //Ansonsten, wenn es in den ReadyElementen ist
+            else
+            {
+                if (HasCurrent == 1)
+                {
+                    operations += ((FBucket)Current.Job).Operations.Count();
+                }
+                IJob element = null;
+                foreach (var item in ReadyElements)
+                {
+                    //Gehe solange über die Liste, bis du das Element in den Operationen gefunden hast
+                    while (element == null)
+                    {
+                        var tmp = item.Value.Job as FBucket;
+                        element = tmp.Operations.SingleOrDefault(x => x.Key.Equals(operationId));
+                        //((FBucket)ReadyElements.ToArray()[i].Job).Operations.SingleOrDefault(x => x.Key.Equals(operationId));
+
+                        //Wenn das Element noch nicht in der Liste ist, nimm alle Operationen aus dieser Liste
+                        if (element == null)
+                        {
+                            operations += tmp.Operations.Count;
+                            break;
+                        }
+
+                        var jobPrio = element.Priority(currentTime);
+                        operations += tmp.Operations.Count(x => ((IJob)x).Priority(currentTime) < jobPrio);
+                        durationOperations += tmp.Operations.Where(x => ((IJob)x).Priority(currentTime) < jobPrio).Sum(y => y.Operation.Duration);
+
+                    }
+                }
+            }
+            return (durationOperations, operations);
+        }
+
+
+
         #endregion
 
         public void StartProcessing(long currentTime, long duration)
@@ -101,19 +175,28 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
             _finalOperations = new ();
         }
 
-        public IConfirmation RevokeJob(Guid confirmationKey)
+        public (int, IConfirmation) RevokeJob(Guid confirmationKey)
         {
             if (IsSet && Current.Key.Equals(confirmationKey))
             {
                 var rev = Current;
                 Reset();
-                return rev;
+                return (0, rev);
             }
 
             var (key, revoked) = ReadyElements.FirstOrDefault(x => x.Value.Key.Equals(confirmationKey));
-            if (revoked == null) return null;
+            if (revoked == null) return (0, null);
             ReadyElements.Remove(key);
-            return revoked;
+            return (JobPosition(revoked), revoked);
+        }
+
+        public int JobPosition(IConfirmation job)
+        {
+            var position = 0;
+            if (IsSet) 
+                position = position + ((FBucket)Current.Job).Operations.Count();
+            position = position + ReadyElements.IndexOfKey(job.ScopeConfirmation.GetScopeStart());
+            return position;
         }
 
         public void Add(IConfirmation confirmation)

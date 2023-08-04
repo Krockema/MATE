@@ -44,7 +44,7 @@ namespace Mate.Production.Core
                 tasks.Add(item.Ask(message: msg, timeout: TimeSpan.FromSeconds(value: 60 * 60)));
                         
             }
-            Task.WaitAll(tasks.ToArray());
+            Task.WaitAll(tasks.ToArray(), timeout: TimeSpan.FromSeconds(value: 60 * 10));
             
         }
 
@@ -53,7 +53,7 @@ namespace Mate.Production.Core
             foreach (var item in _collectorRefs)
             {
                 item.Ask(message: UpdateLiveFeed.Create(setup: true, target: _inbox.Receiver)
-                       , timeout: TimeSpan.FromHours(value: 1)).Wait();
+                       , timeout: TimeSpan.FromMinutes(value: 15)).Wait();
             }
             sim.ActorSystem.Terminate().Wait();
             _logger.Log(LogLevel.Info, $"Simulation run for { sim.ActorSystem.Uptime } and ended!");

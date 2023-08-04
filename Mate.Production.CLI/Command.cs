@@ -28,6 +28,8 @@ namespace Mate.Production.CLI
             , new TimePeriodForThroughputCalculation()
             , new MaxBucketSize()
             , new TransitionFactor()
+            , new MinQuantity()
+            , new MaxQuantity()
             , new MaxDeliveryTime()
             , new MinDeliveryTime()
             , new TimeConstraintQueueLength()

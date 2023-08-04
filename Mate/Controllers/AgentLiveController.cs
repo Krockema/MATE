@@ -73,6 +73,8 @@ namespace Mate.Controllers
             simConfig.ReplaceOption(new DebugSystem(value: false));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.2));
             simConfig.ReplaceOption(new MaxBucketSize(480));
+            simConfig.ReplaceOption(new MinQuantity(1));
+            simConfig.ReplaceOption(new MaxQuantity(1));
             simConfig.ReplaceOption(new MinDeliveryTime(10));
             simConfig.ReplaceOption(new MaxDeliveryTime(15));
             simConfig.ReplaceOption(new Mate.Production.Core.Environment.Options.PriorityRule(value: DataCore.Nominal.PriorityRule.LST));

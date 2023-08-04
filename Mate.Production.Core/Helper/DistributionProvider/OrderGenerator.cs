@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Mate.DataCore.Data.Context;
+﻿using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Initializer.StoredProcedures;
 using Mate.DataCore.DataModel;
 using Mate.Production.Core.Environment;
 using Mate.Production.Core.Environment.Options;
 using MathNet.Numerics.Distributions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Mate.Production.Core.Helper.DistributionProvider
 {
@@ -17,6 +17,7 @@ namespace Mate.Production.Core.Helper.DistributionProvider
         private Random _seededRandom { get; set; }
         private Exponential _exponential { get; set; }
         private DiscreteUniform _prodVariation { get; set; }
+        private DiscreteUniform _amountVariation { get; set; }
         private ContinuousUniform _duetime { get; set; }
         private MateProductionDb _productionDomainContext { get; }
 
@@ -34,6 +35,11 @@ namespace Mate.Production.Core.Helper.DistributionProvider
 
             //get equal distribution from 0 to 1
             _prodVariation = new DiscreteUniform(lower: 0, upper: _productIds.Count() - 1, randomSource: _seededRandom);
+
+            //get equal distribution from 0 to 1
+            _amountVariation = new DiscreteUniform(lower: simConfig.GetOption<MinQuantity>().Value
+                                                    , upper: simConfig.GetOption<MaxQuantity>().Value
+                                                    , randomSource: _seededRandom);
 
             //get equal distribution for duetime
             //TODO: Change Option from int to double
@@ -77,8 +83,10 @@ namespace Mate.Production.Core.Helper.DistributionProvider
             due = time + creationTime + due;
             System.Diagnostics.Debug.WriteLineIf(condition: _debug, message: "Product(" + productId + ")" + ";" + time + ";" + due);
 
+            var amount = _amountVariation.Sample();
+
             // only Returns new Order does not save context.
-            var order = _productionDomainContext.CreateNewOrder(articleId: productId, amount: 1, creationTime: time + creationTime, dueTime: due);
+            var order = _productionDomainContext.CreateNewOrder(articleId: productId, amount: amount, creationTime: time + creationTime, dueTime: due);
             return order;
         }
     }

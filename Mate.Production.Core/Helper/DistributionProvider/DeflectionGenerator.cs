@@ -13,7 +13,7 @@ namespace Mate.Production.Core.Helper.DistributionProvider
         Random _random = null;
         public DeflectionGenerator(int seed)
         {
-            var random = new Random(Seed: seed);
+            _random = new Random(Seed: seed);
 
         }
 

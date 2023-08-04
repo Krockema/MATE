@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
 using Mate.DataCore.Nominal;
+using Mate.Production.Core.Agents.CollectorAgent.Types;
 using Mate.Production.Core.Agents.HubAgent.Types;
 using Mate.Production.Core.Agents.HubAgent.Types.Queuing;
 using Mate.Production.Core.Agents.ResourceAgent;
@@ -89,10 +91,16 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             operation.UpdateHubAgent(hub: Agent.Context.Self);
 
+            //Dequeue behind the new jobs prio
+
             _jobManager.SetJob(job, Agent.CurrentTime);
+
+            //Enqueue behing the new jobs prio
 
             StartNext();
         }
+
+
 
         private void StartNext()
         {
@@ -226,8 +234,11 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             var jobQueue = _jobManager.GetActiveJob(queueKey);
 
             var nextJob = jobQueue.Dequeue(Agent.CurrentTime);
+            _jobManager.RemoveFromJobTracker(nextJob, this.Agent.CurrentTime);
+
+            var operation = nextJob as FOperation;
             
-            var randomizedDuration = _workTimeGenerator.GetRandomWorkTime(nextJob.Duration);
+            var randomizedDuration = _workTimeGenerator.GetRandomWorkTime(nextJob.Duration, (operation.ProductionAgent.GetHashCode() + operation.Operation.HierarchyNumber).GetHashCode());
 
             Agent.DebugMessage($"Start DoWork for {jobQueue.QueueId} with job {nextJob.Name} and randomized duration of {randomizedDuration}");
 
@@ -248,6 +259,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                     capabilityProvider: jobQueue.ResourceCapabilityProvider,
                     jobType: JobType.OPERATION
                     );
+
 
                 Agent.Send(Resource.Instruction.Queuing.DoJob.Create(fQueuingJob, (IActorRef)resource.IResourceRef));
             }
@@ -335,5 +347,4 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             Agent.Send(BasicInstruction.FinishJob.Create(fOperationResult, job.ProductionAgent));
         }
     }
-    
 }

@@ -16,7 +16,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Types
         internal List<IActorRef> GetProviderForOperation(Guid operationKey)
         {
             var articleTuple = _articleProvider.Single(x => x.Operation.Key == operationKey);
-            var provider = articleTuple.DispoToArticleRelation.Select(x => x.Provider).ToList();
+            var provider = articleTuple.GetProviderList;
             return provider;
         }
 
@@ -75,7 +75,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Types
 
         public int CreateRequiredArticles(FArticle articleToProduce, IActorRef requestingAgent, long currentTime)
         {
-            List<ArticleProvider> listAP = new List<ArticleProvider>();
+            List<ArticleProvider> listAP = new ();
             var remainingDuration = articleToProduce.RemainingDuration;
             foreach (var fOperation in GetOperations.OrderByDescending(x => x.Operation.HierarchyNumber)) {
                 remainingDuration += fOperation.Operation.Duration;
@@ -96,7 +96,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Types
                                                                             , customerDue: articleToProduce.CustomerDue
                                                                             , currentTime: currentTime));
                                                                     listAP.Add(createdArticleProvider);
-                    provider.DispoToArticleRelation.Add(createdArticleProvider);
+                    provider.Add(createdArticleProvider);
                 }
             }
             return listAP.Count;

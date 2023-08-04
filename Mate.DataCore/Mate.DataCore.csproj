@@ -12,6 +12,7 @@
     <None Remove="Data\Helper\DistributionProvider\**" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="AkkaSim" Version="0.5.2" />
     <PackageReference Include="EfCore.InMemoryHelpers" Version="1.9.11" />
     <PackageReference Include="EntityFrameworkCore.Cacheable" Version="2.0.1" />
     <PackageReference Include="Mate.DataCore.GanttPlanApi" Version="1.0.1" />

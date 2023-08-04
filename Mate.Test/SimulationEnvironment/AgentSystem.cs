@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Akka.TestKit.Xunit;
@@ -14,22 +17,30 @@ using Mate.DataCore.Nominal;
 using Mate.DataCore.Nominal.Model;
 using Mate.Production.CLI;
 using Mate.Production.Core;
+using Mate.Production.Core.Agents.CollectorAgent.Types;
 using Mate.Production.Core.Environment.Options;
 using Mate.Production.Core.Helper;
+using MathNet.Numerics.Distributions;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using Xunit;
+using Xunit.Abstractions;
+using static Akka.IO.Tcp;
 using PriorityRule = Mate.DataCore.Nominal.PriorityRule;
 
 namespace Mate.Test.SimulationEnvironment
 {
-    public class AgentSystem : TestKit, IClassFixture<SeedInitializer>
+    public class AgentSystem : TestKit//, IClassFixture<SeedInitializer>
     {
-        private SeedInitializer seedInitializer = new SeedInitializer();
-
         private readonly string TestMateDb = "Test" + DataBaseConfiguration.MateDb;
         private readonly string TestMateResultDb = "Test" + DataBaseConfiguration.MateResultDb;
+        private readonly string logPath = @"C:\temp\TestTracker.txt";
 
+        StreamWriter _streamWriter;
+
+        public AgentSystem() {
+            _streamWriter = new StreamWriter(logPath);
+        }
 
         [Fact]
         public void TestRawSQL()
@@ -153,7 +164,7 @@ namespace Mate.Test.SimulationEnvironment
             }
 
         }
-        
+                
         private void GetSetups(M_Resource resource, MateProductionDb masterCtx)
         {
             if (!resource.IsPhysical)
@@ -186,7 +197,7 @@ namespace Mate.Test.SimulationEnvironment
         public static IEnumerable<object[]> GetTestData()
         {
             var simNumber = 0;
-            var throughput = 1920;
+            var throughput = 10080;
 
             for (int i = 0; i < 1; i++)
             {
@@ -212,31 +223,19 @@ namespace Mate.Test.SimulationEnvironment
 
         //[MemberData(nameof(GetTestData))]
         //public async Task SystemTestAsync(SimulationType simulationType, PriorityRule priorityRule, int simNr, int maxBucketSize, long throughput, int seed , ModelSize resourceModelSize, ModelSize setupModelSize, double arrivalRate, bool distributeSetupsExponentially, bool createMeasurements = false)
-        
+
+
         [Theory]
-        //[InlineData(SimulationType.Default, 1700, 0.00)]
-        [InlineData(SimulationType.Default, 1705, 0.05)]
-        [InlineData(SimulationType.Default, 1710, 0.10)]
-        [InlineData(SimulationType.Default, 1715, 0.15)]
-        //[InlineData(SimulationType.Default, 1720, 0.20)]
-        [InlineData(SimulationType.Default, 1725, 0.25)]
-        [InlineData(SimulationType.Default, 1730, 0.30)]
-        [InlineData(SimulationType.Default, 1735, 0.35)]
-        [InlineData(SimulationType.Central, 2700, 0.00)]
-        [InlineData(SimulationType.Central, 2705, 0.05)]
-        [InlineData(SimulationType.Central, 2710, 0.10)]
-        [InlineData(SimulationType.Central, 2715, 0.15)]
-        [InlineData(SimulationType.Central, 2720, 0.20)]
-        [InlineData(SimulationType.Central, 2725, 0.25)]
-        [InlineData(SimulationType.Central, 2730, 0.30)]
-        [InlineData(SimulationType.Central, 2735, 0.35)]
-        public async Task AgentSystemTest(SimulationType simulationType, int simNr, double deviation)
+        // [x] [InlineData(SimulationType.Default, 110, 0.00, 0.035, 1337)] // throughput dynamic ruled
+        [InlineData(SimulationType.Queuing, 44, 0.0, 0.020, 169)]
+        public async Task AgentSystemTest(SimulationType simulationType, int simNr, double deviation, double arrivalRateRun, int seed
+            , int seedDataGen = 5, double reuse = 1.0, double complxity = 1.0, double organziationaldegree = 0.8, int numberOfSalesMaterials = 50, int verticalIntegration = 2)
         {
-            //var simNr = 2;
+            //var simNr = Random.Shared.Next();
             //var simulationType = SimulationType.Default;
-            var seed = 169;
-            var throughput = 1920;
-            var arrivalRate = 0.035;
+            
+            var throughput = 1440 * 5;
+            var arrivalRate = arrivalRateRun;
 
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
             LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
@@ -258,62 +257,65 @@ namespace Mate.Test.SimulationEnvironment
             //dbResult.DbContext.Database.EnsureCreated();
             //ResultDBInitializerBasic.DbInitialize(dbResult.DbContext);
 
-            seedInitializer.GenerateTestData(TestMateDb);
+            DataCore.Data.Seed.SeedInitializer seedInitializer = new ();
+            seedInitializer.GenerateTestData(TestMateDb, machineCount: 4, toolCount: 6
+                                             // , number of Worker
+                                             // , number of Products
+                                             , seed: seedDataGen
+                                             , reuseRatio: reuse
+                                             , complexityRatio: complxity
+                                             , organizationalDegree: organziationaldegree
+                                             , numberOfSalesMaterials: numberOfSalesMaterials
+                                             , verticalIntegration: verticalIntegration);
             
-            //dbMaster.DbContext.Database.EnsureDeleted();
-            //dbMaster.DbContext.Database.EnsureCreated();
-            //MasterDBInitializerTruck.DbInitialize(context: dbMaster.DbContext
-            //    , resourceModelSize: resourceModelSize
-            //    , setupModelSize: setupModelSize
-            //    , operatorsModelSize: ModelSize.Small
-            //    , numberOfWorkersForProcessing: 3
-            //    , secondResource: false
-            //    , createMeasurements: createMeasurements
-            //    , distributeSetupsExponentially: distributeSetupsExponentially);
-            //InMemoryContext.LoadData(source: _masterDBContext, target: _ctx);
-
             var simConfig = Production.CLI.ArgumentConverter.ConfigurationConverter(dbResult.DbContext, 1);
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(dbResult.ConnectionString.Value));
-            simConfig.ReplaceOption(new KpiTimeSpan(240));
-            simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
+            simConfig.ReplaceOption(new GANTTPLANOptRunnerPath("D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe"));
+            simConfig.ReplaceOption(new KpiTimeSpan(1440));
+            simConfig.ReplaceOption(new TimeConstraintQueueLength(480 * 6 * 2)); // = schicht * setups * x
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 10000));
+            simConfig.ReplaceOption(new OrderQuantity(value: 1000));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
             simConfig.ReplaceOption(new Production.Core.Environment.Options.Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 2880));
-            simConfig.ReplaceOption(new MinDeliveryTime(value: 10));
-            simConfig.ReplaceOption(new MaxDeliveryTime(value: 15));
-            simConfig.ReplaceOption(new SimulationEnd(value: 10080*3));
+            simConfig.ReplaceOption(new SettlingStart(value: 1440));
+            simConfig.ReplaceOption(new MinQuantity(value: 1));
+            simConfig.ReplaceOption(new MaxQuantity(value: 1));
+            simConfig.ReplaceOption(new MinDeliveryTime(value: 11));
+            simConfig.ReplaceOption(new MaxDeliveryTime(value: 18));
+            simConfig.ReplaceOption(new SimulationEnd(value: 1440 * 30));
             simConfig.ReplaceOption(new SaveToDB(value: true));
-            simConfig.ReplaceOption(new DebugSystem(value: false));
-            simConfig.ReplaceOption(new DebugAgents(value: false));
+            simConfig.ReplaceOption(new DebugSystem(value: true));
+            simConfig.ReplaceOption(new DebugAgents(value: true));
             simConfig.ReplaceOption(new WorkTimeDeviation(deviation));
-            simConfig.ReplaceOption(new MaxBucketSize(value: 1920));
+            simConfig.ReplaceOption(new MaxBucketSize(value: 480 * 6 * 2)); // = schicht * setups * x
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
             simConfig.ReplaceOption(new CreateQualityData(false));
             simConfig.ReplaceOption(new Mate.Production.Core.Environment.Options.PriorityRule(PriorityRule.LST));
 
             ClearResultDBby(simNr: simConfig.GetOption<SimulationNumber>(), dbName: TestMateResultDb);
 
-            BaseSimulation simContext = null;
+            BaseSimulation simContext;
 
-            if (simulationType == SimulationType.Default)
-            {
-                simContext = new AgentSimulation(TestMateDb, messageHub: new ConsoleHub());
-            }
-            else
+            Action<string,string> consoleWriter = (listnerToWrite, msgToWrite) => { if (listnerToWrite == "Contracts") { _streamWriter.WriteLine(msgToWrite); } };
+
+            if (simulationType == SimulationType.Central)
             {
                 var ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GP);
                 ganttPlanContext.DbContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
 
                 //Synchronisation GanttPlan
-                GanttPlanOptRunner.RunOptAndExport("Init", "C:\\Users\\admin\\GANTTPLAN\\GanttPlanOptRunner.exe");
+                GanttPlanOptRunner.RunOptAndExport("Init", simConfig.GetOption<GANTTPLANOptRunnerPath>().Value);
 
-                simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new ConsoleHub());
-
+                //simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new LoggingHub());
+                simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new ConsoleHub(consoleWriter));
+            }
+            else
+            {
+                //simContext = new AgentSimulation(TestMateDb, messageHub: new LoggingHub());
+                simContext = new AgentSimulation(TestMateDb, messageHub: new ConsoleHub(consoleWriter));
             }
 
             var simulation = await simContext.InitializeSimulation(configuration: simConfig);
@@ -361,10 +363,12 @@ namespace Mate.Test.SimulationEnvironment
                 _ctxResult.RemoveRange(entities: itemsToRemove);
                 _ctxResult.RemoveRange(entities: _ctxResult.Kpis.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
                 _ctxResult.RemoveRange(entities: _ctxResult.StockExchanges.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctxResult.RemoveRange(entities: _ctxResult.TaskItems.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctxResult.RemoveRange(entities: _ctxResult.SimulationOrders.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
+                _ctxResult.RemoveRange(entities: _ctxResult.SimulationResourceSetups.Where(predicate: a => a.SimulationNumber.Equals(_simNr.Value)));
                 _ctxResult.SaveChanges();
             }
         }
-
 
         [Fact]
         private void TestDbms()
