@@ -257,7 +257,7 @@ namespace Mate.Test.SimulationEnvironment
 
         [Theory]
         // [x] [InlineData(SimulationType.Default, 110, 0.00, 0.035, 1337)] // throughput dynamic ruled
-        [InlineData(SimulationType.Default, 35, 0.0, 0.020, 169)]
+        [InlineData(SimulationType.Central, 41, 0.0, 0.020, 169)]
         public async Task AgentSystemTest(SimulationType simulationType, int simNr, double deviation, double arrivalRateRun, int seed
             , int seedDataGen = 5, double reuse = 1.0, double complxity = 1.0, double organziationaldegree = 0.8, int numberOfSalesMaterials = 50, int verticalIntegration = 2)
         {
@@ -301,20 +301,21 @@ namespace Mate.Test.SimulationEnvironment
             var simConfig = Production.CLI.ArgumentConverter.ConfigurationConverter(dbResult.DbContext, 1);
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(dbResult.ConnectionString.Value));
+            simConfig.ReplaceOption(new GANTTPLANOptRunnerPath("D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe"));
             simConfig.ReplaceOption(new KpiTimeSpan(1440));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480 * 6 * 2)); // = schicht * setups * x
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 100000));
+            simConfig.ReplaceOption(new OrderQuantity(value: 1));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
             simConfig.ReplaceOption(new Production.Core.Environment.Options.Seed(value: seed));
             simConfig.ReplaceOption(new SettlingStart(value: 1440));
             simConfig.ReplaceOption(new MinQuantity(value: 1));
-            simConfig.ReplaceOption(new MaxQuantity(value: 1));
+            simConfig.ReplaceOption(new MaxQuantity(value: 5));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 11));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: 18));
-            simConfig.ReplaceOption(new SimulationEnd(value: 1440 * 10));
+            simConfig.ReplaceOption(new SimulationEnd(value: 1440 * 5));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new DebugAgents(value: true));
@@ -336,7 +337,7 @@ namespace Mate.Test.SimulationEnvironment
                 ganttPlanContext.DbContext.Database.ExecuteSqlRaw("EXEC sp_MSforeachtable 'DELETE FROM ? '");
 
                 //Synchronisation GanttPlan
-                GanttPlanOptRunner.RunOptAndExport("Init", "C:\\tools\\Ganttplan\\GanttPlanOptRunner.exe");
+                GanttPlanOptRunner.RunOptAndExport("Init", simConfig.GetOption<GANTTPLANOptRunnerPath>().Value);
 
                 //simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new LoggingHub());
                 simContext = new GanttSimulation(dbName: TestMateDb, messageHub: new ConsoleHub(consoleWriter));

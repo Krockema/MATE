@@ -110,12 +110,13 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
                 }
             }
 
-            
+            var average = averageList.Count != 0 ? averageList.Average() : 0.0;
+            var ratio = counter > 0 && result > 0 ? Math.Round(((double)counter / (double)result) * 100, 2) : 0;
 
-            keyValuePairs.Add(CreateKpi("RatioUselessReplan", Math.Round(((double)counter / (double)result) * 100, 2), simNum, simType));
-            keyValuePairs.Add(CreateKpi("AverageTimeSpan", averageList.Average(), simNum, simType));
-            System.Diagnostics.Debug.WriteLine($"{counter} entries of {result}: {Math.Round(((double)counter/(double)result)*100,2)}%");
-            System.Diagnostics.Debug.WriteLine($"Average timespan change {averageList.Average()}");
+            keyValuePairs.Add(CreateKpi("RatioUselessReplan", ratio, simNum, simType));
+            keyValuePairs.Add(CreateKpi("AverageTimeSpan", average, simNum, simType));
+            System.Diagnostics.Debug.WriteLine($"{counter} entries of {result}: {ratio}%");
+            System.Diagnostics.Debug.WriteLine($"Average timespan change {average}");
 
             foreach (var positon in averagePosition.OrderBy(x => x.Key))
             {

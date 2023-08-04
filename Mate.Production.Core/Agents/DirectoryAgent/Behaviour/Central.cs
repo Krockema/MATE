@@ -68,6 +68,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
                         , maxBucketSize: 0 // not used currently
                         , dbConnectionStringGanttPlan: resourceHubInformation.DbConnectionString
                         , dbConnectionStringMaster: resourceHubInformation.MasterDbConnectionString
+                        , pathToGANTTPLANOptRunner: resourceHubInformation.PathToGANTTPLANOptRunner
                         , workTimeGenerator: resourceHubInformation.WorkTimeGenerator as WorkTimeGenerator
                         , debug: Agent.DebugThis
                         , principal: Agent.Context.Self)
