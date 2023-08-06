@@ -1,8 +1,6 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
-using static FProposals;
-using static FResourceInformations;
-using static IJobs;
+using Akka.Hive.Definitions;
+using Mate.Production.Core.Environment.Records;
 
 namespace Mate.Production.Core.Agents.HubAgent
 {
@@ -14,11 +12,11 @@ namespace Mate.Production.Core.Agents.HubAgent
         public partial class Instruction
         {
 
-            public class Default
+            public record Default
             {
-                public class AddResourceToHub : SimulationMessage
+                public record AddResourceToHub : HiveMessage
                 {
-                    public static AddResourceToHub Create(FResourceInformation message, IActorRef target, bool logThis = false)
+                    public static AddResourceToHub Create(ResourceInformationRecord message, IActorRef target, bool logThis = false)
                     {
                         return new AddResourceToHub(message: message, target: target, logThis: logThis);
                     }
@@ -26,10 +24,10 @@ namespace Mate.Production.Core.Agents.HubAgent
                     {
 
                     }
-                    public FResourceInformation GetObjectFromMessage { get => Message as FResourceInformation; }
+                    public ResourceInformationRecord GetObjectFromMessage { get => Message as ResourceInformationRecord; }
                 }
 
-                public class EnqueueJob : SimulationMessage
+                public record EnqueueJob : HiveMessage
                 {
                     public static EnqueueJob Create(IJob message, IActorRef target)
                     {
@@ -43,9 +41,9 @@ namespace Mate.Production.Core.Agents.HubAgent
                 }
 
 
-                public class ProposalFromResource : SimulationMessage
+                public record ProposalFromResource : HiveMessage
                 {
-                    public static ProposalFromResource Create(FProposal message, IActorRef target)
+                    public static ProposalFromResource Create(ProposalRecord message, IActorRef target)
                     {
                         return new ProposalFromResource(message: message, target: target);
                     }
@@ -53,7 +51,7 @@ namespace Mate.Production.Core.Agents.HubAgent
                     {
 
                     }
-                    public FProposal GetObjectFromMessage { get => Message as FProposal; }
+                    public ProposalRecord GetObjectFromMessage { get => Message as ProposalRecord; }
                 }
 
 

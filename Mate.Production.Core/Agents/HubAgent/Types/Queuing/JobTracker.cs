@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static IJobs;
 
 namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
 {
@@ -32,7 +31,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
             JobDict.Add(name, jobs);
         }
 
-        private void WriteChangeSet(long time, string operation, List<IJob> _jobs, string name) 
+        private void WriteChangeSet(DateTime time, string operation, List<IJob> _jobs, string name) 
         {
             var sorted = _jobs.Select((x, i) => new Tuple<IJob, int>(x, i))
                      .GroupBy(x => (x.Item1.StartConditions.Satisfied.ToString() + x.Item1.RequiredCapability.Id))
@@ -72,7 +71,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
 
         }
 
-        public void Add(IJob job, long time)
+        public void Add(IJob job, DateTime time)
         {
             var _jobs = GetJobs(job);
             _jobs.RemoveAll(x => x.Key.Equals(job.Key));
@@ -81,14 +80,14 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
             WriteChangeSet(time, "Add", _jobs, job.RequiredCapability.Name);
         }
 
-        public void Remove(IJob job, long time)
+        public void Remove(IJob job, DateTime time)
         {
             var _jobs = GetJobs(job);
             _jobs.RemoveAll(x => x.Key.Equals(job.Key));
             WriteChangeSet(time, "Remove", _jobs, job.RequiredCapability.Name);
         }
 
-        public void TrackJobs(long time) => WriteChangeSet(time, "Sort", null, null);
+        public void TrackJobs(DateTime time) => WriteChangeSet(time, "Sort", null, null);
 
 
     }

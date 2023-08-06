@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Akka.Actor;
 using Mate.DataCore.DataModel;
-using static FScopeConfirmations;
+using Mate.Production.Core.Environment.Records.Scopes;
 
 namespace Mate.Production.Core.Agents.HubAgent.Types
 {
     public class PossibleProcessingPosition
     {
         public M_ResourceCapabilityProvider ResourceCapabilityProvider { get; }
-        public long _processingPosition { get; set; }
-        public Dictionary<IActorRef, FScopeConfirmation> _queuingDictionary { get; set; } = new Dictionary<IActorRef, FScopeConfirmation>();
+        public DateTime _processingPosition { get; set; }
+        public Dictionary<IActorRef, ScopeConfirmationRecord> _queuingDictionary { get; set; } = new Dictionary<IActorRef, ScopeConfirmationRecord>();
 
         public bool RequireSetup { get; set; } = false;
 
@@ -19,12 +20,12 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
 
         }
 
-        public void Add(IActorRef resourceRef, FScopeConfirmation fScopeConfirmation)
+        public void Add(IActorRef resourceRef, ScopeConfirmationRecord fScopeConfirmation)
         {
             _queuingDictionary.Add(resourceRef, fScopeConfirmation);
         }
 
-        public void Add(IActorRef resourceRef, FScopeConfirmation fScopeConfirmation, long processingStart)
+        public void Add(IActorRef resourceRef, ScopeConfirmationRecord fScopeConfirmation, DateTime processingStart)
         {
             _processingPosition = processingStart;
             _queuingDictionary.Add(resourceRef, fScopeConfirmation);

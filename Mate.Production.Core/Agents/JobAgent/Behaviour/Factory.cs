@@ -1,6 +1,6 @@
 ﻿using Mate.DataCore.Nominal;
+using Mate.Production.Core.Environment.Records.Interfaces;
 using Mate.Production.Core.Types;
-using static IConfirmations;
 
 namespace Mate.Production.Core.Agents.JobAgent.Behaviour
 {

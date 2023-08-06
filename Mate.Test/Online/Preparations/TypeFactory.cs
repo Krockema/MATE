@@ -1,46 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Akka.Actor;
+using Akka.Hive.Definitions;
 using Mate.DataCore.DataModel;
 using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.HubAgent.Types;
+using Mate.Production.Core.Environment.Records.Scopes;
 using Mate.Production.Core.Helper;
-using Microsoft.FSharp.Collections;
-using static FArticles;
-using static FJobConfirmations;
-using static FOperations;
-using static FStockProviders;
 
 namespace Mate.Test.Online.Preparations
 {
     public static class TypeFactory
     {
-        public static FArticle CreateDummyArticle(int dueTime, long customerDue, int currentTime, M_Article article, int quantity)
+        public static ArticleRecord CreateDummyArticle(DateTime dueTime, DateTime customerDue, DateTime currentTime, M_Article article, int quantity)
         {
-            return new FArticle(
-                key: Guid.Empty
-                , dueTime: dueTime
-                , customerDue: customerDue
-                , keys: new FSharpSet<Guid>(new Guid[] { })
-                , quantity: quantity
-                , article: article
-                , creationTime: currentTime
-                , customerOrderId: 0
-                , isHeadDemand: true
-                , stockExchangeId: Guid.Empty
-                , storageAgent: ActorRefs.NoSender
-                , isProvided: false
-                , providedAt: 0
-                , originRequester: ActorRefs.Nobody
-                , dispoRequester: ActorRefs.Nobody
-                , providerList: new List<FStockProvider>()
-                , finishedAt: 0
-                , remainingDuration: 0
-            ).CreateProductionKeys.SetPrimaryKey;
+            return new ArticleRecord(
+                //# Key: Guid.Empty
+                DueTime: dueTime
+                , CustomerDue: customerDue
+                , Keys: ImmutableHashSet.Create<Guid>()
+                , Quantity: quantity
+                , Article: article
+                , CreationTime: currentTime
+                , CustomerOrderId: 0
+                , IsHeadDemand: true
+                , StockExchangeId: Guid.Empty
+                , StorageAgent: ActorRefs.NoSender
+                , IsProvided: false
+                , ProvidedAt: Time.ZERO.Value
+                , OriginRequester: ActorRefs.Nobody
+                , DispoRequester: ActorRefs.Nobody
+                , ProviderList: ImmutableHashSet.Create<StockProviderRecord>()
+                , FinishedAt: Time.ZERO.Value
+                , RemainingDuration: TimeSpan.Zero
+            );
         }
-        public static FOperation CreateDummyFOperationItem(string jobName, int jobDuration, int averageTransitionDuration = 20, bool preCondition = true, bool materialsProvide = true,
-                                                    int dueTime = 50, long customerDue = 100L, M_ResourceCapability capability = null,
-                                                    M_ArticleBom bom = null, long currentTime = 0L)
+        public static OperationRecord CreateDummyOperationRecord(string jobName, TimeSpan jobDuration, TimeSpan averageTransitionDuration, DateTime dueTime, DateTime customerDue, DateTime currentTime
+                                                                , bool preCondition = true, bool materialsProvide = true, M_ResourceCapability capability = null,
+                                                                M_ArticleBom bom = null)
         {
             var operation = new M_Operation()
             {
@@ -53,7 +51,7 @@ namespace Mate.Test.Online.Preparations
                 ArticleBoms = new List<M_ArticleBom> { bom },
                 ResourceCapability = new M_ResourceCapability { Name = "Cutting" }
             };
-            return MessageFactory.ToOperationItem(
+            return MessageFactory.ToOperationRecord(
                 priorityRule: PriorityRule.LST,
                 m_operation: operation, 
                 dueTime: dueTime,
@@ -61,22 +59,29 @@ namespace Mate.Test.Online.Preparations
                 productionAgent: ActorRefs.Nobody,
                 firstOperation: preCondition,
                 currentTime: currentTime,
-                remainingWork: 0,
+                remainingWork: TimeSpan.Zero,
                 articleKey: Guid.NewGuid());
         }
 
 
 
-        public static FJobConfirmation CreateDummyFJobConfirmations(int currentTime, int duration, long bucketSize)
+        public static JobConfirmationRecord CreateDummyJobConfirmations(DateTime currentTime, TimeSpan duration, TimeSpan bucketSize)
         {
             var jobConfirmation = new JobConfirmation(
                 MessageFactory.ToBucketScopeItem(
-                    CreateDummyFOperationItem("Operation1", duration),
+                    CreateDummyOperationRecord(jobName: "Operation1"
+                                               ,jobDuration: duration
+                                               , averageTransitionDuration: TimeSpan.FromMinutes(20)
+                                               , dueTime: currentTime + TimeSpan.FromDays(365)
+                                               , customerDue: currentTime + TimeSpan.FromDays(365)
+                                               , currentTime: currentTime
+
+                    ),
                     ActorRefs.NoSender,
                     currentTime,
                     bucketSize));
 
-            return jobConfirmation.ToImmutable() as FJobConfirmation;
+            return jobConfirmation.ToImmutable() as JobConfirmationRecord;
 
         }
 

@@ -17,7 +17,7 @@ namespace Mate.Production.Core.Types
             SimulationType = simulationType;
         }
         public virtual bool Action(object message) { throw new Exception(message: "No Action is implemented!"); }
-        //public Action<Agent, ISimulationMessage> Action { get; }
+        //public Action<Agent, IHiveMessage> Action { get; }
         public object Object { get; }
         public SimulationType SimulationType { get; }
         public Func<IUntypedActorContext, AgentSetup, IActorRef> ChildMaker { get; }

@@ -2,7 +2,7 @@
 using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
-using AkkaSim.Logging;
+using Akka.Hive.Logging;
 using Hangfire;
 using Hangfire.Console;
 using Mate.DataCore;
@@ -17,7 +17,7 @@ namespace Mate.Production.CLI
             Console.WriteLine(value: "Welcome to AkkaSim Cli");
 
             // has to be Installed here other wise it would attach a new log listener every time a simulation is called.
-            LogConfiguration.LogTo(TargetTypes.Console, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
+            LogConfiguration.LogTo(TargetTypes.Console, TargetNames.LOG_ACTORS, LogLevel.Info, LogLevel.Info);
             //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.File, TargetNames.LOG_AKKA, LogLevel.Trace);
             //LogConfiguration.LogTo(TargetTypes.Console, TargetNames.LOG_AKKA, LogLevel.Warn);

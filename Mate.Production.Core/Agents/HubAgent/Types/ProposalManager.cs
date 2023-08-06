@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Akka.Actor;
 using Mate.DataCore.DataModel;
-using Microsoft.FSharp.Collections;
-using static FBuckets;
-using static FProcessingSlots;
-using static FProposals;
-using static FQueueingScopes;
-using static FScopeConfirmations;
-using static FScopes;
-using static FSetupSlots;
-using static IJobs;
-using static ITimeRanges;
+using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Environment.Records.Interfaces;
+using Mate.Production.Core.Environment.Records.Scopes;
+using Mate.Production.Core.Helper;
 
 namespace Mate.Production.Core.Agents.HubAgent.Types
 {
@@ -35,7 +30,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
             return _proposalDictionary.TryAdd(jobKey, defs);
         }
 
-        public ProposalForCapabilityProviderSet AddProposal(FProposal fProposal, IActorRef sender)
+        public ProposalForCapabilityProviderSet AddProposal(ProposalRecord fProposal, IActorRef sender)
         {
             if (!_proposalDictionary.TryGetValue(fProposal.JobKey, out var proposalForSetupDefinitionSet))
                 return null;
@@ -78,7 +73,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
 
             foreach (var proposal in proposalForCapabilityProviders)
             {
-                var suitableQueuingPosition = GetSuitableQueueingPositionFromProposals(proposal, ((FBucket)job).MaxBucketSize);
+                var suitableQueuingPosition = GetSuitableQueueingPositionFromProposals(proposal, ((BucketRecord)job).MaxBucketSize);
                 if (suitableQueuingPosition._queuingDictionary.Count == 0)
                     continue;
                 possibleProcessingPositions.Add(suitableQueuingPosition);
@@ -87,7 +82,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
             return possibleProcessingPositions;
         }
 
-        public PossibleProcessingPosition GetSuitableQueueingPositionFromProposals(ProposalForCapabilityProvider proposalForCapabilityProvider, long jobDuration)
+        public PossibleProcessingPosition GetSuitableQueueingPositionFromProposals(ProposalForCapabilityProvider proposalForCapabilityProvider, TimeSpan jobDuration)
         {
 
             var possibleProcessingPosition = new PossibleProcessingPosition(proposalForCapabilityProvider.GetCapabilityProvider);
@@ -162,11 +157,11 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
                 if (mainScope.IsRequieringSetup)
                 {
                     possibleProcessingPosition.RequireSetup = true;
-                    long earliestProcessingStart = mainScope.Scope.Start + setupDuration;
-                    long earliestSetupStart = mainScope.Scope.Start;
-                    setupSlot = new FSetupSlot(earliestSetupStart, earliestProcessingStart);
-                    processingSlot = new FProcessingSlot(start: earliestProcessingStart, end: earliestProcessingStart + jobDuration);
-                    var mainProcessingSlots = new List<ITimeRange>();
+                    DateTime earliestProcessingStart = mainScope.Scope.Start + setupDuration;
+                    DateTime earliestSetupStart = mainScope.Scope.Start;
+                    setupSlot = new SetupSlotRecord(earliestSetupStart, earliestProcessingStart);
+                    processingSlot = new ProcessingSlotRecord(Start: earliestProcessingStart, End: earliestProcessingStart + jobDuration);
+                    var mainProcessingSlots =  ImmutableHashSet.Create<ITimeRange>();
                     if (setupResources.Count != 0) // Setup RESOURCE Is Required.
                     {
                         // Machine includes Setup time in the Queuing Position if required.
@@ -177,8 +172,8 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
 
                         earliestSetupStart = (new[] { setupIsPossible.Scope.Start, mainScope.Scope.Start }).Max();
                         earliestProcessingStart = earliestSetupStart + setupDuration;
-                        setupSlot = new FSetupSlot(start: earliestSetupStart, end: earliestProcessingStart);
-                        processingSlot = new FProcessingSlot(start: earliestProcessingStart, end: earliestProcessingStart + jobDuration);
+                        setupSlot = new SetupSlotRecord(Start: earliestSetupStart, End: earliestProcessingStart);
+                        processingSlot = new ProcessingSlotRecord(Start: earliestProcessingStart, End: earliestProcessingStart + jobDuration);
 
                         /*
                          * CASE 1 ONLY MAIN RESOURCE AND SETUP RESSOURCE // WITH SETUP
@@ -186,7 +181,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
 
                         if (processingResources.Count == 0)
                         {
-                            mainProcessingSlots = new List<ITimeRange> { setupSlot, processingSlot };
+                            mainProcessingSlots = ImmutableHashSet.Create<ITimeRange>(new [] { setupSlot, processingSlot});
                             mainResources.ForEach(resourceRef => possibleProcessingPosition.Add(resourceRef, CreateScopeConfirmation(mainProcessingSlots, earliestSetupStart), earliestProcessingStart));
                             setupResources.ForEach(resourceRef => possibleProcessingPosition.Add(resourceRef, CreateScopeConfirmation(setupSlot, earliestSetupStart)));
                             break;
@@ -199,12 +194,12 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
 
                     if (processingResources.Count == 0) //
                     {
-                        mainProcessingSlots = new List<ITimeRange> { setupSlot, processingSlot };
+                        mainProcessingSlots = ImmutableHashSet.Create<ITimeRange>(new[] { setupSlot, processingSlot });
                         mainResources.ForEach(resourceRef => possibleProcessingPosition.Add(resourceRef, CreateScopeConfirmation(mainProcessingSlots, earliestSetupStart), earliestProcessingStart));
                         break;
                     }
                     
-                    var processingScope = new FScope(start: earliestProcessingStart, end: mainScope.Scope.End);
+                    var processingScope = new ScopeRecord(Start: earliestProcessingStart, End: mainScope.Scope.End);
                     // seek for worker to process operation
                     var processingResourceSlot = FindProcessingSlot(possibleProcessingQueuingPositions.Where(x => x.IsQueueAble)
                                                                     .Select(x => x.Scope).ToList(), processingScope, jobDuration);
@@ -212,15 +207,15 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
                     if (processingResourceSlot == null)
                         continue;
 
-                    processingSlot = new FProcessingSlot(start: processingResourceSlot.Start, end: processingResourceSlot.End);
+                    processingSlot = new ProcessingSlotRecord(Start: processingResourceSlot.Start, End: processingResourceSlot.End);
 
-                    mainProcessingSlots = new List<ITimeRange> { setupSlot, processingSlot };
+                    mainProcessingSlots = ImmutableHashSet.Create<ITimeRange>(new[] { setupSlot, processingSlot });
                     mainResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(mainProcessingSlots, earliestSetupStart)));
                     processingResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(processingSlot, earliestSetupStart), processingSlot.Start));
                     if (setupResources.Count > 0)
                     {
                         setupResources.ForEach(x =>
-                            possibleProcessingPosition.Add(x, CreateScopeConfirmation(new List<ITimeRange> { setupSlot }, earliestSetupStart )));
+                            possibleProcessingPosition.Add(x, CreateScopeConfirmation(ImmutableHashSet.Create(setupSlot), earliestSetupStart )));
                     }
                     break;
 
@@ -233,7 +228,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
                     ITimeRange mainSlot = null;
                     if (processingResources.Count == 0)
                     {
-                        mainSlot = new FProcessingSlot(start: mainScope.Scope.Start, end: mainScope.Scope.Start + jobDuration);
+                        mainSlot = new ProcessingSlotRecord(Start: mainScope.Scope.Start, End: mainScope.Scope.Start + jobDuration);
                         mainResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(mainSlot, mainSlot.Start), mainSlot.Start));
                         break;
                     }
@@ -243,7 +238,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
                     if (processingSlot == null)
                         continue;
 
-                    mainSlot = new FProcessingSlot(start: processingSlot.Start, end: processingSlot.Start + jobDuration);
+                    mainSlot = new ProcessingSlotRecord(Start: processingSlot.Start, End: processingSlot.Start + jobDuration);
 
                     mainResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(mainSlot, mainSlot.Start)));
                     processingResources.ForEach(x => possibleProcessingPosition.Add(x, CreateScopeConfirmation(mainSlot, mainSlot.Start), mainSlot.Start));
@@ -255,26 +250,26 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
             return possibleProcessingPosition;
         }
 
-        private FScopeConfirmation CreateScopeConfirmation(List<ITimeRange> timeRanges, long setStartAt)
+        private ScopeConfirmationRecord CreateScopeConfirmation(ImmutableHashSet<ITimeRange> timeRanges, DateTime setStartAt)
         {
-            return new FScopeConfirmation(ListModule.OfSeq(timeRanges), setStartAt);
+            return new ScopeConfirmationRecord(timeRanges, setStartAt);
         }
 
-        private FScopeConfirmation CreateScopeConfirmation(ITimeRange timeRange, long setStartAt)
+        private ScopeConfirmationRecord CreateScopeConfirmation(ITimeRange timeRange, DateTime setStartAt)
         {
-            return new FScopeConfirmation(ListModule.OfSeq(new List<ITimeRange>() { timeRange }), setStartAt);
+            return new ScopeConfirmationRecord(ImmutableHashSet.Create(timeRange), setStartAt);
         }
 
 
-        private List<FQueueingScope> GetQueueingPositions(ProposalForCapabilityProvider proposalForCapabilityProvider, List<IActorRef> resources, long requiredDuration)
+        private List<QueueingScopeRecord> GetQueueingPositions(ProposalForCapabilityProvider proposalForCapabilityProvider, List<IActorRef> resources, TimeSpan requiredDuration)
         {
-            List<FProposal> setupResourceProposals = proposalForCapabilityProvider.GetProposalsFor(resources);
-            var possibleSetupQueuingPositions = new List<FQueueingScope>();
+            List<ProposalRecord> setupResourceProposals = proposalForCapabilityProvider.GetProposalsFor(resources);
+            var possibleSetupQueuingPositions = new List<QueueingScopeRecord>();
             if (setupResourceProposals.Count > 0)
             {
                 possibleSetupQueuingPositions.AddRange(
                     ProposalReducer(setupResourceProposals.ToArray()
-                        , setupResourceProposals[0].PossibleSchedule as List<FQueueingScope>
+                        , setupResourceProposals[0].PossibleSchedule as List<QueueingScopeRecord>
                         , 1
                         , requiredDuration));
             }
@@ -282,16 +277,16 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
             return possibleSetupQueuingPositions;
         }
 
-        private List<FQueueingScope> ProposalReducer(FProposal[] proposalArray, List<FQueueingScope> possibleFQueueingPositions, int stage, long requiredDuration)
+        private List<QueueingScopeRecord> ProposalReducer(ProposalRecord[] proposalArray, List<QueueingScopeRecord> possibleFQueueingPositions, int stage, TimeSpan requiredDuration)
         {
-            var reducedSlots = new List<FQueueingScope>();
+            var reducedSlots = new List<QueueingScopeRecord>();
             if (stage == proposalArray.Length)
                 return possibleFQueueingPositions;
 
 
             foreach (var position in possibleFQueueingPositions)
             {
-                var positionsToCompare = (proposalArray[stage].PossibleSchedule as List<FQueueingScope>);
+                var positionsToCompare = (proposalArray[stage].PossibleSchedule as List<QueueingScopeRecord>);
                 var pos = positionsToCompare.FirstOrDefault(x => SlotComparerBasic(position.Scope, x.Scope, requiredDuration));
                 
                 if (pos == null || pos.IsQueueAble is false)
@@ -299,9 +294,9 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
                 var min = (new[] { position.Scope.Start, pos.Scope.Start }).Max();
                 var max = (new[] { position.Scope.End, pos.Scope.End }).Min();
 
-                reducedSlots.Add(new FQueueingScope(isQueueAble: pos.IsQueueAble && position.IsQueueAble
-                                                        , isRequieringSetup: pos.IsRequieringSetup && position.IsRequieringSetup
-                                                        , new FScope(start: min, end: max)));
+                reducedSlots.Add(new QueueingScopeRecord(IsQueueAble: pos.IsQueueAble && position.IsQueueAble
+                                                        , IsRequieringSetup: pos.IsRequieringSetup && position.IsRequieringSetup
+                                                        , new ScopeRecord(Start: min, End: max)));
             }
             if (proposalArray.Length >= stage) return reducedSlots;
 
@@ -310,7 +305,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
             return reducedSlots;
         }
 
-        private FProcessingSlot FindProcessingSlot(List<ITimeRange> processingPositions, ITimeRange workingQueueSlot, long jobDuration)
+        private ProcessingSlotRecord FindProcessingSlot(List<ITimeRange> processingPositions, ITimeRange workingQueueSlot,TimeSpan jobDuration)
         {
             var processingIsPossible = processingPositions.FirstOrDefault(processing =>
                                                     SlotComparerBasic(workingQueueSlot, processing, jobDuration));
@@ -319,14 +314,14 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
 
             var earliestProcessingStart = (new[] { processingIsPossible.Start, workingQueueSlot.Start }).Max();
 
-            return new FProcessingSlot( earliestProcessingStart, earliestProcessingStart + jobDuration);
+            return new ProcessingSlotRecord( earliestProcessingStart, earliestProcessingStart + jobDuration);
         }
 
 
-        private bool SlotComparerSetup(ITimeRange mainResourcePos, ITimeRange toCompare, long processingTime, long setupTime) 
+        private bool SlotComparerSetup(ITimeRange mainResourcePos, ITimeRange toCompare, TimeSpan processingTime, TimeSpan setupTime) 
         {
             // calculate posible earliest start
-            long earliestStart = (new[] { toCompare.Start, mainResourcePos.Start }).Max();
+            DateTime earliestStart = (new[] { toCompare.Start, mainResourcePos.Start }).Max();
             // check setup scope 
             var setupFit = (earliestStart + setupTime <= toCompare.End);
             // check Queue scope
@@ -336,10 +331,10 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
         }
 
 
-        private bool SlotComparerBasic(ITimeRange mainResourcePos, ITimeRange toCompare, long duration) 
+        private bool SlotComparerBasic(ITimeRange mainResourcePos, ITimeRange toCompare, TimeSpan duration) 
         {
             // calculate posible earliest start
-            long earliestStart = (new[] { toCompare.Start, mainResourcePos.Start }).Max();
+            DateTime earliestStart = (new[] { toCompare.Start, mainResourcePos.Start }).Max();
             // check setup scope 
             var fitToCompare = (earliestStart + duration <= toCompare.End);
             // check Queue scope

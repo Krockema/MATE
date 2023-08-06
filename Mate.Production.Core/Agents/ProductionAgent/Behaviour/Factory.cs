@@ -1,8 +1,7 @@
 ﻿using Mate.DataCore.Nominal;
+using Mate.Production.Core.Environment.Records;
 using Mate.Production.Core.Types;
-using static FOperations;
-using static FUpdateStartConditions;
-
+using System;
 namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
 {
     public static class Factory
@@ -35,12 +34,12 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
         /// </summary>
         /// <param name="operation"></param>
         /// <returns></returns>
-        public static FUpdateStartCondition GetStartCondition(this FOperation operation, long customerDue)
+        public static UpdateStartConditionRecord GetStartCondition(this OperationRecord operation, DateTime customerDue)
         {
-            return new FUpdateStartCondition(operationKey: operation.Key
-                , customerDue: customerDue
-                , preCondition: operation.StartConditions.PreCondition
-                , articlesProvided: operation.StartConditions.ArticlesProvided);
+            return new UpdateStartConditionRecord(OperationKey: operation.Key
+                , CustomerDue: customerDue
+                , PreCondition: operation.StartConditions.PreCondition
+                , ArticlesProvided: operation.StartConditions.ArticlesProvided);
         }
 
     }

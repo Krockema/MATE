@@ -59,15 +59,15 @@ namespace Mate.Controllers
             var simConfig = ArgumentConverter.ConfigurationConverter(resultCtx: _resultCtx, 1);
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(_resultCtx.Database.GetDbConnection().ConnectionString));
-            simConfig.ReplaceOption(new KpiTimeSpan(240));
+            simConfig.ReplaceOption(new KpiTimeSpan(TimeSpan.FromMinutes(240)));
             simConfig.ReplaceOption(new TimeToAdvance(value: TimeSpan.FromMilliseconds(1000 * 0.2)));
-            simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
+            simConfig.ReplaceOption(new TimeConstraintQueueLength(TimeSpan.FromMinutes(480)));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: orderAmount));
-            simConfig.ReplaceOption(new EstimatedThroughPut(value: 0));
-            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
+            simConfig.ReplaceOption(new EstimatedThroughPut(value: TimeSpan.FromMinutes(0)));
+            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: TimeSpan.FromMinutes(2880)));
             simConfig.ReplaceOption(new Mate.Production.Core.Environment.Options.Seed(value: 169));
-            simConfig.ReplaceOption(new SettlingStart(value: 2880));
+            simConfig.ReplaceOption(new SettlingStart(value: TimeSpan.FromMinutes(2880)));
             simConfig.ReplaceOption(new SimulationEnd(value: 20160));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: false));
@@ -122,7 +122,7 @@ namespace Mate.Controllers
             {
                 // Start simulation
                 var sim = simulation.RunAsync();
-                simContext.StateManager.ContinueExecution(simulation);
+                // simContext.StateManager.ContinueExecution(simulation);
                 await sim;
             }
         }

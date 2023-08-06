@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using AkkaSim.Logging;
-using JetBrains.Annotations;
+using Akka.Hive.Logging;
 using Mate.Production.Core.SignalR;
 using Mate.Production.Core.SignalR.Messages;
-using Mate.Production.Core.Types;
 using Newtonsoft.Json;
 using NLog;
 
@@ -12,7 +10,7 @@ namespace Mate.Production.CLI
 {
     public class ConsoleHub: IMessageHub
     {
-        Logger _logger = LogManager.GetLogger(TargetNames.LOG_AGENTS);
+        Logger _logger = LogManager.GetLogger(TargetNames.LOG_ACTORS);
 
         public List<string> Logs= new List<string>();
 

@@ -146,25 +146,25 @@ namespace Mate.DataCore.Data.Initializer
                {
                    BusinessPartnerId = businessPartner2.Id,
                    ArticleId = articles.Single(predicate: x => x.Name == ARTICLE_TABLETOP).Id, PackSize = 500, Price = 0.05,
-                   TimeToDelivery = 1440
+                   TimeToDelivery = TimeSpan.FromMinutes(1440)
                },
                new M_ArticleToBusinessPartner
                {
                    BusinessPartnerId = businessPartner2.Id,
                    ArticleId = articles.Single(predicate: x => x.Name == ARTICLE_SCREW).Id, PackSize = 50, Price = 2.50,
-                   TimeToDelivery = 1440
+                   TimeToDelivery = TimeSpan.FromMinutes(1440)
                },
                new M_ArticleToBusinessPartner
                {
                    BusinessPartnerId = businessPartner2.Id,
                    ArticleId = articles.Single(predicate: x => x.Name == ARTICLE_PEG).Id, PackSize = 50, Price = 0.20,
-                   TimeToDelivery = 1440
+                   TimeToDelivery = TimeSpan.FromMinutes(1440)
                },
                new M_ArticleToBusinessPartner
                {
                    BusinessPartnerId = businessPartner2.Id,
                    ArticleId = articles.Single(predicate: x => x.Name == ARTICLE_WOOD_PANEL).Id, PackSize = 50, Price = 0.20,
-                   TimeToDelivery = 1440
+                   TimeToDelivery = TimeSpan.FromMinutes(1440)
                },
            };
            return artToBusinessPartner;

@@ -80,9 +80,9 @@ namespace Mate.DataCore.Data.Initializer
             ArticleStatistics.CreateProcedures(mateDb);
             // create resources
             var resourceProps = new List<ResourceProperty>();
-            resourceProps.Add(new ResourceProperty { Name = "Heat Press", ToolCount = 6, ResourceCount = 2, SetupTime = 5, OperatorCount = 0, IsBatchAble = false });
-            resourceProps.Add(new ResourceProperty { Name = "Desma", ToolCount = 4, ResourceCount = 3, SetupTime = 2, OperatorCount = 0, IsBatchAble = true, BatchSize = 20 });
-            resourceProps.Add(new ResourceProperty { Name = "Wrapper", ToolCount = 4, ResourceCount = 1, SetupTime = 2, OperatorCount = 0 , IsBatchAble = false });
+            resourceProps.Add(new ResourceProperty { Name = "Heat Press", ToolCount = 6, ResourceCount = 2, SetupTime = TimeSpan.FromMinutes(5), OperatorCount = 0, IsBatchAble = false });
+            resourceProps.Add(new ResourceProperty { Name = "Desma", ToolCount = 4, ResourceCount = 3, SetupTime = TimeSpan.FromMinutes(2), OperatorCount = 0, IsBatchAble = true, BatchSize = 20 });
+            resourceProps.Add(new ResourceProperty { Name = "Wrapper", ToolCount = 4, ResourceCount = 1, SetupTime = TimeSpan.FromMinutes(2), OperatorCount = 0 , IsBatchAble = false });
             var capabilities = DynamicInitializer.ResourceInitializer.Initialize(mateDb, resourceProps);
 
             // Type and Units
@@ -120,7 +120,7 @@ namespace Mate.DataCore.Data.Initializer
                         Name = prefix + cover.Name + " " + sock.Name,
                         ArticleTypeId = articleType.Id,
                         CreationDate = DateTime.Now,
-                        DeliveryPeriod = 20,
+                        DeliveryPeriod = TimeSpan.FromMinutes(20),
                         UnitId = units.Single(s => s.Name == "Pieces").Id,
                         Price = (cover.Price + sock.Price) * 1.5,
                         ToBuild = true,
@@ -169,7 +169,7 @@ namespace Mate.DataCore.Data.Initializer
                 {
                     ArticleId = articles.Id,
                     Name = "Pack",
-                    Duration = 3,
+                    Duration = TimeSpan.FromMinutes(3),
                     ResourceCapabilityId = RandomizedResourceCapabvilityIdByType("Wrapper", resourceCapabilities),
                     HierarchyNumber = 10,
                 });
@@ -193,7 +193,7 @@ namespace Mate.DataCore.Data.Initializer
                     new M_Operation {
                         ArticleId = articles.Id,
                         Name = "Stretch and apply surface",
-                        Duration = 5,
+                        Duration = TimeSpan.FromMinutes(5),
                         ResourceCapabilityId = RandomizedResourceCapabvilityIdByType("Heat Press", resourceCapabilities),
                         HierarchyNumber = 10,
                     });
@@ -201,7 +201,7 @@ namespace Mate.DataCore.Data.Initializer
                     new M_Operation {
                         ArticleId = articles.Id,
                         Name = "Apply glue",
-                        Duration = 2,
+                        Duration = TimeSpan.FromMinutes(2),
                         ResourceCapabilityId = RandomizedResourceCapabvilityIdByType("Heat Press", resourceCapabilities),
                         HierarchyNumber = 20,
                     });
@@ -209,7 +209,7 @@ namespace Mate.DataCore.Data.Initializer
                     new M_Operation {
                         ArticleId = articles.Id,
                         Name = "Trimm",
-                        Duration = 3,
+                        Duration = TimeSpan.FromMinutes(3),
                         ResourceCapabilityId = RandomizedResourceCapabvilityIdByType("Heat Press", resourceCapabilities),
                         HierarchyNumber = 30,
                     });
@@ -228,7 +228,7 @@ namespace Mate.DataCore.Data.Initializer
                 {
                     ArticleId = articles.Id,
                     Name = "Injection Process",
-                    Duration = 20,
+                    Duration = TimeSpan.FromMinutes(20),
                     ResourceCapabilityId = RandomizedResourceCapabvilityIdByType("Desma", resourceCapabilities),
                     HierarchyNumber = 10,
                 });
@@ -246,7 +246,7 @@ namespace Mate.DataCore.Data.Initializer
                     Name = item.Key,
                     ArticleTypeId = articleType.Id,
                     CreationDate = DateTime.Now,
-                    DeliveryPeriod = 20,
+                    DeliveryPeriod = TimeSpan.FromMinutes(20),
                     UnitId = units.Single(s => s.Name == "Pieces").Id,
                     Price = item.Value,
                     ToBuild = false,
@@ -321,7 +321,7 @@ namespace Mate.DataCore.Data.Initializer
                         ArticleId = article.Id,
                         PackSize = 1000,
                         Price = 1000 * article.Price,
-                        TimeToDelivery = 1440
+                        TimeToDelivery = TimeSpan.FromMinutes(1440)
                     });
             }
             mateDb.Stocks.AddRange(stocks);

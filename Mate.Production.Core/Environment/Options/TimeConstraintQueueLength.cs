@@ -1,11 +1,11 @@
-﻿using System;
-using Mate.Production.Core.Environment.Abstractions;
+﻿using Mate.Production.Core.Environment.Abstractions;
+using System;
 
 namespace Mate.Production.Core.Environment.Options
 {
-    public class TimeConstraintQueueLength : Option<long>
+    public class TimeConstraintQueueLength : Option<TimeSpan>
     {
-        public TimeConstraintQueueLength(long value)
+        public TimeConstraintQueueLength(TimeSpan value)
         {
             _value = value;
         }
@@ -13,7 +13,7 @@ namespace Mate.Production.Core.Environment.Options
         public TimeConstraintQueueLength()
         {
             Action = (config, argument) => {
-                config.AddOption(o: new TimeConstraintQueueLength(value: long.Parse(s: argument)));
+                config.AddOption(o: new TimeConstraintQueueLength(value: TimeSpan.Parse(s: argument)));
             };
         }
     }

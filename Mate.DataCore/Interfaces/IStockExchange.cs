@@ -10,10 +10,10 @@ namespace Mate.DataCore.Interfaces
         int SimulationConfigurationId { get; set; }
         SimulationType SimulationType { get; set; }
         int SimulationNumber { get; set; }
-        int RequiredOnTime { get; set; }
+        DateTime RequiredOnTime { get; set; }
         State State { get; set; }
         decimal Quantity { get; set; }
-        int Time { get; set; }
+        DateTime Time { get; set; }
         ExchangeType ExchangeType { get; set; }
         int Id { get; set; }
     }

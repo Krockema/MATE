@@ -43,9 +43,9 @@ namespace Mate.ViewComponents
                 // create Dataset for each Lable
                 data.Datasets = new List<Dataset>();
 
-                var endSum = _context.SimulationJobs.Where(predicate: x => x.CapabilityProvider == machine).Sum(selector: x => x.End);
-                var startSum = _context.SimulationJobs.Where(predicate: x => x.CapabilityProvider == machine).Sum(selector: x => x.Start);
-                var max = _context.SimulationJobs.Max(selector: x => x.End);
+                var endSum = _context.SimulationJobs.Where(predicate: x => x.CapabilityProvider == machine).Sum(selector: x => x.End.ToFileTimeUtc());
+                var startSum = _context.SimulationJobs.Where(predicate: x => x.CapabilityProvider == machine).Sum(selector: x => x.Start.ToFileTimeUtc());
+                var max = _context.SimulationJobs.Max(selector: x => x.End.ToFileTimeUtc());
                 var work = endSum - startSum;
                 var wait = max - work;
                 var cc = new ChartColors();

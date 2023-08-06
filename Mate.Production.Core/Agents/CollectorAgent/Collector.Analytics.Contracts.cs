@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AkkaSim;
+using Akka.Hive.Actors;
+using IdentityModel;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.WrappersForPrimitives;
 using Mate.DataCore.Nominal;
@@ -9,9 +10,9 @@ using Mate.DataCore.ReportingModel;
 using Mate.Production.Core.Agents.ContractAgent;
 using Mate.Production.Core.Agents.SupervisorAgent;
 using Mate.Production.Core.Environment.Options;
+using Mate.Production.Core.Helper;
 using Mate.Production.Core.Types;
 using Newtonsoft.Json;
-using static FArticles;
 using static Mate.Production.Core.Agents.CollectorAgent.Collector.Instruction;
 
 namespace Mate.Production.Core.Agents.CollectorAgent
@@ -22,6 +23,8 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         private OrderKpi orderDictionary = new OrderKpi();
         
         private readonly List<SimulationOrder> _simulationOrders = new List<SimulationOrder>();
+
+        private DateTime lastCall;
 
         private CollectorAnalyticsContracts() : base()
         {
@@ -44,7 +47,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         public override bool Action(object message) => throw new Exception(message: "Please use EventHandle method to process Messages");
 
-        public bool EventHandle(SimulationMonitor simulationMonitor, object message)
+        public bool EventHandle(MessageMonitor simulationMonitor, object message)
         {
             switch (message)
             {
@@ -56,7 +59,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             return true;
         }
 
-        private void ProvideOrder(FArticle finishedArticle)
+        private void ProvideOrder(ArticleRecord finishedArticle)
         {
             string message;
             if (finishedArticle.DueTime >= finishedArticle.FinishedAt)
@@ -80,7 +83,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             orderDictionary[OrderKpi.OrderState.Finished].Increment();
             orderDictionary[OrderKpi.OrderState.Total].Increment(); 
 
-            var percent = Math.Round((decimal) Collector.Time / Collector.maxTime * 100, 0);
+            var percent = Math.Round((decimal)Collector.Time.Value.ToEpochTime() / Collector.maxTime * 100, 0);
             Collector.messageHub.ProcessingUpdate((int)orderDictionary[OrderKpi.OrderState.Finished].GetValue(), (int)percent, 
                                                     $" Progress({percent} %) " + message
                                                     , (int)orderDictionary[OrderKpi.OrderState.Total].GetValue());
@@ -110,17 +113,17 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             orderDictionary[OrderKpi.OrderState.OverDue].ToZero();
 
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
-            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from Contracts");
+            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time.Value + ") Finished Update Feed from Contracts");
         }
 
         private void CreateKpis(bool finalCall)
         {   
             
-            var from = Collector.Config.GetOption<KpiTimeSpan>().Value;
+            var from = lastCall + Collector.Config.GetOption<KpiTimeSpan>().Value;
             if (finalCall)
-                from = Collector.Config.GetOption<SettlingStart>().Value;
+                from = Collector.Config.GetOption<SimulationStartTime>().Value + Collector.Config.GetOption<SettlingStart>().Value;
 
-            var orders = _simulationOrders.Where(x => x.FinishingTime != 0 &&
+            var orders = _simulationOrders.Where(x => x.FinishingTime != TimeExtension.ZERO &&
                                                       x.FinishingTime > from);
 
             if (orders.Any())
@@ -136,7 +139,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 {
                     Name = value.Key.ToString(),
                     Value = (double)value.Value.GetValue(),
-                    Time = (int) Collector.Time,
+                    Time = Collector.Time.Value,
                     KpiType = KpiType.AdherenceToDue,
                     SimulationConfigurationId = Collector.simulationId.Value,
                     SimulationNumber = Collector.simulationNumber.Value,
@@ -149,7 +152,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         private void CalculateCycleTime(IEnumerable<SimulationOrder> orders)
         {
-            decimal cycleTime = (decimal)orders.Average(x => x.ProductionFinishedTime - x.CreationTime);
+            long cycleTime = (long)orders.Average(x => x.ProductionFinishedTime.Subtract(x.CreationTime).TotalMinutes);
             orderDictionary[OrderKpi.OrderState.CycleTime].SetValue(new Quantity(cycleTime));
 
         }
@@ -174,7 +177,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             {
                 Name = KpiType.AdherenceToDue.ToString(),
                 Value = (double)Math.Round(adherenceToDue, 2),
-                Time = (int) Collector.Time,
+                Time = Collector.Time.Value,
                 KpiType = KpiType.AdherenceToDue,
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,
@@ -186,9 +189,9 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         private void CalculateTardiness(IEnumerable<SimulationOrder> orders)
         {
-            decimal lateness = (decimal)orders.Average(x => x.ProductionFinishedTime - x.DueTime);
-            decimal tardinessOrders = orders.Sum(x => new[] {0, x.ProductionFinishedTime - x.DueTime}.Max());
-            decimal tardinessCount = orders.Count(x => 0 > x.ProductionFinishedTime - x.DueTime);
+            decimal lateness = (decimal)orders.Average(x => x.ProductionFinishedTime.ToEpochTime() - x.DueTime.ToEpochTime());
+            decimal tardinessOrders = orders.Sum(x => new[] {0, x.ProductionFinishedTime.ToEpochTime() - x.DueTime.ToEpochTime() }.Max());
+            decimal tardinessCount = orders.Count(x => 0 > x.ProductionFinishedTime.ToEpochTime() - x.DueTime.ToEpochTime());
 
             decimal tardiness = 0;
             if (tardinessCount > 0)
@@ -221,7 +224,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         }
 
 
-        private void UpdateOrder(FArticle item)
+        private void UpdateOrder(ArticleRecord item)
         {
             var toUpdate = _simulationOrders.SingleOrDefault(predicate: x => x.OriginId == item.CustomerOrderId);
             if (toUpdate == null)
@@ -230,9 +233,9 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             }
 
             toUpdate.State = State.Finished;
-            toUpdate.ProductionFinishedTime = (int) item.ProvidedAt;
+            toUpdate.ProductionFinishedTime = item.ProvidedAt;
             toUpdate.StockExchangeGuid = item.StockExchangeId;
-            toUpdate.FinishingTime = (int) item.FinishedAt;
+            toUpdate.FinishingTime = item.FinishedAt;
         }
 
         private void WriteToDb(Collector agent, bool finalCall)

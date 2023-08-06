@@ -1,9 +1,8 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using Mate.DataCore.DataModel;
-using static FCapabilityProviderDefinitions;
-using static FResourceHubInformations;
-using static FResourceInformations;
+using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Helper.DistributionProvider;
 
 namespace Mate.Production.Core.Agents.DirectoryAgent
 {
@@ -11,10 +10,10 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
     {
         public partial class Instruction
         {
-            public class Default
+            public record Default
             {
 
-            public class RequestAgent : SimulationMessage
+            public record RequestAgent : HiveMessage
             {
                 public static RequestAgent Create(string discriminator, IActorRef target)
                 {
@@ -26,7 +25,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 public string GetObjectFromMessage { get => Message as string; }
             }
 
-            public class RegisterResources : SimulationMessage
+            public record RegisterResources : HiveMessage
             {
                 public static RegisterResources Create(string descriminator, IActorRef target)
                 {
@@ -38,18 +37,18 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 public string GetObjectFromMessage { get => Message as string; }
             }
 
-            public class CreateMachineAgents : SimulationMessage
+            public record CreateMachineAgents : HiveMessage
             {
-                public static CreateMachineAgents Create(FCapabilityProviderDefinition message, IActorRef target)
+                public static CreateMachineAgents Create(CapabilityProviderDefinitionRecord message, IActorRef target)
                 {
                     return new CreateMachineAgents(message: message, target: target);
                 }
                 private CreateMachineAgents(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FCapabilityProviderDefinition GetObjectFromMessage { get => Message as FCapabilityProviderDefinition; }
+                public CapabilityProviderDefinitionRecord GetObjectFromMessage { get => Message as CapabilityProviderDefinitionRecord; }
             }
-            public class CreateStorageAgents : SimulationMessage
+            public record CreateStorageAgents : HiveMessage
             {
                 public static CreateStorageAgents Create(M_Stock message, IActorRef target)
                 {
@@ -61,28 +60,28 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 public M_Stock GetObjectFromMessage { get => Message as M_Stock; }
             }
 
-            public class ForwardRegistrationToHub : SimulationMessage
+            public record ForwardRegistrationToHub : HiveMessage
             {
-                public static ForwardRegistrationToHub Create(FResourceInformation message, IActorRef target)
+                public static ForwardRegistrationToHub Create(ResourceInformationRecord message, IActorRef target)
                 {
                     return new ForwardRegistrationToHub(message: message, target: target);
                 }
                 private ForwardRegistrationToHub(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FResourceInformation GetObjectFromMessage { get => Message as FResourceInformation; }
+                public ResourceInformationRecord GetObjectFromMessage { get => Message as ResourceInformationRecord; }
             }
 
-            public class CreateResourceHubAgents : SimulationMessage
+            public record CreateResourceHubAgents : HiveMessage
             {
-                public static CreateResourceHubAgents Create(FResourceHubInformation message, IActorRef target)
+                public static CreateResourceHubAgents Create(ResourceHubInformationRecord message, IActorRef target)
                 {
                     return new CreateResourceHubAgents(message: message, target: target);
                 }
                 private CreateResourceHubAgents(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FResourceHubInformation GetObjectFromMessage { get => Message as FResourceHubInformation; }
+                public ResourceHubInformationRecord GetObjectFromMessage { get => Message as ResourceHubInformationRecord; }
             }
 
             }

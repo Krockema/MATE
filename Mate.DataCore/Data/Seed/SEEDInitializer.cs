@@ -59,7 +59,6 @@ namespace Mate.DataCore.Data.Seed
             var resourceConfig = new ResourceConfig().WithResourceGroup(new List<ResourceGroup> { rsSaw, rsDrill, rsAssembly, rsQuality })
                                                 .WithDefaultOperationsDurationMean(TimeSpan.FromMinutes(10))
                                                 .WithDefaultOperationsDurationVariance(0.20)
-                                                .WithDefaultSetupDurationMean(TimeSpan.FromMinutes(30))
                                                 .WithDefaultOperationsAmountMean(8)
                                                 .WithDefaultOperationsAmountVariance(0.20);
 
@@ -81,6 +80,7 @@ namespace Mate.DataCore.Data.Seed
             var operationDistributor = OperationDistributor.WithTransitionMatrix(transitionMatrix)
                                                             .WithRandomizerCollection(randomizerCollection)
                                                             .WithResourceConfig(resourceConfig)
+                                                            .WithMaterials(materials)
                                                             .Build();
 
             var operationGenerator = OperationGenerator.WithOperationDistributor(operationDistributor)
@@ -111,7 +111,7 @@ namespace Mate.DataCore.Data.Seed
             {
 
                 var nameOfTool = "Blade" + counter.ToString() + "mm";
-                listOfTools.Add(new ResourceTool(nameOfTool));
+                listOfTools.Add(new ResourceTool(nameOfTool).WithOperationDurationAverage(TimeSpan.FromMinutes(30)).WithOperationDurationVariance(0));
                 counter += 2;
             }
 

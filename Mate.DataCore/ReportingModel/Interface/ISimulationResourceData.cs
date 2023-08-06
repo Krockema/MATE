@@ -1,4 +1,5 @@
 ﻿using Mate.DataCore.Nominal;
+using System;
 
 namespace Mate.DataCore.ReportingModel.Interface
 {
@@ -9,8 +10,8 @@ namespace Mate.DataCore.ReportingModel.Interface
         int SimulationNumber { get; set; }
         string CapabilityProvider { get; set; }
         string CapabilityName { get; set; }
-        long ExpectedDuration { get; set; }
+        TimeSpan ExpectedDuration { get; set; }
         int SetupId { get; set; }
-        long Time { get; set; }
+        DateTime Time { get; set; }
     }
 }

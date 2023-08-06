@@ -1,6 +1,6 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
-using static IQueueingJobs;
+using Akka.Hive.Definitions;
+using Mate.Production.Core.Environment.Records.Interfaces;
 
 namespace Mate.Production.Core.Agents.ResourceAgent
 {
@@ -8,9 +8,9 @@ namespace Mate.Production.Core.Agents.ResourceAgent
     {
         public partial class Instruction
         {
-            public class Queuing
+            public record Queuing
             {
-                public class DoJob : SimulationMessage
+                public record DoJob : HiveMessage
                 {
                     public static DoJob Create(IQueueingJob fQueuingSetup, IActorRef target)
                     {
@@ -22,7 +22,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent
                     public IQueueingJob GetObjectFromMessage => Message as IQueueingJob; 
                 }
 
-                public class FinishJob : SimulationMessage
+                public record FinishJob : HiveMessage
                 {
                     public static FinishJob Create(IQueueingJob fQueuingJob,IActorRef target)
                     {

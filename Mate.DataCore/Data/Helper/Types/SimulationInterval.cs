@@ -1,38 +1,39 @@
 ﻿using Mate.DataCore.Data.WrappersForPrimitives;
+using System;
 
 namespace Mate.DataCore.Data.Helper.Types
 {
     public class SimulationInterval
     {
-        public SimulationInterval(long startAt, long interval)
+        public SimulationInterval(DateTime startAt, TimeSpan interval)
         {
             StartAt = startAt;
             Interval = interval;
         }
-        public long StartAt { get; }
-        public long Interval { get;  }
-        public long EndAt => StartAt + Interval;
+        public DateTime StartAt { get; }
+        public TimeSpan Interval { get;  }
+        public DateTime EndAt => StartAt + Interval;
         
-        public bool IsWithinInterval(DueTime dueTime)
+        public bool IsWithinInterval(DateTime dueTime)
         {
-            bool isInInterval = dueTime.GetValue() <= EndAt &&
-                                dueTime.GetValue() >= StartAt;
+            bool isInInterval = dueTime <= EndAt &&
+                                dueTime >= StartAt;
             return isInInterval;
         }
 
-        public bool IsBeforeInterval(DueTime dueTime)
+        public bool IsBeforeInterval(DateTime dueTime)
         {
-            return dueTime.GetValue() < StartAt;
+            return dueTime < StartAt;
         }
 
-        public DueTime GetStart()
+        public DateTime GetStart()
         {
-            return new DueTime((int)StartAt);
+            return StartAt;
         }
         
-        public DueTime GetEnd()
+        public DateTime GetEnd()
         {
-            return new DueTime((int)EndAt);
+            return EndAt;
         }
     }
     

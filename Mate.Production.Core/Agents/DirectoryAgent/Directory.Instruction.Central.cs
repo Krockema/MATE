@@ -1,12 +1,7 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
-using static FArticles;
-using static FCentralProvideOrders;
-using static FCentralResourceDefinitions;
-using static FCentralResourceHubInformations;
-using static FCentralResourceRegistrations;
-using static FCentralStockDefinitions;
-using static FCentralStockPostings;
+using Akka.Hive.Definitions;
+using Mate.Production.Core.Environment.Records.Central;
+
 
 namespace Mate.Production.Core.Agents.DirectoryAgent
 {
@@ -14,33 +9,33 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
     {
         public partial class Instruction
         {
-            public class Central
+            public record Central
             {
 
-            public class ForwardInsertMaterial : SimulationMessage
+            public record ForwardInsertMaterial : HiveMessage
             {
-                public static ForwardInsertMaterial Create(FCentralStockPosting stockPosting, IActorRef target)
+                public static ForwardInsertMaterial Create(StockPostingRecord stockPosting, IActorRef target)
                 {
                     return new ForwardInsertMaterial(message: stockPosting, target: target);
                 }
                 private ForwardInsertMaterial(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FCentralStockPosting GetObjectFromMessage { get => Message as FCentralStockPosting; }
+                public StockPostingRecord GetObjectFromMessage { get => Message as StockPostingRecord; }
             }
-            public class ForwardWithdrawMaterial : SimulationMessage
+            public record ForwardWithdrawMaterial : HiveMessage
             {
-                public static ForwardWithdrawMaterial Create(FCentralStockPosting stockPosting, IActorRef target)
+                public static ForwardWithdrawMaterial Create(StockPostingRecord stockPosting, IActorRef target)
                 {
                     return new ForwardWithdrawMaterial(message: stockPosting, target: target);
                 }
                 private ForwardWithdrawMaterial(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FCentralStockPosting GetObjectFromMessage { get => Message as FCentralStockPosting; }
+                public StockPostingRecord GetObjectFromMessage { get => Message as StockPostingRecord; }
             }
 
-                public class RegisterResources : SimulationMessage
+                public record RegisterResources : HiveMessage
             {
                 public static RegisterResources Create(string descriminator, IActorRef target)
                 {
@@ -52,75 +47,75 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 public string GetObjectFromMessage { get => Message as string; }
             }
 
-            public class CreateMachineAgents : SimulationMessage
+            public record CreateMachineAgents : HiveMessage
             {
-                public static CreateMachineAgents Create(FCentralResourceDefinition message, IActorRef target)
+                public static CreateMachineAgents Create(CentralResourceDefinitionRecord message, IActorRef target)
                 {
                     return new CreateMachineAgents(message: message, target: target);
                 }
                 private CreateMachineAgents(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FCentralResourceDefinition GetObjectFromMessage { get => Message as FCentralResourceDefinition; }
+                public CentralResourceDefinitionRecord GetObjectFromMessage { get => Message as CentralResourceDefinitionRecord; }
             }
-            public class CreateStorageAgents : SimulationMessage
+            public record CreateStorageAgents : HiveMessage
             {
-                public static CreateStorageAgents Create(FCentralStockDefinition message, IActorRef target)
+                public static CreateStorageAgents Create(CentralStockDefinitionRecord message, IActorRef target)
                 {
                     return new CreateStorageAgents(message: message, target: target);
                 }
                 private CreateStorageAgents(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FCentralStockDefinition GetObjectFromMessage { get => Message as FCentralStockDefinition; }
+                public CentralStockDefinitionRecord GetObjectFromMessage { get => Message as CentralStockDefinitionRecord; }
             }
 
-            public class ForwardRegistrationToHub : SimulationMessage
+            public record ForwardRegistrationToHub : HiveMessage
             {
-                public static ForwardRegistrationToHub Create(FCentralResourceRegistration message, IActorRef target)
+                public static ForwardRegistrationToHub Create(CentralResourceRegistrationRecord message, IActorRef target)
                 {
                     return new ForwardRegistrationToHub(message: message, target: target);
                 }
                 private ForwardRegistrationToHub(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FCentralResourceRegistration GetResourceRegistration { get => Message as FCentralResourceRegistration; }
+                public CentralResourceRegistrationRecord GetResourceRegistration { get => Message as CentralResourceRegistrationRecord; }
             }
 
-            public class CreateHubAgent : SimulationMessage
+            public record CreateHubAgent : HiveMessage
             {
-                public static CreateHubAgent Create(FResourceHubInformation message, IActorRef target)
+                public static CreateHubAgent Create(ResourceHubInformationRecord message, IActorRef target)
                 {
                     return new CreateHubAgent(message: message, target: target);
                 }
                 private CreateHubAgent(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FResourceHubInformation GetObjectFromMessage { get => Message as FResourceHubInformation; }
+                public ResourceHubInformationRecord GetObjectFromMessage { get => Message as ResourceHubInformationRecord; }
             }
 
-            public class ForwardAddOrder : SimulationMessage
+            public record ForwardAddOrder : HiveMessage
             {
-                public static ForwardAddOrder Create(FArticle order, IActorRef target)
+                public static ForwardAddOrder Create(ArticleRecord order, IActorRef target)
                 {
                     return new ForwardAddOrder(message: order, target: target);
                 }
                 private ForwardAddOrder(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FArticle GetObjectFromMessage { get => Message as FArticle; }
+                public ArticleRecord GetObjectFromMessage { get => Message as ArticleRecord; }
             }
 
-            public class ForwardProvideOrder : SimulationMessage
+            public record ForwardProvideOrder : HiveMessage
             {
-                public static ForwardProvideOrder Create(FCentralProvideOrder order, IActorRef target)
+                public static ForwardProvideOrder Create(CentralProvideOrderRecord order, IActorRef target)
                 {
                     return new ForwardProvideOrder(message: order, target: target);
                 }
                 private ForwardProvideOrder(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FCentralProvideOrder GetObjectFromMessage { get => Message as FCentralProvideOrder; }
+                public CentralProvideOrderRecord GetObjectFromMessage { get => Message as CentralProvideOrderRecord; }
             }
 
             }

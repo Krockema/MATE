@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.ReportingModel.Interface;
 
@@ -9,19 +10,19 @@ namespace Mate.DataCore.ReportingModel
         public int SimulationConfigurationId { get; set; }
         public SimulationType SimulationType { get; set; }
         public int SimulationNumber { get; set; }
-        public long Time { get; set; }
+        public DateTime Time { get; set; }
         public string JobName { get; set; }
         public string JobType { get; set; }
         public string Article { get; set; }
-        public long ExpectedDuration { get; set; }
-        public long Start { get; set; }
-        public long End { get; set; }
-        public long ReadyAt { get; set; }
+        public TimeSpan ExpectedDuration { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+        public DateTime ReadyAt { get; set; }
         public string CapabilityProvider { get; set; }
         public string CapabilityName { get; set; }
         public string JobId { get; set; }
         public string ProductionOrderId { get; set; }
-        public int DueTime { get; set; }
+        public DateTime DueTime { get; set; }
         public string OrderId { get; set; }
         public string CreatedForOrderId { get; set; }
         public int HierarchyNumber { get; set; }
@@ -30,7 +31,7 @@ namespace Mate.DataCore.ReportingModel
         public string Bucket { get; set; }
         public int SetupId { get; set; }
         [NotMapped]
-        public string FArticleKey { get; set; }
+        public string ArticleKey { get; set; }
         [NotMapped]
         public string ArticleType { get; set; }
         [NotMapped]

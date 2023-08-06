@@ -1,4 +1,5 @@
 ﻿using Akka.Actor;
+using Akka.Hive.Definitions;
 using Mate.Production.Core.Environment;
 using Mate.Production.Core.Helper;
 
@@ -8,20 +9,22 @@ namespace Mate.Production.Core.Agents.SupervisorAgent
     {
         // public Constructor
         public static Props Props(ActorPaths actorPaths
-                                    ,Configuration configuration
-                                    , long time
+                                    , IHiveConfig hiveConfig
+                                    , Configuration configuration
+                                    , Time time
                                     , bool debug
                                     , IActorRef  principal)
         {
-            return Akka.Actor.Props.Create(factory: () => new Supervisor(actorPaths, configuration,  time, debug, principal));
+            return Akka.Actor.Props.Create(factory: () => new Supervisor(actorPaths, hiveConfig, configuration,  time, debug, principal));
         }
 
         public Supervisor(ActorPaths actorPaths
-                            ,Configuration configuration
-                            , long time
+                            , IHiveConfig hiveConfig
+                            , Configuration configuration
+                            , Time time
                             , bool debug
                             , IActorRef principal) 
-            : base(actorPaths: actorPaths, configuration: configuration, time: time, debug: debug, principal: principal)
+            : base(actorPaths: actorPaths, hiveConfig: hiveConfig, configuration: configuration, time: time, debug: debug, principal: principal)
         {
         }
 

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using AkkaSim;
+using Akka.Hive.Actors;
+using Akka.Hive.Definitions;
+using IdentityModel;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.ReportingModel;
@@ -11,16 +13,12 @@ using Mate.DataCore.ReportingModel.Interface;
 using Mate.Production.Core.Agents.CollectorAgent.Types;
 using Mate.Production.Core.Agents.HubAgent;
 using Mate.Production.Core.Environment.Options;
+using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Environment.Records.Reporting;
+using Mate.Production.Core.Helper;
 using Mate.Production.Core.Types;
 using Newtonsoft.Json;
-using static FAgentInformations;
-using static FBreakDowns;
-using static FComputationalTimers;
-using static FCreateSimulationJobs;
-using static FCreateSimulationResourceSetups;
-using static FThroughPutTimes;
-using static FUpdateSimulationJobs;
-using static FUpdateSimulationWorkProviders;
+
 using static Mate.Production.Core.Agents.CollectorAgent.Collector.Instruction;
 
 namespace Mate.Production.Core.Agents.CollectorAgent
@@ -31,6 +29,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         {
             _stopWatch.Start();
             _resources = resources;
+            _settlingStart = Collector.Config.GetOption<SimulationStartTime>().Value + Collector.Config.GetOption<SettlingStart>().Value;
         }
         private Stopwatch _stopWatch { get; } = new Stopwatch();
         List<long> _runTime { get; } = new List<long>();
@@ -38,11 +37,13 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         private List<Setup> simulationResourceSetups { get; } = new List<Setup>();
         private KpiManager kpiManager { get; } = new KpiManager();
 
-        private long lastIntervalStart { get; set; } = 0;
+        private DateTime lastIntervalStart { get; set; }
 
-        private List<FUpdateSimulationJob> _updatedSimulationJob { get; } = new List<FUpdateSimulationJob>();
-        private List<FThroughPutTime> _ThroughPutTimes { get; } = new List<FThroughPutTime>();
-        private List<FComputationalTimer> _ComputationalTimes { get; } = new List<FComputationalTimer>();
+        private DateTime _settlingStart { get; set; }
+
+        private List<UpdateSimulationJobRecord> _updatedSimulationJob { get; } = new ();
+        private List<ThroughPutTimeRecord> _ThroughPutTimes { get; } = new ();
+        private List<ComputationalTimerRecord> _ComputationalTimes { get; } = new List<ComputationalTimerRecord>();
         private ResourceDictionary _resources { get; set; } = new ResourceDictionary();
         public Collector Collector { get; set; }
         //
@@ -55,15 +56,15 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         internal static List<Type> GetStreamTypes()
         {
-            return new List<Type> { typeof(FCreateSimulationJob), // Published by Production Agent after Creating jobs from Operations
-                                     typeof(FUpdateSimulationJob), // 
-                                     typeof(FUpdateSimulationWorkProvider),
+            return new List<Type> { typeof(CreateSimulationJobRecord), // Published by Production Agent after Creating jobs from Operations
+                                     typeof(UpdateSimulationJobRecord), // 
+                                     typeof(UpdateSimulationWorkProviderRecord),
                                      typeof(UpdateLiveFeed),
-                                     typeof(FThroughPutTime),
-                                     typeof(FComputationalTimer),
+                                     typeof(ThroughPutTimeRecord),
+                                     typeof(ComputationalTimerRecord),
                                      typeof(Hub.Instruction.Default.AddResourceToHub),
                                      typeof(BasicInstruction.ResourceBrakeDown),
-                                     typeof(FCreateSimulationResourceSetup)
+                                     typeof(CreateSimulationResourceSetupRecord)
 
             };
         }
@@ -75,17 +76,17 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         public override bool Action(object message) => throw new Exception(message: "Please use EventHandle method to process Messages");
 
-        public bool EventHandle(SimulationMonitor simulationMonitor, object message)
+        public bool EventHandle(MessageMonitor simulationMonitor, object message)
         {
             switch (message)
             {
-                case FCreateSimulationJob m: CreateJob(simJob: m); break;
-                case FUpdateSimulationJob m: UpdateJob(simJob: m); break;
-                case FCreateSimulationResourceSetup m: CreateSetup(m); break;
-                case FUpdateSimulationWorkProvider m: UpdateProvider(uswp: m); break;
-                case FThroughPutTime m: UpdateThroughputTimes(m); break;
-                case FComputationalTimer m: UpdateComputationalTimes(m); break;
-                case Collector.Instruction.UpdateLiveFeed m: UpdateFeed(finalCall: m.GetObjectFromMessage); break;
+                case CreateSimulationJobRecord m: CreateJob(simJob: m); break;
+                case UpdateSimulationJobRecord m: UpdateJob(simJob: m); break;
+                case CreateResourceSetupRecord m: CreateSetup(m); break;
+                case UpdateSimulationWorkProviderRecord m: UpdateProvider(uswp: m); break;
+                case ThroughPutTimeRecord m: UpdateThroughputTimes(m); break;
+                case ComputationalTimerRecord m: UpdateComputationalTimes(m); break;
+                case UpdateLiveFeed m: UpdateFeed(finalCall: m.GetObjectFromMessage); break;
                 //case Hub.Instruction.AddResourceToHub m: RecoverFromBreak(item: m.GetObjectFromMessage); break;
                 //case BasicInstruction.ResourceBrakeDown m: BreakDwn(item: m.GetObjectFromMessage); break;
                 default: return false;
@@ -99,17 +100,17 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         /// collect the resourceSetups of resource, cant be updated afterward
         /// </summary>
         /// <param name="simulationResourceSetup"></param>
-        private void CreateSetup(FCreateSimulationResourceSetup simulationResourceSetup)
+        private void CreateSetup(CreateResourceSetupRecord simulationResourceSetup)
         {
             var _SimulationResourceSetup = new Setup
             {
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,
                 SimulationType = Collector.simulationKind.Value,
-                Time = (int)(Collector.Time),
+                Time = Collector.Time.Value,
                 CapabilityProvider = simulationResourceSetup.CapabilityProvider,
                 CapabilityName = simulationResourceSetup.CapabilityName,
-                Start = (int)simulationResourceSetup.Start,
+                Start = simulationResourceSetup.Start,
                 End = simulationResourceSetup.Start + simulationResourceSetup.Duration,
                 ExpectedDuration = simulationResourceSetup.ExpectedDuration,
                 SetupId = simulationResourceSetup.SetupId
@@ -118,23 +119,23 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         }
 
-        private void UpdateThroughputTimes(FThroughPutTime m)
+        private void UpdateThroughputTimes(ThroughPutTimeRecord m)
         {
             _ThroughPutTimes.Add(m);
         }
         
-        private void UpdateComputationalTimes(FComputationalTimer m)
+        private void UpdateComputationalTimes(ComputationalTimerRecord m)
         {
             _ComputationalTimes.Add(m);
         }
 
         #region breakdown
-        private void BreakDwn(FBreakDown item)
+        private void BreakDwn(BreakDownRecord item)
         {
             Collector.messageHub.SendToClient(listener: item.Resource + "_State", msg: "offline");
         }
 
-        private void RecoverFromBreak(FAgentInformation item)
+        private void RecoverFromBreak(AgentInformationRecord item)
         {
             Collector.messageHub.SendToClient(listener: item.RequiredFor + "_State", msg: "online");
         }
@@ -143,10 +144,10 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         {
             // check if Update has been processed this time step.
  
-            if (lastIntervalStart != Collector.Time)
+            if (lastIntervalStart != Collector.Time.Value)
             {
                 //var OEE = OverallEquipmentEffectiveness(resources: _resources, Collector.Time - 1440L, Collector.Time);
-                lastIntervalStart = Collector.Time;
+                lastIntervalStart = Collector.Time.Value;
             }
             ThroughPut(finalCall);
             ComputationalTimes(finalCall);
@@ -155,7 +156,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
             LogToDB(writeResultsToDB: finalCall);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
-            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from WorkSchedule");
+            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time.Value + ") Finished Update Feed from WorkSchedule");
         }
 
         private void ComputationalTimes(bool finalCall)
@@ -174,13 +175,13 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                     foreach (var timeKpi in _ComputationalTimes)
                     {
                         //additional for WriteConfirmations, ExecuteGanttplan and Init
-                        Collector.CreateKpi(Collector, timeKpi.duration.ToString() , timeKpi.timertype, KpiType.ComputationalTime, false, timeKpi.time);
+                        Collector.CreateKpi(Collector, timeKpi.Duration.ToString() , timeKpi.Timertype, KpiType.ComputationalTime, false, new Time(timeKpi.Time));
                     }
 
-                    foreach (var type in _ComputationalTimes.GroupBy(x => x.timertype))
+                    foreach (var type in _ComputationalTimes.GroupBy(x => x.Timertype))
                     {
-                        Collector.CreateKpi(Collector, type.Sum(x => x.duration).ToString(), "Total" + type.Key, KpiType.ComputationalTime, true);
-                        Collector.CreateKpi(Collector, type.Average(x => x.duration).ToString(), "Average" + type.Key, KpiType.ComputationalTime, true);
+                        Collector.CreateKpi(Collector, type.Sum(x => x.Duration).ToString(), "Total" + type.Key, KpiType.ComputationalTime, true);
+                        Collector.CreateKpi(Collector, type.Average(x => x.Duration.TotalMinutes).ToString(), "Average" + type.Key, KpiType.ComputationalTime, true);
                     }
 
                 }
@@ -203,7 +204,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 List<ISimulationTask> allSimulationSetupData = new List<ISimulationTask>(simulationResourceSetups);
 
                 var settlingStart = Collector.Config.GetOption<SettlingStart>().Value;
-                var resourcesDatas = kpiManager.GetSimulationDataForResources(resources: _resources, simulationResourceData: allSimulationData, simulationResourceSetupData: allSimulationSetupData, startInterval: settlingStart, endInterval: Collector.Time);
+                var resourcesDatas = kpiManager.GetSimulationDataForResources(resources: _resources, simulationResourceData: allSimulationData, simulationResourceSetupData: allSimulationSetupData, startInterval: _settlingStart, endInterval: Collector.Time.Value);
 
                 foreach (var resource in resourcesDatas) { 
                     var tuple = resource._workTime + " " + resource._setupTime;
@@ -243,12 +244,12 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         {
 
             var leadTime = from lt in _ThroughPutTimes
-                           where Math.Abs(value: lt.End) >= Collector.Time - Collector.Config.GetOption<TimePeriodForThroughputCalculation>().Value
+                           where lt.End >= Collector.Time.Value - Collector.Config.GetOption<TimePeriodForThroughputCalculation>().Value
                            group lt by lt.ArticleName into so
                            select new
                            {
                                ArticleName = so.Key.Split(new char[] { '|' })[0],
-                               Dlz = so.Select(selector: x => (double)x.End - x.Start).ToList()
+                               Dlz = so.Select(selector: x => x.End - x.Start).ToList()
                            };
 
             var thoughput = JsonConvert.SerializeObject(value: new { leadTime });
@@ -256,7 +257,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
             if (finalCall && _ThroughPutTimes.Count > 0)
             {
-                var finalThroughput = _ThroughPutTimes.Average(x => x.End - x.Start).ToString();
+                var finalThroughput = _ThroughPutTimes.Average(x => x.End.ToEpochTime() - x.Start.ToEpochTime()).ToString();
                 Collector.CreateKpi(Collector, finalThroughput, "AverageLeadTime", KpiType.LeadTime, true);    
             }
             
@@ -277,13 +278,13 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
             var products = simulationJobs.Where(predicate: a => a.ArticleType == "Product"
                                                    && a.HierarchyNumber == 20 // TODO : REMOVE THIS GARBAGE
-                                                   && a.End == 0);
+                                                   && a.End == Time.ZERO.Value);
 
-            Collector.messageHub.SendToClient(listener: "ContractsV2", msg: JsonConvert.SerializeObject(value: new { Time = Collector.Time, Processing = products.Count().ToString() }));
+            Collector.messageHub.SendToClient(listener: "ContractsV2", msg: JsonConvert.SerializeObject(value: new { Collector.Time, Processing = products.Count().ToString() }));
         }
 
 
-        private void CreateJob(FCreateSimulationJob simJob)
+        private void CreateJob(CreateSimulationJobRecord simJob)
         {
             //var fOperation = ((FOperation)simJob.Job);
             var simulationJob = new Job
@@ -291,7 +292,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 JobId = simJob.Key,
                 JobName = simJob.OperationName,
                 JobType = simJob.JobType,
-                DueTime = (int)simJob.DueTime,
+                DueTime = simJob.DueTime,
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,
                 SimulationType = Collector.simulationKind.Value,
@@ -303,8 +304,8 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 //Remember this is now a fArticleKey (Guid)
                 ProductionOrderId =  simJob.ProductionAgent,
                 Parent = simJob.IsHeadDemand.ToString(),
-                FArticleKey = simJob.fArticleKey.ToString(),
-                Time = (int)(Collector.Time),
+                ArticleKey = simJob.ArticleKey.ToString(),
+                Time = Collector.Time.Value,
                 ExpectedDuration = simJob.OperationDuration,
                 ArticleType = simJob.ArticleType,
                 CapabilityName = simJob.RequiredCapabilityName,
@@ -316,8 +317,8 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             var edit = _updatedSimulationJob.FirstOrDefault(predicate: x => x.Job.Key.ToString().Equals(simJob.Key));
             if (edit != null)
             {
-                simulationJob.Start = (int)edit.Start;
-                simulationJob.End = (int)(edit.Start + edit.Duration);
+                simulationJob.Start = edit.Start;
+                simulationJob.End = edit.Start + edit.Duration;
                 simulationJob.CapabilityProvider = edit.CapabilityProvider;
                 simulationJob.Bucket = edit.Bucket;
                 _updatedSimulationJob.Remove(item: edit);
@@ -325,14 +326,14 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             simulationJobs.Add(item: simulationJob);
         }
         
-        private void UpdateJob(FUpdateSimulationJob simJob)
+        private void UpdateJob(UpdateSimulationJobRecord simJob)
         {
             var edit = simulationJobs.FirstOrDefault(predicate: x => x.JobId.Equals(value: simJob.Job.Key.ToString()));
             if (edit != null)
             {
                 edit.JobType = simJob.JobType;
-                edit.Start = (int)simJob.Start;
-                edit.End = (int)(simJob.Start + simJob.Duration); // to have Time Points instead of Time Periods
+                edit.Start = simJob.Start;
+                edit.End = (simJob.Start + simJob.Duration); // to have Time Points instead of Time Periods
                 edit.CapabilityProvider = simJob.CapabilityProvider;
                 edit.Bucket = simJob.Bucket;
                 edit.ReadyAt = simJob.ReadyAt;
@@ -347,11 +348,11 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             //tuples.Add(new Tuple<string, long>(uws.Machine, uws.Duration));
         }
 
-        private void UpdateProvider(FUpdateSimulationWorkProvider uswp)
+        private void UpdateProvider(UpdateSimulationWorkProviderRecord uswp)
         {
-            foreach (var fpk in uswp.FArticleProviderKeys)
+            foreach (var fpk in uswp.ArticleProviderRecords)
             {
-                var items = simulationJobs.Where(predicate: x => x.FArticleKey.Equals(value: fpk.ProvidesArticleKey.ToString())
+                var items = simulationJobs.Where(predicate: x => x.ArticleKey.Equals(value: fpk.ProvidesArticleKey.ToString())
                                                             && x.ProductionOrderId == fpk.ProductionAgentKey); 
                 foreach (var item in items)
                 {

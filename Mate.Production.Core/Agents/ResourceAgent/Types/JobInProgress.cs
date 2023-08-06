@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
+using Akka.Hive.Definitions;
 using Mate.DataCore.DataModel;
-using MathNet.Numerics.Statistics;
-using static FBuckets;
-using static FOperations;
-using static IConfirmations;
-using static IJobs;
+using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Environment.Records.Interfaces;
+using Mate.Production.Core.Helper;
 
 namespace Mate.Production.Core.Agents.ResourceAgent.Types
 {
@@ -15,22 +14,22 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
     {
         private IConfirmation Current { get; set; }
         public CurrentOperation CurrentOperation { get; set; } = new CurrentOperation();
-        private SortedList<long, IConfirmation> ReadyElements { get; } = new SortedList<long, IConfirmation>();
-        public long ResourceIsBusyUntil => (ReadyElements.Count > 0) ? ReadyElements.Values.Max(x => x.ScopeConfirmation.GetScopeEnd()) 
+        private SortedList<DateTime, IConfirmation> ReadyElements { get; } = new SortedList<DateTime, IConfirmation>();
+        public DateTime ResourceIsBusyUntil => (ReadyElements.Count > 0) ? ReadyElements.Values.Max(x => x.ScopeConfirmation.GetScopeEnd()) 
                                                                      : ExpectedResourceIsBusyUntil;
-        private long ExpectedResourceIsBusyUntil { get; set; }
-        public long StartedAt { get; private set; }
+        private DateTime ExpectedResourceIsBusyUntil { get; set; }
+        public DateTime StartedAt { get; private set; }
         public bool IsSet => Current != null;
         public bool SetupIsOngoing { get; set; }
-        public long LastTimeStartCall { get; private set; }
+        public DateTime LastTimeStartCall { get; private set; }
         public bool IsWorking {get; private set; } = false;
-        private Queue<FOperation> _finalOperations { get; set; } = new Queue<FOperation>();
+        private Queue<OperationRecord> _finalOperations { get; set; } = new Queue<OperationRecord>();
         public bool ResetIsWorking() => IsWorking = false;
         public int HasCurrent=> Current != null ? 1 : 0;
 
         #region Passthrough Properties
-        public long JobDuration => Current.Job.Duration;
-        public long JobMaxDuration => ((FBucket) Current.Job).MaxBucketSize;
+        public TimeSpan JobDuration => Current.Job.Duration;
+        public TimeSpan JobMaxDuration => ((BucketRecord) Current.Job).MaxBucketSize;
         public int ResourceCapabilityId => Current.CapabilityProvider.ResourceCapabilityId;
         public int CapabilityProviderId => Current.CapabilityProvider.Id;
         public string RequiredCapabilityName => Current.Job.RequiredCapability.Name;
@@ -39,49 +38,50 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
         public IActorRef JobAgentRef => Current.JobAgentRef;
         public IConfirmation GanttItem => Current;
         public List<IConfirmation> GanttItems => this.ReadyElements.Values.ToList();
-        public bool IsCurrentDelayed(long currentTime) => Current.ScopeConfirmation.GetScopeStart() < currentTime;
+        public bool IsCurrentDelayed(DateTime currentTime) => Current.ScopeConfirmation.GetScopeStart() < currentTime;
         public M_ResourceCapabilityProvider CapabilityProvider => Current.CapabilityProvider;
         public int GetTotalOperationsOfJobInProgress()
         {
             int operations = 0;
-            int durationOperations = 0;
+            TimeSpan durationOperations = TimeSpan.Zero;
             if (ReadyElements.Count > 0)
             {
                 foreach (var element in ReadyElements)
                 {
-                    operations += ((FBucket)element.Value.Job).Operations.Count();
+                    operations += ((BucketRecord)element.Value.Job).Operations.Count();
                 }
             }
             if(HasCurrent == 1)
             {
-                operations += ((FBucket)Current.Job).Operations.Count();
+                operations += ((BucketRecord)Current.Job).Operations.Count();
             }
 
             return operations;
         }
 
-        public (int, int) GetTotalOperationsOfJobInProgress(Guid operationId, long currentTime)
+        public (TimeSpan, int) GetTotalOperationsOfJobInProgress(Guid operationId, DateTime currentTime)
         {
             int operations = 0;
-            int durationOperations = 0;
+            TimeSpan durationOperations = TimeSpan.Zero;
             IJob operation = null;
 
             if (HasCurrent == 1)
-                operation = ((FBucket)Current.Job).Operations.SingleOrDefault(x => x.Key.Equals(operationId)) as IJob;
+                operation = ((BucketRecord)Current.Job).Operations.SingleOrDefault(x => x.Key.Equals(operationId)) as IJob;
             
             //Wenn es in dem aktuellen Element ist
             if (operation != null)
             {
                 var jobPrio = operation.Priority(currentTime);
-                operations += ((FBucket)Current.Job).Operations.Count(x => ((IJob)x).Priority(currentTime) < jobPrio);
-                durationOperations += ((FBucket)Current.Job).Operations.Where(x => ((IJob)x).Priority(currentTime) < jobPrio).Sum(y => y.Operation.Duration);
+                var ops = ((BucketRecord)Current.Job).Operations.Where(x => ((IJob)x).Priority(currentTime) < jobPrio);
+                operations += ops.Count();
+                durationOperations += ops.Sum(y => y.Operation.Duration);
             }
             //Ansonsten, wenn es in den ReadyElementen ist
             else
             {
                 if (HasCurrent == 1)
                 {
-                    operations += ((FBucket)Current.Job).Operations.Count();
+                    operations += ((BucketRecord)Current.Job).Operations.Count();
                 }
                 IJob element = null;
                 foreach (var item in ReadyElements)
@@ -89,7 +89,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
                     //Gehe solange über die Liste, bis du das Element in den Operationen gefunden hast
                     while (element == null)
                     {
-                        var tmp = item.Value.Job as FBucket;
+                        var tmp = item.Value.Job as BucketRecord;
                         element = tmp.Operations.SingleOrDefault(x => x.Key.Equals(operationId));
                         //((FBucket)ReadyElements.ToArray()[i].Job).Operations.SingleOrDefault(x => x.Key.Equals(operationId));
 
@@ -114,7 +114,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
 
         #endregion
 
-        public void StartProcessing(long currentTime, long duration)
+        public void StartProcessing(DateTime currentTime, TimeSpan duration)
         {
             LastTimeStartCall = currentTime;
             if (IsWorking)
@@ -125,10 +125,10 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
             IsWorking = true;
         }
 
-        public void StartSetup(long currentTime, long duration)
+        public void StartSetup(DateTime currentTime, TimeSpan duration)
         {
             LastTimeStartCall = currentTime;
-            var max = (new long[] {Current.ScopeConfirmation.GetScopeEnd(), currentTime + duration}).Max();
+            var max = (new DateTime[] {Current.ScopeConfirmation.GetScopeEnd(), currentTime + duration}).Max();
             ExpectedResourceIsBusyUntil = max; //Current.Duration;
             StartedAt = currentTime;
             IsWorking = true;
@@ -136,7 +136,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
 
 
 
-        public bool Set(IConfirmation jobConfirmation, long duration)
+        public bool Set(IConfirmation jobConfirmation, TimeSpan duration)
         {
             if (IsSet)
                 return false;
@@ -170,8 +170,8 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
         {
             Current = null;
             IsWorking = false;
-            StartedAt = 0;
-            ExpectedResourceIsBusyUntil = 0;
+            StartedAt = Time.ZERO.Value;
+            ExpectedResourceIsBusyUntil = Time.ZERO.Value;
             _finalOperations = new ();
         }
 
@@ -194,7 +194,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
         {
             var position = 0;
             if (IsSet) 
-                position = position + ((FBucket)Current.Job).Operations.Count();
+                position = position + ((BucketRecord)Current.Job).Operations.Count();
             position = position + ReadyElements.IndexOfKey(job.ScopeConfirmation.GetScopeStart());
             return position;
         }
@@ -216,23 +216,23 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
             return first;
         }
 
-        public void DissolveBucketToQueue(long currentTime)
+        public void DissolveBucketToQueue(DateTime currentTime)
         {
             if (_finalOperations.Count > 0)
             {
                 throw new Exception("Previous work was not done.");
             }
-            _finalOperations = new Queue<FOperation>(((FBucket)Current.Job).Operations.OrderByDescending(prio => prio.Priority.Invoke(currentTime)));
+            _finalOperations = new Queue<OperationRecord>(((BucketRecord)Current.Job).Operations.OrderByDescending(prio => prio.Priority.Invoke(currentTime)));
         }
-        public FOperation DequeueNextOperation()
+        public OperationRecord DequeueNextOperation()
         {
             return _finalOperations.Dequeue();
         }
 
-        public FOperation[] OperationsAsArray()
+        public OperationRecord[] OperationsAsArray()
         {
             return _finalOperations.Any() ? _finalOperations.ToArray() 
-                                            : ((FBucket) Current.Job).Operations.ToArray();
+                                            : ((BucketRecord) Current.Job).Operations.ToArray();
         }
     }
 }

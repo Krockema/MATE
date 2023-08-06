@@ -12,15 +12,12 @@ using Mate.Production.Core.Agents.StorageAgent;
 using Mate.Production.Core.Helper;
 using Mate.Production.Core.Types;
 using NLog;
-using static FAgentInformations;
-using static FArticleProviders;
-using static FArticles;
-using static FOperations;
-using static FProductionResults;
-using static FThroughPutTimes;
-using static IJobResults;
 using static Mate.Production.Core.Helper.Negate;
 using static Mate.Production.Core.Agents.BasicInstruction;
+using Mate.Production.Core.Environment.Records.Interfaces;
+using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Environment.Records.Reporting;
+using System.Collections.Immutable;
 
 namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
 {
@@ -38,7 +35,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
         /// <summary>
         /// Article this Production Agent has to Produce
         /// </summary>
-        internal FArticle _articleToProduce { get; set; }
+        internal ArticleRecord _articleToProduce { get; set; }
         /// <summary>
         /// Class to supervise operations, supervise operation material handling, articles required by operation, and their relation
         /// </summary>
@@ -49,7 +46,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
         {
             switch (message)
             {
-                case Production.Instruction.StartProduction msg: StartProductionAgent(fArticle: msg.GetObjectFromMessage); break;
+                case Production.Instruction.StartProduction msg: StartProductionAgent(articleRec: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ResponseFromDirectory msg: SetHubAgent(hub: msg.GetObjectFromMessage); break;
                 case BasicInstruction.JobForwardEnd msg: AddForwardTime(earliestStartForForwardScheduling: msg.GetObjectFromMessage); break;
                 case BasicInstruction.ProvideArticle msg: ArticleProvided(msg.GetObjectFromMessage); break;
@@ -77,27 +74,27 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
                 return;
             }
 
-            _articleToProduce = _articleToProduce.SetProvided;
+            _articleToProduce = _articleToProduce.SetProvided();
             Agent.DebugMessage(msg: $"All operations for article {_articleToProduce.Article.Name} {_articleToProduce.Key} finished.");
            
 
             //TODO add production amount to productionresult, currently static 1
-            var productionResponse = new FProductionResult(key: _articleToProduce.Key
-                                                  , trackingId: _articleToProduce.StockExchangeId
-                                                , creationTime: _articleToProduce.CreationTime
-                                                 , customerDue: _articleToProduce.CustomerDue
-                                               , productionRef: Agent.Context.Self
-                                                       ,amount: 1);
+            var productionResponse = new ProductionResultRecord(Key: _articleToProduce.Key
+                                                  , TrackingId: _articleToProduce.StockExchangeId
+                                                , CreationTime: _articleToProduce.CreationTime
+                                                 , CustomerDue: _articleToProduce.CustomerDue
+                                               , ProductionRef: Agent.Context.Self
+                                                       ,Amount: 1);
 
             Agent.Send(instruction: Storage.Instruction.Default.ResponseFromProduction.Create(message: productionResponse, target: _articleToProduce.StorageAgent));
 
             if (_articleToProduce.IsHeadDemand)
             {
                
-                var pub = new FThroughPutTime(articleKey: _articleToProduce.Key
-                                            , articleName: _articleToProduce.Article.Name
-                                            , start: _articleToProduce.CreationTime
-                                            , end: Agent.CurrentTime);
+                var pub = new ThroughPutTimeRecord(ArticleKey: _articleToProduce.Key
+                                            , ArticleName: _articleToProduce.Article.Name
+                                            , Start: _articleToProduce.CreationTime
+                                            , End: Agent.CurrentTime);
                 Agent.Context.System.EventStream.Publish(@event: pub);
             }
 
@@ -141,27 +138,27 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
         }
 
 
-        private void StartProductionAgent(FArticle fArticle)
+        private void StartProductionAgent(ArticleRecord articleRec)
         {
 
-            _forwardScheduleTimeCalculator = new ForwardScheduleTimeCalculator(fArticle: fArticle);
+            _forwardScheduleTimeCalculator = new ForwardScheduleTimeCalculator(articleRec: articleRec);
             // check for Children
-            if (fArticle.Article.ArticleBoms.Any())
+            if (articleRec.Article.ArticleBoms.Any())
             {
                 Agent.DebugMessage(
-                    msg: "Article: " + fArticle.Article.Name + " (" + fArticle.Key + ") is last leave in BOM.", CustomLogger.SCHEDULING, LogLevel.Warn);
+                    msg: "Article: " + articleRec.Article.Name + " (" + articleRec.Key + ") is last leave in BOM.", CustomLogger.SCHEDULING, LogLevel.Warn);
             }
 
-            if (fArticle.Article.Operations == null)
+            if (articleRec.Article.Operations == null)
                 throw new Exception("Production agent without operations");
             
 
             // Ask the Directory Agent for Service
-            RequestHubAgentsFromDirectoryFor(agent: Agent, operations: fArticle.Article.Operations);
+            RequestHubAgentsFromDirectoryFor(agent: Agent, operations: articleRec.Article.Operations);
             // And create Operations
-            CreateJobsFromArticle(fArticle: fArticle);
+            CreateJobsFromArticle(articleRec: articleRec);
 
-            var requiredDispoAgents = OperationManager.CreateRequiredArticles(articleToProduce: fArticle
+            var requiredDispoAgents = OperationManager.CreateRequiredArticles(articleToProduce: articleRec
                                                                                 , requestingAgent: Agent.Context.Self
                                                                                 , currentTime: Agent.CurrentTime);
 
@@ -176,7 +173,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
             }
         }
 
-        private void SetHubAgent(FAgentInformation hub)
+        private void SetHubAgent(AgentInformationRecord hub)
         {
             // Enqueue my Element at Hub Agent
             Agent.DebugMessage(msg: $"Received Agent from Directory: {Agent.Sender.Path.Name}");
@@ -216,7 +213,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
         /// set each material to provided and set the start condition true if all materials are provided
         /// </summary>
         /// <param name="fArticleProvider"></param>
-        private void ArticleProvided(FArticleProvider fArticleProvider)
+        private void ArticleProvided(ArticleProviderRecord fArticleProvider)
         {
             var articleDictionary = OperationManager.SetArticleProvided(fArticleProvider: fArticleProvider, providedBy: Agent.Sender, currentTime: Agent.CurrentTime);
             
@@ -224,7 +221,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
 
             var cpy = _articleToProduce.ProviderList.ToArray().ToList();
             cpy.AddRange(fArticleProvider.Provider);
-            _articleToProduce = _articleToProduce.UpdateProviderList(cpy);
+            _articleToProduce = _articleToProduce.UpdateProviderList(cpy.ToImmutableHashSet());
             
             if(articleDictionary.AllProvided())
             {
@@ -254,31 +251,31 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
             }
         }
 
-        internal void CreateJobsFromArticle(FArticle fArticle)
+        internal void CreateJobsFromArticle(ArticleRecord articleRec)
         {
-            var lastDue = fArticle.DueTime;
-            var sumOperationDurations = fArticle.RemainingDuration;
-            var numberOfOperations = fArticle.Article.Operations.Count();
+            var lastDue = articleRec.DueTime;
+            var sumOperationDurations = articleRec.RemainingDuration;
+            var numberOfOperations = articleRec.Article.Operations.Count();
             var operationCounter = 0;
 
-            foreach (var operation in fArticle.Article.Operations.OrderByDescending(keySelector: x => x.HierarchyNumber))
+            foreach (var operation in articleRec.Article.Operations.OrderByDescending(keySelector: x => x.HierarchyNumber))
             {
                 operationCounter++;
-                var fJob = operation.ToOperationItem(dueTime: lastDue
+                var fJob = operation.ToOperationRecord(dueTime: lastDue
                     , priorityRule: Agent.Configuration.GetOption<Environment.Options.PriorityRule>().Value
-                    , customerDue: fArticle.CustomerDue
+                    , customerDue: articleRec.CustomerDue
                     , productionAgent: Agent.Context.Self
                     , firstOperation: (operationCounter == numberOfOperations)
                     , currentTime: Agent.CurrentTime
                     , remainingWork: sumOperationDurations
-                    , articleKey: fArticle.Key);
+                    , articleKey: articleRec.Key);
 
                 Agent.DebugMessage(
                     msg:
-                    $"Origin {fArticle.Article.Name} CustomerDue: {fArticle.CustomerDue} remainingDuration: {fArticle.RemainingDuration} Created operation: {operation.Name} | Prio {fJob.Priority.Invoke(Agent.CurrentTime)} | Remaining Work {sumOperationDurations} " +
-                    $"| BackwardStart {fJob.BackwardStart} | BackwardEnd:{fJob.BackwardEnd} Key: {fJob.Key}  ArticleKey: {fArticle.Key}" + 
+                    $"Origin {articleRec.Article.Name} CustomerDue: {articleRec.CustomerDue} remainingDuration: {articleRec.RemainingDuration} Created operation: {operation.Name} | Prio {fJob.Priority.Invoke(Agent.CurrentTime)} | Remaining Work {sumOperationDurations} " +
+                    $"| BackwardStart {fJob.BackwardStart} | BackwardEnd:{fJob.BackwardEnd} Key: {fJob.Key}  ArticleKey: {articleRec.Key}" + 
                     $"Precondition test: {operation.Name} | {fJob.StartConditions.PreCondition} ? {operationCounter} == {numberOfOperations} " +
-                    $"| Key: {fJob.Key}  ArticleKey: {fArticle.Key}", CustomLogger.SCHEDULING, LogLevel.Warn);
+                    $"| Key: {fJob.Key}  ArticleKey: {articleRec.Key}", CustomLogger.SCHEDULING, LogLevel.Warn);
                 sumOperationDurations += operation.Duration;
                 lastDue = fJob.BackwardStart - operation.AverageTransitionDuration;
                 OperationManager.AddOperation(fJob);
@@ -286,24 +283,24 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
                 // send update to collector
                 var pub = MessageFactory.ToSimulationJob(fJob
                         , jobType: JobType.OPERATION
-                        , fArticle: fArticle
+                        , fArticle: articleRec
                         , productionAgent: this.Agent.Name
                     );
                 Agent.Context.System.EventStream.Publish(@event: pub);
             }
 
-            _articleToProduce = fArticle;
+            _articleToProduce = articleRec;
             SetForwardScheduling();
         }
 
-        private void AddForwardTime(long earliestStartForForwardScheduling)
+        private void AddForwardTime(DateTime earliestStartForForwardScheduling)
         {
 
             _forwardScheduleTimeCalculator.Add(earliestStartForForwardScheduling: earliestStartForForwardScheduling);
             SetForwardScheduling();
         }
 
-        private void UpdateCustomerDueTimes(long customerDue)
+        private void UpdateCustomerDueTimes(DateTime customerDue)
         {
 
             _articleToProduce = _articleToProduce.UpdateCustomerDue(customerDue);
@@ -324,10 +321,10 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
 
         private void SetForwardScheduling()
         {
-            if (!_forwardScheduleTimeCalculator.AllRequirementsFullFilled(fArticle: _articleToProduce))
+            if (!_forwardScheduleTimeCalculator.AllRequirementsFullFilled(articleRec: _articleToProduce))
                 return;
 
-            var operationList = new List<FOperation>();
+            var operationList = new List<OperationRecord>();
             var earliestStart = Agent.CurrentTime;
             if (Agent.VirtualChildren.Count > 0)
                 earliestStart = _forwardScheduleTimeCalculator.Max;

@@ -44,6 +44,14 @@ namespace Mate.DataCore.Data.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<M_ResourceSetup>().Property(x => x.SetupTime).HasConversion<long>();
+            modelBuilder.Entity<M_Article>().Property(x => x.DeliveryPeriod).HasConversion<long>();
+            modelBuilder.Entity<M_ArticleToBusinessPartner>().Property(x => x.TimeToDelivery).HasConversion<long>();
+            modelBuilder.Entity<M_Operation>().Property(x => x.Duration).HasConversion<long>();
+            modelBuilder.Entity<M_Operation>().Property(x => x.RandomizedDuration).HasConversion<long>();
+            modelBuilder.Entity<T_ProductionOrderOperation>().Property(x => x.Duration).HasConversion<long>();
+            modelBuilder.Entity<T_ProductionOrderOperation>().Property(x => x.DurationSimulation).HasConversion<long>();
+
             modelBuilder.Entity<M_Article>()
                 .ToTable(name: "M_Article")
                 .HasOne(navigationExpression: a => a.Stock)

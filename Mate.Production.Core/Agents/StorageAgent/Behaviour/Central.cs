@@ -1,12 +1,7 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.StorageAgent.Types;
-using static FArticles;
-using static FCentralProvideOrders;
-using static FCentralPurchases;
-using static FCentralStockDefinitions;
-using static FCentralStockPostings;
+using Mate.Production.Core.Environment.Records.Central;
 
 namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
 {
@@ -22,7 +17,7 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
                             , _stockManager.Value);
 
 
-        public Central(FCentralStockDefinition stockDefinition, SimulationType simType) : base(simulationType: simType)
+        public Central(CentralStockDefinitionRecord stockDefinition, SimulationType simType) : base(simulationType: simType)
         {
             _stockManager = new CentralStockManager(stockDefinition);
         }
@@ -43,11 +38,11 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
             return true;
         }
 
-        private void AddOrder(FArticle fArticle)
+        private void AddOrder(ArticleRecord fArticle)
         {
             _requestedArticles.Add(fArticle);
         }
-        private void ProvideOrderAtDue(FCentralProvideOrder provideOrder)
+        private void ProvideOrderAtDue(CentralProvideOrderRecord provideOrder)
         {
             var requestArticle = _requestedArticles.Single(x => x.CustomerOrderId.ToString().Equals(provideOrder.SalesOrderId));
 
@@ -58,7 +53,7 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
                 return;
             }
 
-            Agent.Send(Storage.Instruction.Central.ProvideOrderAtDue.Create(provideOrder, Agent.Context.Self),requestArticle.DueTime - Agent.CurrentTime);
+            Agent.Send(Storage.Instruction.Central.ProvideOrderAtDue.Create(provideOrder, Agent.Context.Self), (requestArticle.DueTime - Agent.CurrentTime));
 
         }
 
@@ -67,32 +62,32 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
         /// Purchase order material initiated by Ganttplan
         /// </summary>
         /// <param name="getObjectFromMessage"></param>
-        private void AddPurchase(FCentralPurchase purchase)
+        private void AddPurchase(CentralPurchaseRecord purchase)
         {
             //purchase changes?
 
             Agent.Send(instruction: Storage.Instruction.Central.PopPurchase.Create(message: purchase, target: Agent.Sender), 
-                waitFor: Convert.ToInt32(_stockManager.DeliveryPeriod));
+                waitFor: _stockManager.DeliveryPeriod);
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="getObjectFromMessage"></param>
-        private void PopPurchase(FCentralPurchase purchase)
+        private void PopPurchase(CentralPurchaseRecord purchase)
         {
             Agent.DebugMessage($"{purchase.Quantity} {purchase.MaterialId} add to stock ");
             _stockManager.Add(purchase.Quantity);
         }
 
-        private void WithdrawMaterial(FCentralStockPosting stockPosting)
+        private void WithdrawMaterial(StockPostingRecord stockPosting)
         {
             Agent.DebugMessage($"{stockPosting.Quantity} {stockPosting.MaterialId} arrived");
             _stockManager.Remove(stockPosting.Quantity);
             LogValueChange();
         }
 
-        private void InsertMaterial(FCentralStockPosting stockPosting)
+        private void InsertMaterial(StockPostingRecord stockPosting)
         {
             Agent.DebugMessage($"{stockPosting.Quantity} {stockPosting.MaterialId} arrived");
             _stockManager.Add(stockPosting.Quantity);

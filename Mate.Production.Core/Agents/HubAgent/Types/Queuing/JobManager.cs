@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Mate.DataCore.DataModel;
-using static IJobs;
 
 namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
 {
@@ -18,7 +17,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
             _capabilityJobStorage = new CapabilityJobStorage();
         }
 
-        public void SetJob(IJob job, long currentTime)
+        public void SetJob(IJob job, DateTime currentTime)
         {
 
             _pendingJobList.RemoveAll(x => x.Key.Equals(job.Key));
@@ -33,7 +32,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
             _jobTracker.Add(job, currentTime);
         }
 
-        public List<JobQueue> GetAllJobQueues(long currentTime, List<int> availableCapabilities)
+        public List<JobQueue> GetAllJobQueues(DateTime currentTime, List<int> availableCapabilities)
         {
             return _capabilityJobStorage.GetAllJobQueues(currentTime: currentTime, availableCapabilities);
         }
@@ -66,11 +65,11 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
             _capabilityJobStorage.Remove(jobQueue);
         }
 
-        internal void RemoveFromJobTracker(IJob job, long time) {
+        internal void RemoveFromJobTracker(IJob job, DateTime time) {
             _jobTracker.Remove(job, time);
         }
 
-        internal void TrackJobs(long time)
+        internal void TrackJobs(DateTime time)
         {
             _jobTracker.TrackJobs(time);
         }

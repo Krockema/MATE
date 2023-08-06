@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using static FArticles;
 
 namespace Mate.Production.Core.Agents.StorageAgent.Types
 {
-    public class ArticleList : List<FArticle>
+    public class ArticleList : List<ArticleRecord>
     {
-        public FArticle GetByKey(Guid key)
+        public ArticleRecord GetByKey(Guid key)
         {
             return this.FirstOrDefault(predicate: r => r.Key == key);
         }

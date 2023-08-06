@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using static IJobs;
 
 namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
 {
@@ -26,7 +25,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
             return null;
         }
 
-        public void Add(IJob job, long currentTime)
+        public void Add(IJob job, DateTime currentTime)
         {
             if (_jobStorage.TryGetValue(job.RequiredCapability.Id, out var jobQueue))
             {
@@ -53,13 +52,13 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
 
         }
 
-        internal List<JobQueue> GetAllJobQueues(long currentTime, List<int> availableCapabilities)
+        internal List<JobQueue> GetAllJobQueues(DateTime currentTime, List<int> availableCapabilities)
         {
             return _jobStorage.Values.OrderBy(x => x.Priority(currentTime: currentTime)).ToList();
             //return _jobStorage.Where(x => availableCapabilities.Contains(x.Key)).Select(x => x.Value).OrderBy(x => x.Priority(currentTime: currentTime)).ToList();
         }
 
-        public List<JobQueue> GetJobQueues(long currentTime)
+        public List<JobQueue> GetJobQueues(DateTime currentTime)
         {
             var jobQueues = new List<JobQueue>();
             var minPrio = double.MaxValue;

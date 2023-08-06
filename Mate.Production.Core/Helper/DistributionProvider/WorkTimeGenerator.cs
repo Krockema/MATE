@@ -34,38 +34,38 @@ namespace Mate.Production.Core.Helper.DistributionProvider
         /// </summary>
         /// <param name="duration"></param>
         /// <returns></returns>
-        public long GetRandomWorkTime(long duration)
+        public TimeSpan GetRandomWorkTime(TimeSpan duration)
         {
             if (_deviation == 0.0)
-                return duration;
+                return TimeSpan.Zero;
 
             long newDuration;
             while (true)
             {
-                newDuration = (long)Math.Round(LogNormal.WithMeanVariance(duration, duration * _deviation, _sourceRandom).Sample());
+                newDuration = (long)Math.Round(LogNormal.WithMeanVariance(duration.TotalMinutes, duration.TotalMinutes * _deviation, _sourceRandom).Sample());
 
                 //newDuration = (long)Math.Round(value: duration * _distribution.Sample(), mode: MidpointRounding.AwayFromZero);
-                if (newDuration <= 3 * duration) break;
+                if (newDuration <= 3 * duration.TotalMinutes) break;
             }
-            return newDuration > 1 ? newDuration : 1;
+            return newDuration > 1 ? TimeSpan.FromMinutes(newDuration) : TimeSpan.FromMinutes(1);
         }
 
-        public long GetRandomWorkTime(long duration, int hash)
+        public TimeSpan GetRandomWorkTime(TimeSpan duration, int hash)
         {
             if (_deviation == 0.0)
-                return duration;
+                return TimeSpan.Zero;
 
             _sourceRandom = new Random(Seed: hash );
 
             long newDuration;
             while (true)
             {
-                newDuration = (long)Math.Round(LogNormal.WithMeanVariance(duration, duration * _deviation, _sourceRandom).Sample());
+                newDuration = (long)Math.Round(LogNormal.WithMeanVariance(duration.TotalMinutes, duration.TotalMinutes * _deviation, _sourceRandom).Sample());
 
                 //newDuration = (long)Math.Round(value: duration * _distribution.Sample(), mode: MidpointRounding.AwayFromZero);
-                if (newDuration <= 3 * duration) break;
+                if (newDuration <= 3 * duration.TotalMinutes) break;
             }
-            return newDuration > 1 ? newDuration : 1;
+            return newDuration > 1 ? TimeSpan.FromMinutes(newDuration) : TimeSpan.FromMinutes(1);
         }
     }
 }

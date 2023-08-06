@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Hive.Actors;
+using Akka.Hive.Definitions;
 using Akka.Util.Internal;
-using AkkaSim;
+using IdentityModel;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.ReportingModel;
 using Mate.Production.Core.Environment.Options;
+using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Helper;
 using Mate.Production.Core.Types;
 using Newtonsoft.Json;
-using static FUpdateStockValues;
 using static Mate.Production.Core.Agents.CollectorAgent.Collector.Instruction;
 
 namespace Mate.Production.Core.Agents.CollectorAgent
@@ -17,16 +20,16 @@ namespace Mate.Production.Core.Agents.CollectorAgent
     public class CollectorAnalyticsStorage : Behaviour, ICollectorBehaviour
     {
         private CollectorAnalyticsStorage() : base() {
-            CurrentStockValues = new Dictionary<string, FUpdateStockValue>();
+            CurrentStockValues = new Dictionary<string, UpdateStockValueRecord>();
             TotalValues = new Dictionary<string, decimal>();
         }
         internal static List<Type> GetStreamTypes()
         {
-            return new List<Type> { typeof(FUpdateStockValue),
+            return new List<Type> { typeof(UpdateStockValueRecord),
                                     typeof(UpdateLiveFeed)};
         }
 
-        private Dictionary<string, FUpdateStockValue> CurrentStockValues;
+        private Dictionary<string, UpdateStockValueRecord> CurrentStockValues;
         private Dictionary<string, decimal> TotalValues;
         private List<Kpi> StockValuesOverTime = new List<Kpi>();
         private List<Kpi> StockTotalValues = new List<Kpi>();
@@ -40,11 +43,11 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         public override bool Action(object message) => throw new Exception(message: "Please use EventHandle method to process Messages");
 
-        public bool EventHandle(SimulationMonitor simulationMonitor, object message)
+        public bool EventHandle(MessageMonitor simulationMonitor, object message)
         {
             switch (message)
             {
-                case FUpdateStockValue m: UpdateStock(values: m); break;
+                case UpdateStockValueRecord m: UpdateStock(values: m); break;
                 case UpdateLiveFeed m: UpdateFeed(writeToDatabase: m.GetObjectFromMessage); break;
                 default: return false;
             }
@@ -75,7 +78,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 select new
                 {
                     Key = summarized.Key,
-                    Value = summarized.Sum(x => ((x.Time - x.ValueMin) * x.Value / Collector.Time) * 0.10)
+                    Value = summarized.Sum(x => (x.Time.ToEpochTime() - x.ValueMin) * x.Value / Collector.Time.Value.ToEpochTime() * 0.10)
                 };
 
 
@@ -93,11 +96,11 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
             LogToDB(agent: Collector, writeToDatabase: writeToDatabase);
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
-            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finish Update Feed from Storage");
+            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time.Value + ") Finish Update Feed from Storage");
         }
 
 
-        private void UpdateStock(FUpdateStockValue values)
+        private void UpdateStock(UpdateStockValueRecord values)
         {
             if (CurrentStockValues.ContainsKey(key: values.StockName))
                 CurrentStockValues.Remove(key: values.StockName);
@@ -106,12 +109,12 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             UpdateKPI(values: values);
         }
 
-        private void UpdateKPI(FUpdateStockValue values)
+        private void UpdateKPI(UpdateStockValueRecord values)
         {
-            var lastTime = 0; 
+            var lastTime = 0L; 
             var lastValue = StockValuesOverTime.FindAll(x => x.Name == values.ArticleType + " " + values.StockName);
             if(lastValue.Any()) { 
-                lastTime = lastValue.Max(x => x.Time);
+                lastTime = lastValue.Max(x => x.Time.ToEpochTime());
             }
             else
             {
@@ -121,7 +124,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             var k = new Kpi { Name = values.ArticleType + " " + values.StockName
                             , Value = values.NewValue
                             , ValueMin = lastTime
-                            , Time = (int)Collector.Time
+                            , Time = Collector.Time.Value
                             , KpiType = KpiType.StockEvolution
                             , SimulationConfigurationId = Collector.simulationId.Value
                             , SimulationNumber = Collector.simulationNumber.Value
@@ -132,13 +135,13 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             StockValuesOverTime.Add(item: k);
         }
 
-        private void CreateKpiStartEntry(FUpdateStockValue values)
+        private void CreateKpiStartEntry(UpdateStockValueRecord values)
         {
             var k = new Kpi
             {
                 Name = values.ArticleType + " " + values.StockName,
                 Value = values.NewValue,
-                Time = 0,
+                Time = Time.ZERO.Value,
                 KpiType = KpiType.StockEvolution,
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,
@@ -155,7 +158,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             {
                 Name = name,
                 Value = values,
-                Time = (int)Collector.Time,
+                Time = Collector.Time.Value,
                 KpiType = KpiType.StockTotals,
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,

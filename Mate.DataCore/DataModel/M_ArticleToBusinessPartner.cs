@@ -1,5 +1,6 @@
 ﻿
 using Newtonsoft.Json;
+using System;
 
 namespace Mate.DataCore.DataModel
 {
@@ -12,7 +13,7 @@ namespace Mate.DataCore.DataModel
         [JsonIgnore]
         public M_BusinessPartner BusinessPartner { get; set; }
         public int PackSize { get; set; }
-        public int TimeToDelivery { get; set; }
+        public TimeSpan TimeToDelivery { get; set; }
         public double Price { get; set; }
     }
 }

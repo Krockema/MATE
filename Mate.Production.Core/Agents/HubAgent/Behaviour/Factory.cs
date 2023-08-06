@@ -1,12 +1,13 @@
 ﻿using Mate.DataCore.Nominal;
 using Mate.Production.Core.Helper.DistributionProvider;
 using Mate.Production.Core.Types;
+using System;
 
 namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 {
     public static class Factory
     {
-        public static IBehaviour Get(SimulationType simType, long maxBucketSize, WorkTimeGenerator workTimeGenerator)
+        public static IBehaviour Get(SimulationType simType, TimeSpan maxBucketSize, WorkTimeGenerator workTimeGenerator)
         {
             IBehaviour behaviour;
             switch (simType)
@@ -25,7 +26,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             return behaviour;
         }
         
-        private static IBehaviour Default(long maxBucketSize, WorkTimeGenerator workTimeGenerator)
+        private static IBehaviour Default(TimeSpan maxBucketSize, WorkTimeGenerator workTimeGenerator)
         {
             return new Default(maxBucketSize: maxBucketSize, workTimeGenerator: workTimeGenerator);
         }
@@ -36,7 +37,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             return new Central(dbConnectionStringGanttPlan, dbConnectionStringMaster, pathToGANTTPLANOptRunner, workTimeGenerator);
         }
 
-        private static IBehaviour Queuing(long maxBucketSize, WorkTimeGenerator workTimeGenerator)
+        private static IBehaviour Queuing(TimeSpan maxBucketSize, WorkTimeGenerator workTimeGenerator)
         {
             return new Queuing(maxBucketSize: maxBucketSize, workTimeGenerator: workTimeGenerator);
         }

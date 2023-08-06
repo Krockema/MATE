@@ -1,6 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.Event;
-using AkkaSim.Logging;
+using Akka.Hive.Logging;
 using NLog;
 using LogLevel = NLog.LogLevel;
 

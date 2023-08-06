@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.DataModel;
@@ -53,7 +54,7 @@ namespace Mate.DataCore.Data.DynamicInitializer.Tables
         }
 
         //was sind operators? -> Personen, die Maschinen umrüsten
-        private void CreateTools(M_ResourceCapability capability, long setupTime, int numberOfOperators, bool limitedTools = false, int numberOfWorker = 0)
+        private void CreateTools(M_ResourceCapability capability, TimeSpan setupTime, int numberOfOperators, bool limitedTools = false, int numberOfWorker = 0)
         {
             List<M_Resource> tools = new List<M_Resource>();
             List<M_ResourceSetup> setups = new List<M_ResourceSetup>();
@@ -102,10 +103,10 @@ namespace Mate.DataCore.Data.DynamicInitializer.Tables
                           //  var tool = CreateNewResource($"Tool {resource.Name} {subCapability.Name}", false, false, null);
                           //  tools.Add(tool);
 
-                                setups.Add(CreateNewSetup(op, capabilityProvider, false, true, 0));
+                                setups.Add(CreateNewSetup(op, capabilityProvider, false, true, TimeSpan.Zero));
                                 setups.Add(CreateNewSetup(tools[nTool], capabilityProvider, true, true, setupTime));
-                                setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, 0));
-                                setups.Add(CreateNewSetup(worker, capabilityProvider, true, false, 0));
+                                setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, TimeSpan.Zero));
+                                setups.Add(CreateNewSetup(worker, capabilityProvider, true, false, TimeSpan.Zero));
                                 capabilityProviders.Add(capabilityProvider);
                             }
                         }
@@ -128,7 +129,7 @@ namespace Mate.DataCore.Data.DynamicInitializer.Tables
                         //tools.Add(tool);
 
                         setups.Add(CreateNewSetup(tools[nTool], capabilityProvider, true, true, setupTime));
-                        setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, 0));
+                        setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, TimeSpan.Zero));
                         capabilityProviders.Add(capabilityProvider);
                         nTool++;
                     }
@@ -141,7 +142,7 @@ namespace Mate.DataCore.Data.DynamicInitializer.Tables
             }
         }
 
-        private M_ResourceSetup CreateNewSetup(M_Resource resource, M_ResourceCapabilityProvider capabilityProvider, bool usedInProcessing, bool usedInSetup, long setupTime)
+        private M_ResourceSetup CreateNewSetup(M_Resource resource, M_ResourceCapabilityProvider capabilityProvider, bool usedInProcessing, bool usedInSetup, TimeSpan setupTime)
         {
             return new M_ResourceSetup
             {

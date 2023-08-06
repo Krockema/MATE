@@ -76,7 +76,7 @@ namespace Mate.Production.CLI
                                                    , messageHub: _messageHub); // Defines the status output
             
             var simulation = await _agentSimulation.InitializeSimulation(configuration: _configuration);
-            SimulationContext = simulation.SimulationContext;
+            SimulationContext = simulation.StateManagerRef;
  
             
             if (simulation.IsReady())
@@ -86,7 +86,7 @@ namespace Mate.Production.CLI
                     
                 // Start simulation
                 var sim = simulation.RunAsync();
-                _agentSimulation.StateManager.ContinueExecution(simulation);
+                //_agentSimulation.StateManager.ContinueExecution(simulation);
                 await sim;
             }
             _messageHub.EndSimulation(msg: "Simulation Completed."

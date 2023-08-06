@@ -1,4 +1,5 @@
-﻿using Mate.DataCore.ReportingModel.Interface;
+﻿using Akka.Hive.Definitions;
+using Mate.DataCore.ReportingModel.Interface;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -10,8 +11,9 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
     {
         private CultureInfo _cultureInfo { get; } = CultureInfo.GetCultureInfo(name: "en-GB");
 
-        internal List<ResourceSimulationData> GetSimulationDataForResources (ResourceDictionary resources, List<ISimulationTask> simulationResourceData, List<ISimulationTask> simulationResourceSetupData, long startInterval, long
-            endInterval)
+        internal List<ResourceSimulationData> GetSimulationDataForResources (ResourceDictionary resources
+            , List<ISimulationTask> simulationResourceData, List<ISimulationTask> simulationResourceSetupData
+            , DateTime startInterval, DateTime endInterval)
         {
             List<ResourceSimulationData> resourceSimulationDataList = new List<ResourceSimulationData>();
             var divisor = endInterval - startInterval;
@@ -38,9 +40,9 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
             return resourceSimulationDataList;
 
         }
-        internal long GetTotalTimeForInterval(ResourceDictionary resources, List<ISimulationTask> simulationResourceData, long startInterval, long endInterval)
+        internal TimeSpan GetTotalTimeForInterval(ResourceDictionary resources, List<ISimulationTask> simulationResourceData, DateTime startInterval, DateTime endInterval)
         {
-            var totalTime = 0L;
+            var totalTime = TimeSpan.Zero;
             foreach (var resource in resources)
             {
                 var time = GetResourceTimeForInterval(resource.Value.Name, simulationResourceData, startInterval, endInterval);
@@ -50,28 +52,28 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
             return totalTime;
         }
 
-        private long GetResourceTimeForInterval(string mapping, List<ISimulationTask> simulationResourceData, long startInterval, long endInterval)
+        private TimeSpan GetResourceTimeForInterval(string mapping, List<ISimulationTask> simulationResourceData, DateTime startInterval, DateTime endInterval)
         {
-            var time = 0L;
+            double time = 0L;
 
             var lower_borders = simulationResourceData.Where(x => x.Start < startInterval
                                                                   && x.End > startInterval
                                                                   && x.Mapping == mapping).ToList()
-                                                                    .Sum(y => y.End - startInterval);
+                                                                    .Sum(y => (y.End - startInterval).TotalMinutes);
 
             var upper_borders = simulationResourceData.Where(x => x.Start < endInterval
                                                                   && x.End > endInterval
                                                                   && x.Mapping == mapping).ToList()
-                                                                    .Sum(y => endInterval - y.Start);
+                                                                    .Sum(y => (endInterval - y.Start).TotalMinutes);
 
             var between = simulationResourceData.Where(x => x.Start >= startInterval
                                                             && x.End <= endInterval
                                                             && x.Mapping == mapping).ToList()
-                                                                    .Sum(y => y.End - y.Start);
+                                                                    .Sum(y => (y.End - y.Start).TotalMinutes);
 
             time = between + lower_borders + upper_borders;
 
-            return time;
+            return TimeSpan.FromMinutes(time); // TODO: Check correctness
 
         }
 

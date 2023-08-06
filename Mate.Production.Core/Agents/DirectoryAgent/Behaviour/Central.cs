@@ -3,8 +3,10 @@ using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.DirectoryAgent.Types;
 using Mate.Production.Core.Agents.HubAgent;
 using Mate.Production.Core.Agents.StorageAgent;
+using Mate.Production.Core.Environment.Records.Central;
 using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
+using System;
 
 namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
 {
@@ -35,37 +37,38 @@ namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
             return true;
         }
 
-        private void ForwardAddOrder(FArticles.FArticle fArticle)
+        private void ForwardAddOrder(ArticleRecord articleRec)
         {
-            var actorRef = StorageManager.GetHubActorRefBy(fArticle.Article.Id.ToString());
-            Agent.Send(Storage.Instruction.Central.AddOrder.Create(fArticle, actorRef));
+            var actorRef = StorageManager.GetHubActorRefBy(articleRec.Article.Id.ToString());
+            Agent.Send(Storage.Instruction.Central.AddOrder.Create(articleRec, actorRef));
         }
 
-        private void ForwardProvideOrder(FCentralProvideOrders.FCentralProvideOrder order)
+        private void ForwardProvideOrder(CentralProvideOrderRecord order)
         {
             var actorRef = StorageManager.GetHubActorRefBy(order.MaterialId);
             Agent.Send(Storage.Instruction.Central.ProvideOrderAtDue.Create(order, actorRef));
         }
 
-        private void ForwardInsertMaterial(FCentralStockPostings.FCentralStockPosting stockPosting)
+        private void ForwardInsertMaterial(StockPostingRecord stockPosting)
         {
             var actorRef = StorageManager.GetHubActorRefBy(stockPosting.MaterialId);
             Agent.Send(Storage.Instruction.Central.InsertMaterial.Create(stockPosting, actorRef));
         }
 
-        private void ForwardWithdrawMaterial(FCentralStockPostings.FCentralStockPosting stockPosting)
+        private void ForwardWithdrawMaterial(StockPostingRecord stockPosting)
         {
             var actorRef = StorageManager.GetHubActorRefBy(stockPosting.MaterialId);
             Agent.Send(Storage.Instruction.Central.WithdrawMaterial.Create(stockPosting, actorRef));
         }
         
-        private void CreateHubAgent(FCentralResourceHubInformations.FResourceHubInformation resourceHubInformation)
+        private void CreateHubAgent(ResourceHubInformationRecord resourceHubInformation)
         {
             var hubAgent = Agent.Context.ActorOf(props: Hub.Props(actorPaths: Agent.ActorPaths
                         , configuration: Agent.Configuration
-                        , time: Agent.CurrentTime
+                        , hiveConfig: Agent.HiveConfig
+                        , time: Agent.Time
                         , simtype: SimulationType
-                        , maxBucketSize: 0 // not used currently
+                        , maxBucketSize: TimeSpan.FromMinutes(0) // not used currently
                         , dbConnectionStringGanttPlan: resourceHubInformation.DbConnectionString
                         , dbConnectionStringMaster: resourceHubInformation.MasterDbConnectionString
                         , pathToGANTTPLANOptRunner: resourceHubInformation.PathToGANTTPLANOptRunner
@@ -79,11 +82,12 @@ namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
            System.Diagnostics.Debug.WriteLine($"Created Central Hub !");
         }
 
-        public void CreateStorageAgents(FCentralStockDefinitions.FCentralStockDefinition stock)
+        public void CreateStorageAgents(CentralStockDefinitionRecord stock)
         {
             var storage = Agent.Context.ActorOf(props: Storage.Props(actorPaths: Agent.ActorPaths
                                             , configuration: Agent.Configuration
-                                            , time: Agent.CurrentTime
+                                            , hiveConfig: Agent.HiveConfig
+                                            , time: Agent.Time
                                             , debug: Agent.DebugThis
                                             , principal: Agent.Context.Self)
                                             , name: ("Storage(" + stock.StockId + " " + stock.MaterialName +")").ToActorName());
@@ -93,12 +97,13 @@ namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
         }
 
 
-        public void CreateMachineAgents(FCentralResourceDefinitions.FCentralResourceDefinition resourceDefinition)
+        public void CreateMachineAgents(CentralResourceDefinitionRecord resourceDefinition)
         {
             // Create resource If Required
             var resourceAgent = Agent.Context.ActorOf(props: ResourceAgent.Resource.Props(actorPaths: Agent.ActorPaths
                                                                     , configuration: Agent.Configuration
-                                                                    , time: Agent.CurrentTime
+                                                                    , hiveConfig: Agent.HiveConfig
+                                                                    , time: Agent.Time
                                                                     , debug: Agent.DebugThis
                                                                     , principal: Agent.Context.Self)
                                                     , name: ("Resource(" + resourceDefinition.ResourceName + ")").ToActorName());
@@ -109,7 +114,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
                                                                                 .Factory.Central(resourceDefinition)));
         }
 
-        private void ForwardRegistrationToHub(FCentralResourceRegistrations.FCentralResourceRegistration resourceRegistration)
+        private void ForwardRegistrationToHub(CentralResourceRegistrationRecord resourceRegistration)
         {
             Agent.Send(Hub.Instruction.Central.AddResourceToHub.Create(resourceRegistration, HubAgentActorRef));
         }

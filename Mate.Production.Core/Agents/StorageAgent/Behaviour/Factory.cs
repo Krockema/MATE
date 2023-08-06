@@ -1,7 +1,7 @@
 ﻿using Mate.DataCore.DataModel;
 using Mate.DataCore.Nominal;
+using Mate.Production.Core.Environment.Records.Central;
 using Mate.Production.Core.Types;
-using static FCentralStockDefinitions;
 
 namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
 {
@@ -26,7 +26,7 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
             return new Default(stockElement: stockElement, simType: simType);
 
         }
-        public static IBehaviour Central(FCentralStockDefinition stockDefinition, SimulationType simType)
+        public static IBehaviour Central(CentralStockDefinitionRecord stockDefinition, SimulationType simType)
         {
             return new Central(stockDefinition, simType);
         }

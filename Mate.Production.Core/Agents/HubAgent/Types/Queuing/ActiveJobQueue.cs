@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static IJobs;
+using Mate.Production.Core.Helper;
 
 namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
 {
@@ -42,19 +42,19 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
             CurrentJob = null;
         }
 
-        public IJob Peek(long currentTime)
+        public IJob Peek(DateTime currentTime)
         {
             return JobQueue.PeekNext(currentTime);
         }
 
 
-        public IJob Dequeue(long currentTime)
+        public IJob Dequeue(DateTime currentTime)
         {
             CurrentJob = JobQueue.DequeueNext(currentTime);
             return CurrentJob;
         }
 
-        public long GetSetupTime()
+        public TimeSpan GetSetupTime()
         {
             return ResourceCapabilityProvider.ResourceSetups.Where(x => x.UsedInSetup).Sum(x => x.SetupTime);
         }

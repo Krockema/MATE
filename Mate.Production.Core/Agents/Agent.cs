@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Akka.Actor;
-using AkkaSim;
-using AkkaSim.Interfaces;
+using Akka.Hive.Actors;
+using Akka.Hive.Definitions;
+using Akka.Hive.Interfaces;
 using Mate.Production.Core.Environment;
 using Mate.Production.Core.Helper;
 using Mate.Production.Core.Types;
@@ -12,7 +13,7 @@ using LogLevel = NLog.LogLevel;
 namespace Mate.Production.Core.Agents
 {
     // base Class for Agents
-    public abstract class Agent : SimulationElement
+    public abstract class Agent : HiveActor
     {
         public string Name { get; }
         /// <summary>
@@ -25,30 +26,30 @@ namespace Mate.Production.Core.Agents
         internal ActorPaths ActorPaths { get; private set; }
         internal IBehaviour Behaviour { get; private set; }
         internal new IUntypedActorContext Context => UntypedActor.Context;
-        internal long CurrentTime => TimePeriod;
         internal void TryToFinish() => Finish();
         internal new IActorRef Sender => base.Sender;
         // internal LogWriter LogWriter { get; set; }
         // Diagnostic Tools
         public bool DebugThis { get; private set; }
+        public DateTime CurrentTime { get; internal set; }
 
         /// <summary>
         /// Basic Agent
         /// </summary>
         /// <param name="actorPaths"></param>
-        /// <param name="configuration">Simulation Config</param>
+        /// <param name="hiveConfig">Simulation Config</param>
         /// <param name="time">Current time span</param>
         /// <param name="debug">Parameter to activate Debug Messages on Agent level</param>
         /// <param name="principal">If not set, put IActorRefs.Nobody</param>
-        protected Agent(ActorPaths actorPaths, Configuration configuration, long time, bool debug, IActorRef principal) 
-            : base(simulationContext: actorPaths.SimulationContext.Ref, time: time)
+        protected Agent(ActorPaths actorPaths, Configuration configuration, IHiveConfig hiveConfig, Time time, bool debug, IActorRef principal) 
+            : base(simulationContext: actorPaths.SimulationContext.Ref, time: time, hiveConfig: hiveConfig)
         {
             DebugThis = debug;
+            Configuration = configuration;
             Name = Self.Path.Name;
             ActorPaths = actorPaths;
             VirtualParent = principal;
             VirtualChildren = new HashSet<IActorRef>();
-            Configuration = configuration;
             DebugMessage(msg: "I'm alive: " + Self.Path.ToStringWithAddress());
         }
 
@@ -60,10 +61,15 @@ namespace Mate.Production.Core.Agents
                 case BasicInstruction.ChildRef c: AddChild(childRef: c.GetObjectFromMessage); break;
                 case BasicInstruction.Break msg: PostAdvanceBreak(); break;
                 default:
-                    if (!Behaviour.Action(message: (ISimulationMessage)o))
+                    if (!Behaviour.Action(message: (IHiveMessage)o))
                         throw new Exception(message: this.Name + " is sorry, he doesn't know what to do!");
                     break;
             }
+        }
+
+        protected override void PostAdvance()
+        {
+            CurrentTime = Time.Value;
         }
 
         private void AddChild(IActorRef childRef)
@@ -104,8 +110,8 @@ namespace Mate.Production.Core.Agents
                 logLevel = LogLevel.Debug;
             //Debug.WriteLine(message: logItem, category: "AgentMessage");
             Logger.Log(logLevel
-                        , "Time({TimePeriod}).Agent({Name}): {msg}"
-                        , new object[] { TimePeriod, Name, msg });
+                        , "Time({Time}).Agent({Name}): {msg}"
+                        , new object[] { Time.Value, Name, msg });
         }
 
         /// <summary>
@@ -121,8 +127,13 @@ namespace Mate.Production.Core.Agents
                 logLevel = LogLevel.Debug;
             //Debug.WriteLine(message: logItem, category: "AgentMessage");
             CustomLogger.Log(logLevel
-                        , "Time({TimePeriod}).Agent({Name}): {msg}"
-                        , new object[] { TimePeriod, Name, msg });
+                        , "Time({Time}).Agent({Name}): {msg}"
+                        , new object[] { Time.Value, Name, msg });
+        }
+
+        public new void Send(IHiveMessage instruction)
+        {
+            base.Send(instruction: instruction);
         }
 
         /// <summary>
@@ -131,16 +142,13 @@ namespace Mate.Production.Core.Agents
         /// </summary>
         /// <param name="instruction"></param>
         /// <param name="waitFor"></param>
-        public void Send(ISimulationMessage instruction, long waitFor = 0)
+        public void Send(IHiveMessage instruction, TimeSpan waitFor)
         {
-            if (waitFor == 0)
-            {
-                _SimulationContext.Tell(message: instruction, sender: Self);
+            if (waitFor == TimeSpan.Zero) { 
+                base.Send(instruction: instruction);
+                return;
             }
-            else
-            {
-                Schedule(delay: waitFor, message: instruction);
-            }
+            Schedule(waitFor: waitFor, instruction: instruction);
         }
 
         /// <summary>

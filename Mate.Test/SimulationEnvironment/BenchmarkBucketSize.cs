@@ -10,7 +10,7 @@ using Mate.Production.Core.Environment.Options;
 
 namespace Mate.Test.SimulationEnvironment
 {
-    [SimpleJob(RunStrategy.ColdStart, targetCount: 1)]
+    [SimpleJob(RunStrategy.ColdStart, iterationCount: 1)]
     [MemoryDiagnoser]
     [ThreadingDiagnoser]
     [RPlotExporter]
@@ -44,10 +44,10 @@ namespace Mate.Test.SimulationEnvironment
                 new SimulationKind(value: SimulationType) // implements the used behaviour, if None --> DefaultBehaviour
                 ,
                 new OrderArrivalRate(value: OrderArrivalRate), new OrderQuantity(value: Int32.MaxValue),
-                new TransitionFactor(value: 3), new EstimatedThroughPut(value: 1920), new DebugAgents(value: false),
-                new DebugSystem(value: false), new KpiTimeSpan(value: 480), new MaxBucketSize(value: MaxBucketSize),
+                new TransitionFactor(value: 3), new EstimatedThroughPut(value: TimeSpan.FromMinutes(1920)), new DebugAgents(value: false),
+                new DebugSystem(value: false), new KpiTimeSpan(value: TimeSpan.FromMinutes(480)), new MaxBucketSize(value: MaxBucketSize),
                 new Production.Core.Environment.Options.Seed(value: 1337), new MinDeliveryTime(value: 1440), new MaxDeliveryTime(value: 2880),
-                new TimePeriodForThroughputCalculation(value: 3840), new SettlingStart(value: 4320),
+                new TimePeriodForThroughputCalculation(value: TimeSpan.FromMinutes(3840)), new SettlingStart(value: TimeSpan.FromMinutes(4320)),
                 new SimulationEnd(value: 20160), new WorkTimeDeviation(value: 0.2), new SaveToDB(value: false)
             });
 
@@ -59,7 +59,7 @@ namespace Mate.Test.SimulationEnvironment
             if (simulation.IsReady())
             {
                 var sim = simulation.RunAsync();
-                simContext.StateManager.ContinueExecution(simulation);
+                 //  simContext.StateManager.SimulationIsTerminating(); ??
                 sim.Wait();
             }
         }

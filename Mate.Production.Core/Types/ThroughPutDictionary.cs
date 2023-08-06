@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Mate.Production.Core.Environment.Options;
 
 namespace Mate.Production.Core.Types
@@ -18,10 +19,10 @@ namespace Mate.Production.Core.Types
             {
                 return eta;
             }
-            return new EstimatedThroughPut(value: 0);
+            return new EstimatedThroughPut(value: TimeSpan.Zero);
         }
 
-        public bool UpdateOrCreate(string name, long time)
+        public bool UpdateOrCreate(string name, TimeSpan time)
         {
             if(dic.TryGetValue(key: name, value: out EstimatedThroughPut eta))
             {

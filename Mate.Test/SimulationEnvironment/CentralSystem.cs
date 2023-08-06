@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Akka.Hive.Definitions;
+using Akka.Hive.Logging;
 using Akka.TestKit.Xunit;
 using Akka.Util.Internal;
-using AkkaSim.Logging;
 using Mate.DataCore;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Initializer;
@@ -81,9 +82,9 @@ namespace Mate.Test.SimulationEnvironment
         public async Task CentralSystemTest()
         {
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Warn, LogLevel.Warn);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_ACTORS, LogLevel.Info, LogLevel.Info);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_ACTORS, LogLevel.Debug, LogLevel.Debug);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_ACTORS, LogLevel.Warn, LogLevel.Warn);
 
             var simtulationType = SimulationType.Central;
             var seed = 169;
@@ -114,19 +115,19 @@ namespace Mate.Test.SimulationEnvironment
             var simConfig = ArgumentConverter.ConfigurationConverter(masterPlanResultContext, 1);
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(masterPlanResultContext.Database.GetConnectionString()));
-            simConfig.ReplaceOption(new KpiTimeSpan(240));
-            simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
+            simConfig.ReplaceOption(new KpiTimeSpan(TimeSpan.FromMinutes(240)));
+            simConfig.ReplaceOption(new TimeConstraintQueueLength(TimeSpan.FromMinutes(480)));
             simConfig.ReplaceOption(new SimulationKind(value: simtulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: 10000));
-            simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
-            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
+            simConfig.ReplaceOption(new EstimatedThroughPut(value: TimeSpan.FromMinutes(throughput)));
+            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: TimeSpan.FromMinutes(4000)));
             simConfig.ReplaceOption(new Production.Core.Environment.Options.Seed(value: seed));
             simConfig.ReplaceOption(new MinQuantity(value: 1));
             simConfig.ReplaceOption(new MaxQuantity(value: 1));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 4));
             simConfig.ReplaceOption(new MaxDeliveryTime(value: 6));
-            simConfig.ReplaceOption(new SettlingStart(value: 60));
+            simConfig.ReplaceOption(new SettlingStart(value: TimeSpan.FromMinutes(60)));
             simConfig.ReplaceOption(new SimulationEnd(value: 1440 * 21));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: false));
@@ -144,7 +145,7 @@ namespace Mate.Test.SimulationEnvironment
                 simWasReady = true;
                 // Start simulation
                 var sim = simulation.RunAsync();
-                simContext.StateManager.ContinueExecution(simulation);
+                // simContext.StateManager.ContinueExecution(simulation);
                 await sim;
             }
 
@@ -262,7 +263,7 @@ namespace Mate.Test.SimulationEnvironment
             mateCtx.CustomerOrderParts.RemoveRange(mateCtx.CustomerOrderParts);
             mateCtx.SaveChanges();
             
-            mateCtx.CreateNewOrder(10115, 1, 0, 250);
+            mateCtx.CreateNewOrder(10115, 1, Time.ZERO.Value, Time.ZERO.Value + TimeSpan.FromMinutes(250));
             mateCtx.SaveChanges();
 
             GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GP).DbContext;

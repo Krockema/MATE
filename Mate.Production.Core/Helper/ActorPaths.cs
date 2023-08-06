@@ -11,18 +11,22 @@ namespace Mate.Production.Core.Helper
         public ActorMetaData StorageDirectory { get; private set; }
         public ActorMetaData HubDirectory { get; private set; }
         public ActorMetaData SimulationContext { get; }
-        public IActorRef SystemMailBox { get; }
+        public ActorMetaData StateManager { get; private set; }
         public Dictionary<GuardianType, IActorRef> Guardians { get; }
         public ActorMetaData MeasurementAgent { get; private set; }
         /// <summary>
         /// Static helper class used to define paths to fixed-name actors
         /// (helps eliminate errors when using <see cref="ActorSelection"/>)
         /// </summary>
-        public ActorPaths(IActorRef simulationContext, IActorRef systemMailBox)
+        public ActorPaths(IActorRef simulationContext)
         {
             SimulationContext = new ActorMetaData(name: "SimulationContext", actorRef: simulationContext);
-            SystemMailBox = systemMailBox;
             Guardians = new Dictionary<GuardianType, IActorRef>();
+        }
+        
+        public void SetStateManagerRef(IActorRef stateManagerRef)
+        {
+            StateManager = new ActorMetaData(name: "StateManager", actorRef: stateManagerRef);
         }
 
         public void SetSupervisorAgent(IActorRef systemAgent)

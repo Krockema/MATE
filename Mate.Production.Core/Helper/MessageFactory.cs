@@ -2,20 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
-using Mate.Production.Immutables;
 using Mate.DataCore.DataModel;
 using Mate.DataCore.GanttPlan;
 using Mate.DataCore.GanttPlan.GanttPlanModel;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.ReportingModel;
 using Mate.Production.Core.Types;
-using Microsoft.FSharp.Collections;
-using static FArticles;
-using static FBuckets;
-using static FCreateSimulationJobs;
-using static FMeasurementInformations;
-using static FOperations;
-using static FStartConditions;
+using Akka.Hive.Definitions;
+using IdentityModel;
+using Mate.Production.Core.Environment.Records;
+using MathNet.Numerics.Statistics;
+using System.Collections.Immutable;
+using Mate.Production.Core.Environment.Records.Reporting;
 
 namespace Mate.Production.Core.Helper
 {
@@ -32,198 +30,194 @@ namespace Mate.Production.Core.Helper
         /// <param name="firstOperation"></param>
         /// <param name="currentTime"></param>
         /// <returns></returns>
-        public static FOperation ToOperationItem(this M_Operation m_operation
+        public static OperationRecord ToOperationRecord(this M_Operation m_operation
                                             , PriorityRule priorityRule
-                                            , long dueTime
-                                            , long customerDue
+                                            , DateTime dueTime
+                                            , DateTime customerDue
                                             , IActorRef productionAgent
                                             , bool firstOperation
-                                            , long currentTime
-                                            , long remainingWork
+                                            , DateTime currentTime
+                                            , TimeSpan remainingWork
                                             , Guid articleKey)
         {
 
-            IDictionary<PriorityRule, Func<long, double>> priorityFunctions = new Dictionary<PriorityRule, Func<long, double>>
+            IDictionary<PriorityRule, Func<DateTime, double>> priorityFunctions = new Dictionary<PriorityRule, Func<DateTime, double>>
             {
-                { PriorityRule.LST, (time) => (customerDue - time) - m_operation.Duration - remainingWork },
-                { PriorityRule.MDD, (time) => (new double[] { dueTime, time + remainingWork + m_operation.Duration}).Max() },
-                { PriorityRule.FIFO, (time) => currentTime },
-                { PriorityRule.SPT, (time) => m_operation.Duration }
+                { PriorityRule.LST, (time) => ((customerDue - time) - m_operation.Duration - remainingWork).TotalSeconds },
+                { PriorityRule.MDD, (time) => ((new [] { dueTime, time + remainingWork + m_operation.Duration}).Max()).ToEpochTime() },
+                { PriorityRule.FIFO, (time) => currentTime.ToEpochTime() },
+                { PriorityRule.SPT, (time) => m_operation.Duration.TotalSeconds }
             };
 
-            return new FOperation(key: Guid.NewGuid()
-                                , dueTime: dueTime
-                                , customerDue: customerDue
-                                , creationTime: currentTime
-                                , forwardStart: currentTime
-                                , forwardEnd: currentTime + m_operation.Duration + m_operation.AverageTransitionDuration
-                                , backwardStart: dueTime - m_operation.Duration - m_operation.AverageTransitionDuration
-                                , backwardEnd: dueTime
-                                , remainingWork: remainingWork
-                                , end: 0
-                                , start: 0
-                                , startConditions: new FStartCondition(preCondition: firstOperation, articlesProvided: false, 0)
-                                , priority: priorityFunctions[priorityRule].ToFSharpFunc()
-                                , setupKey: -1 // unset
-                                , isFinished: false
-                                , hubAgent: ActorRefs.NoSender
-                                , productionAgent: productionAgent
-                                , operation: m_operation
-                                , requiredCapability: m_operation.ResourceCapability
-                                , bucket: String.Empty
-                                , articleKey: articleKey);
+            return new OperationRecord(Key: Guid.NewGuid()
+                                , DueTime: dueTime
+                                , CustomerDue: customerDue
+                                , CreationTime: currentTime
+                                , ForwardStart: currentTime
+                                , ForwardEnd: currentTime + m_operation.Duration + m_operation.AverageTransitionDuration
+                                , BackwardStart: dueTime - m_operation.Duration - m_operation.AverageTransitionDuration
+                                , BackwardEnd: dueTime
+                                , RemainingWork: remainingWork
+                                , End: Time.ZERO.Value
+                                , Start: Time.ZERO.Value
+                                , StartCondition: new StartConditionRecord(PreCondition: firstOperation, ArticlesProvided: false, Time.ZERO.Value)
+                                , Priority: priorityFunctions[priorityRule]
+                                , SetupKey: -1 // unset
+                                , IsFinished: false
+                                , HubAgent: ActorRefs.NoSender
+                                , ProductionAgent: productionAgent
+                                , Operation: m_operation
+                                , RequiredCapability: m_operation.ResourceCapability
+                                , Bucket: String.Empty
+                                , ArticleKey: articleKey);
         }
 
-        public static FBucket ToBucketScopeItem(this FOperation operation, IActorRef hubAgent, long time, long maxBucketSize)
+        public static BucketRecord ToBucketScopeItem(this OperationRecord operation, IActorRef hubAgent, DateTime time, TimeSpan maxBucketSize)
         {
             //Todo Abs of BackwardStart and ForwardStart, avoid negative values
             //var scope = Math.Abs(operation.BackwardStart - operation.ForwardStart);
             var scope = (operation.BackwardStart - operation.ForwardStart);
             // TO BE TESTET
-            var prioRule = Extension.CreateFunc(
-                // Lamda zur Func.
-                func: (bucket, currentTime) => bucket.Operations.Min(selector: y => ((IJobs.IJob)y).Priority(currentTime))
-                // ENDE
+            Func<BucketRecord, DateTime, double> prioRule = (bucket, currentTime) => bucket.Operations.Min(selector: y => ((IJob)y).Priority(currentTime)
+            // ENDE
             );
 
-            var operations = new List<FOperation> {operation};
+            var operations = ImmutableHashSet.Create(operation);
 
-            return new FBucket(key: Guid.NewGuid()
+            return new BucketRecord(
                 //, prioRule: prioRule.ToFSharpFunc()
-                , priority: prioRule.ToFSharpFunc()
-                , name: $"(Bucket({BucketNumber++})){operation.RequiredCapability.Name}"
-                , isFixPlanned: false
-                , creationTime: time
-                , forwardStart: operation.ForwardStart
-                , forwardEnd: operation.ForwardEnd
-                , backwardStart: operation.BackwardStart
-                , backwardEnd: operation.BackwardEnd
-                , scope: scope
-                , end: 0
-                , start: 0
-                , startConditions: new FStartConditions.FStartCondition(preCondition: false, articlesProvided: false, 0)
-                , maxBucketSize: maxBucketSize
-                , minBucketSize: 1000
-                , setupKey: -1 //unset
-                , hubAgent: hubAgent
-                , operations: new FSharpSet<FOperation>(elements: operations)
-                , requiredCapability: operation.RequiredCapability
-                , bucket: String.Empty);
+                Name: $"(Bucket({BucketNumber++})){operation.RequiredCapability.Name}"
+                , Priority: prioRule
+                , IsFixPlanned: false
+                , CreationTime: time
+                , ForwardStart: operation.ForwardStart
+                , ForwardEnd: operation.ForwardEnd
+                , BackwardStart: operation.BackwardStart
+                , BackwardEnd: operation.BackwardEnd
+                , Scope: scope
+                , End: Time.ZERO.Value
+                , Start: Time.ZERO.Value
+                , StartConditions: new StartConditionRecord(PreCondition: false, ArticlesProvided: false, Time.ZERO.Value)
+                , MaxBucketSize: maxBucketSize
+                , MinBucketSize: 1000
+                , SetupKey: -1 //unset
+                , HubAgent: hubAgent
+                , Operations: operations
+                , RequiredCapability: operation.RequiredCapability
+                , Bucket: String.Empty);
         }
 
 
-        public static FArticle ToRequestItem(this T_CustomerOrderPart orderPart
+        public static ArticleRecord ToRequestItem(this T_CustomerOrderPart orderPart
                                             , IActorRef requester
-                                            , long customerDue
-                                            , long remainingDuration
-                                            , long currentTime)
+                                            , DateTime customerDue
+                                            , TimeSpan remainingDuration
+                                            , DateTime currentTime)
         {
-            var article = new FArticles.FArticle(
-                key: Guid.Empty
-                , keys: new FSharpSet<Guid>(new Guid[] { })
-                , dueTime: orderPart.CustomerOrder.DueTime
-                , quantity: orderPart.Quantity
-                , article: orderPart.Article
-                , creationTime: currentTime
-                , customerOrderId: orderPart.CustomerOrderId
-                , isHeadDemand: true
-                , stockExchangeId: Guid.Empty
-                , storageAgent: ActorRefs.NoSender
-                , isProvided: false
-                , customerDue: customerDue
-                , remainingDuration : remainingDuration
-                , providedAt: 0
-                , originRequester: requester
-                , dispoRequester: ActorRefs.Nobody
-                , providerList: new List<FStockProviders.FStockProvider>()
-                , finishedAt: 0
+            var article = new ArticleRecord(
+                Keys: ImmutableHashSet.Create<Guid>(new Guid[orderPart.Quantity])
+                , DueTime: orderPart.CustomerOrder.DueTime
+                , Quantity: orderPart.Quantity
+                , Article: orderPart.Article
+                , CreationTime: currentTime
+                , CustomerOrderId: orderPart.CustomerOrderId
+                , IsHeadDemand: true
+                , StockExchangeId: Guid.Empty
+                , StorageAgent: ActorRefs.NoSender
+                , IsProvided: false
+                , CustomerDue: customerDue
+                , RemainingDuration: remainingDuration
+                , ProvidedAt: Time.ZERO.Value
+                , OriginRequester: requester
+                , DispoRequester: ActorRefs.Nobody
+                , ProviderList: ImmutableHashSet.Create<StockProviderRecord>()
+                , FinishedAt: Time.ZERO.Value
             );
-            return article.CreateProductionKeys.SetPrimaryKey;
+            return article;
         }
 
-        public static FArticle ToRequestItem(this M_ArticleBom articleBom
-                                                , FArticle requestItem
+        public static ArticleRecord ToRequestItem(this M_ArticleBom articleBom
+                                                , ArticleRecord requestItem
                                                 , IActorRef requester
-                                                , long customerDue
-                                                , long remainingDuration
-                                                , long currentTime)
+                                                , DateTime customerDue
+                                                , TimeSpan remainingDuration
+                                                , DateTime currentTime)
         {
-            var article = new FArticles.FArticle(
-                key: Guid.Empty
-                , keys: new FSharpSet<Guid>(new Guid[] { })
-                , dueTime: requestItem.DueTime
-                , creationTime: currentTime
-                , isProvided: false
-                , quantity: Convert.ToInt32(value: articleBom.Quantity)
-                , article: articleBom.ArticleChild
-                , customerOrderId: requestItem.CustomerOrderId
-                , isHeadDemand: false
-                , providedAt: 0
-                , customerDue: customerDue
-                , remainingDuration: remainingDuration
-                , stockExchangeId: Guid.Empty
-                , storageAgent: ActorRefs.NoSender
-                , originRequester: requester
-                , dispoRequester: ActorRefs.Nobody
-                , providerList: new List<FStockProviders.FStockProvider>(100)
-                , finishedAt: 0
+            var article = new ArticleRecord(
+                Keys: ImmutableHashSet.Create<Guid>(new Guid[requestItem.Quantity])
+                , DueTime: requestItem.DueTime
+                , CreationTime: currentTime
+                , IsProvided: false
+                , Quantity: Convert.ToInt32(value: articleBom.Quantity)
+                , Article: articleBom.ArticleChild
+                , CustomerOrderId: requestItem.CustomerOrderId
+                , IsHeadDemand: false// requestItem.IsHeadDemand
+                , ProvidedAt: Time.ZERO.Value
+                , CustomerDue: customerDue
+                , RemainingDuration: remainingDuration
+                , StockExchangeId: Guid.Empty
+                , StorageAgent: ActorRefs.NoSender
+                , OriginRequester: requester
+                , DispoRequester: ActorRefs.Nobody
+                , ProviderList: ImmutableHashSet.Create<StockProviderRecord>()
+                , FinishedAt: Time.ZERO.Value
             );
-            return article.CreateProductionKeys.SetPrimaryKey;
+            return article;
         }
 
-        public static FCreateSimulationJob ToSimulationJob(this FOperation fOperation, string jobType, FArticle fArticle, string productionAgent)
+        public static CreateSimulationJobRecord ToSimulationJob(this OperationRecord fOperation, string jobType, ArticleRecord fArticle, string productionAgent)
         {
-            var simulationJob = new FCreateSimulationJob(
-                key: fOperation.Key.ToString()
-                , dueTime: fOperation.DueTime
-                , articleName: fOperation.Operation.Article.Name
-                , operationName: fOperation.Operation.Name
-                , operationHierarchyNumber: fOperation.Operation.HierarchyNumber
-                , operationDuration: fOperation.Operation.Duration
-                , requiredCapabilityName: fOperation.Operation.ResourceCapability.Name
-                , jobType: jobType.ToString()
-                , customerOrderId: fArticle.CustomerOrderId.ToString()
-                , isHeadDemand: fArticle.IsHeadDemand
-                , fArticleKey: fArticle.Key
-                , fArticleName: fArticle.Article.Name
-                , productionAgent: productionAgent
-                , articleType: fArticle.Article.ArticleType.Name
-                , jobName: fOperation.Bucket
-                , capabilityProvider: string.Empty
-                , start: fOperation.Start
-                , end: fOperation.End
-            );
-
-            return simulationJob;
-        }
-
-        public static FCreateSimulationJob ToSimulationJob(this GptblProductionorderOperationActivity activity, long start, long duration, string requiredCapabilityName)
-        {
-            var simulationJob = new FCreateSimulationJob(
-                key: activity.GetKey
-                , dueTime: activity.InfoDateLatestEndMaterial.Value.ToSimulationTime()
-                , articleName: activity.Productionorder.MaterialId
-                , operationName: activity.Name
-                , operationHierarchyNumber: Int32.Parse(activity.OperationId)
-                , operationDuration: duration
-                , requiredCapabilityName: requiredCapabilityName
-                , jobType: activity.ActivityId.Equals(2) ? JobType.SETUP : JobType.OPERATION
-                , customerOrderId: string.Empty
-                , isHeadDemand: false
-                , fArticleKey: Guid.Empty
-                , fArticleName: string.Empty
-                , productionAgent: string.Empty
-                , articleType: string.Empty
-                , jobName: activity.Name
-                , capabilityProvider: string.Empty
-                , start: start
-                , end: start + duration
+            var simulationJob = new CreateSimulationJobRecord(
+                Key: fOperation.Key.ToString()
+                , DueTime: fOperation.DueTime
+                , ArticleName: fOperation.Operation.Article.Name
+                , OperationName: fOperation.Operation.Name
+                , OperationHierarchyNumber: fOperation.Operation.HierarchyNumber
+                , OperationDuration: fOperation.Operation.Duration
+                , RequiredCapabilityName: fOperation.Operation.ResourceCapability.Name
+                , JobType: jobType.ToString()
+                , CustomerOrderId: fArticle.CustomerOrderId.ToString()
+                , IsHeadDemand: fArticle.IsHeadDemand
+                , ArticleKey: fArticle.Key
+                , ArticleNameRecord: fArticle.Article.Name
+                , ProductionAgent: productionAgent
+                , ArticleType: fArticle.Article.ArticleType.Name
+                , JobName: fOperation.Bucket
+                , CapabilityProvider: string.Empty
+                , Start: fOperation.Start
+                , End: fOperation.End
             );
 
             return simulationJob;
         }
 
-        public static SimulationMeasurement CreateMeasurement(FOperation job, M_Characteristic characteristic, M_Attribute attribute, FMeasurementInformation fMeasurementInformation)
+        public static CreateSimulationJobRecord ToSimulationJob(this GptblProductionorderOperationActivity activity, DateTime start, TimeSpan duration, string requiredCapabilityName)
+        {
+            var simulationJob = new CreateSimulationJobRecord(
+                Key: activity.GetKey
+                , DueTime: activity.InfoDateLatestEndMaterial.Value
+                , ArticleName: activity.Productionorder.MaterialId
+                , OperationName: activity.Name
+                , OperationHierarchyNumber: Int32.Parse(activity.OperationId)
+                , OperationDuration: duration
+                , RequiredCapabilityName: requiredCapabilityName
+                , JobType: activity.ActivityId.Equals(2) ? JobType.SETUP : JobType.OPERATION
+                , CustomerOrderId: string.Empty
+                , IsHeadDemand: false
+                , ArticleKey: Guid.Empty
+                , ArticleNameRecord: string.Empty
+                , ProductionAgent: string.Empty
+                , ArticleType: string.Empty
+                , JobName: activity.Name
+                , CapabilityProvider: string.Empty
+                , Start: start
+                , End: start + duration
+            );
+
+            return simulationJob;
+        }
+
+        public static SimulationMeasurement CreateMeasurement(OperationRecord job, M_Characteristic characteristic, M_Attribute attribute, MeasurementInformationRecord fMeasurementInformation)
         {
             return new SimulationMeasurement
             {

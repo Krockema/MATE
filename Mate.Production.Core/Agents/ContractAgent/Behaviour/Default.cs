@@ -3,7 +3,9 @@ using Mate.DataCore.DataModel;
 using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.DispoAgent;
 using Mate.Production.Core.Agents.SupervisorAgent;
+using Mate.Production.Core.Environment.Records;
 using Mate.Production.Core.Helper;
+using System;
 
 namespace Mate.Production.Core.Agents.ContractAgent.Behaviour
 {
@@ -12,14 +14,14 @@ namespace Mate.Production.Core.Agents.ContractAgent.Behaviour
         internal Default(SimulationType simulationType = SimulationType.None)
                         : base(childMaker: null, simulationType: simulationType) { }
 
-        public FArticles.FArticle _fArticle { get; internal set; }
+        public ArticleRecord _fArticle { get; internal set; }
 
         public override bool Action(object message)
         {
             switch (message)
             {
                 case Contract.Instruction.StartOrder msg: StartOrder(orderItem: msg.GetObjectFromMessage); break;
-                case BasicInstruction.ProvideArticle msg: TryFinishOrder(fArticleProvider: msg.GetObjectFromMessage); break;
+                case BasicInstruction.ProvideArticle msg: TryFinishOrder(ArticleProvider: msg.GetObjectFromMessage); break;
                 case BasicInstruction.JobForwardEnd msg: EstimateForwardEnd(estimatedEnd: msg.GetObjectFromMessage); break;
                 default: return false;
             }
@@ -36,7 +38,7 @@ namespace Mate.Production.Core.Agents.ContractAgent.Behaviour
             // create Request Item
             _fArticle = orderItem.ToRequestItem(requester: Agent.Context.Self
                                             , customerDue: orderItem.CustomerOrder.DueTime
-                                            , remainingDuration: 0
+                                            , remainingDuration: TimeSpan.Zero
                                             , currentTime: Agent.CurrentTime);
             // Tell Guardian to create Dispo Agent
             var agentSetup = AgentSetup.Create(agent: Agent, behaviour: DispoAgent.Behaviour.Factory.Get(simType: Agent.Behaviour.SimulationType));
@@ -50,7 +52,7 @@ namespace Mate.Production.Core.Agents.ContractAgent.Behaviour
         /// </summary>
         /// <param name="agent"></param>
         /// <param name="fArticle"></param>
-        public void TryFinishOrder(FArticleProviders.FArticleProvider fArticleProvider)
+        public void TryFinishOrder(ArticleProviderRecord ArticleProvider)
         {
             Agent.DebugMessage(msg: "Ready to Deliver");
             //var localItem = Agent.Get<FRequestItem>(REQUEST_ITEM);
@@ -58,19 +60,19 @@ namespace Mate.Production.Core.Agents.ContractAgent.Behaviour
             // try to Finish if time has come
             if (Agent.CurrentTime >= _fArticle.DueTime)
             {
-                _fArticle = _fArticle.SetProvided
+                _fArticle = _fArticle.SetProvided()
                                     .UpdateFinishedAt(Agent.CurrentTime)
-                                    .UpdateProvidedAt(fArticleProvider.ArticleFinishedAt)
-                                    .UpdateStockExchangeId(fArticleProvider.StockExchangeId);
-                Agent.DebugMessage(msg: $"Article delivered in time {_fArticle.DueTime == Agent.CurrentTime} {fArticleProvider.ArticleName} {fArticleProvider.ArticleKey} due: {_fArticle.DueTime} current: {Agent.CurrentTime}!");
-                Agent.Send(instruction: Dispo.Instruction.WithdrawArticleFromStock.Create(message: fArticleProvider.ArticleKey, target: Agent.Sender));
+                                    .UpdateProvidedAt(ArticleProvider.ArticleFinishedAt)
+                                    .UpdateStockExchangeId(ArticleProvider.StockExchangeId);
+                Agent.DebugMessage(msg: $"Article delivered in time {_fArticle.DueTime == Agent.CurrentTime} {ArticleProvider.ArticleName} {ArticleProvider.ArticleKey} due: {_fArticle.DueTime} current: {Agent.Time.Value}!");
+                Agent.Send(instruction: Dispo.Instruction.WithdrawArticleFromStock.Create(message: ArticleProvider.ArticleKey, target: Agent.Sender));
                 Agent.Send(instruction: Supervisor.Instruction.OrderProvided.Create(message: _fArticle, target: Agent.ActorPaths.SystemAgent.Ref));
                 Agent.VirtualChildren.Remove(item: Agent.Sender);
                 Agent.TryToFinish();
             }
         }
 
-        public void EstimateForwardEnd(long estimatedEnd)
+        public void EstimateForwardEnd(DateTime estimatedEnd)
         {
             Agent.DebugMessage(
                 msg:

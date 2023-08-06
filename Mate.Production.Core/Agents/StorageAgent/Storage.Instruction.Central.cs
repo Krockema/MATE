@@ -1,9 +1,6 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
-using static FArticles;
-using static FCentralProvideOrders;
-using static FCentralPurchases;
-using static FCentralStockPostings;
+using Akka.Hive.Definitions;
+using Mate.Production.Core.Environment.Records.Central;
 
 namespace Mate.Production.Core.Agents.StorageAgent
 {
@@ -12,77 +9,77 @@ namespace Mate.Production.Core.Agents.StorageAgent
         public partial class Instruction
         {
 
-            public class Central
+            public record Central
             {
 
-                public class AddOrder : SimulationMessage
+                public record AddOrder : HiveMessage
                 {
-                    public static AddOrder Create(FArticle message, IActorRef target)
+                    public static AddOrder Create(ArticleRecord message, IActorRef target)
                     {
                         return new AddOrder(message: message, target: target);
                     }
                     private AddOrder(object message, IActorRef target) : base(message: message, target: target)
                     {
                     }
-                    public FArticle GetObjectFromMessage { get => Message as FArticle; }
+                    public ArticleRecord GetObjectFromMessage { get => Message as ArticleRecord; }
                 }
 
-                public class ProvideOrderAtDue : SimulationMessage
+                public record ProvideOrderAtDue : HiveMessage
                 {
-                    public static ProvideOrderAtDue Create(FCentralProvideOrder message, IActorRef target)
+                    public static ProvideOrderAtDue Create(CentralProvideOrderRecord message, IActorRef target)
                     {
                         return new ProvideOrderAtDue(message: message, target: target);
                     }
                     private ProvideOrderAtDue(object message, IActorRef target) : base(message: message, target: target)
                     {
                     }
-                    public FCentralProvideOrder GetObjectFromMessage { get => Message as FCentralProvideOrder; }
+                    public CentralProvideOrderRecord GetObjectFromMessage { get => Message as CentralProvideOrderRecord; }
                 }
-                public class WithdrawMaterial : SimulationMessage
+                public record WithdrawMaterial : HiveMessage
                 {
-                    public static WithdrawMaterial Create(FCentralStockPosting message, IActorRef target)
+                    public static WithdrawMaterial Create(StockPostingRecord message, IActorRef target)
                     {
                         return new WithdrawMaterial(message: message, target: target);
                     }
                     private WithdrawMaterial(object message, IActorRef target) : base(message: message, target: target)
                     {
                     }
-                    public FCentralStockPosting GetObjectFromMessage { get => Message as FCentralStockPosting; }
+                    public StockPostingRecord GetObjectFromMessage { get => Message as StockPostingRecord; }
                 }
-                public class InsertMaterial : SimulationMessage
+                public record InsertMaterial : HiveMessage
                 {
-                    public static InsertMaterial Create(FCentralStockPosting message, IActorRef target)
+                    public static InsertMaterial Create(StockPostingRecord message, IActorRef target)
                     {
                         return new InsertMaterial(message: message, target: target);
                     }
                     private InsertMaterial(object message, IActorRef target) : base(message: message, target: target)
                     {
                     }
-                    public FCentralStockPosting GetObjectFromMessage { get => Message as FCentralStockPosting; }
+                    public StockPostingRecord GetObjectFromMessage { get => Message as StockPostingRecord; }
                 }
 
-                public class AddPurchase : SimulationMessage
+                public record AddPurchase : HiveMessage
                 {
-                    public static AddPurchase Create(FCentralPurchase message, IActorRef target)
+                    public static AddPurchase Create(CentralPurchaseRecord message, IActorRef target)
                     {
                         return new AddPurchase(message: message, target: target);
                     }
                     private AddPurchase(object message, IActorRef target) : base(message: message, target: target)
                     {
                     }
-                    public FCentralPurchase GetObjectFromMessage { get => Message as FCentralPurchase; }
+                    public CentralPurchaseRecord GetObjectFromMessage { get => Message as CentralPurchaseRecord; }
 
                 }
-                public class PopPurchase : SimulationMessage
+                public record PopPurchase : HiveMessage
                 {
-                    public static PopPurchase Create(FCentralPurchase message, IActorRef target)
+                    public static PopPurchase Create(CentralPurchaseRecord message, IActorRef target)
                     {
                         return new PopPurchase(message: message, target: target);
                     }
                     private PopPurchase(object message, IActorRef target) : base(message: message, target: target)
                     {
                     }
-                    public FCentralPurchase GetObjectFromMessage { get => Message as FCentralPurchase; }
+                    public CentralPurchaseRecord GetObjectFromMessage { get => Message as CentralPurchaseRecord; }
                 }
 
             }

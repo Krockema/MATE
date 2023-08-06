@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Akka.Configuration;
 using ChartJSCore.Helpers;
 using ChartJSCore.Models;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Nominal;
 using Mate.Extensions;
+using Mate.Production.Core.Helper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Mate.ViewComponents
@@ -35,7 +37,8 @@ namespace Mate.ViewComponents
                 chart.Type = Enums.ChartType.Scatter;
                 var simConfig = _context.SimulationConfigurations.Single(predicate: a => a.Id == Convert.ToInt32(paramsList[0]));
                 // use available hight in Chart
-                var maxY = Math.Floor(d: (decimal)simConfig.SimulationEndTime / 1000) * 1000;
+                
+                var maxY = Math.Floor(d: (decimal)(simConfig.SimulationEndTime.TotalMinutes - simConfig.SettlingStart.TotalMinutes) / 1000) * 1000;
                 var maxX = 100;
                 chart.Options = new LineOptions()
                 {
@@ -59,16 +62,16 @@ namespace Mate.ViewComponents
                 var kpis = _context.SimulationOrders.Where(predicate: x => x.SimulationConfigurationId == Convert.ToInt32(paramsList[0])
                                                    && x.SimulationNumber == Convert.ToInt32(paramsList[2])
                                                    && x.SimulationType == simType
-                                                   && x.FinishingTime != 0); // filter unfinished orders
+                                                   && x.FinishingTime != TimeExtension.ZERO); // filter unfinished orders
 
                 var data = new Data { Datasets = new List<Dataset>() };
                 
-                    var startVal = 0;
+                    var startVal = simConfig.SimulationStartTime;
                     var ts = simConfig.DynamicKpiTimeSpan;
                     var input = new List<LineScatterData> { new LineScatterData { X = "0", Y = "0" } };
                     var progress = new List<LineScatterData> { new LineScatterData { X = "0", Y = "0" } };
                     var output = new List<LineScatterData> { new LineScatterData { X = "0", Y = "0" } };
-                    for (var i = ts; i < simConfig.SimulationEndTime; i = i + ts)
+                    for (var i = simConfig.SimulationStartTime + ts; i < (simConfig.SimulationStartTime + simConfig.SimulationEndTime); i += ts)
                     {
                             input.AddRange(collection: kpis.Where(predicate: x => x.CreationTime >= startVal
                                                         && x.CreationTime < i)

@@ -5,26 +5,24 @@ using System.Linq;
 using Akka.Actor;
 using Akka.Util.Internal;
 using Mate.DataCore.Data.Context;
-using Mate.DataCore.Data.WrappersForPrimitives;
 using Mate.DataCore.GanttPlan;
 using Mate.DataCore.GanttPlan.GanttPlanModel;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.Nominal.Model;
 using Mate.Production.Core.Agents.HubAgent.Types.Central;
+using Mate.Production.Core.Environment.Records.Central;
+using Mate.Production.Core.Environment.Records.Reporting;
 using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using static FArticles;
-using static FCentralActivities;
-using static Mate.Production.Core.Agents.ResourceAgent.Resource.Instruction.Central;
 using Resource = Mate.Production.Core.Agents.ResourceAgent.Resource;
 
 namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 {
     class Central : Core.Types.Behaviour
     {
-        private Dictionary<string, FCentralActivity> _scheduledActivities { get; } = new Dictionary<string, FCentralActivity>();
+        private Dictionary<string, CentralActivityRecord> _scheduledActivities { get; } = new ();
         private string _dbConnectionStringGanttPlan { get; }
         private string _dbConnectionStringMaster { get; }
         private string _pathToGANTTPLANOptRunner { get; }
@@ -69,7 +67,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                 return true;
             }
 
-        private void AddResourceToHub(FCentralResourceRegistrations.FCentralResourceRegistration resourceRegistration)
+        private void AddResourceToHub(CentralResourceRegistrationRecord resourceRegistration)
         {
             var resourceDefintion = new ResourceDefinition(resourceRegistration.ResourceName, resourceRegistration.ResourceId, resourceRegistration.ResourceActorRef, resourceRegistration.ResourceGroupId, (ResourceType)resourceRegistration.ResourceType);
             _resourceManager.Add(resourceDefintion);
@@ -77,9 +75,9 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
         private void LoadProductionOrders(IActorRef inboxActorRef)
         {
-            var agentDateTime = Agent.CurrentTime.ToDateTime();
-            var timeStamps = new Dictionary<string, long>();
-            long lastStep = 0;
+            var agentDateTime = Agent.CurrentTime;
+            var timeStamps = new Dictionary<string, TimeSpan>();
+            TimeSpan lastStep = TimeSpan.Zero;
             var stopwatch = Stopwatch.StartNew();
             stopwatch.Start();
 
@@ -110,12 +108,12 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                 var modelparameter = localGanttPlanDbContext.GptblModelparameter.FirstOrDefault();
                 if (modelparameter != null)
                 {
-                    modelparameter.ActualTime = Agent.CurrentTime.ToDateTime();
+                    modelparameter.ActualTime = Agent.CurrentTime;
                     localGanttPlanDbContext.SaveChanges();
                 }
             }
 
-            lastStep = stopwatch.ElapsedMilliseconds;
+            lastStep = stopwatch.Elapsed;
             timeStamps.Add("Write Confirmations", lastStep);
             CreateComputationalTime("TimeWriteConfirmations", lastStep);
 
@@ -123,7 +121,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             GanttPlanOptRunner.RunOptAndExport("Continuous", _pathToGANTTPLANOptRunner); //changed to Init - merged configs
             System.Diagnostics.Debug.WriteLine("Finish GanttPlan");
 
-            lastStep = stopwatch.ElapsedMilliseconds - lastStep;
+            lastStep = stopwatch.Elapsed - lastStep;
             timeStamps.Add("Gantt Plan Execution", lastStep);
             CreateComputationalTime("TimeGanttPlanExecution", lastStep);
 
@@ -184,13 +182,13 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
             StartActivities();
 
-            lastStep = stopwatch.ElapsedMilliseconds - lastStep;
+            lastStep = stopwatch.Elapsed - lastStep;
             timeStamps.Add("Load Gantt Results", lastStep);
-            timeStamps.Add("TimeStep", Agent.CurrentTime);
+            //timeStamps.Add("TimeStep", Agent.CurrentTime);
             stopwatch.Stop();
             CreateComputationalTime("TimeTotalExecution", lastStep);
 
-            inboxActorRef.Tell(new FCentralGanttPlanInformations.FCentralGanttPlanInformation(JsonConvert.SerializeObject(timeStamps), "Plan"), this.Agent.Context.Self);
+            inboxActorRef.Tell(new CentralGanttPlanInformationRecord(JsonConvert.SerializeObject(timeStamps), "Plan"), this.Agent.Context.Self);
         }
 
         private void StartActivities()
@@ -206,12 +204,12 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
                 //CheckMaterial
                 
-                var fActivity = new FCentralActivity(resourceState.ResourceDefinition.Id
+                var fActivity = new CentralActivityRecord(resourceState.ResourceDefinition.Id
                     , interval.ProductionorderId
                     , interval.OperationId
                     , interval.ActivityId
                     , Agent.CurrentTime
-                    , interval.ConvertedDateTo - interval.ConvertedDateFrom
+                    , interval.DateTo - interval.DateFrom
                     , interval.ProductionorderOperationActivityResource.ProductionorderOperationActivity.Name
                     , _planManager.PlanVersion
                     , Agent.Context.Self
@@ -219,12 +217,12 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                     , interval.ActivityId.Equals(2) ? JobType.SETUP : JobType.OPERATION); // may not required.
                 
                 // Feature Activity
-                if (interval.ConvertedDateFrom > Agent.CurrentTime)
+                if (interval.DateFrom > Agent.CurrentTime)
                 {
                    // only schedule activities that have not been scheduled
-                    if(_scheduledActivities.TryAdd(fActivity.Key, fActivity))
+                    if(_scheduledActivities.TryAdd(fActivity.Key.ToString(), fActivity))
                     {   
-                        var waitFor = interval.ConvertedDateFrom - Agent.CurrentTime;
+                        var waitFor = interval.DateFrom - Agent.CurrentTime;
                         Agent.DebugMessage($"{interval.ProductionorderOperationActivityResource.ProductionorderOperationActivity.GetKey} has been scheduled to {Agent.CurrentTime + waitFor} as planning interval {_planManager.PlanVersion}");
                         Agent.Send(instruction: Hub.Instruction.Central.ScheduleActivity.Create(fActivity, Agent.Context.Self)
                                             , waitFor);
@@ -232,7 +230,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                 }
                 else
                 {
-                    if (interval.ConvertedDateFrom < Agent.CurrentTime)
+                    if (interval.DateFrom < Agent.CurrentTime)
                     {
                         Agent.DebugMessage($"Activity {interval.ProductionorderOperationActivityResource.ProductionorderOperationActivity.GetKey} at {resourceState.ResourceDefinition.Name} is delayed {interval.ConvertedDateFrom}");
                     }
@@ -248,7 +246,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         /// 
         /// </summary>
         /// <param name="fActivity"></param>
-        private void ScheduleActivity(FCentralActivity fActivity)
+        private void ScheduleActivity(CentralActivityRecord fActivity)
         {
             if (fActivity.GanttPlanningInterval < _planManager.PlanVersion)
             {
@@ -275,7 +273,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             }
         }
 
-        private void TryStartActivity(GptblProductionorderOperationActivityResourceInterval interval,FCentralActivity fActivity)
+        private void TryStartActivity(GptblProductionorderOperationActivityResourceInterval interval, CentralActivityRecord fActivity)
         {
             var resourcesForActivity = interval.ProductionorderOperationActivityResource
                                                 .ProductionorderOperationActivity
@@ -343,7 +341,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         
         private void StartActivity(List<ResourceState> requiredResources
             , GptblProductionorderOperationActivityResourceInterval interval
-            , FCentralActivity fActivity
+            , CentralActivityRecord fActivity
             , string requiredCapability)
         {
             if (_scheduledActivities.ContainsKey(fActivity.Key))
@@ -377,17 +375,17 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             foreach (var resourceState in requiredResources)
             {
 
-                var fCentralActivity = new FCentralActivity(resourceId: resourceState.ResourceDefinition.Id
-                                                    , productionOrderId: fActivity.ProductionOrderId
-                                                    , operationId: fActivity.OperationId
-                                                    , activityId: fActivity.ActivityId
-                                                    , activityType: fActivity.ActivityType
-                                                    , start: Agent.CurrentTime
-                                                    , duration: randomizedDuration
-                                                    , name: fActivity.Name
-                                                    , ganttPlanningInterval:fActivity.GanttPlanningInterval
-                                                    , hub: fActivity.Hub
-                                                    , capability: requiredCapability);
+                var fCentralActivity = new CentralActivityRecord(ResourceId: resourceState.ResourceDefinition.Id
+                                                    , ProductionOrderId: fActivity.ProductionOrderId
+                                                    , OperationId: fActivity.OperationId
+                                                    , ActivityId: fActivity.ActivityId
+                                                    , ActivityType: fActivity.ActivityType
+                                                    , Start: Agent.CurrentTime
+                                                    , Duration: randomizedDuration
+                                                    , Name: fActivity.Name
+                                                    , GanttPlanningInterval:fActivity.GanttPlanningInterval
+                                                    , Hub: fActivity.Hub
+                                                    , Capability: requiredCapability);
 
                 var startActivityInstruction = Resource.Instruction.Central
                                                 .ActivityStart.Create(activity: fCentralActivity
@@ -413,7 +411,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
         }
         
-        public void FinishActivity(FCentralActivity fActivity)
+        public void FinishActivity(CentralActivityRecord fActivity)
         {
             // Get Resource
             System.Diagnostics.Debug.WriteLine($"Finish {fActivity.ProductionOrderId}|{fActivity.OperationId}|{fActivity.ActivityId} with Duration: {fActivity.Duration} from {Agent.Sender.ToString()}");
@@ -469,7 +467,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                    stockPostingType: GanttStockPostingType.Relatively,
                    CurrentTime: Agent.CurrentTime);
 
-            var storagePosting = new FCentralStockPostings.FCentralStockPosting(productionOrder.MaterialId, (double)productionOrder.QuantityNet);
+            var storagePosting = new StockPostingRecord(productionOrder.MaterialId, (double)productionOrder.QuantityNet);
             Agent.Send(DirectoryAgent.Directory.Instruction.Central.ForwardInsertMaterial.Create(storagePosting, Agent.ActorPaths.StorageDirectory.Ref));
 
             //only for products
@@ -480,16 +478,16 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
                 var salesorder = _salesOrder.Single(x => x.SalesorderId.Equals(salesorderId));
 
-                CreateLeadTime(product, long.Parse(salesorder.Info1));
+                CreateLeadTime(product, DateTime.Parse(salesorder.Info1)); // TODO: Check against central config. 
                 
                 salesorder.Status = 8;
                 salesorder.QuantityDelivered = 1;
 
-                var provideOrder = new FCentralProvideOrders.FCentralProvideOrder(productionOrderId: productionOrder.ProductionorderId
-                                                                 ,materialId : product.MaterialId
-                                                                ,materialName: product.Name
-                                                               , salesOrderId: salesorderId
-                                                         , materialFinishedAt: Agent.CurrentTime);
+                var provideOrder = new CentralProvideOrderRecord(ProductionOrderId: productionOrder.ProductionorderId
+                                                                 ,MaterialId : product.MaterialId
+                                                                ,MaterialName: product.Name
+                                                               , SalesOrderId: salesorderId
+                                                         , MaterialFinishedAt: Agent.CurrentTime);
 
                  Agent.Send(DirectoryAgent.Directory.Instruction.Central.ForwardProvideOrder.Create(provideOrder, Agent.ActorPaths.StorageDirectory.Ref));
                 
@@ -525,7 +523,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
                 _stockPostingManager.AddWithdrawalStockPosting(materialId, (double)material.Quantity, material.QuantityUnitId, GanttStockPostingType.Relatively, Agent.CurrentTime);
 
-                var stockPosting = new FCentralStockPostings.FCentralStockPosting(materialId: materialId, (double)material.Quantity);
+                var stockPosting = new StockPostingRecord(MaterialId: materialId, (double)material.Quantity);
                 Agent.Send(DirectoryAgent.Directory.Instruction.Central.ForwardWithdrawMaterial.Create(stockPosting,Agent.ActorPaths.StorageDirectory.Ref));
 
             }
@@ -534,13 +532,13 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
         public override bool AfterInit()
         {
-            Agent.Send(Hub.Instruction.Central.StartActivities.Create(Agent.Context.Self), 1);
+            Agent.Send(Hub.Instruction.Central.StartActivities.Create(Agent.Context.Self), TimeSpan.FromMinutes(1));
             return true;
         }
 
         #region Reporting
 
-        public void CreateSimulationJob(GptblProductionorderOperationActivity activity, long start, long duration, string requiredCapabilityName)
+        public void CreateSimulationJob(GptblProductionorderOperationActivity activity, DateTime start, TimeSpan duration, string requiredCapabilityName)
         { 
             var pub = MessageFactory.ToSimulationJob(activity,
                         start, 
@@ -551,20 +549,20 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             Agent.Context.System.EventStream.Publish(@event: pub);
         }
 
-        private void CreateLeadTime(GptblMaterial material, long creationTime)
+        private void CreateLeadTime(GptblMaterial material, DateTime creationTime)
         {
-                var pub = new FThroughPutTimes.FThroughPutTime(articleKey: Guid.Empty
-                    , articleName: material.Name
-                    , start: creationTime  // TODO  ADD CreationTime
-                    , end: Agent.CurrentTime);
+                var pub = new ThroughPutTimeRecord(ArticleKey: Guid.Empty
+                    , ArticleName: material.Name
+                    , Start: creationTime  // TODO  ADD CreationTime
+                    , End: Agent.CurrentTime);
                 Agent.Context.System.EventStream.Publish(@event: pub);
         }
-        private void CreateComputationalTime(string type ,long duration)
+        private void CreateComputationalTime(string type, TimeSpan duration)
         {
-            var pub = new FComputationalTimers.FComputationalTimer(
-                time: Agent.CurrentTime,
-                timertype: type,
-                duration: duration);
+            var pub = new ComputationalTimerRecord(
+                Time: Agent.Time.Value,
+                Timertype: type,
+                Duration: duration);
             Agent.Context.System.EventStream.Publish(@event: pub);
         }
         #endregion

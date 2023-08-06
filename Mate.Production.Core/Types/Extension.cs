@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Environment.Records.Interfaces;
+using System;
 using System.Collections.Generic;
-using static FBuckets;
-using static IKeys;
-
 namespace Mate.Production.Core.Types
 {
     public static class Extension
@@ -12,7 +11,7 @@ namespace Mate.Production.Core.Types
             return func;
         }
 
-        public static Func<FBucket, long, double> CreateFunc(Func<FBucket, long, double> func)
+        public static Func<BucketRecord, long, double> CreateFunc(Func<BucketRecord, long, double> func)
         {
             return func;
         }

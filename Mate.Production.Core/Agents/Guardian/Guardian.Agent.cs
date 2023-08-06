@@ -1,4 +1,5 @@
 ﻿using Akka.Actor;
+using Akka.Hive.Definitions;
 using Mate.Production.Core.Environment;
 using Mate.Production.Core.Helper;
 
@@ -15,15 +16,15 @@ namespace Mate.Production.Core.Agents.Guardian
         /// <param name="actorPaths"></param>
         /// <param name="time">Current time span</param>
         /// <param name="debug">Parameter to activate Debug Messages on Agent level</param>
-        public Guardian(ActorPaths actorPaths, Configuration configuration, long time, bool debug)
-            : base(actorPaths: actorPaths, configuration: configuration, time: time, debug: false, principal: null)
+        public Guardian(ActorPaths actorPaths, Configuration configuration, IHiveConfig hiveConfig, Time time, bool debug)
+            : base(actorPaths: actorPaths, configuration: configuration, hiveConfig: hiveConfig, time: time, debug: false, principal: null)
         {
             DebugMessage(msg: "I'm alive: " + Self.Path.ToStringWithAddress());
         }
 
-        public static Props Props(ActorPaths actorPaths, Configuration configuration , long time, bool debug)
+        public static Props Props(ActorPaths actorPaths, Configuration configuration, IHiveConfig hiveConfig, Time time, bool debug)
         {
-            return Akka.Actor.Props.Create(factory: () => new Guardian(actorPaths, configuration, time, debug));
+            return Akka.Actor.Props.Create(factory: () => new Guardian(actorPaths, configuration, hiveConfig, time, debug));
         }
 
         public override void AroundPostStop()

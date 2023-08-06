@@ -1,16 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Mate.DataCore.DataModel;
+using Mate.Production.Core.Helper;
 
 namespace Mate.Production.Core.Agents.ResourceAgent.Types
 {
     public class CapabilityProviderManager
     {
-        private List<M_ResourceCapabilityProvider> _resourceCapabilityProviders { get; set; } = new List<M_ResourceCapabilityProvider>();
+        private IImmutableSet<M_ResourceCapabilityProvider> _resourceCapabilityProviders { get; set; }
         private CapabilityProviderInUse _capabilityInUse { get; set; }
         public CapabilityProviderManager(List<M_ResourceCapabilityProvider> resourceCapabilityProvider)
         {
-            _resourceCapabilityProviders = resourceCapabilityProvider;
+            _resourceCapabilityProviders = resourceCapabilityProvider.ToImmutableHashSet();
             _capabilityInUse = new CapabilityProviderInUse();
 
         }
@@ -55,7 +58,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
             return resourceCapabilityProvider;
         }
 
-        internal long GetSetupDurationBy(int resourceCapabilityId)
+        internal TimeSpan GetSetupDurationBy(int resourceCapabilityId)
         {
             //TODO Take care if one Capability can be done by multiply tools
             var setupTime = _resourceCapabilityProviders.First(x => x.ResourceCapabilityId == resourceCapabilityId)
@@ -63,7 +66,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
             return setupTime;
         }
 
-        internal List<M_ResourceCapabilityProvider> GetAllCapabilityProvider()
+        internal IImmutableSet<M_ResourceCapabilityProvider> GetAllCapabilityProvider()
         {
             return _resourceCapabilityProviders;
         }

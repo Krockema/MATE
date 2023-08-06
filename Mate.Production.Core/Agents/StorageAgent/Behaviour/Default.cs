@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Mate.DataCore.Data.WrappersForPrimitives;
 using Mate.DataCore.DataModel;
 using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.DispoAgent;
 using Mate.Production.Core.Agents.StorageAgent.Types;
+using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Environment.Records.Reporting;
 using Mate.Production.Core.Helper;
-using static FArticleProviders;
-using static FArticles;
-using static FProductionResults;
-using static FStockProviders;
-using static FStockReservations;
+
 
 namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
 {
@@ -43,7 +42,7 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
             return true;
         }
 
-        private void RequestArticle(FArticle requestItem)
+        private void RequestArticle(ArticleRecord requestItem)
         {
             Agent.DebugMessage(msg: " requests Article " + _stockManager.Name + " from Agent: " + Agent.Sender.Path.Name);
 
@@ -52,7 +51,7 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
             var stockReservation = MakeReservationFor(request: item);
             if (!stockReservation.IsInStock || item.Article.ToBuild)
             {
-                item = item.UpdateProviderList(p: new List<FStockProvider>());
+                item = item.UpdateProviderList(p: ImmutableHashSet.Create<StockProviderRecord>());
                 // add to Request queue if not in Stock
                 _requestedArticles.Add(item: item);
             }
@@ -71,7 +70,7 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
             // change element State to Finish
             stockExchange.State = State.Finished;
             //stockExchange.RequiredOnTime = (int)Context.TimePeriod;
-            stockExchange.Time = (int)Agent.CurrentTime;
+            stockExchange.Time = Agent.Time.Value;
             _stockManager.AddToStock(stockExchange);
             LogValueChange(article: _stockManager.Article.Name, articleType: _stockManager.Article.ArticleType.Name, value: Convert.ToDouble(value: _stockManager.Current) * Convert.ToDouble(value: _stockManager.Price));
 
@@ -85,22 +84,22 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
                 if (notServed == null) throw new Exception(message: "No StockExchange found");
 
                 notServed.State = State.Finished;
-                notServed.Time = (int)Agent.CurrentTime;
+                notServed.Time = Agent.Time.Value;
 
                 Agent.Send(instruction: BasicInstruction.ProvideArticle
-                                                        .Create(message: new FArticleProvider(articleKey: request.Key
-                                                                                             , articleName: request.Article.Name
-                                                                                             , articleFinishedAt: Agent.CurrentTime
-                                                                                             , stockExchangeId: request.StockExchangeId
-                                                                                             , customerDue: request.CustomerDue
-                                                                                             , provider: new List<FStockProvider>(new[] { new FStockProvider(stockExchange.TrackingGuid, "Purchase")}))
+                                                        .Create(message: new ArticleProviderRecord(ArticleKey: request.Key
+                                                                                             , ArticleName: request.Article.Name
+                                                                                             , ArticleFinishedAt: Agent.Time.Value
+                                                                                             , StockExchangeId: request.StockExchangeId
+                                                                                             , CustomerDue: request.CustomerDue
+                                                                                             , Provider: ImmutableHashSet.Create(new StockProviderRecord(stockExchange.TrackingGuid, "Purchase")))
                                                                , target: request.DispoRequester
                                                               , logThis: false));
                 _requestedArticles.Remove(item: request);
             }
         }
 
-        private void ResponseFromProduction(FProductionResult productionResult)
+        private void ResponseFromProduction(ProductionResultRecord productionResult)
         {
             // Add the Produced item to Stock
             Agent.DebugMessage(msg: $"{productionResult.Amount} {_stockManager.Name} was send from {Agent.Sender.Path.Name}");
@@ -110,8 +109,8 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
                 ExchangeType = ExchangeType.Insert,
                 Quantity = productionResult.Amount,
                 State = State.Finished,
-                RequiredOnTime = (int)Agent.CurrentTime,
-                Time = (int)Agent.CurrentTime,
+                RequiredOnTime = Agent.Time.Value,
+                Time = Agent.Time.Value,
                 ProductionArticleKey = productionResult.Key,
                 ProductionAgent = Agent.Sender.Path.Name
             };
@@ -125,22 +124,22 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
             var mostUrgentRequest = _requestedArticles.First(predicate: x => x.DueTime == _requestedArticles.Min(selector: r => r.DueTime));
 
             //TODO: might be a problem 
-            if (mostUrgentRequest.IsHeadDemand && mostUrgentRequest.DueTime > Agent.CurrentTime)
+            if (mostUrgentRequest.IsHeadDemand && mostUrgentRequest.DueTime > Agent.Time.Value)
             {
-                Agent.DebugMessage(msg: $"{_stockManager.Name} {mostUrgentRequest.Key} finished before due. CostumerOrder {mostUrgentRequest.CustomerOrderId} will ask at {mostUrgentRequest.DueTime} for article.");
+                Agent.DebugMessage(msg: $"Most urgent {_stockManager.Name} {mostUrgentRequest.Key} finished before due. CostumerOrder {mostUrgentRequest.CustomerOrderId} will ask at {mostUrgentRequest.DueTime} for article.");
                 return;
             }
             // else if
             if (mostUrgentRequest.Quantity <= _stockManager.Current)
             {
-                Agent.DebugMessage(msg: $"{_stockManager.Name} {mostUrgentRequest.Key} is providable {mostUrgentRequest.Quantity} does match current Stock amount of {_stockManager.Current}.");
+                Agent.DebugMessage(msg: $"Most urgent {_stockManager.Name} {mostUrgentRequest.Key}, with due {mostUrgentRequest.DueTime} is providable {mostUrgentRequest.Quantity} does match current Stock amount of {_stockManager.Current}.");
                 ProvideArticle(articleKey: mostUrgentRequest.Key);
             }
         }
 
         private void ProvideArticleAtDue(Guid articleKey)
         {
-            Agent.DebugMessage(msg: $"{_stockManager.Name} {articleKey} shall be provided at due {_stockManager.Current}.");
+            Agent.DebugMessage(msg: $"{_stockManager.Name} {articleKey} shall be provided at due, current items in Stock {_stockManager.Current}.");
             ProvideArticle(articleKey: articleKey);
         }
 
@@ -152,10 +151,10 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
             {
                 var providerList = _stockManager.GetProviderGuidsFor(new Quantity(article.Quantity));
                 var prunedProviderList = providerList.Select(x =>
-                    new FStockProvider(
+                    new StockProviderRecord(
                         x.ProductionArticleKey,
                         x.ProductionAgent
-                    )).ToList();
+                    )).ToImmutableHashSet();
                 article = article.UpdateProviderList(p: prunedProviderList);
 
 
@@ -173,12 +172,12 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
                 Agent.DebugMessage(msg: $"Provide Article: {article.Article.Name} {article.Key} from {Agent.Sender}");
 
                 // Create Callback for Production
-                Agent.Send(instruction: BasicInstruction.ProvideArticle.Create(message: new FArticleProvider(articleKey: article.Key
-                                                                                                           , articleName: article.Article.Name
-                                                                                                           , stockExchangeId: article.StockExchangeId
-                                                                                                           , articleFinishedAt: article.FinishedAt
-                                                                                                           , customerDue: article.CustomerDue
-                                                                                                           , provider: article.ProviderList.ToArray().ToList())
+                Agent.Send(instruction: BasicInstruction.ProvideArticle.Create(message: new ArticleProviderRecord(ArticleKey: article.Key
+                                                                                                           , ArticleName: article.Article.Name
+                                                                                                           , StockExchangeId: article.StockExchangeId
+                                                                                                           , ArticleFinishedAt: article.FinishedAt
+                                                                                                           , CustomerDue: article.CustomerDue
+                                                                                                           , Provider: article.ProviderList.ToImmutableHashSet())
                                                                               , target: article.DispoRequester
                                                                               , logThis: false));
 
@@ -192,7 +191,7 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
             }
         }
 
-        internal FStockReservation MakeReservationFor(FArticle request)
+        internal StockReservationRecord MakeReservationFor(ArticleRecord request)
         {
             var inStock = false;
             var quantity = 0;
@@ -224,7 +223,7 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
                 //TODO Check Correctness
                 _stockManager.GetProviderGuidsFor(new Quantity(request.Quantity));
             }
-            var stockReservation = new FStockReservation(quantity: quantity, isPurchased: purchaseOpen, isInStock: inStock, dueTime: time, trackingId: request.StockExchangeId);
+            var stockReservation = new StockReservationRecord(Quantity: quantity, IsPurchased: purchaseOpen, IsInStock: inStock, DueTime: time, TrackingId: request.StockExchangeId);
 
             //Create Stockexchange for Reservation
             _stockManager.StockExchanges.Add(
@@ -234,15 +233,15 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
                     StockId = _stockManager.Id,
                     ExchangeType = ExchangeType.Withdrawal,
                     Quantity = request.Quantity,
-                    Time = (int)(Agent.CurrentTime),
+                    Time = Agent.CurrentTime,
                     State = stockReservation.IsInStock ? State.Finished : State.Created,
-                    RequiredOnTime = (int)request.DueTime,
+                    RequiredOnTime = request.DueTime,
                 }
             );
             return stockReservation;
         }
 
-        internal long CreatePurchase(M_Stock stockElement)
+        internal TimeSpan CreatePurchase(M_Stock stockElement)
         {
             var time = stockElement.Article
                                     .ArticleToBusinessPartners
@@ -253,9 +252,9 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
                 StockId = stockElement.Id,
                 ExchangeType = ExchangeType.Insert,
                 State = State.Created,
-                Time = (int)(Agent.CurrentTime),
+                Time =Agent.CurrentTime,
                 Quantity = stockElement.Article.Stock.Max - stockElement.Article.Stock.Min,
-                RequiredOnTime = (int)(Agent.CurrentTime) + time,
+                RequiredOnTime = (Agent.CurrentTime) + time,
                 TrackingGuid = Guid.NewGuid()
             };
 
@@ -275,7 +274,7 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
                              value: Convert.ToDouble(value: _stockManager.Current) * Convert.ToDouble(value: _stockManager.Price));
 
             stockExchange.State = State.Finished;
-            stockExchange.Time = (int)Agent.CurrentTime;
+            stockExchange.Time = Agent.CurrentTime;
 
             Agent.DebugMessage(msg: $"Withdraw stock exchange {stockExchange.TrackingGuid} for article {stockExchange.Quantity} {_stockManager.Name}");
 

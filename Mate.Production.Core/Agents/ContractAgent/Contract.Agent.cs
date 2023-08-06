@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Akka.Actor;
+using Akka.Hive.Definitions;
 using Mate.Production.Core.Agents.ContractAgent.Behaviour;
 using Mate.Production.Core.Agents.Guardian;
 using Mate.Production.Core.Environment;
@@ -21,13 +22,13 @@ namespace Mate.Production.Core.Agents.ContractAgent
         IActorRef IAgent.Guardian => this.ActorPaths.Guardians.Single(predicate: x => x.Key == GuardianType.Dispo).Value;
 
         // public Constructor
-        public static Props Props(ActorPaths actorPaths, Configuration configuration, long time, bool debug)
+        public static Props Props(ActorPaths actorPaths, Configuration configuration, IHiveConfig hiveConfig, Time time, bool debug)
         {
-            return Akka.Actor.Props.Create(factory: () => new Contract(actorPaths, configuration, time, debug));   
+            return Akka.Actor.Props.Create(factory: () => new Contract(actorPaths, configuration, hiveConfig, time, debug));   
         }
         
-        public Contract(ActorPaths actorPaths, Configuration configuration, long time, bool debug) 
-            : base(actorPaths: actorPaths, configuration: configuration, time: time, debug: debug, principal: actorPaths.SystemAgent.Ref)
+        public Contract(ActorPaths actorPaths, Configuration configuration,IHiveConfig hiveConfig, Time time, bool debug) 
+            : base(actorPaths: actorPaths, configuration: configuration, hiveConfig: hiveConfig, time: time, debug: debug, principal: actorPaths.SystemAgent.Ref)
         {
             DebugMessage(msg: "I'm Alive:" + Context.Self.Path);
         }

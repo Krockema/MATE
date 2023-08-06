@@ -1,5 +1,6 @@
 ﻿using Mate.DataCore.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.CodeDom;
 using System.Collections.Generic;
 
@@ -116,10 +117,10 @@ namespace Mate.DataCore.Data.Initializer.StoredProcedures
             }
 		}
 
-		public static long DeliveryDateEstimator(int articleId, double factor, MateDb dBContext)
+		public static TimeSpan DeliveryDateEstimator(int articleId, double factor, MateDb dBContext)
         {
 			var sql = string.Format("Execute ArticleCTE {0}", articleId);
-			var estimatedProductDelivery = 2880L;
+			var estimatedProductDelivery = TimeSpan.FromMinutes(2880L);
 			using (var command = dBContext.Database.GetDbConnection().CreateCommand())
 			{
 				
@@ -131,7 +132,7 @@ namespace Mate.DataCore.Data.Initializer.StoredProcedures
 					{
 						System.Diagnostics.Debug.WriteLine(string.Format("Summe der Dauer {0}; Anzahl der Operationen {1}; Summe der Produktionsaufträge {2}", reader[0], reader[1], int.Parse(reader[2].ToString()) + 1));
 						// TODO Catch false informations
-						estimatedProductDelivery = (long)(System.Convert.ToInt64(reader[0]) * factor);
+						estimatedProductDelivery = TimeSpan.FromMinutes((long)(System.Convert.ToInt64(reader[0]) * factor));
 						System.Diagnostics.Debug.WriteLine("Estimated Product Delivery {0}", estimatedProductDelivery);
 					}
 

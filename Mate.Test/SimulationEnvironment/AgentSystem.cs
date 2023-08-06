@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Akka.Hive.Logging;
 using Akka.TestKit.Xunit;
-using AkkaSim.Logging;
+using BenchmarkDotNet.Disassemblers;
 using Mate.DataCore;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Helper;
@@ -17,15 +17,11 @@ using Mate.DataCore.Nominal;
 using Mate.DataCore.Nominal.Model;
 using Mate.Production.CLI;
 using Mate.Production.Core;
-using Mate.Production.Core.Agents.CollectorAgent.Types;
 using Mate.Production.Core.Environment.Options;
 using Mate.Production.Core.Helper;
-using MathNet.Numerics.Distributions;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using Xunit;
-using Xunit.Abstractions;
-using static Akka.IO.Tcp;
 using PriorityRule = Mate.DataCore.Nominal.PriorityRule;
 
 namespace Mate.Test.SimulationEnvironment
@@ -122,12 +118,12 @@ namespace Mate.Test.SimulationEnvironment
         public void ResetAllDatabase()
         {
             MateResultDb results = Dbms.GetResultDataBase(TestMateResultDb).DbContext;
-            results.Database.EnsureDeleted();
+           // results.Database.EnsureDeleted();
             results.Database.EnsureCreated();
             ResultDBInitializerBasic.DbInitialize(results);
 
             MateDb masterCtx = Dbms.GetMateDataBase(dbName: TestMateDb).DbContext;
-            masterCtx.Database.EnsureDeleted();
+            //masterCtx.Database.EnsureDeleted();
             masterCtx.Database.EnsureCreated();
             MasterDBInitializerTruck.DbInitialize(masterCtx, resourceModelSize: ModelSize.Large, setupModelSize: ModelSize.Small, ModelSize.Small, 3, false, false);
 
@@ -229,7 +225,7 @@ namespace Mate.Test.SimulationEnvironment
         // [x] [InlineData(SimulationType.Default, 110, 0.00, 0.035, 1337)] // throughput dynamic ruled
         [InlineData(SimulationType.Queuing, 44, 0.0, 0.020, 169)]
         public async Task AgentSystemTest(SimulationType simulationType, int simNr, double deviation, double arrivalRateRun, int seed
-            , int seedDataGen = 5, double reuse = 1.0, double complxity = 1.0, double organziationaldegree = 0.8, int numberOfSalesMaterials = 50, int verticalIntegration = 2)
+            , int seedDataGen = 5, double reuse = 1, double complxity = 1, double organziationaldegree = 0.8, int numberOfSalesMaterials = 50, int verticalIntegration = 2)
         {
             //var simNr = Random.Shared.Next();
             //var simulationType = SimulationType.Default;
@@ -238,7 +234,8 @@ namespace Mate.Test.SimulationEnvironment
             var arrivalRate = arrivalRateRun;
 
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_ACTORS, LogLevel.Debug, LogLevel.Info);
+            LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.STOCK, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PRIORITY, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.SCHEDULING, LogLevel.Warn, LogLevel.Warn);
@@ -271,16 +268,17 @@ namespace Mate.Test.SimulationEnvironment
             var simConfig = Production.CLI.ArgumentConverter.ConfigurationConverter(dbResult.DbContext, 1);
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(dbResult.ConnectionString.Value));
+            simConfig.AddOption(new SimulationStartTime(DateTime.Parse("01.01.2020")));
             simConfig.ReplaceOption(new GANTTPLANOptRunnerPath("D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe"));
-            simConfig.ReplaceOption(new KpiTimeSpan(1440));
-            simConfig.ReplaceOption(new TimeConstraintQueueLength(480 * 6 * 2)); // = schicht * setups * x
+            simConfig.ReplaceOption(new KpiTimeSpan(TimeSpan.FromMinutes(1440)));
+            simConfig.ReplaceOption(new TimeConstraintQueueLength(TimeSpan.FromMinutes(480 * 6 * 2))); // = schicht * setups * x
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
             simConfig.ReplaceOption(new OrderQuantity(value: 1000));
-            simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
-            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
+            simConfig.ReplaceOption(new EstimatedThroughPut(value: TimeSpan.FromMinutes(throughput)));
+            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: TimeSpan.FromMinutes(4000)));
             simConfig.ReplaceOption(new Production.Core.Environment.Options.Seed(value: seed));
-            simConfig.ReplaceOption(new SettlingStart(value: 1440));
+            simConfig.ReplaceOption(new SettlingStart(value: TimeSpan.FromMinutes(1440)));
             simConfig.ReplaceOption(new MinQuantity(value: 1));
             simConfig.ReplaceOption(new MaxQuantity(value: 1));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 11));
@@ -293,7 +291,7 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new MaxBucketSize(value: 480 * 6 * 2)); // = schicht * setups * x
             simConfig.ReplaceOption(new SimulationNumber(value: simNr));
             simConfig.ReplaceOption(new CreateQualityData(false));
-            simConfig.ReplaceOption(new Mate.Production.Core.Environment.Options.PriorityRule(PriorityRule.LST));
+            simConfig.ReplaceOption(new Production.Core.Environment.Options.PriorityRule(PriorityRule.LST));
 
             ClearResultDBby(simNr: simConfig.GetOption<SimulationNumber>(), dbName: TestMateResultDb);
 
@@ -327,7 +325,7 @@ namespace Mate.Test.SimulationEnvironment
                 simWasReady = true;
                 // Start simulation
                 var sim = simulation.RunAsync();
-                simContext.StateManager.ContinueExecution(simulation);
+                // imContext.StateManager.ContinueExecution(simulation); // not Required i think 
                 await sim;
             }
 

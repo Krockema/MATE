@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
+using Akka.Hive.Definitions;
 using Mate.DataCore.DataModel;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.Nominal.Model;
-using Mate.Production.Core.Agents.CollectorAgent.Types;
 using Mate.Production.Core.Agents.HubAgent;
-using Mate.Production.Core.Agents.HubAgent.Types;
 using Mate.Production.Core.Agents.JobAgent;
 using Mate.Production.Core.Agents.ResourceAgent.Types;
 using Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue;
+using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Environment.Records.Interfaces;
+using Mate.Production.Core.Environment.Records.Reporting;
+using Mate.Production.Core.Environment.Records.Scopes;
 using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
 using Mate.Production.Core.Types;
-using static FBuckets;
-using static FResourceInformations;
 using Directory = Mate.Production.Core.Agents.DirectoryAgent.Directory;
 using LogLevel = NLog.LogLevel;
 
@@ -23,7 +24,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 {
     public class Default : Core.Types.Behaviour
     {
-        public Default(long timeConstraintQueueLength, int resourceId, ResourceType resourceType, WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider, SimulationType simulationType = SimulationType.None)
+        public Default(TimeSpan timeConstraintQueueLength, int resourceId, ResourceType resourceType, WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider, SimulationType simulationType = SimulationType.None)
             : base(simulationType: simulationType)
         {
             _resourceId = resourceId;
@@ -73,13 +74,14 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
             var resourceAgent = Agent as Resource;
             var capabilityProviders = _capabilityProviderManager.GetAllCapabilityProvider();
             Agent.Send(instruction: Directory.Instruction.Default.ForwardRegistrationToHub.Create(
-                new FResourceInformation(
-                    resourceId: resourceAgent._resource.Id,
-                    resourceName: this.Agent.Name,
-                    resourceCapabilityProvider: capabilityProviders,
-                    resourceType: _resourceType,
-                    requiredFor: String.Empty,
-                    Agent.Context.Self)
+                new ResourceInformationRecord(
+                    ResourceId: resourceAgent._resource.Id,
+                    ResourceName: this.Agent.Name,
+                    ResourceCapabilityProvider: capabilityProviders,
+                    ResourceType: _resourceType,
+                    RequiredFor: String.Empty,
+                    Ref: Agent.Context.Self,
+                    WorkTimeGenerator: null)
                 , target: Agent.VirtualParent));
             return true;
         }
@@ -120,7 +122,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
             var (position, revokedJob) = _jobInProgress.RevokeJob(jobKey);
             if (revokedJob != null)
             {
-                foreach(var element in ((FBucket)revokedJob.Job).Operations)
+                foreach(var element in ((BucketRecord)revokedJob.Job).Operations)
                 {
                     (var duration, var opPosition) = _jobInProgress.GetTotalOperationsOfJobInProgress(element.Key,Agent.CurrentTime);
                 }
@@ -149,7 +151,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
         /// Is Called from Hub Agent to get an Proposal when the item with a given priority can be scheduled.
         /// </summary>
         /// <param name="jobItem"></param>
-        internal void RequestProposal(FRequestProposalForCapabilityProviders.FRequestProposalForCapability requestProposal)
+        internal void RequestProposal(RequestProposalForCapabilityRecord requestProposal)
         {
             var jobConfirmation = _scopeQueue.GetConfirmation(requestProposal.Job.Key);
 
@@ -160,7 +162,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
             SendProposalTo(requestProposal);
         }
 
-        internal void SendProposalTo(FRequestProposalForCapabilityProviders.FRequestProposalForCapability requestProposal)
+        internal void SendProposalTo(RequestProposalForCapabilityRecord requestProposal)
         {
             Agent.DebugMessage($"Send Proposal for Job {requestProposal.Job.Key} with Priority {requestProposal.Job.Priority(Agent.CurrentTime)}", CustomLogger.PRIORITY, LogLevel.Warn);
 
@@ -176,28 +178,28 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
                                                                 , resourceId: _resourceId );
 
             //TODO Sets Postponed to calculated Duration of Bucket
-            var fPostponed = new FPostponeds.FPostponed(offset: queuePositions.Any(x => x.IsQueueAble) ? 0 : Convert.ToInt32(_scopeQueue.Workload * 0.8));
+            var postponed = new PostponedRecord(Offset: queuePositions.Any(x => x.IsQueueAble) ? TimeSpan.FromMinutes(0) : _scopeQueue.Workload * 0.8);
             var jobPrio = requestProposal.Job.Priority(Agent.CurrentTime);
             Agent.DebugMessage(msg: queuePositions.First().IsQueueAble
-                ? $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} IsQueueAble: {queuePositions.First().IsQueueAble} and has satisfiedJobs {((FBuckets.FBucket)requestProposal.Job).HasSatisfiedJob } with EstimatedStart: {queuePositions.First().Scope.Start} and Prio: {jobPrio}"
-                : $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} Postponed: {fPostponed.IsPostponed} with Offset: {fPostponed.Offset} and Prio: {jobPrio} ", CustomLogger.PRIORITY, LogLevel.Warn);
+                ? $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} IsQueueAble: {queuePositions.First().IsQueueAble} and has satisfiedJobs { ((BucketRecord)requestProposal.Job).HasSatisfiedJob } with EstimatedStart: {queuePositions.First().Scope.Start} and Prio: {jobPrio}"
+                : $"Bucket: {requestProposal.Job.Name} {requestProposal.Job.Key} Postponed: {postponed.IsPostponed} with Offset: {postponed.Offset} and Prio: {jobPrio} ", CustomLogger.PRIORITY, LogLevel.Warn);
 
             // calculate proposal
-            var proposal = new FProposals.FProposal(possibleSchedule: queuePositions
-                , postponed: fPostponed
-                , requestProposal.CapabilityId
-                , resourceAgent: Agent.Context.Self
-                , jobKey: requestProposal.Job.Key);
+            var proposal = new ProposalRecord(PossibleSchedule: queuePositions
+                , Postponed: postponed
+                , CapabilityId: requestProposal.CapabilityId
+                , ResourceAgent: Agent.Context.Self
+                , JobKey: requestProposal.Job.Key);
 
             Agent.Send(instruction: Hub.Instruction.Default.ProposalFromResource.Create(message: proposal, target: Agent.Context.Sender));
         }
 
-        internal void AcceptProposals(IConfirmations.IConfirmation jobConfirmation)
+        internal void AcceptProposals(IConfirmation jobConfirmation)
         {
             Agent.DebugMessage($"Start Acknowledge Job {jobConfirmation.Key}  {jobConfirmation.Job.Name}  | scope : [{jobConfirmation.ScopeConfirmation.GetScopeStart()} to {jobConfirmation.ScopeConfirmation.GetScopeEnd()}]" +
                                $" with Priority {jobConfirmation.Job.Priority(Agent.CurrentTime)}" +
                                $" | scopeLimit: {_scopeQueue.Limit} | scope workload : {_scopeQueue.Workload} | Capacity left {_scopeQueue.Limit - _scopeQueue.Workload} " +
-                               $" {((FBuckets.FBucket)jobConfirmation.Job).MaxBucketSize} ", CustomLogger.PRIORITY, LogLevel.Warn);
+                               $" {((BucketRecord)jobConfirmation.Job).MaxBucketSize} ", CustomLogger.PRIORITY, LogLevel.Warn);
 
             var setup = jobConfirmation.CapabilityProvider.ResourceSetups.Single(x =>
                 x.Resource.IResourceRef != null &&
@@ -265,7 +267,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
                 jobInProgressHasChanged = true;
                 Agent.Send(instruction: Job.Instruction.ResourceWillBeReady.Create(target: item.JobAgentRef));
                 _jobInProgress.Add(item);
-                Agent.DebugMessage(msg: $"Add to jobInProgress { item.Job.Name } { item.Job.Key } scope start { item.ScopeConfirmation.GetScopeStart() } setReadyAt { item.ScopeConfirmation.SetReadyAt } Has Satisfied Jobs { ((FBuckets.FBucket)item.Job).HasSatisfiedJob }", CustomLogger.JOB, LogLevel.Warn);
+                Agent.DebugMessage(msg: $"Add to jobInProgress { item.Job.Name } { item.Job.Key } scope start { item.ScopeConfirmation.GetScopeStart() } setReadyAt { item.ScopeConfirmation.SetReadyAt } Has Satisfied Jobs { ((BucketRecord)item.Job).HasSatisfiedJob }", CustomLogger.JOB, LogLevel.Warn);
                 _scopeQueue.RemoveJob(item);
             }
 
@@ -303,7 +305,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
             }
         }
 
-        private void FinalizedBucket(IConfirmations.IConfirmation fJobConfirmation)
+        private void FinalizedBucket(IConfirmation fJobConfirmation)
         {
             if (_jobInProgress.UpdateJob(fJobConfirmation)) 
             {
@@ -312,7 +314,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
             }
         }
 
-        internal void UpdateStartCondition(IJobs.IJob job)
+        internal void UpdateStartCondition(IJob job)
         {
             var jobConfirmation = _scopeQueue.GetAllJobs().SingleOrDefault(x => x.Job.Key == job.Key);
             if (jobConfirmation == null)
@@ -368,7 +370,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
         /// <summary>
         /// Starts the next Job
         /// </summary>
-        internal void DoWork(FOperations.FOperation operation)
+        internal void DoWork(OperationRecord operation)
         {
             Agent.DebugMessage($"Call start Work for {_jobInProgress.JobName} {operation.Operation.Name} {operation.Key} to process for {operation.Operation.RandomizedDuration}", CustomLogger.JOB, LogLevel.Warn);
             _jobInProgress.SetupIsOngoing = false;
@@ -416,12 +418,12 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
             if (next.IsNotNull())
             {
                 var isOverdue = next.ScopeConfirmation.GetScopeStart() < Agent.CurrentTime;
-                var isReady = ((FBuckets.FBucket)next.Job).HasSatisfiedJob;
-                var blockUntil = _jobInProgress.ResourceIsBusyUntil == 0 ? Agent.CurrentTime
+                var isReady = ((BucketRecord)next.Job).HasSatisfiedJob();
+                var blockUntil = _jobInProgress.ResourceIsBusyUntil == Time.ZERO.Value ? Agent.CurrentTime
                                                                          : _jobInProgress.ResourceIsBusyUntil;
                 if ((isOverdue && !isReady) 
                   ||(_scopeQueue.HasQueueAbleJobs() && !isReady) // to switch places
-                  ||( next.ScopeConfirmation.GetScopeStart() > blockUntil && isReady ) // Pull Close
+                  ||( next.ScopeConfirmation.GetScopeStart() > blockUntil && isReady) // Pull Close
                   ||( next.ScopeConfirmation.GetScopeStart() < blockUntil ) ) // Push because BucketSize on Resource has changed
                 { 
                     Agent.DebugMessage("Requeue because all jobs are overdue", CustomLogger.JOB, LogLevel.Warn);
@@ -441,14 +443,14 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
                 RequeueJobs(_scopeQueue.GetAllJobs());
             }
         }
-        internal void UpdateAndRequeuePlanedJobs(IConfirmations.IConfirmation jobConfirmation)
+        internal void UpdateAndRequeuePlanedJobs(IConfirmation jobConfirmation)
         {
             
             var toRequeue = _scopeQueue.GetTail(currentTime: Agent.CurrentTime, jobConfirmation);
             RequeueJobs(toRequeue);
         }
 
-        private void RequeueJobs(HashSet<IConfirmations.IConfirmation> toRequeue)
+        private void RequeueJobs(HashSet<IConfirmation> toRequeue)
         {
             Agent.DebugMessage(msg: $"Remove {toRequeue.Count} from {Agent.Context.Self.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
 
@@ -465,33 +467,33 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 
         #region Reporting
 
-        void CreateProcessingTask(FOperations.FOperation item)
+        void CreateProcessingTask(OperationRecord item)
         {
-            var pub = new FCreateTaskItems.FCreateTaskItem(
-                type: JobType.OPERATION
-                , resource: Agent.Name.Replace("Resource(", "").Replace(")", "")
-                , resourceId: _resourceId
-                , start: Agent.CurrentTime
-                , end: Agent.CurrentTime + item.Operation.RandomizedDuration
-                , capability: _jobInProgress.RequiredCapabilityName
-                , operation: item.Operation.Name
-                , groupId: int.Parse(_jobInProgress.JobName.Substring(8, _jobInProgress.JobName.IndexOf(")") - 8)));
+            var pub = new CreateTaskItemRecord(
+                Type: JobType.OPERATION
+                , Resource: Agent.Name.Replace("Resource(", "").Replace(")", "")
+                , ResourceId: _resourceId
+                , Start: Agent.CurrentTime
+                , End: Agent.CurrentTime + item.Operation.RandomizedDuration
+                , Capability: _jobInProgress.RequiredCapabilityName
+                , Operation: item.Operation.Name
+                , GroupId: int.Parse(_jobInProgress.JobName.Substring(8, _jobInProgress.JobName.IndexOf(")") - 8)));
 
             //TODO NO tracking
             Agent.Context.System.EventStream.Publish(@event: pub);
         }
 
-        void CreateSetupTask(long gap, string type)
+        void CreateSetupTask(TimeSpan gap, string type)
         {
-            var pub = new FCreateTaskItems.FCreateTaskItem(
+            var pub = new CreateTaskItemRecord(
                 type
-                , resource: Agent.Name.Replace("Resource(", "").Replace(")", "")
-                , resourceId: _resourceId
-                , start: Agent.CurrentTime
-                , end: Agent.CurrentTime + gap
-                , capability: _capabilityProviderManager.GetCurrentUsedCapability().Name
-                , operation: $"{type} for {_jobInProgress.JobName}"
-                , groupId: int.Parse(_jobInProgress.JobName.Substring(8, _jobInProgress.JobName.IndexOf(")") - 8)));
+                , Resource: Agent.Name.Replace("Resource(", "").Replace(")", "")
+                , ResourceId: _resourceId
+                , Start: Agent.CurrentTime
+                , End: Agent.CurrentTime + gap
+                , Capability: _capabilityProviderManager.GetCurrentUsedCapability().Name
+                , Operation: $"{type} for {_jobInProgress.JobName}"
+                , GroupId: int.Parse(_jobInProgress.JobName.Substring(8, _jobInProgress.JobName.IndexOf(")") - 8)));
 
             //TODO NO tracking
             Agent.Context.System.EventStream.Publish(@event: pub);
