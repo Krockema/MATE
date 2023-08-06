@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using AkkaSim;
+using Akka.Hive.Actors;
+using Akka.Hive.Definitions;
 using Mate.DataCore.Data.Context;
+using Mate.DataCore.GanttPlan;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.Nominal.Model;
 using Mate.DataCore.ReportingModel;
 using Mate.DataCore.ReportingModel.Interface;
 using Mate.Production.Core.Agents.CollectorAgent.Types;
 using Mate.Production.Core.Environment.Options;
+using Mate.Production.Core.Helper;
 using Mate.Production.Core.Types;
 using Newtonsoft.Json;
 using static FCreateTaskItems;
@@ -59,7 +62,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         public override bool Action(object message) =>
             throw new Exception(message: "Please use EventHandle method to process Messages");
 
-        public bool EventHandle(SimulationMonitor simulationMonitor, object message)
+        public bool EventHandle(MessageMonitor simulationMonitor, object message)
         {
             switch (message)
             {
@@ -133,7 +136,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 }
             }
 
-            var OEE = OverallEquipmentEffectiveness(resources: resourceDictionary, lastIntervalStart, Collector.Time, tempOperationTasks, tempSetupTasks);
+            var OEE = OverallEquipmentEffectiveness(resources: resourceDictionary, lastIntervalStart, Collector.Time.ToSimulationTime(), tempOperationTasks, tempSetupTasks);
             Collector.CreateKpi(Collector, OEE, "OEE", KpiType.Ooe, finalCall);
 
             archiveOperationTask.AddRange(tempOperationTasks);
@@ -141,7 +144,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
             LogToDB(writeResultsToDB: finalCall);
 
-            lastIntervalStart = Collector.Time;
+            lastIntervalStart = Collector.Time.ToSimulationTime();
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from WorkSchedule");
         }
@@ -244,7 +247,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 utilKpiType = KpiType.ResourceUtilizationTotal;
             }
 
-            double divisor = Collector.Time - lastIntervalStart;
+            double divisor = Collector.Time.ToSimulationTime() - lastIntervalStart;
             var tupleList = new List<Tuple<string, string>>();
 
             //resource to ensure entries, even the resource it not used in interval
@@ -261,18 +264,18 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
 
             var upper_borders = from sw in operationTasks
-                                where sw.Start < Collector.Time
-                                   && sw.End > Collector.Time
+                                where sw.Start < Collector.Time.ToSimulationTime()
+                                   && sw.End > Collector.Time.ToSimulationTime()
                                    && sw.Mapping != null
                                 group sw by sw.Mapping
                                 into rs
                                 select new Tuple<string, long>(rs.Key,
-                                    rs.Sum(selector: x => Collector.Time - x.Start));
+                                    rs.Sum(selector: x => Collector.Time.ToSimulationTime() - x.Start));
 
 
             var from_work = from sw in operationTasks
                             where sw.Start >= lastIntervalStart
-                               && sw.End <= Collector.Time
+                               && sw.End <= Collector.Time.ToSimulationTime()
                                && sw.Mapping != null
                             group sw by sw.Mapping
                             into rs
@@ -310,17 +313,17 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                                            rs.Sum(selector: x => x.End - lastIntervalStart));
 
             var setups_upper_borders = from sw in setupTasks
-                                       where sw.Start < Collector.Time
-                                             && sw.End > Collector.Time
+                                       where sw.Start < Collector.Time.ToSimulationTime()
+                                             && sw.End > Collector.Time.ToSimulationTime()
                                              && sw.Mapping != null
                                        group sw by sw.Mapping
                       into rs
                                        select new Tuple<string, long>(rs.Key,
-                                           rs.Sum(selector: x => Collector.Time - x.Start));
+                                           rs.Sum(selector: x => Collector.Time.ToSimulationTime() - x.Start));
 
             var totalSetups = from m in setupTasks
                               where m.Start >= lastIntervalStart
-                                 && m.End <= Collector.Time
+                                 && m.End <= Collector.Time.ToSimulationTime()
                               group m by m.Mapping
                               into rs
                               select new Tuple<string, long>(rs.Key,

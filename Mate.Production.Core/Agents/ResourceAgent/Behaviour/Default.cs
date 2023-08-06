@@ -5,9 +5,7 @@ using Akka.Actor;
 using Mate.DataCore.DataModel;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.Nominal.Model;
-using Mate.Production.Core.Agents.CollectorAgent.Types;
 using Mate.Production.Core.Agents.HubAgent;
-using Mate.Production.Core.Agents.HubAgent.Types;
 using Mate.Production.Core.Agents.JobAgent;
 using Mate.Production.Core.Agents.ResourceAgent.Types;
 using Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue;
@@ -354,7 +352,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 
             CreateSetupTask(setupDuration, JobType.SETUP);
 
-            Agent.Send(Resource.Instruction.Default.FinishTask.Create("SETUP", Agent.Context.Self), waitFor: setupDuration);
+            Agent.Send(Resource.Instruction.Default.FinishTask.Create("SETUP", Agent.Context.Self), waitFor: setupDuration.ToTimeSpan());
         }
 
         internal void FinishSetup() // only in case it is not required for processing.
@@ -377,7 +375,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
             _jobInProgress.CurrentOperation.Set(operation, Agent.CurrentTime);
             CreateProcessingTask(operation);
 
-            Agent.Send(Resource.Instruction.Default.FinishTask.Create("PROCESSING", Agent.Context.Self), waitFor: operation.Operation.RandomizedDuration);
+            Agent.Send(Resource.Instruction.Default.FinishTask.Create("PROCESSING", Agent.Context.Self), waitFor: operation.Operation.RandomizedDuration.ToTimeSpan());
         }
 
         private void FinishTask(string task)

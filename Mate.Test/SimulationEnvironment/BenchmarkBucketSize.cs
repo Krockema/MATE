@@ -10,7 +10,7 @@ using Mate.Production.Core.Environment.Options;
 
 namespace Mate.Test.SimulationEnvironment
 {
-    [SimpleJob(RunStrategy.ColdStart, targetCount: 1)]
+    [SimpleJob(RunStrategy.ColdStart, iterationCount: 1)]
     [MemoryDiagnoser]
     [ThreadingDiagnoser]
     [RPlotExporter]
@@ -59,7 +59,7 @@ namespace Mate.Test.SimulationEnvironment
             if (simulation.IsReady())
             {
                 var sim = simulation.RunAsync();
-                simContext.StateManager.ContinueExecution(simulation);
+                 //  simContext.StateManager.SimulationIsTerminating(); ??
                 sim.Wait();
             }
         }

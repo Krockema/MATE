@@ -1,14 +1,14 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using static FJobResourceConfirmations;
 
 namespace Mate.Production.Core.Agents.JobAgent
 {
     public partial class Job
     {
-        public class Instruction
+        public record Instruction
         {
-            public class AcknowledgeRevoke : SimulationMessage
+            public record AcknowledgeRevoke : HiveMessage
             {
                 public static AcknowledgeRevoke Create(IActorRef message, IActorRef target)
                 {
@@ -19,7 +19,7 @@ namespace Mate.Production.Core.Agents.JobAgent
                 public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
             }
 
-            public class RequestDissolve : SimulationMessage
+            public record RequestDissolve : HiveMessage
             {
                 public static RequestDissolve Create(IActorRef target)
                 {
@@ -29,7 +29,7 @@ namespace Mate.Production.Core.Agents.JobAgent
                 { }
             }
 
-            public class StartRequeue : SimulationMessage
+            public record StartRequeue : HiveMessage
             {
                 public static StartRequeue Create(IActorRef target)
                 {
@@ -40,7 +40,7 @@ namespace Mate.Production.Core.Agents.JobAgent
                 }
             }
 
-            public class AcknowledgeJob : SimulationMessage
+            public record AcknowledgeJob : HiveMessage
             {
                 public static AcknowledgeJob Create(FJobResourceConfirmation message,IActorRef target)
                 {
@@ -51,7 +51,7 @@ namespace Mate.Production.Core.Agents.JobAgent
                 public FJobResourceConfirmation GetObjectFromMessage { get => Message as FJobResourceConfirmation; }
             }
 
-            public class ResourceWillBeReady : SimulationMessage
+            public record ResourceWillBeReady : HiveMessage
             {
                 public static ResourceWillBeReady Create(IActorRef target)
                 {
@@ -62,7 +62,7 @@ namespace Mate.Production.Core.Agents.JobAgent
             }
 
 
-            public class FinishProcessing : SimulationMessage
+            public record FinishProcessing : HiveMessage
             {
                 public static FinishProcessing Create(IActorRef message, IActorRef target)
                 {
@@ -73,7 +73,7 @@ namespace Mate.Production.Core.Agents.JobAgent
                 public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
             }
 
-            public class RequestProcessingStart : SimulationMessage
+            public record RequestProcessingStart : HiveMessage
             {
                 public static RequestProcessingStart Create(IActorRef message, IActorRef target)
                 {
@@ -85,7 +85,7 @@ namespace Mate.Production.Core.Agents.JobAgent
                 public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
             }
 
-            public class BucketIsFixed : SimulationMessage
+            public record BucketIsFixed : HiveMessage
             {
                 public static BucketIsFixed Create(IActorRef target)
                 {
@@ -95,7 +95,7 @@ namespace Mate.Production.Core.Agents.JobAgent
                 { }
             }
 
-            public class RequestSetupStart : SimulationMessage
+            public record RequestSetupStart : HiveMessage
             {
                 public static RequestSetupStart Create(IActorRef message, IActorRef target)
                 {
@@ -107,7 +107,7 @@ namespace Mate.Production.Core.Agents.JobAgent
                 public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
             }
 
-            public class TerminateJob : SimulationMessage
+            public record TerminateJob : HiveMessage
             {
                 public static TerminateJob Create(IActorRef target)
                 {
@@ -117,7 +117,7 @@ namespace Mate.Production.Core.Agents.JobAgent
                 { }
             }
 
-            public class DelayedStartNotification : SimulationMessage
+            public record DelayedStartNotification : HiveMessage
             {
                 public static DelayedStartNotification Create(IActorRef target)
                 {

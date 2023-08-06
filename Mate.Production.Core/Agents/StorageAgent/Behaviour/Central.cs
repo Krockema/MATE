@@ -2,6 +2,7 @@
 using System.Linq;
 using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.StorageAgent.Types;
+using Mate.Production.Core.Helper;
 using static FArticles;
 using static FCentralProvideOrders;
 using static FCentralPurchases;
@@ -58,7 +59,7 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
                 return;
             }
 
-            Agent.Send(Storage.Instruction.Central.ProvideOrderAtDue.Create(provideOrder, Agent.Context.Self),requestArticle.DueTime - Agent.CurrentTime);
+            Agent.Send(Storage.Instruction.Central.ProvideOrderAtDue.Create(provideOrder, Agent.Context.Self), (requestArticle.DueTime - Agent.CurrentTime).ToTimeSpan());
 
         }
 
@@ -72,7 +73,7 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
             //purchase changes?
 
             Agent.Send(instruction: Storage.Instruction.Central.PopPurchase.Create(message: purchase, target: Agent.Sender), 
-                waitFor: Convert.ToInt32(_stockManager.DeliveryPeriod));
+                waitFor: _stockManager.DeliveryPeriod.ToTimeSpan());
         }
 
         /// <summary>

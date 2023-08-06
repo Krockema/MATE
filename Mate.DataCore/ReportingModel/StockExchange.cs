@@ -12,10 +12,10 @@ namespace Mate.DataCore.ReportingModel
         public SimulationType SimulationType { get; set; }
         public int SimulationNumber { get; set; }
         public string Stock { get; set; }
-        public int RequiredOnTime { get; set; }
+        public long RequiredOnTime { get; set; }
         public State State { get; set; }
         public decimal Quantity { get; set; }
-        public int Time { get; set; }
+        public long Time { get; set; }
         public ExchangeType ExchangeType { get; set; }
         
     }

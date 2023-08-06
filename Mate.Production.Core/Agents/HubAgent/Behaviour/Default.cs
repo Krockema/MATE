@@ -240,7 +240,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
                     _proposalManager.RemoveAllProposalsFor(bucket.Key);
 
-                    Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(bucket.Key, target: Agent.Context.Self), waitFor: postponedFor);
+                    Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(bucket.Key, target: Agent.Context.Self), waitFor: postponedFor.ToTimeSpan());
                     Agent.DebugMessage($"{bucket.Name} {bucket.Key} has been postponed for {postponedFor}", CustomLogger.PROPOSAL, LogLevel.Warn);
                     return;
 
@@ -254,7 +254,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                     _proposalManager.RemoveAllProposalsFor(bucket.Key);
                     //TODO check wether this can be adjustable
                     var postponedFor = (long) (bucket.MaxBucketSize * 0.5);
-                    Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(bucket.Key, target: Agent.Context.Self), waitFor: postponedFor);
+                    Agent.Send(instruction: Hub.Instruction.BucketScope.EnqueueBucket.Create(bucket.Key, target: Agent.Context.Self), waitFor: postponedFor.ToTimeSpan());
                     return;
                 }
 

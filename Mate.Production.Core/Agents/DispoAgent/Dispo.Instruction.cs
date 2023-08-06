@@ -1,5 +1,5 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using Mate.DataCore.DataModel;
 using static FArticles;
 using static FStockReservations;
@@ -8,9 +8,9 @@ namespace Mate.Production.Core.Agents.DispoAgent
 {
     public partial class Dispo
     {
-        public class Instruction
+        public record Instruction
         {
-            public class RequestArticle : SimulationMessage
+            public record RequestArticle : HiveMessage
             {
                 public static RequestArticle Create(FArticle message, IActorRef target)
                 {
@@ -22,7 +22,7 @@ namespace Mate.Production.Core.Agents.DispoAgent
                 public FArticle GetObjectFromMessage { get => Message as FArticle; }
             }
 
-            public class ResponseFromStock : SimulationMessage
+            public record ResponseFromStock : HiveMessage
             {
                 public static ResponseFromStock Create(FStockReservation message, IActorRef target)
                 {
@@ -35,7 +35,7 @@ namespace Mate.Production.Core.Agents.DispoAgent
                 public FStockReservation GetObjectFromMessage { get => this.Message as FStockReservation; }
             }
 
-            public class ResponseFromSystemForBom : SimulationMessage
+            public record ResponseFromSystemForBom : HiveMessage
             {
                 public static ResponseFromSystemForBom Create(M_Article message, IActorRef target)
                 {
@@ -46,7 +46,7 @@ namespace Mate.Production.Core.Agents.DispoAgent
                 }
                 public M_Article GetObjectFromMessage { get => Message as M_Article; }
             }
-            public class WithdrawArticleFromStock : SimulationMessage
+            public record WithdrawArticleFromStock : HiveMessage
             {
                 public static WithdrawArticleFromStock Create(object message, IActorRef target)
                 {

@@ -1,5 +1,5 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using static FCentralActivities;
 
 namespace Mate.Production.Core.Agents.ResourceAgent
@@ -8,9 +8,9 @@ namespace Mate.Production.Core.Agents.ResourceAgent
     {
         public partial class Instruction
         {
-            public class Central
+            public record Central
             {
-                public class ActivityStart : SimulationMessage
+                public record ActivityStart : HiveMessage
                 {
                     public static ActivityStart Create(FCentralActivity activity, IActorRef target)
                     {
@@ -21,7 +21,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent
                     }
                     public FCentralActivity GetObjectFromMessage => Message as FCentralActivity; 
                 }
-                public class ActivityFinish : SimulationMessage
+                public record ActivityFinish : HiveMessage
                 {
                     public static ActivityFinish Create(IActorRef target)
                     {

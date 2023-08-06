@@ -122,7 +122,7 @@ namespace Mate.Controllers
             {
                 // Start simulation
                 var sim = simulation.RunAsync();
-                simContext.StateManager.ContinueExecution(simulation);
+                // simContext.StateManager.ContinueExecution(simulation);
                 await sim;
             }
         }

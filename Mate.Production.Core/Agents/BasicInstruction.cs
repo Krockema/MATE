@@ -1,6 +1,6 @@
 ﻿using System;
 using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using Mate.Production.Core.Types;
 using static FAgentInformations;
 using static FArticleProviders;
@@ -12,9 +12,9 @@ using static IJobs;
 
 namespace Mate.Production.Core.Agents
 {
-    public class BasicInstruction
+    public record BasicInstruction
     {
-        public class Initialize : SimulationMessage
+        public record Initialize : HiveMessage
         {
             public static Initialize Create(IActorRef target, IBehaviour message = null)
             {
@@ -26,7 +26,7 @@ namespace Mate.Production.Core.Agents
             public IBehaviour GetObjectFromMessage { get => Message as IBehaviour; }
         }
 
-        public class ChildRef : SimulationMessage
+        public record ChildRef : HiveMessage
         {
             public static ChildRef Create(IActorRef message, IActorRef target)
             {
@@ -37,7 +37,7 @@ namespace Mate.Production.Core.Agents
             }
             public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
         }
-        public class JobForwardEnd :  SimulationMessage
+        public record JobForwardEnd : HiveMessage
         {
             public static JobForwardEnd Create(long message, IActorRef target)
             {
@@ -49,7 +49,7 @@ namespace Mate.Production.Core.Agents
             public long GetObjectFromMessage { get => (long)Message; }
         }
 
-        public class ResponseFromDirectory : SimulationMessage
+        public record ResponseFromDirectory : HiveMessage
         {
             public static ResponseFromDirectory Create(FAgentInformation message, IActorRef target)
             {
@@ -61,7 +61,7 @@ namespace Mate.Production.Core.Agents
             public FAgentInformation GetObjectFromMessage { get => Message as FAgentInformation; }
         }
 
-        public class ProvideArticle : SimulationMessage
+        public record ProvideArticle : HiveMessage
         {
             public static ProvideArticle Create(FArticleProvider message, IActorRef target, bool logThis)
             {
@@ -74,7 +74,7 @@ namespace Mate.Production.Core.Agents
             public FArticleProvider GetObjectFromMessage { get => Message as FArticleProvider; }
         }
 
-        public class ResourceBrakeDown : SimulationMessage
+        public record ResourceBrakeDown : HiveMessage
         {
             public static ResourceBrakeDown Create(FBreakDown message, IActorRef target, bool logThis = false)
             {
@@ -86,30 +86,32 @@ namespace Mate.Production.Core.Agents
             public FBreakDown GetObjectFromMessage { get => Message as FBreakDown; }
         }
 
-        public class RemoveVirtualChild : SimulationMessage
+        public record RemoveVirtualChild : HiveMessage
         {
             public static RemoveVirtualChild Create(IActorRef target, bool logThis = false)
             {
                 return new RemoveVirtualChild(message: null, target: target, logThis: logThis);
             }
-            private RemoveVirtualChild(object message, IActorRef target, bool logThis) : base(message: message, target: target, logThis: logThis)
+            private RemoveVirtualChild(object message, IActorRef target, bool logThis) 
+                : base(message: message, target: target, logThis: logThis)
             {
             }
         }
 
-        public class RemovedChildRef : SimulationMessage
+        public record RemovedChildRef : HiveMessage
         {
             public static RemovedChildRef Create(IActorRef target, bool logThis = false)
             {
                 return new RemovedChildRef(message: null, target: target, logThis: logThis);
             }
-            private RemovedChildRef(object message, IActorRef target, bool logThis) : base(message: message, target: target, logThis: logThis)
+            private RemovedChildRef(object message, IActorRef target, bool logThis) 
+                : base(message: message, target: target, logThis: logThis)
             {
             }
         }
         
 
-        public class WithdrawRequiredArticles : SimulationMessage
+        public record WithdrawRequiredArticles : HiveMessage
         {
             public static WithdrawRequiredArticles Create(Guid message, IActorRef target)
             {
@@ -122,7 +124,7 @@ namespace Mate.Production.Core.Agents
             public Guid GetObjectFromMessage { get => (Guid)Message; }
         }
 
-        public class FinishJob : SimulationMessage
+        public record FinishJob : HiveMessage
         {
             public static FinishJob Create(IJobResult message, IActorRef target)
             {
@@ -133,7 +135,7 @@ namespace Mate.Production.Core.Agents
             }
             public IJobResult GetObjectFromMessage { get => Message as IJobResult; }
         }
-        public class FinishOperation : SimulationMessage
+        public record FinishOperation : HiveMessage
         {
             public static FinishOperation Create(IJobResult message, IActorRef target)
             {
@@ -144,7 +146,7 @@ namespace Mate.Production.Core.Agents
             }
             public IJobResult GetObjectFromMessage { get => Message as IJobResult; }
         }
-        public class UpdateStartConditions : SimulationMessage
+        public record UpdateStartConditions : HiveMessage
         {
             public static UpdateStartConditions Create(FUpdateStartCondition message, IActorRef target)
             {
@@ -156,7 +158,7 @@ namespace Mate.Production.Core.Agents
             public FUpdateStartCondition GetObjectFromMessage { get => Message as FUpdateStartCondition; }
         }
 
-        public class UpdateJob : SimulationMessage
+        public record UpdateJob : HiveMessage
         {
             public static UpdateJob Create(IJob message, IActorRef target)
             {
@@ -168,7 +170,7 @@ namespace Mate.Production.Core.Agents
             public IJob GetObjectFromMessage => Message as IJob; 
         }
 
-        public class FinalBucket : SimulationMessage
+        public record FinalBucket : HiveMessage
         {
             public static FinalBucket Create(IConfirmation job, IActorRef target)
             {
@@ -180,7 +182,7 @@ namespace Mate.Production.Core.Agents
             public IConfirmation GetObjectFromMessage { get => Message as IConfirmation; }
         }
 
-        public class Break : SimulationMessage
+        public record Break : HiveMessage
         {
             public static Break Create()
             {
@@ -191,7 +193,7 @@ namespace Mate.Production.Core.Agents
             }
         }
 
-        public class FinishSetup : SimulationMessage
+        public record FinishSetup : HiveMessage
         {
             public static FinishSetup Create(IActorRef message, IActorRef target)
             {
@@ -203,7 +205,7 @@ namespace Mate.Production.Core.Agents
             public IActorRef GetObjectFromMessage { get => Message as IActorRef; }
         }
 
-        public class UpdateCustomerDueTimes : SimulationMessage
+        public record UpdateCustomerDueTimes : HiveMessage
         {
             public static UpdateCustomerDueTimes Create(long message, IActorRef target)
             {

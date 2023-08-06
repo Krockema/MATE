@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Akka.Actor;
-using AkkaSim;
+using Akka.Hive.Actors;
+using Akka.Hive.Definitions;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.ReportingModel;
 using Mate.Production.Core.Environment;
@@ -11,9 +13,8 @@ using Mate.Production.Core.SignalR;
 
 namespace Mate.Production.Core.Agents.CollectorAgent
 {
-    public partial class Collector : SimulationMonitor
+    public partial class Collector : MessageMonitor
     {
-        internal long Time => this._Time;
         private ICollectorBehaviour Behaviour;
         internal IMessageHub messageHub { get; }
         internal Configuration Config;
@@ -23,6 +24,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         internal SimulationKind simulationKind;
         internal SaveToDB saveToDB;
         internal long maxTime;
+        internal new Time Time => base.Time;
         internal List<Kpi> Kpis { get; } = new List<Kpi>();
         internal new IUntypedActorContext Context => UntypedActor.Context;
         /// <summary>
@@ -35,7 +37,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             , ICollectorBehaviour collectorBehaviour
             , IMessageHub msgHub
             , Configuration configuration
-            , long time
+            , Time time
             , List<Type> streamTypes)
             : base(time: time, channels: streamTypes)
         {
@@ -56,7 +58,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             , ICollectorBehaviour collectorBehaviour
             , IMessageHub msgHub
             , Configuration configuration
-            , long time
+            , Time time
             , bool debug
             , List<Type> streamTypes)
         {
@@ -69,13 +71,13 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             Behaviour.EventHandle(simulationMonitor: this, message: o);
         }
 
-        internal void CreateKpi(Collector agent, string value, string name, KpiType kpiType, bool isFinal = false, long logTime = 0)
+        internal void CreateKpi(Collector agent, string value, string name, KpiType kpiType, bool isFinal = false, Time logTime = null)
         {
             var k = new Kpi
             {
                 Name = name,
                 Value = Math.Round(Convert.ToDouble(value: value), 2),
-                Time = logTime > 0 ? (int)logTime : (int)agent.Time,
+                Time = logTime != null ? (long)(logTime.ToSimulationTime()) : (long)agent.Time.ToSimulationTime(),
                 KpiType = kpiType,
                 SimulationConfigurationId = agent.simulationId.Value,
                 SimulationNumber = agent.simulationNumber.Value,

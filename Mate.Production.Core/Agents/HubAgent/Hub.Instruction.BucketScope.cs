@@ -1,6 +1,6 @@
 ﻿using System;
 using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using static FOperations;
 
 namespace Mate.Production.Core.Agents.HubAgent
@@ -15,9 +15,9 @@ namespace Mate.Production.Core.Agents.HubAgent
             /// <summary>
             /// Implements the classes for BucketScope
             /// </summary>
-            public class BucketScope
+            public record BucketScope
             {
-                public class SetBucketFix : SimulationMessage
+                public record SetBucketFix : HiveMessage
                 {
                     public static SetBucketFix Create(Guid key, IActorRef target)
                     {
@@ -32,7 +32,7 @@ namespace Mate.Production.Core.Agents.HubAgent
                     public Guid GetObjectFromMessage => (Guid) Message;
                 }
 
-                public class DissolveBucket : SimulationMessage
+                public record DissolveBucket : HiveMessage
                 {
                     public static DissolveBucket Create(Guid key, IActorRef target)
                     {
@@ -47,7 +47,7 @@ namespace Mate.Production.Core.Agents.HubAgent
                     public Guid GetObjectFromMessage => (Guid)Message;
                 }
 
-                public class RequestFinalBucket : SimulationMessage
+                public record RequestFinalBucket : HiveMessage
                 {
                     public static RequestFinalBucket Create(Guid key, IActorRef target)
                     {
@@ -63,7 +63,7 @@ namespace Mate.Production.Core.Agents.HubAgent
                     public Guid GetObjectFromMessage => (Guid) Message;
                 }
 
-                public class EnqueueOperation : SimulationMessage
+                public record EnqueueOperation : HiveMessage
                 {
                     public static EnqueueOperation Create(FOperations.FOperation operation, IActorRef target)
                     {
@@ -78,7 +78,7 @@ namespace Mate.Production.Core.Agents.HubAgent
                     public FOperation GetObjectFromMessage => Message as FOperation;
                 }
 
-                public class EnqueueBucket : SimulationMessage
+                public record EnqueueBucket : HiveMessage
                 {
                     public static EnqueueBucket Create(Guid bucketKey, IActorRef target)
                     {
@@ -92,7 +92,7 @@ namespace Mate.Production.Core.Agents.HubAgent
                     public Guid GetObjectFromMessage => (Guid) Message;
                 }
 
-                public class ResponseRequeueBucket : SimulationMessage
+                public record ResponseRequeueBucket : HiveMessage
                 {
                     public static ResponseRequeueBucket Create(FRequestToRequeues.FRequestToRequeue message,
                         IActorRef target)

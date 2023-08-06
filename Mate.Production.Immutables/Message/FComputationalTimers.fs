@@ -2,10 +2,11 @@
 
 
 open System
+open Akka.Hive.Definitions
 
 type public FComputationalTimer =
        { 
-         time : int64
+         time : Time
          timertype : string
-         duration : int64
+         duration : TimeSpan
        } 

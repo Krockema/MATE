@@ -1,5 +1,5 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using Mate.DataCore.DataModel;
 using static FArticles;
 using static FSetEstimatedThroughputTimes;
@@ -15,7 +15,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent
                 RequestArticleBom,
                 OrderProvided,
             */
-            public class CreateContractAgent : SimulationMessage
+            public record CreateContractAgent : HiveMessage
             {
                 public static CreateContractAgent Create(T_CustomerOrder message, IActorRef target)
                 {
@@ -27,7 +27,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent
                 public T_CustomerOrder GetObjectFromMessage { get => Message as T_CustomerOrder; }
 
             }
-            public class RequestArticleBom : SimulationMessage
+            public record RequestArticleBom : HiveMessage
             {
                 public static RequestArticleBom Create(int message, IActorRef target)
                 {
@@ -38,7 +38,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent
                 }
                 public int GetObjectFromMessage { get => (int)Message; }
             }
-            public class OrderProvided : SimulationMessage
+            public record OrderProvided : HiveMessage
             {
                 public static OrderProvided Create(FArticle message, IActorRef target)
                 {
@@ -50,7 +50,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent
                 public FArticle GetObjectFromMessage { get => Message as FArticle; }
             }
 
-            public class EndSimulation : SimulationMessage
+            public record EndSimulation : HiveMessage
             {
                 public static EndSimulation Create(object message, IActorRef target)
                 {
@@ -61,7 +61,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent
                 }
             }
 
-            public class PopOrder : SimulationMessage
+            public record PopOrder : HiveMessage
             {
                 public static PopOrder Create(string message, IActorRef target)
                 {
@@ -72,7 +72,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent
                 }
             }
 
-            public class SystemCheck : SimulationMessage
+            public record SystemCheck : HiveMessage
             {
                 public static SystemCheck Create(string message, IActorRef target)
                 {
@@ -83,7 +83,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent
                 }
             }
 
-            public class SetEstimatedThroughputTime : SimulationMessage
+            public record SetEstimatedThroughputTime : HiveMessage
             {
                 public static SetEstimatedThroughputTime Create(FSetEstimatedThroughputTime message, IActorRef target)
                 {

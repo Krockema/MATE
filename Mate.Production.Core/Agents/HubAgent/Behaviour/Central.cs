@@ -227,7 +227,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                         var waitFor = interval.ConvertedDateFrom - Agent.CurrentTime;
                         Agent.DebugMessage($"{interval.ProductionorderOperationActivityResource.ProductionorderOperationActivity.GetKey} has been scheduled to {Agent.CurrentTime + waitFor} as planning interval {_planManager.PlanVersion}");
                         Agent.Send(instruction: Hub.Instruction.Central.ScheduleActivity.Create(fActivity, Agent.Context.Self)
-                                            , waitFor);
+                                            , waitFor.ToTimeSpan());
                     }
                 }
                 else
@@ -534,7 +534,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
         public override bool AfterInit()
         {
-            Agent.Send(Hub.Instruction.Central.StartActivities.Create(Agent.Context.Self), 1);
+            Agent.Send(Hub.Instruction.Central.StartActivities.Create(Agent.Context.Self), 1L.ToTimeSpan());
             return true;
         }
 
@@ -562,9 +562,9 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         private void CreateComputationalTime(string type ,long duration)
         {
             var pub = new FComputationalTimers.FComputationalTimer(
-                time: Agent.CurrentTime,
+                time: Agent.Time,
                 timertype: type,
-                duration: duration);
+                duration: duration.ToTimeSpan());
             Agent.Context.System.EventStream.Publish(@event: pub);
         }
         #endregion

@@ -1,4 +1,6 @@
-﻿namespace Mate.DataCore.ReportingModel.Interface
+﻿using Akka.Hive.Definitions;
+
+namespace Mate.DataCore.ReportingModel.Interface
 {
 
     public interface ISimulationTask

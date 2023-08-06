@@ -1,13 +1,13 @@
 ﻿using System;
 using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using static FArticles;
 
 namespace Mate.Production.Core.Agents.ProductionAgent
 {
     public partial class Production
     {
-        public class Instruction
+        public record Instruction
         {
             /// <summary>
             ///      Finished,
@@ -15,7 +15,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent
             ///      SetComunicationAgent
             /// </summary>
 
-            public class StartProduction : SimulationMessage
+            public record StartProduction : HiveMessage
             {
                 public static StartProduction Create(FArticle message, IActorRef target)
                 {
@@ -28,7 +28,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent
                 public FArticle GetObjectFromMessage { get => Message as FArticle; }
             }
 
-            public class Finished : SimulationMessage
+            public record Finished : HiveMessage
             {
                 public static Finished Create(Guid message, IActorRef target)
                 {

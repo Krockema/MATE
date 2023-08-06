@@ -22,11 +22,11 @@ namespace Mate.Production.Core.Reporting
             }
             ganttData.AddRange(CreateGanttProcessingQueueLog(jobInProgress.GanttItems.ToArray(), false, "ReadyElement", jobInProgress, agent));
 
-            var jobs = scopeQueue.GetAllJobs().OrderBy(x => x.Job.Priority(agent.CurrentTime)).ToList();
+            var jobs = scopeQueue.GetAllJobs().OrderBy(x => x.Job.Priority(agent.Time.ToSimulationTime())).ToList();
 
             ganttData.AddRange(CreateGanttProcessingQueueLog(jobs.ToArray(), false, "ScopeQueue", jobInProgress, agent));
 
-            CustomFileWriter.WriteToFile($"Logs//ResourceScheduleAt-{agent.CurrentTime}.log",
+            CustomFileWriter.WriteToFile($"Logs//ResourceScheduleAt-{agent.Time.ToSimulationTime()}.log",
                 JsonConvert.SerializeObject(ganttData).Replace("[", "").Replace("]", ","));
 
 
@@ -52,7 +52,7 @@ namespace Mate.Production.Core.Reporting
                 var usedInSetupOnly = !bucket.CapabilityProvider.ResourceSetups.Single(x => x.Resource.Name.Replace(" ", "").Equals(resourceName)).UsedInProcess;
 
                 // Create Setup and Empty space after
-                if (bucket.ScopeConfirmation.GetSetup() != null && agent.CurrentTime <= bucket.ScopeConfirmation.GetSetup()?.End)
+                if (bucket.ScopeConfirmation.GetSetup() != null && agent.Time.ToSimulationTime() <= bucket.ScopeConfirmation.GetSetup()?.End)
                 {
                     var end = bucket.ScopeConfirmation.GetSetup()?.End;
                     operationStart = bucket.ScopeConfirmation.GetSetup().Start;
@@ -64,10 +64,10 @@ namespace Mate.Production.Core.Reporting
                     if (jobInProgress.SetupIsOngoing && bucket.Job.Key == jobInProgress.JobKey)
                     {
                         isWorking = true;
-                        operationStart = agent.CurrentTime;
+                        operationStart = agent.Time.ToSimulationTime();
                         var operationRemainingTime = setupDuration -
-                                                     (agent.CurrentTime - jobInProgress.LastTimeStartCall);
-                        end = agent.CurrentTime + operationRemainingTime;
+                                                     (agent.Time.ToSimulationTime() - jobInProgress.LastTimeStartCall);
+                        end = agent.Time.ToSimulationTime() + operationRemainingTime;
                     }
 
                     ganttTransformation.Add(new GanttChartItem
@@ -80,7 +80,7 @@ namespace Mate.Production.Core.Reporting
                         operation = $"Setup for {bucket.Job.Name} from {bucket.ScopeConfirmation.GetScopeStart()} to {bucket.ScopeConfirmation.GetScopeEnd()}",
                         operationId = bucket.Key.ToString(),
                         resource = agent.Name.Replace("Resource(", "").Replace(")", ""),
-                        priority = bucket.Job.Priority(agent.CurrentTime).ToString() + " S " + bucket.ScopeConfirmation.GetScopeStart() + " E " + bucket.ScopeConfirmation.GetScopeEnd(),
+                        priority = bucket.Job.Priority(agent.Time.ToSimulationTime()).ToString() + " S " + bucket.ScopeConfirmation.GetScopeStart() + " E " + bucket.ScopeConfirmation.GetScopeEnd(),
                         IsProcessing = jobInProgress.SetupIsOngoing.ToString(),
                         IsReady = ((FBucket)bucket.Job).HasSatisfiedJob.ToString(),
                         IsFinalized = finalized.ToString(),
@@ -100,7 +100,7 @@ namespace Mate.Production.Core.Reporting
                         operation = $"Empty bucket space for {bucket.Job.Name} waiting for operation Start",
                         operationId = bucket.Key.ToString(),
                         resource = agent.Name.Replace("Resource(", "").Replace(")", ""),
-                        priority = bucket.Job.Priority(agent.CurrentTime).ToString() + " S " + bucket.ScopeConfirmation.GetScopeStart() + " E " + bucket.ScopeConfirmation.GetScopeEnd(),
+                        priority = bucket.Job.Priority(agent.Time.ToSimulationTime()).ToString() + " S " + bucket.ScopeConfirmation.GetScopeStart() + " E " + bucket.ScopeConfirmation.GetScopeEnd(),
                         IsProcessing = false.ToString(),
                         IsReady = ((FBucket)bucket.Job).HasSatisfiedJob.ToString(),
                         IsFinalized = finalized.ToString(),
@@ -117,7 +117,7 @@ namespace Mate.Production.Core.Reporting
                 }
                 else
                 {
-                    var ops = ((FBucket)bucket.Job).Operations.OrderBy(x => x.Priority.Invoke(agent.CurrentTime)).ToArray();
+                    var ops = ((FBucket)bucket.Job).Operations.OrderBy(x => x.Priority.Invoke(agent.Time.ToSimulationTime())).ToArray();
                     CreateOperations(ops, bucket, ganttTransformation, inProcessing, source, jobInProgress, agent);
                 }
 
@@ -139,10 +139,10 @@ namespace Mate.Production.Core.Reporting
                 if (jobInProgress.CurrentOperation.Operation != null && jobInProgress.CurrentOperation.Operation.Key.Equals(operation.Key))
                 {
                     isWorking = true;
-                    operationStart = agent.CurrentTime;
+                    operationStart = agent.Time.ToSimulationTime();
                     var operationRemainingTime = jobInProgress.CurrentOperation.Operation.Operation.Duration -
-                                                 (agent.CurrentTime - jobInProgress.LastTimeStartCall);
-                    operationEnd = agent.CurrentTime + operationRemainingTime;
+                                                 (agent.Time.ToSimulationTime() - jobInProgress.LastTimeStartCall);
+                    operationEnd = agent.Time.ToSimulationTime() + operationRemainingTime;
                 }
 
                 ganttTransformation.Add(new GanttChartItem
@@ -155,7 +155,7 @@ namespace Mate.Production.Core.Reporting
                     operation = operation.Operation.Name,
                     operationId = operation.Operation.Id.ToString(),
                     resource = agent.Name.Replace("Resource(", "").Replace(")", ""),
-                    priority = operation.Priority.Invoke(agent.CurrentTime).ToString() + " S " + bucket.ScopeConfirmation.GetScopeStart() + " E " + bucket.ScopeConfirmation.GetScopeEnd(),
+                    priority = operation.Priority.Invoke(agent.Time.ToSimulationTime()).ToString() + " S " + bucket.ScopeConfirmation.GetScopeStart() + " E " + bucket.ScopeConfirmation.GetScopeEnd(),
                     IsProcessing = inProcessing.ToString(),
                     IsReady = operation.StartConditions.Satisfied.ToString(),
                     IsFinalized = false.ToString(),
@@ -177,7 +177,7 @@ namespace Mate.Production.Core.Reporting
                         operation = $"Empty bucket space {bucket.Job.Name} from {bucket.ScopeConfirmation.GetScopeStart()} to {bucket.ScopeConfirmation.GetScopeEnd()}",
                         operationId = bucket.Key.ToString(),
                         resource = agent.Name.Replace("Resource(", "").Replace(")", ""),
-                        priority = bucket.Job.Priority(agent.CurrentTime).ToString() + " S " + bucket.ScopeConfirmation.GetScopeStart() + " E " + bucket.ScopeConfirmation.GetScopeEnd(),
+                        priority = bucket.Job.Priority(agent.Time.ToSimulationTime()).ToString() + " S " + bucket.ScopeConfirmation.GetScopeStart() + " E " + bucket.ScopeConfirmation.GetScopeEnd(),
                         IsProcessing = inProcessing.ToString(),
                         IsReady = false.ToString(),
                         IsFinalized = false.ToString(),

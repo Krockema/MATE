@@ -1,5 +1,5 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using static FArticles;
 using static FCentralProvideOrders;
 using static FCentralPurchases;
@@ -12,10 +12,10 @@ namespace Mate.Production.Core.Agents.StorageAgent
         public partial class Instruction
         {
 
-            public class Central
+            public record Central
             {
 
-                public class AddOrder : SimulationMessage
+                public record AddOrder : HiveMessage
                 {
                     public static AddOrder Create(FArticle message, IActorRef target)
                     {
@@ -27,7 +27,7 @@ namespace Mate.Production.Core.Agents.StorageAgent
                     public FArticle GetObjectFromMessage { get => Message as FArticle; }
                 }
 
-                public class ProvideOrderAtDue : SimulationMessage
+                public record ProvideOrderAtDue : HiveMessage
                 {
                     public static ProvideOrderAtDue Create(FCentralProvideOrder message, IActorRef target)
                     {
@@ -38,7 +38,7 @@ namespace Mate.Production.Core.Agents.StorageAgent
                     }
                     public FCentralProvideOrder GetObjectFromMessage { get => Message as FCentralProvideOrder; }
                 }
-                public class WithdrawMaterial : SimulationMessage
+                public record WithdrawMaterial : HiveMessage
                 {
                     public static WithdrawMaterial Create(FCentralStockPosting message, IActorRef target)
                     {
@@ -49,7 +49,7 @@ namespace Mate.Production.Core.Agents.StorageAgent
                     }
                     public FCentralStockPosting GetObjectFromMessage { get => Message as FCentralStockPosting; }
                 }
-                public class InsertMaterial : SimulationMessage
+                public record InsertMaterial : HiveMessage
                 {
                     public static InsertMaterial Create(FCentralStockPosting message, IActorRef target)
                     {
@@ -61,7 +61,7 @@ namespace Mate.Production.Core.Agents.StorageAgent
                     public FCentralStockPosting GetObjectFromMessage { get => Message as FCentralStockPosting; }
                 }
 
-                public class AddPurchase : SimulationMessage
+                public record AddPurchase : HiveMessage
                 {
                     public static AddPurchase Create(FCentralPurchase message, IActorRef target)
                     {
@@ -73,7 +73,7 @@ namespace Mate.Production.Core.Agents.StorageAgent
                     public FCentralPurchase GetObjectFromMessage { get => Message as FCentralPurchase; }
 
                 }
-                public class PopPurchase : SimulationMessage
+                public record PopPurchase : HiveMessage
                 {
                     public static PopPurchase Create(FCentralPurchase message, IActorRef target)
                     {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using Mate.Production.Core.Environment.Options;
 
 namespace Mate.Production.Core.Environment
@@ -33,15 +33,17 @@ namespace Mate.Production.Core.Environment
             return AddOption(o);
         }
 
-        public SimulationConfig GetContextConfiguration()
+        public IHiveConfig GetContextConfiguration()
         {
             try
             {
-                var config = new SimulationConfig(
-                    debugAkka: false // Debug Akka Core System
-                    , debugAkkaSim: this.GetOption<DebugSystem>().Value // set AkkaSim in Debug Mode
-                    , interruptInterval: this.GetOption<KpiTimeSpan>().Value
-                    , timeToAdvance: this.GetOption<TimeToAdvance>().Value);
+                var config = HiveConfig.ConfigureSimulation(sequencial: false)
+                                        .WithTimeSpanToTerminate(TimeSpan.FromMinutes(this.GetOption<SimulationEnd>().Value))
+                                        .WithDebugging(akka: false // Debug Akka Core System
+                                                        , hive: this.GetOption<DebugSystem>().Value)
+                                        .WithInterruptInterval(TimeSpan.FromMinutes(this.GetOption<KpiTimeSpan>().Value))
+                                        .WithStartTime(new Time(new DateTime(0)))
+                                        .Build();// set AkkaSim in Debug Mode
                 return config;
             }
             catch (Exception)

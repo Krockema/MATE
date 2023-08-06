@@ -1,6 +1,6 @@
 ﻿using System;
 using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using static FAgentInformations;
 using static FJobConfirmations;
 using static FMeasurementInformations;
@@ -14,9 +14,9 @@ namespace Mate.Production.Core.Agents.ResourceAgent
     {
         public partial class Instruction
         {
-            public class Default
+            public record Default
             {
-                public class SetHubAgent : SimulationMessage
+                public record SetHubAgent : HiveMessage
                 {
                     public static SetHubAgent Create(FAgentInformation message, IActorRef target)
                     {
@@ -28,7 +28,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent
                     public FAgentInformation GetObjectFromMessage { get => Message as FAgentInformation; }
                 }
 
-                public class RequestProposal : SimulationMessage
+                public record RequestProposal : HiveMessage
                 {
                     public static RequestProposal Create(FRequestProposalForCapability message, IActorRef target)
                     {
@@ -40,7 +40,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent
                     public FRequestProposalForCapability GetObjectFromMessage { get => Message as FRequestProposalForCapability; }
                 }
 
-                public class AcknowledgeProposal : SimulationMessage
+                public record AcknowledgeProposal : HiveMessage
                 {
                     public static AcknowledgeProposal Create(IConfirmation message, IActorRef target)
                     {
@@ -52,7 +52,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent
                     public IConfirmation GetObjectFromMessage { get => Message as IConfirmation; }
                 }
 
-                public class AcceptedProposals : SimulationMessage
+                public record AcceptedProposals : HiveMessage
                 {
                     public static AcceptedProposals Create(IConfirmation message, IActorRef target)
                     {
@@ -65,7 +65,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent
                 }
 
 
-                public class DoWork : SimulationMessage
+                public record DoWork : HiveMessage
                 {
                     public static DoWork Create(FOperation message, IActorRef target)
                     {
@@ -77,7 +77,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent
                     public FOperation GetObjectFromMessage { get => (FOperation)Message; }
                 }
 
-                public class TryToWork : SimulationMessage
+                public record TryToWork : HiveMessage
                 {
                     public static TryToWork Create(IActorRef target)
                     {
@@ -88,7 +88,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent
                     }
                 }
 
-                public class RevokeJob : SimulationMessage
+                public record RevokeJob : HiveMessage
                 {
                     public static RevokeJob Create(Guid message, IActorRef target)
                     {
@@ -100,7 +100,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent
                     public Guid GetObjectFromMessage { get => (Guid)Message; }
                 }
 
-                public class RequeueBucket : SimulationMessage
+                public record RequeueBucket : HiveMessage
                 {
                     public static RequeueBucket Create(Guid message, IActorRef target)
                     {
@@ -113,7 +113,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent
                     public Guid GetObjectFromMessage { get => (Guid)Message; }
                 }
 
-                public class AcknowledgeJob : SimulationMessage
+                public record AcknowledgeJob : HiveMessage
                 {
                     public static AcknowledgeJob Create(FJobConfirmation message, IActorRef target)
                     {
@@ -126,7 +126,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent
                     public FJobConfirmation GetObjectFromMessage { get => Message as FJobConfirmation; }
                 }
 
-                public class FinishBucket : SimulationMessage
+                public record FinishBucket : HiveMessage
                 {
                     public static FinishBucket Create(IActorRef target)
                     {
@@ -137,7 +137,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent
                     }
                 }
 
-                public class FinishTask : SimulationMessage
+                public record FinishTask : HiveMessage
                 {
                     public static FinishTask Create(string msg, IActorRef target)
                     {
@@ -149,7 +149,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent
                     public string GetObjectFromMessage => (string)Message;
                 }
 
-                public class AskToRequeue : SimulationMessage
+                public record AskToRequeue : HiveMessage
                 {
                     public static AskToRequeue Create(Guid jobKey, IActorRef target)
                     {
@@ -161,7 +161,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent
                     public Guid GetObjectFromMessage { get => (Guid)Message; }
                 }
 
-                public class DoSetup : SimulationMessage
+                public record DoSetup : HiveMessage
                 {
                     public static DoSetup Create(Guid jobKey, IActorRef target)
                     {
@@ -173,7 +173,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent
                     public Guid GetObjectFromMessage { get => (Guid)Message; }
                 }
 
-                public class CreateMeasurements : SimulationMessage
+                public record CreateMeasurements : HiveMessage
                 {
                     public static CreateMeasurements Create(FMeasurementInformation message, IActorRef target)
                     {

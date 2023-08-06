@@ -1,6 +1,6 @@
 ﻿using System;
 using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using static FArticles;
 using static FProductionResults;
 
@@ -11,10 +11,10 @@ namespace Mate.Production.Core.Agents.StorageAgent
         public partial class Instruction
         {
 
-            public class Default
+            public record Default
             {
 
-            public class RequestArticle : SimulationMessage
+            public record RequestArticle : HiveMessage
             {
                 public static RequestArticle Create(FArticle message, IActorRef target)
                 {
@@ -25,7 +25,7 @@ namespace Mate.Production.Core.Agents.StorageAgent
                 }
                 public FArticle GetObjectFromMessage { get => Message as FArticle; }
             }
-            public class ProvideArticleAtDue : SimulationMessage
+            public record ProvideArticleAtDue : HiveMessage
             {
                 public static ProvideArticleAtDue Create(Guid message, IActorRef target)
                 {
@@ -36,7 +36,7 @@ namespace Mate.Production.Core.Agents.StorageAgent
                 }
                 public Guid GetObjectFromMessage { get => (Guid)Message; }
             }
-            public class StockRefill : SimulationMessage
+            public record StockRefill : HiveMessage
             {
                 public static StockRefill Create(Guid message, IActorRef target)
                 {
@@ -48,7 +48,7 @@ namespace Mate.Production.Core.Agents.StorageAgent
                 public Guid GetObjectFromMessage { get => (Guid)Message; }
 
             }
-            public class WithdrawArticle : SimulationMessage
+            public record WithdrawArticle : HiveMessage
             {
                 public static WithdrawArticle Create(Guid message, IActorRef target)
                 {
@@ -60,7 +60,7 @@ namespace Mate.Production.Core.Agents.StorageAgent
                 public Guid GetObjectFromMessage { get => (Guid)Message; }
             }
             
-            public class ResponseFromProduction : SimulationMessage
+            public record ResponseFromProduction : HiveMessage
             {
                 public static ResponseFromProduction Create(FProductionResult message, IActorRef target)
                 {

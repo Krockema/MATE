@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Hive.Logging;
 using Akka.TestKit.Xunit;
-using AkkaSim.Logging;
 using Mate.DataCore;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Helper;
@@ -64,8 +64,8 @@ namespace Mate.Test.Online.Integration
             ModelSize setupModelSize, ModelSize operatorModelSize, int numberOfWorkers, bool secondResource)
         {
 
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_ACTORS, LogLevel.Info, LogLevel.Info);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_ACTORS, LogLevel.Debug, LogLevel.Debug);
             _testOutputHelper.WriteLine("DatabaseString: " + _contextDataBase.ConnectionString.Value);
 
             _testOutputHelper.WriteLine("ResultDatabaseString: " + _resultContextDataBase.ConnectionString.Value);
@@ -109,7 +109,7 @@ namespace Mate.Test.Online.Integration
             _testOutputHelper.WriteLine("simulation.RunAsync() finished");
             Within(TimeSpan.FromSeconds(120), async () =>
             {
-                simContext.StateManager.ContinueExecution(simulation);
+                // simContext.StateManager.ContinueExecution(simulation);
                 await sim;
             }).Wait();
             

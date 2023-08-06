@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Akka.Actor;
+using Akka.Hive.Definitions;
 using Akka.TestKit.Xunit;
 using Mate.Production.Core.Agents;
 using Mate.Production.Core.Agents.Guardian;
@@ -16,11 +17,12 @@ namespace Mate.Test.Online.Preparations
         private readonly GuardianType _guardianType;
         
 
-        public static AgentMoc CreateAgent(ActorPaths actorPaths, Configuration configuration, IActorRef principal, IBehaviour behaviour, GuardianType guardianType)
+        public static AgentMoc CreateAgent(ActorPaths actorPaths, Configuration configuration, IHiveConfig hiveConfig, IActorRef principal, IBehaviour behaviour, GuardianType guardianType)
         {
             return new AgentMoc(actorPaths: actorPaths,
                           configuration: configuration,
-                                   time: 0,
+                             hiveConfig: hiveConfig,
+                                   time: 0L.ToTime(),
                                   debug: false,
                               principal: principal,
                               behaviour: behaviour, 
@@ -38,8 +40,8 @@ namespace Mate.Test.Online.Preparations
             return agentPaths;
         }
 
-        public AgentMoc(ActorPaths actorPaths, Configuration configuration, long time, bool debug, IActorRef principal, IBehaviour behaviour, GuardianType guardianType)
-            : base(actorPaths: actorPaths, configuration: configuration, time: time, debug: debug, principal: principal)
+        public AgentMoc(ActorPaths actorPaths, IHiveConfig hiveConfig, Configuration configuration, Time time, bool debug, IActorRef principal, IBehaviour behaviour, GuardianType guardianType)
+            : base(actorPaths: actorPaths, configuration: configuration, hiveConfig: hiveConfig, time: time, debug: debug, principal: principal)
         {
             _actorPaths = actorPaths;
             _guardianType = guardianType;

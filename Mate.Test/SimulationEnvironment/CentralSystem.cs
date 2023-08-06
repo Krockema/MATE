@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Akka.Hive.Logging;
 using Akka.TestKit.Xunit;
 using Akka.Util.Internal;
-using AkkaSim.Logging;
 using Mate.DataCore;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Initializer;
@@ -81,9 +81,9 @@ namespace Mate.Test.SimulationEnvironment
         public async Task CentralSystemTest()
         {
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Warn, LogLevel.Warn);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_ACTORS, LogLevel.Info, LogLevel.Info);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_ACTORS, LogLevel.Debug, LogLevel.Debug);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_ACTORS, LogLevel.Warn, LogLevel.Warn);
 
             var simtulationType = SimulationType.Central;
             var seed = 169;
@@ -144,7 +144,7 @@ namespace Mate.Test.SimulationEnvironment
                 simWasReady = true;
                 // Start simulation
                 var sim = simulation.RunAsync();
-                simContext.StateManager.ContinueExecution(simulation);
+                // simContext.StateManager.ContinueExecution(simulation);
                 await sim;
             }
 

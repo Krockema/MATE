@@ -1,5 +1,5 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using Mate.DataCore.DataModel;
 using static FCapabilityProviderDefinitions;
 using static FResourceHubInformations;
@@ -11,10 +11,10 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
     {
         public partial class Instruction
         {
-            public class Default
+            public record Default
             {
 
-            public class RequestAgent : SimulationMessage
+            public record RequestAgent : HiveMessage
             {
                 public static RequestAgent Create(string discriminator, IActorRef target)
                 {
@@ -26,7 +26,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 public string GetObjectFromMessage { get => Message as string; }
             }
 
-            public class RegisterResources : SimulationMessage
+            public record RegisterResources : HiveMessage
             {
                 public static RegisterResources Create(string descriminator, IActorRef target)
                 {
@@ -38,7 +38,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 public string GetObjectFromMessage { get => Message as string; }
             }
 
-            public class CreateMachineAgents : SimulationMessage
+            public record CreateMachineAgents : HiveMessage
             {
                 public static CreateMachineAgents Create(FCapabilityProviderDefinition message, IActorRef target)
                 {
@@ -49,7 +49,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 }
                 public FCapabilityProviderDefinition GetObjectFromMessage { get => Message as FCapabilityProviderDefinition; }
             }
-            public class CreateStorageAgents : SimulationMessage
+            public record CreateStorageAgents : HiveMessage
             {
                 public static CreateStorageAgents Create(M_Stock message, IActorRef target)
                 {
@@ -61,7 +61,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 public M_Stock GetObjectFromMessage { get => Message as M_Stock; }
             }
 
-            public class ForwardRegistrationToHub : SimulationMessage
+            public record ForwardRegistrationToHub : HiveMessage
             {
                 public static ForwardRegistrationToHub Create(FResourceInformation message, IActorRef target)
                 {
@@ -73,7 +73,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 public FResourceInformation GetObjectFromMessage { get => Message as FResourceInformation; }
             }
 
-            public class CreateResourceHubAgents : SimulationMessage
+            public record CreateResourceHubAgents : HiveMessage
             {
                 public static CreateResourceHubAgents Create(FResourceHubInformation message, IActorRef target)
                 {

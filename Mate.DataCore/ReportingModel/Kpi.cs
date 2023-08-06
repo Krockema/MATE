@@ -15,6 +15,6 @@ namespace Mate.DataCore.ReportingModel
         public int SimulationConfigurationId { get; set; }
         public SimulationType SimulationType { get; set; }
         public int SimulationNumber { get; set; }
-        public int Time { get; set; }
+        public long Time { get; set; }
     }
 }

@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Akka.Hive.Logging;
 using Akka.TestKit.Xunit;
-using AkkaSim.Logging;
 using Mate.DataCore;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Helper;
@@ -17,15 +16,11 @@ using Mate.DataCore.Nominal;
 using Mate.DataCore.Nominal.Model;
 using Mate.Production.CLI;
 using Mate.Production.Core;
-using Mate.Production.Core.Agents.CollectorAgent.Types;
 using Mate.Production.Core.Environment.Options;
 using Mate.Production.Core.Helper;
-using MathNet.Numerics.Distributions;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using Xunit;
-using Xunit.Abstractions;
-using static Akka.IO.Tcp;
 using PriorityRule = Mate.DataCore.Nominal.PriorityRule;
 
 namespace Mate.Test.SimulationEnvironment
@@ -238,7 +233,7 @@ namespace Mate.Test.SimulationEnvironment
             var arrivalRate = arrivalRateRun;
 
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Trace, LogLevel.Trace);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_ACTORS, LogLevel.Info, LogLevel.Info);
             //LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
             //LogConfiguration.LogTo(TargetTypes.Debugger, CustomLogger.PRIORITY, LogLevel.Warn, LogLevel.Warn);
             //LogConfiguration.LogTo(TargetTypes.File, CustomLogger.SCHEDULING, LogLevel.Warn, LogLevel.Warn);
@@ -327,7 +322,7 @@ namespace Mate.Test.SimulationEnvironment
                 simWasReady = true;
                 // Start simulation
                 var sim = simulation.RunAsync();
-                simContext.StateManager.ContinueExecution(simulation);
+                // imContext.StateManager.ContinueExecution(simulation); // not Required i think 
                 await sim;
             }
 

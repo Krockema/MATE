@@ -1,4 +1,5 @@
 ﻿using Mate.DataCore.Nominal;
+using Mate.Production.Core.Helper;
 using static FCentralActivities;
 using static FCentralResourceDefinitions;
 using static FCreateTaskItems;
@@ -49,7 +50,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 
             CreateTask(activity);
 
-            Agent.Send(Resource.Instruction.Central.ActivityFinish.Create(Agent.Context.Self), activity.Duration);
+            Agent.Send(Resource.Instruction.Central.ActivityFinish.Create(Agent.Context.Self), activity.Duration.ToTimeSpan());
         }
 
         

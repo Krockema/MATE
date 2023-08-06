@@ -63,7 +63,8 @@ namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
         {
             var hubAgent = Agent.Context.ActorOf(props: Hub.Props(actorPaths: Agent.ActorPaths
                         , configuration: Agent.Configuration
-                        , time: Agent.CurrentTime
+                        , hiveConfig: Agent.HiveConfig
+                        , time: Agent.Time
                         , simtype: SimulationType
                         , maxBucketSize: 0 // not used currently
                         , dbConnectionStringGanttPlan: resourceHubInformation.DbConnectionString
@@ -83,7 +84,8 @@ namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
         {
             var storage = Agent.Context.ActorOf(props: Storage.Props(actorPaths: Agent.ActorPaths
                                             , configuration: Agent.Configuration
-                                            , time: Agent.CurrentTime
+                                            , hiveConfig: Agent.HiveConfig
+                                            , time: Agent.Time
                                             , debug: Agent.DebugThis
                                             , principal: Agent.Context.Self)
                                             , name: ("Storage(" + stock.StockId + " " + stock.MaterialName +")").ToActorName());
@@ -98,7 +100,8 @@ namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
             // Create resource If Required
             var resourceAgent = Agent.Context.ActorOf(props: ResourceAgent.Resource.Props(actorPaths: Agent.ActorPaths
                                                                     , configuration: Agent.Configuration
-                                                                    , time: Agent.CurrentTime
+                                                                    , hiveConfig: Agent.HiveConfig
+                                                                    , time: Agent.Time
                                                                     , debug: Agent.DebugThis
                                                                     , principal: Agent.Context.Self)
                                                     , name: ("Resource(" + resourceDefinition.ResourceName + ")").ToActorName());

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using Mate.DataCore;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.DataModel;
@@ -44,6 +44,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         public Central(string dbNameGantt
             , string dbNameProduction
             , IMessageHub messageHub
+            , IHiveConfig hiveCOnfig
             , Configuration configuration
             , List<FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime> estimatedThroughputTimes)
         {
@@ -82,14 +83,14 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         }
         public override bool AfterInit()
         {
-            Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "Pop", target: Agent.Context.Self), waitFor: 1);
-            Agent.Send(instruction: EndSimulation.Create(message: true, target: Agent.Context.Self), waitFor: _simulationEnds);
-            Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: 1);
+            Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "Pop", target: Agent.Context.Self), waitFor: TimeSpan.FromMinutes(1));
+            Agent.Send(instruction: EndSimulation.Create(message: true, target: Agent.Context.Self), waitFor: TimeSpan.FromMinutes(_simulationEnds));
+            Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: TimeSpan.FromMinutes(1));
             Agent.DebugMessage(msg: "Agent-System ready for Work");
             return true;
         }
         
-
+        
         private void SetEstimatedThroughputTime(FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime getObjectFromMessage)
         {
             _estimatedThroughPuts.UpdateOrCreate(name: getObjectFromMessage.ArticleName, time: getObjectFromMessage.Time);
@@ -161,17 +162,17 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         private void End()
         {
             Agent.DebugMessage(msg: "End Sim");
-            Agent.ActorPaths.SimulationContext.Ref.Tell(message: SimulationMessage.SimulationState.Finished);
+            Agent.ActorPaths.SimulationContext.Ref.Tell(message: SimulationState.Finished);
         }
 
         private void PopOrder()
         {
             if (!_orderCounter.TryAddOne()) return;
 
-            var order = _orderGenerator.GetNewRandomOrder(time: Agent.CurrentTime);
+            var order = _orderGenerator.GetNewRandomOrder(time: Agent.Time.ToSimulationTime());
 
             Agent.Send(
-                instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: order.CreationTime - Agent.CurrentTime);
+                instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: TimeSpan.FromMinutes(order.CreationTime - Agent.Time.ToSimulationTime()));
             var eta = _estimatedThroughPuts.Get(name: order.Name);
             Agent.DebugMessage(msg: $"EstimatedTransitionTime {eta.Value} for order {order.Name} {order.Id}");
 
@@ -186,10 +187,10 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
 
         private void SystemCheck()
         {
-            Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: 1);
+            Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: TimeSpan.FromMinutes(1));
 
             // TODO Loop Through all CustomerOrderParts
-            var orders = _openOrders.Where(predicate: x => x.DueTime - _estimatedThroughPuts.Get(name: x.Name).Value <= Agent.CurrentTime).ToList();
+            var orders = _openOrders.Where(predicate: x => x.DueTime - _estimatedThroughPuts.Get(name: x.Name).Value <= Agent.Time.ToSimulationTime()).ToList();
             // Debug.WriteLine("SystemCheck(" + CurrentTime + "): " + orders.Count() + " of " + _openOrders.Count() + "found");
             foreach (var order in orders)
             {

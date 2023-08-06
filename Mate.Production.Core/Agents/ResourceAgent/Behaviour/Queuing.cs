@@ -6,6 +6,7 @@ using Mate.DataCore.Nominal.Model;
 using Mate.Production.Core.Agents.DirectoryAgent;
 using Mate.Production.Core.Agents.HubAgent;
 using Mate.Production.Core.Agents.ResourceAgent.Types;
+using Mate.Production.Core.Helper;
 using static FCreateTaskItems;
 using static FQueuingJobs;
 using static FResourceInformations;
@@ -56,7 +57,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
             
             CreateTask(fQueuingJob);
 
-            Agent.Send(Resource.Instruction.Queuing.FinishJob.Create(fQueuingJob, Agent.Context.Self), fQueuingJob.Duration);
+            Agent.Send(Resource.Instruction.Queuing.FinishJob.Create(fQueuingJob, Agent.Context.Self), fQueuingJob.Duration.ToTimeSpan());
         }
         public void FinishJob(IQueueingJob fQueuingJob)
         {

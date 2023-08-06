@@ -1,5 +1,5 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using static FArticles;
 using static FCentralProvideOrders;
 using static FCentralResourceDefinitions;
@@ -14,10 +14,10 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
     {
         public partial class Instruction
         {
-            public class Central
+            public record Central
             {
 
-            public class ForwardInsertMaterial : SimulationMessage
+            public record ForwardInsertMaterial : HiveMessage
             {
                 public static ForwardInsertMaterial Create(FCentralStockPosting stockPosting, IActorRef target)
                 {
@@ -28,7 +28,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 }
                 public FCentralStockPosting GetObjectFromMessage { get => Message as FCentralStockPosting; }
             }
-            public class ForwardWithdrawMaterial : SimulationMessage
+            public record ForwardWithdrawMaterial : HiveMessage
             {
                 public static ForwardWithdrawMaterial Create(FCentralStockPosting stockPosting, IActorRef target)
                 {
@@ -40,7 +40,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 public FCentralStockPosting GetObjectFromMessage { get => Message as FCentralStockPosting; }
             }
 
-                public class RegisterResources : SimulationMessage
+                public record RegisterResources : HiveMessage
             {
                 public static RegisterResources Create(string descriminator, IActorRef target)
                 {
@@ -52,7 +52,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 public string GetObjectFromMessage { get => Message as string; }
             }
 
-            public class CreateMachineAgents : SimulationMessage
+            public record CreateMachineAgents : HiveMessage
             {
                 public static CreateMachineAgents Create(FCentralResourceDefinition message, IActorRef target)
                 {
@@ -63,7 +63,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 }
                 public FCentralResourceDefinition GetObjectFromMessage { get => Message as FCentralResourceDefinition; }
             }
-            public class CreateStorageAgents : SimulationMessage
+            public record CreateStorageAgents : HiveMessage
             {
                 public static CreateStorageAgents Create(FCentralStockDefinition message, IActorRef target)
                 {
@@ -75,7 +75,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 public FCentralStockDefinition GetObjectFromMessage { get => Message as FCentralStockDefinition; }
             }
 
-            public class ForwardRegistrationToHub : SimulationMessage
+            public record ForwardRegistrationToHub : HiveMessage
             {
                 public static ForwardRegistrationToHub Create(FCentralResourceRegistration message, IActorRef target)
                 {
@@ -87,7 +87,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 public FCentralResourceRegistration GetResourceRegistration { get => Message as FCentralResourceRegistration; }
             }
 
-            public class CreateHubAgent : SimulationMessage
+            public record CreateHubAgent : HiveMessage
             {
                 public static CreateHubAgent Create(FResourceHubInformation message, IActorRef target)
                 {
@@ -99,7 +99,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 public FResourceHubInformation GetObjectFromMessage { get => Message as FResourceHubInformation; }
             }
 
-            public class ForwardAddOrder : SimulationMessage
+            public record ForwardAddOrder : HiveMessage
             {
                 public static ForwardAddOrder Create(FArticle order, IActorRef target)
                 {
@@ -111,7 +111,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
                 public FArticle GetObjectFromMessage { get => Message as FArticle; }
             }
 
-            public class ForwardProvideOrder : SimulationMessage
+            public record ForwardProvideOrder : HiveMessage
             {
                 public static ForwardProvideOrder Create(FCentralProvideOrder order, IActorRef target)
                 {

@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using AkkaSim;
+using Akka.Hive.Actors;
+using Akka.Hive.Definitions;
 using Mate.DataCore.Data.Context;
+using Mate.DataCore.GanttPlan;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.ReportingModel;
 using Mate.DataCore.ReportingModel.Interface;
 using Mate.Production.Core.Agents.CollectorAgent.Types;
 using Mate.Production.Core.Agents.HubAgent;
 using Mate.Production.Core.Environment.Options;
+using Mate.Production.Core.Helper;
 using Mate.Production.Core.Types;
 using Newtonsoft.Json;
 using static FAgentInformations;
@@ -75,7 +78,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         public override bool Action(object message) => throw new Exception(message: "Please use EventHandle method to process Messages");
 
-        public bool EventHandle(SimulationMonitor simulationMonitor, object message)
+        public bool EventHandle(MessageMonitor simulationMonitor, object message)
         {
             switch (message)
             {
@@ -106,7 +109,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,
                 SimulationType = Collector.simulationKind.Value,
-                Time = (int)(Collector.Time),
+                Time = (int)(Collector.Time.ToSimulationTime()),
                 CapabilityProvider = simulationResourceSetup.CapabilityProvider,
                 CapabilityName = simulationResourceSetup.CapabilityName,
                 Start = (int)simulationResourceSetup.Start,
@@ -143,10 +146,10 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         {
             // check if Update has been processed this time step.
  
-            if (lastIntervalStart != Collector.Time)
+            if (lastIntervalStart != Collector.Time.ToSimulationTime())
             {
                 //var OEE = OverallEquipmentEffectiveness(resources: _resources, Collector.Time - 1440L, Collector.Time);
-                lastIntervalStart = Collector.Time;
+                lastIntervalStart = Collector.Time.ToSimulationTime();
             }
             ThroughPut(finalCall);
             ComputationalTimes(finalCall);
@@ -179,8 +182,8 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
                     foreach (var type in _ComputationalTimes.GroupBy(x => x.timertype))
                     {
-                        Collector.CreateKpi(Collector, type.Sum(x => x.duration).ToString(), "Total" + type.Key, KpiType.ComputationalTime, true);
-                        Collector.CreateKpi(Collector, type.Average(x => x.duration).ToString(), "Average" + type.Key, KpiType.ComputationalTime, true);
+                        Collector.CreateKpi(Collector, type.Sum(x => x.duration.TotalMinutes).ToString(), "Total" + type.Key, KpiType.ComputationalTime, true);
+                        Collector.CreateKpi(Collector, type.Average(x => x.duration.TotalMinutes).ToString(), "Average" + type.Key, KpiType.ComputationalTime, true);
                     }
 
                 }
@@ -203,7 +206,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 List<ISimulationTask> allSimulationSetupData = new List<ISimulationTask>(simulationResourceSetups);
 
                 var settlingStart = Collector.Config.GetOption<SettlingStart>().Value;
-                var resourcesDatas = kpiManager.GetSimulationDataForResources(resources: _resources, simulationResourceData: allSimulationData, simulationResourceSetupData: allSimulationSetupData, startInterval: settlingStart, endInterval: Collector.Time);
+                var resourcesDatas = kpiManager.GetSimulationDataForResources(resources: _resources, simulationResourceData: allSimulationData, simulationResourceSetupData: allSimulationSetupData, startInterval: settlingStart, endInterval: Collector.Time.ToSimulationTime());
 
                 foreach (var resource in resourcesDatas) { 
                     var tuple = resource._workTime + " " + resource._setupTime;
@@ -243,7 +246,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         {
 
             var leadTime = from lt in _ThroughPutTimes
-                           where Math.Abs(value: lt.End) >= Collector.Time - Collector.Config.GetOption<TimePeriodForThroughputCalculation>().Value
+                           where Math.Abs(value: lt.End) >= Collector.Time.ToSimulationTime() - Collector.Config.GetOption<TimePeriodForThroughputCalculation>().Value
                            group lt by lt.ArticleName into so
                            select new
                            {
@@ -304,7 +307,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 ProductionOrderId =  simJob.ProductionAgent,
                 Parent = simJob.IsHeadDemand.ToString(),
                 FArticleKey = simJob.fArticleKey.ToString(),
-                Time = (int)(Collector.Time),
+                Time = (int)(Collector.Time.ToSimulationTime()),
                 ExpectedDuration = simJob.OperationDuration,
                 ArticleType = simJob.ArticleType,
                 CapabilityName = simJob.RequiredCapabilityName,

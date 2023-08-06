@@ -1,5 +1,5 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using static FCentralActivities;
 using static FCentralResourceRegistrations;
 using static FCentralStockPostings;
@@ -14,9 +14,9 @@ namespace Mate.Production.Core.Agents.HubAgent
         public partial class Instruction
         {
 
-            public class Central
+            public record Central
             {
-                public class LoadProductionOrders : SimulationMessage
+                public record LoadProductionOrders : HiveMessage
                 {
                     public static LoadProductionOrders Create(IActorRef inbox, IActorRef target, bool logThis = false)
                     {
@@ -32,7 +32,7 @@ namespace Mate.Production.Core.Agents.HubAgent
                     public IActorRef GetInboxActorRef => (IActorRef)Message;
                 }
 
-                public class ProvideStorageAgent : SimulationMessage
+                public record ProvideStorageAgent : HiveMessage
                 {
                     public static ProvideStorageAgent Create(FCentralStockPosting stockPosting, IActorRef target)
                     {
@@ -44,7 +44,7 @@ namespace Mate.Production.Core.Agents.HubAgent
                     public FCentralStockPosting GetObjectFromMessage { get => Message as FCentralStockPosting; }
                 }
                 
-                public class StartActivities : SimulationMessage
+                public record StartActivities : HiveMessage
                 {
                     public static StartActivities Create(IActorRef target, bool logThis = false)
                     {
@@ -59,7 +59,7 @@ namespace Mate.Production.Core.Agents.HubAgent
 
                 }
 
-                public class ActivityFinish : SimulationMessage
+                public record ActivityFinish : HiveMessage
                 {
                     public static ActivityFinish Create(FCentralActivity activity, IActorRef target)
                     {
@@ -72,7 +72,7 @@ namespace Mate.Production.Core.Agents.HubAgent
                 }
 
 
-                public class AddResourceToHub : SimulationMessage
+                public record AddResourceToHub : HiveMessage
                 {
                     public static AddResourceToHub Create(FCentralResourceRegistration message, IActorRef target, bool logThis = false)
                     {
@@ -87,7 +87,7 @@ namespace Mate.Production.Core.Agents.HubAgent
 
                     public FCentralResourceRegistration GetResourceRegistration => Message as FCentralResourceRegistration;
                 }
-                public class ScheduleActivity : SimulationMessage
+                public record ScheduleActivity : HiveMessage
                 {
                     public static ScheduleActivity Create(FCentralActivity message, IActorRef target, bool logThis = false)
                     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AkkaSim;
+using Akka.Hive.Actors;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.ReportingModel;
 using Mate.PiWebApi;
@@ -39,7 +39,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         public override bool Action(object message) => throw new Exception(message: "Please use EventHandle method to process Messages");
 
-        public bool EventHandle(SimulationMonitor simulationMonitor, object message)
+        public bool EventHandle(MessageMonitor simulationMonitor, object message)
         {
             switch (message)
             {

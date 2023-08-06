@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Akka.Actor;
-using AkkaSim;
-using AkkaSim.Definitions;
+using Akka.Hive;
+using Akka.Hive.Definitions;
 using Mate.DataCore;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Helper;
@@ -19,8 +19,8 @@ namespace Mate.Production.Core
         public IMessageHub MessageHub { get; }
         public SimulationType SimulationType { get; set; }
         public bool DebugAgents { get; set; }
-        public Simulation Simulation { get; set; }
-        public SimulationConfig SimulationConfig { get; set; }
+        public Hive Hive { get; set; }
+        public IHiveConfig HiveConfig { get; set; }
         public ActorPaths ActorPaths { get; set; }
         public IActorRef JobCollector { get; set; }
         public IActorRef StorageCollector { get; set; }
@@ -34,6 +34,6 @@ namespace Mate.Production.Core
             MessageHub = messageHub;
         }
 
-        public abstract Task<Simulation> InitializeSimulation(Configuration configuration);
+        public abstract Task<Hive> InitializeSimulation(Configuration configuration);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AkkaSim;
+using Akka.Hive.Actors;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.WrappersForPrimitives;
 using Mate.DataCore.Nominal;
@@ -9,6 +9,7 @@ using Mate.DataCore.ReportingModel;
 using Mate.Production.Core.Agents.ContractAgent;
 using Mate.Production.Core.Agents.SupervisorAgent;
 using Mate.Production.Core.Environment.Options;
+using Mate.Production.Core.Helper;
 using Mate.Production.Core.Types;
 using Newtonsoft.Json;
 using static FArticles;
@@ -44,7 +45,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         public override bool Action(object message) => throw new Exception(message: "Please use EventHandle method to process Messages");
 
-        public bool EventHandle(SimulationMonitor simulationMonitor, object message)
+        public bool EventHandle(MessageMonitor simulationMonitor, object message)
         {
             switch (message)
             {
@@ -80,7 +81,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             orderDictionary[OrderKpi.OrderState.Finished].Increment();
             orderDictionary[OrderKpi.OrderState.Total].Increment(); 
 
-            var percent = Math.Round((decimal) Collector.Time / Collector.maxTime * 100, 0);
+            var percent = Math.Round((decimal) Collector.Time.ToSimulationTime() / Collector.maxTime * 100, 0);
             Collector.messageHub.ProcessingUpdate((int)orderDictionary[OrderKpi.OrderState.Finished].GetValue(), (int)percent, 
                                                     $" Progress({percent} %) " + message
                                                     , (int)orderDictionary[OrderKpi.OrderState.Total].GetValue());
@@ -136,7 +137,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 {
                     Name = value.Key.ToString(),
                     Value = (double)value.Value.GetValue(),
-                    Time = (int) Collector.Time,
+                    Time = (int) Collector.Time.ToSimulationTime(),
                     KpiType = KpiType.AdherenceToDue,
                     SimulationConfigurationId = Collector.simulationId.Value,
                     SimulationNumber = Collector.simulationNumber.Value,
@@ -174,7 +175,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             {
                 Name = KpiType.AdherenceToDue.ToString(),
                 Value = (double)Math.Round(adherenceToDue, 2),
-                Time = (int) Collector.Time,
+                Time = (int) Collector.Time.ToSimulationTime(),
                 KpiType = KpiType.AdherenceToDue,
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,

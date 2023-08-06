@@ -1,5 +1,5 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using static IQueueingJobs;
 
 namespace Mate.Production.Core.Agents.HubAgent
@@ -12,10 +12,10 @@ namespace Mate.Production.Core.Agents.HubAgent
         public partial class Instruction
         {
 
-            public class Queuing
+            public record Queuing
             {
 
-                public class FinishSetup : SimulationMessage
+                public record FinishSetup : HiveMessage
                 {
                     public static FinishSetup Create(IQueueingJob fQueuingSetup, IActorRef target)
                     {
@@ -26,7 +26,7 @@ namespace Mate.Production.Core.Agents.HubAgent
                     }
                     public IQueueingJob GetObjectFromMessage => Message as IQueueingJob;
                 }
-                public class FinishWork : SimulationMessage
+                public record FinishWork : HiveMessage
                 {
                     public static FinishWork Create(IQueueingJob fQueuingJob, IActorRef target)
                     {

@@ -22,6 +22,7 @@ namespace Mate.Test.Online.Agents.Contract.Behaviour
             var actorPaths = AgentMoc.CreateActorPaths(testKit: this, simContext: simContext);
             AgentMoc.CreateAgent(actorPaths: actorPaths
                              ,configuration: null
+                               , hiveConfig: null
                                 , principal: null
                                 , behaviour: behave
                              , guardianType: GuardianType.Dispo);

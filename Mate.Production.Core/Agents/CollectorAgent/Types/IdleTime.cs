@@ -5,6 +5,7 @@ using Akka.Util.Internal;
 using Mate.DataCore.Data.WrappersForPrimitives;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.ReportingModel;
+using Mate.Production.Core.Helper;
 
 namespace Mate.Production.Core.Agents.CollectorAgent.Types
 {
@@ -52,7 +53,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
                 {
                     Name = "Idle:" + x.Key,
                     Value = (double) Math.Round(x.Value.Average(a => a.GetValue()), 2),
-                    Time = (int) collector.Time,
+                    Time = collector.Time.ToSimulationTime(),
                     KpiType = KpiType.CapabilityIdle,
                     SimulationConfigurationId = collector.simulationId.Value,
                     SimulationNumber = collector.simulationNumber.Value,

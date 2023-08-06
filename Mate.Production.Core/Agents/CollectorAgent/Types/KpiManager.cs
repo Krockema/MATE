@@ -1,4 +1,5 @@
-﻿using Mate.DataCore.ReportingModel.Interface;
+﻿using Akka.Hive.Definitions;
+using Mate.DataCore.ReportingModel.Interface;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -52,7 +53,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
 
         private long GetResourceTimeForInterval(string mapping, List<ISimulationTask> simulationResourceData, long startInterval, long endInterval)
         {
-            var time = 0L;
+            double time = 0L;
 
             var lower_borders = simulationResourceData.Where(x => x.Start < startInterval
                                                                   && x.End > startInterval
@@ -71,7 +72,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
 
             time = between + lower_borders + upper_borders;
 
-            return time;
+            return (long)time; // TODO: Check correctness
 
         }
 

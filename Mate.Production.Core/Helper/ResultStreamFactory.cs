@@ -24,7 +24,7 @@ namespace Mate.Production.Core.Helper
         {
             var pub = new FUpdateSimulationJob(job: job
                 , duration: duration
-                , start: agent.CurrentTime
+                , start: agent.Time.ToSimulationTime()
                 , capabilityProvider: capabilityProvider.Name
                 , capability: capabilityProvider.ResourceCapability.Name
                 , readyAt: job.StartConditions.WasSetReadyAt
@@ -38,7 +38,7 @@ namespace Mate.Production.Core.Helper
         {
             var pubSetup = new FCreateSimulationResourceSetup(expectedDuration: duration
                 , duration: duration
-                , start: agent.CurrentTime
+                , start: agent.Time.ToSimulationTime()
                 , capabilityProvider: capabilityProvider.Name
                 , capabilityName: capabilityProvider.Name
                 , setupId: capabilityProvider.Id);
@@ -62,7 +62,7 @@ namespace Mate.Production.Core.Helper
             var pub = new FBucketResult(key: jobConfirmation.Job.Key
                 , creationTime: 0
                 , start: start
-                , end: agent.CurrentTime
+                , end: agent.Time.ToSimulationTime()
                 , originalDuration: jobConfirmation.Job.Duration
                 , productionAgent: ActorRefs.Nobody
                 , capabilityProvider: jobConfirmation.CapabilityProvider.Name);

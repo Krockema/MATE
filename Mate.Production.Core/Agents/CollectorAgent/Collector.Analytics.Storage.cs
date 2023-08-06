@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Hive.Actors;
 using Akka.Util.Internal;
-using AkkaSim;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.ReportingModel;
 using Mate.Production.Core.Environment.Options;
+using Mate.Production.Core.Helper;
 using Mate.Production.Core.Types;
 using Newtonsoft.Json;
 using static FUpdateStockValues;
@@ -40,7 +41,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         public override bool Action(object message) => throw new Exception(message: "Please use EventHandle method to process Messages");
 
-        public bool EventHandle(SimulationMonitor simulationMonitor, object message)
+        public bool EventHandle(MessageMonitor simulationMonitor, object message)
         {
             switch (message)
             {
@@ -75,7 +76,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 select new
                 {
                     Key = summarized.Key,
-                    Value = summarized.Sum(x => ((x.Time - x.ValueMin) * x.Value / Collector.Time) * 0.10)
+                    Value = summarized.Sum(x => (x.Time - x.ValueMin) * x.Value / Collector.Time.ToSimulationTime() * 0.10)
                 };
 
 
@@ -108,7 +109,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
         private void UpdateKPI(FUpdateStockValue values)
         {
-            var lastTime = 0; 
+            var lastTime = 0L; 
             var lastValue = StockValuesOverTime.FindAll(x => x.Name == values.ArticleType + " " + values.StockName);
             if(lastValue.Any()) { 
                 lastTime = lastValue.Max(x => x.Time);
@@ -121,7 +122,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             var k = new Kpi { Name = values.ArticleType + " " + values.StockName
                             , Value = values.NewValue
                             , ValueMin = lastTime
-                            , Time = (int)Collector.Time
+                            , Time = (int)Collector.Time.ToSimulationTime()
                             , KpiType = KpiType.StockEvolution
                             , SimulationConfigurationId = Collector.simulationId.Value
                             , SimulationNumber = Collector.simulationNumber.Value
@@ -155,7 +156,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             {
                 Name = name,
                 Value = values,
-                Time = (int)Collector.Time,
+                Time = (int)Collector.Time.ToSimulationTime(),
                 KpiType = KpiType.StockTotals,
                 SimulationConfigurationId = Collector.simulationId.Value,
                 SimulationNumber = Collector.simulationNumber.Value,

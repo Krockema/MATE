@@ -71,7 +71,7 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
             // change element State to Finish
             stockExchange.State = State.Finished;
             //stockExchange.RequiredOnTime = (int)Context.TimePeriod;
-            stockExchange.Time = (int)Agent.CurrentTime;
+            stockExchange.Time = (int)Agent.Time.ToSimulationTime();
             _stockManager.AddToStock(stockExchange);
             LogValueChange(article: _stockManager.Article.Name, articleType: _stockManager.Article.ArticleType.Name, value: Convert.ToDouble(value: _stockManager.Current) * Convert.ToDouble(value: _stockManager.Price));
 
@@ -85,12 +85,12 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
                 if (notServed == null) throw new Exception(message: "No StockExchange found");
 
                 notServed.State = State.Finished;
-                notServed.Time = (int)Agent.CurrentTime;
+                notServed.Time = (int)Agent.Time.ToSimulationTime();
 
                 Agent.Send(instruction: BasicInstruction.ProvideArticle
                                                         .Create(message: new FArticleProvider(articleKey: request.Key
                                                                                              , articleName: request.Article.Name
-                                                                                             , articleFinishedAt: Agent.CurrentTime
+                                                                                             , articleFinishedAt: Agent.Time.ToSimulationTime()
                                                                                              , stockExchangeId: request.StockExchangeId
                                                                                              , customerDue: request.CustomerDue
                                                                                              , provider: new List<FStockProvider>(new[] { new FStockProvider(stockExchange.TrackingGuid, "Purchase")}))
@@ -110,8 +110,8 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
                 ExchangeType = ExchangeType.Insert,
                 Quantity = productionResult.Amount,
                 State = State.Finished,
-                RequiredOnTime = (int)Agent.CurrentTime,
-                Time = (int)Agent.CurrentTime,
+                RequiredOnTime = Agent.Time.ToSimulationTime(),
+                Time = Agent.Time.ToSimulationTime(),
                 ProductionArticleKey = productionResult.Key,
                 ProductionAgent = Agent.Sender.Path.Name
             };
@@ -125,7 +125,7 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
             var mostUrgentRequest = _requestedArticles.First(predicate: x => x.DueTime == _requestedArticles.Min(selector: r => r.DueTime));
 
             //TODO: might be a problem 
-            if (mostUrgentRequest.IsHeadDemand && mostUrgentRequest.DueTime > Agent.CurrentTime)
+            if (mostUrgentRequest.IsHeadDemand && mostUrgentRequest.DueTime > Agent.Time.ToSimulationTime())
             {
                 Agent.DebugMessage(msg: $"{_stockManager.Name} {mostUrgentRequest.Key} finished before due. CostumerOrder {mostUrgentRequest.CustomerOrderId} will ask at {mostUrgentRequest.DueTime} for article.");
                 return;
@@ -253,16 +253,16 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
                 StockId = stockElement.Id,
                 ExchangeType = ExchangeType.Insert,
                 State = State.Created,
-                Time = (int)(Agent.CurrentTime),
+                Time =Agent.CurrentTime,
                 Quantity = stockElement.Article.Stock.Max - stockElement.Article.Stock.Min,
-                RequiredOnTime = (int)(Agent.CurrentTime) + time,
+                RequiredOnTime = (Agent.CurrentTime) + time,
                 TrackingGuid = Guid.NewGuid()
             };
 
             _stockManager.StockExchanges.Add(item: stockExchange);
             // TODO Needs logic if more Kreditors are Added.
             // TODO start CreatePurchase later if materials are needed later
-            Agent.Send(instruction: Storage.Instruction.Default.StockRefill.Create(message: stockExchange.TrackingGuid, target: Agent.Context.Self), waitFor: time);
+            Agent.Send(instruction: Storage.Instruction.Default.StockRefill.Create(message: stockExchange.TrackingGuid, target: Agent.Context.Self), waitFor: time.ToTimeSpan());
 
             return time;
         }

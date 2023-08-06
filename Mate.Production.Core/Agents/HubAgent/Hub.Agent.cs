@@ -1,4 +1,5 @@
 ﻿using Akka.Actor;
+using Akka.Hive.Definitions;
 using Mate.DataCore.Nominal;
 using Mate.Production.Core.Environment;
 using Mate.Production.Core.Helper;
@@ -13,24 +14,24 @@ namespace Mate.Production.Core.Agents.HubAgent
     {
         // public Constructor
 
-        public static Props Props(ActorPaths actorPaths, Configuration configuration, long time, SimulationType simtype, long maxBucketSize, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal)
+        public static Props Props(ActorPaths actorPaths, IHiveConfig hiveConfig, Configuration configuration, Time time, SimulationType simtype, long maxBucketSize, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal)
         {
-            return Akka.Actor.Props.Create(factory: () => new Hub(actorPaths, configuration,  time, simtype, maxBucketSize, workTimeGenerator, debug, principal));
+            return Akka.Actor.Props.Create(factory: () => new Hub(actorPaths, hiveConfig, configuration, time, simtype, maxBucketSize, workTimeGenerator, debug, principal));
         }
 
-        public Hub(ActorPaths actorPaths, Configuration configuration, long time, SimulationType simtype, long maxBucketSize, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal) 
-            : base(actorPaths: actorPaths, configuration: configuration, time: time, debug: debug, principal: principal)
+        public Hub(ActorPaths actorPaths, IHiveConfig hiveConfig, Configuration configuration, Time time, SimulationType simtype, long maxBucketSize, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal) 
+            : base(actorPaths: actorPaths, configuration: configuration, hiveConfig: hiveConfig, time: time, debug: debug, principal: principal)
         {
             this.Do(o: BasicInstruction.Initialize.Create(target: Self, message: HubAgent.Behaviour.Factory.Get(simType:simtype, maxBucketSize: maxBucketSize, workTimeGenerator: workTimeGenerator)));
         }
 
-        public static Props Props(ActorPaths actorPaths, Configuration configuration, long time, SimulationType simtype, long maxBucketSize, string dbConnectionStringGanttPlan, string dbConnectionStringMaster, string pathToGANTTPLANOptRunner, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal)
+        public static Props Props(ActorPaths actorPaths, IHiveConfig hiveConfig, Configuration configuration, Time time, SimulationType simtype, long maxBucketSize, string dbConnectionStringGanttPlan, string dbConnectionStringMaster, string pathToGANTTPLANOptRunner, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal)
         {
-            return Akka.Actor.Props.Create(factory: () => new Hub(actorPaths, configuration, time, simtype, maxBucketSize, dbConnectionStringGanttPlan, dbConnectionStringMaster, pathToGANTTPLANOptRunner, workTimeGenerator, debug, principal));
+            return Akka.Actor.Props.Create(factory: () => new Hub(actorPaths, hiveConfig, configuration, time, simtype, maxBucketSize, dbConnectionStringGanttPlan, dbConnectionStringMaster, pathToGANTTPLANOptRunner, workTimeGenerator, debug, principal));
         }
 
-        public Hub(ActorPaths actorPaths, Configuration configuration, long time, SimulationType simtype, long maxBucketSize, string dbConnectionStringGanttPlan, string dbConnectionStringMaster, string pathToGANTTPLANOptRunner, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal) 
-            : base(actorPaths: actorPaths, configuration: configuration, time, debug: debug, principal: principal)
+        public Hub(ActorPaths actorPaths, IHiveConfig hiveConfig, Configuration configuration, Time time, SimulationType simtype, long maxBucketSize, string dbConnectionStringGanttPlan, string dbConnectionStringMaster, string pathToGANTTPLANOptRunner, WorkTimeGenerator workTimeGenerator, bool debug, IActorRef principal) 
+            : base(actorPaths: actorPaths, configuration: configuration, hiveConfig: hiveConfig, time, debug: debug, principal: principal)
         {
             this.Do(o: BasicInstruction.Initialize.Create(target: Self, message: HubAgent.Behaviour.Factory.Central(dbConnectionStringGanttPlan, dbConnectionStringMaster, pathToGANTTPLANOptRunner, workTimeGenerator: workTimeGenerator)));
         }
