@@ -356,7 +356,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 
             CreateSetupTask(setupDuration, JobType.SETUP);
 
-            Agent.Send(Resource.Instruction.Default.FinishTask.Create("SETUP", Agent.Context.Self), waitFor: setupDuration.ToTimeSpan());
+            Agent.Send(Resource.Instruction.Default.FinishTask.Create("SETUP", Agent.Context.Self), waitFor: setupDuration);
         }
 
         internal void FinishSetup() // only in case it is not required for processing.
@@ -379,7 +379,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
             _jobInProgress.CurrentOperation.Set(operation, Agent.CurrentTime);
             CreateProcessingTask(operation);
 
-            Agent.Send(Resource.Instruction.Default.FinishTask.Create("PROCESSING", Agent.Context.Self), waitFor: operation.Operation.RandomizedDuration.ToTimeSpan());
+            Agent.Send(Resource.Instruction.Default.FinishTask.Create("PROCESSING", Agent.Context.Self), waitFor: operation.Operation.RandomizedDuration);
         }
 
         private void FinishTask(string task)

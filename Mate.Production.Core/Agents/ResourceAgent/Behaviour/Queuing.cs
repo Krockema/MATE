@@ -56,7 +56,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
             
             CreateTask(fQueuingJob);
 
-            Agent.Send(Resource.Instruction.Queuing.FinishJob.Create(fQueuingJob, Agent.Context.Self), fQueuingJob.Duration.ToTimeSpan());
+            Agent.Send(Resource.Instruction.Queuing.FinishJob.Create(fQueuingJob, Agent.Context.Self), fQueuingJob.Duration);
         }
         public void FinishJob(IQueueingJob fQueuingJob)
         {

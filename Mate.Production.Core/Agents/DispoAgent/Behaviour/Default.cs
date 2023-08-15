@@ -125,7 +125,7 @@ namespace Mate.Production.Core.Agents.DispoAgent.Behaviour
                     Agent.DebugMessage(msg: $"Ask storage for Article {_fArticle.Key} in + {nextRequestAt}", CustomLogger.STOCK, LogLevel.Warn);
 
                     Agent.Send(instruction: ProvideArticleAtDue.Create(message: _fArticle.Key, target: _fArticle.StorageAgent)
-                                 , waitFor: nextRequestAt.ToTimeSpan());
+                                 , waitFor: nextRequestAt);
                 }
             }
             // Not in Stock and Not ToBuild Agent has to Wait for stock to provide materials

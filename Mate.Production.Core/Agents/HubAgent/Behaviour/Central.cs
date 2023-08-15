@@ -225,7 +225,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                         var waitFor = interval.DateFrom - Agent.CurrentTime;
                         Agent.DebugMessage($"{interval.ProductionorderOperationActivityResource.ProductionorderOperationActivity.GetKey} has been scheduled to {Agent.CurrentTime + waitFor} as planning interval {_planManager.PlanVersion}");
                         Agent.Send(instruction: Hub.Instruction.Central.ScheduleActivity.Create(fActivity, Agent.Context.Self)
-                                            , waitFor.ToTimeSpan());
+                                            , waitFor);
                     }
                 }
                 else
