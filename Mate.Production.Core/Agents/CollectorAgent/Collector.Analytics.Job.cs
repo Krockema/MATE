@@ -7,6 +7,7 @@ using Akka.Hive.Actors;
 using Akka.Hive.Definitions;
 using IdentityModel;
 using Mate.DataCore.Data.Context;
+using Mate.DataCore.GanttPlan;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.ReportingModel;
 using Mate.DataCore.ReportingModel.Interface;

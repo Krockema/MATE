@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mate.Production.Core", "Mat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Akka.Hive", "..\Akka.Hive\Akka.Hive\Akka.Hive.csproj", "{1E20154F-A3CA-4FDF-AB7F-258E0440707E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Akka.Hive", "..\Akka.Hive\Akka.Hive\Akka.Hive.csproj", "{1E20154F-A3CA-4FDF-AB7F-258E0440707E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

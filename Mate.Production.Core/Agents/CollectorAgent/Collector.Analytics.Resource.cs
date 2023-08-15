@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Akka.Hive.Actors;
 using Mate.DataCore.Data.Context;
+using Mate.DataCore.GanttPlan;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.Nominal.Model;
 using Mate.DataCore.ReportingModel;

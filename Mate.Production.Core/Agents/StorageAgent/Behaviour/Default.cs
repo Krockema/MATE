@@ -261,7 +261,7 @@ namespace Mate.Production.Core.Agents.StorageAgent.Behaviour
             _stockManager.StockExchanges.Add(item: stockExchange);
             // TODO Needs logic if more Kreditors are Added.
             // TODO start CreatePurchase later if materials are needed later
-            Agent.Send(instruction: Storage.Instruction.Default.StockRefill.Create(message: stockExchange.TrackingGuid, target: Agent.Context.Self), waitFor: time);
+            Agent.Send(instruction: Storage.Instruction.Default.StockRefill.Create(message: stockExchange.TrackingGuid, target: Agent.Context.Self), waitFor: time.ToTimeSpan());
 
             return time;
         }

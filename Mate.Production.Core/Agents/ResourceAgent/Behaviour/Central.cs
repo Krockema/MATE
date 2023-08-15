@@ -49,7 +49,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 
             CreateTask(activity);
 
-            Agent.Send(Resource.Instruction.Central.ActivityFinish.Create(Agent.Context.Self), activity.Duration);
+            Agent.Send(Resource.Instruction.Central.ActivityFinish.Create(Agent.Context.Self), activity.Duration.ToTimeSpan());
         }
 
         
