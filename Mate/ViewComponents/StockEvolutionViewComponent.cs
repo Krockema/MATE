@@ -28,7 +28,7 @@ namespace Mate.ViewComponents
             }
 
             var simConfig = _context.SimulationConfigurations.Single(predicate: x => x.Id == Convert.ToInt32(paramsList[0]));
-            var maxX = Convert.ToInt32(value: Math.Floor(d: (decimal)simConfig.SimulationEndTime / 1000) * 1000);
+            var maxX = Convert.ToInt32(value: Math.Floor(d: (decimal)simConfig.SimulationEndTime.TotalMinutes / 1000) * 1000);
 
             Chart chart = new Chart();
             

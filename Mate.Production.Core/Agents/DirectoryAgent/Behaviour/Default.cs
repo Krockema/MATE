@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Akka.Actor;
 using Mate.DataCore.DataModel;
 using Mate.DataCore.Nominal;
+using Mate.DataCore.Nominal.Model;
 using Mate.Production.Core.Agents.DirectoryAgent.Types;
 using Mate.Production.Core.Agents.HubAgent;
 using Mate.Production.Core.Agents.StorageAgent;
+using Mate.Production.Core.Environment.Records;
 using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
-using static FBreakDowns;
-using static FResourceHubInformations;
-using static FResourceInformations;
 
 namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
 {
@@ -39,7 +39,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
             return true;
         }
 
-        private void CreateResourceHubAgents(FResourceHubInformation capabilityDefinition)
+        private void CreateResourceHubAgents(ResourceHubInformationRecord capabilityDefinition)
         {
             // Create Capability based Hub Agent for each Capability of resource
             var capability = capabilityDefinition.Capability as M_ResourceCapability;
@@ -48,7 +48,8 @@ namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
             {
                 var hubAgent = Agent.Context.ActorOf(props: Hub.Props(actorPaths: Agent.ActorPaths
                         , configuration: Agent.Configuration
-                        , time: Agent.CurrentTime
+                        , hiveConfig: Agent.HiveConfig
+                        , time: Agent.Time
                         , simtype: SimulationType
                         , maxBucketSize: capabilityDefinition.MaxBucketSize
                         , workTimeGenerator: capabilityDefinition.WorkTimeGenerator as WorkTimeGenerator
@@ -61,26 +62,27 @@ namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
             }
         }
 
-        private void ForwardRegistrationToHub(FResourceInformation resourceInformation)
+        private void ForwardRegistrationToHub(ResourceInformationRecord resourceInformation)
         {
             var capabilites = resourceInformation.ResourceCapabilityProvider.Select(x => x.ResourceCapability.ParentResourceCapability).Distinct();
             foreach (M_ResourceCapability capability in capabilites)
             {
                 var hub = hubManager.GetHubActorRefBy(capability.Name);
                 // it is probably neccesary to do this for each sub capability.
-                var filtered = resourceInformation.ResourceCapabilityProvider.Where(x => x.ResourceCapability.ParentResourceCapabilityId == capability.Id).ToList();
-                var resourceInfo = new FResourceInformation(  resourceId: resourceInformation.ResourceId
-                                                            , resourceName: resourceInformation.ResourceName
-                                                            , resourceCapabilityProvider: filtered
-                                                            , resourceType : resourceInformation.ResourceType
-                                                            , requiredFor: capability.Name
-                                                            , this.Agent.Context.Sender);
+                var filtered = resourceInformation.ResourceCapabilityProvider.Where(x => x.ResourceCapability.ParentResourceCapabilityId == capability.Id).ToImmutableHashSet();
+                var resourceInfo = new ResourceInformationRecord(ResourceId: resourceInformation.ResourceId
+                                                            , ResourceName: resourceInformation.ResourceName
+                                                            , ResourceCapabilityProvider: filtered
+                                                            , ResourceType: resourceInformation.ResourceType
+                                                            , WorkTimeGenerator: resourceInformation.WorkTimeGenerator
+                                                            , RequiredFor: capability.Name
+                                                            , Ref: this.Agent.Context.Sender);
                 Agent.Send(Hub.Instruction.Default.AddResourceToHub.Create(resourceInfo, hub));
 
             }
         }
 
-        private void ResourceBrakeDown(FBreakDown breakDown)
+        private void ResourceBrakeDown(BreakDownRecord breakDown)
         {
             var hub = hubManager.GetHubActorRefBy(breakDown.ResourceCapability);
             Agent.Send(instruction: BasicInstruction.ResourceBrakeDown.Create(message: breakDown, target: hub));
@@ -91,7 +93,8 @@ namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
         {
             var storage = Agent.Context.ActorOf(props: Storage.Props(actorPaths: Agent.ActorPaths
                                             , configuration: Agent.Configuration
-                                            , time: Agent.CurrentTime
+                                            , hiveConfig: Agent.HiveConfig
+                                            , time: Agent.Time
                                             , debug: Agent.DebugThis
                                             , principal: Agent.Context.Self)
                                             , name: ("Storage(" + stock.Name + ")").ToActorName());
@@ -101,15 +104,16 @@ namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
         }
 
 
-        public void CreateMachineAgents(FCapabilityProviderDefinitions.FCapabilityProviderDefinition resourceCapabilityProviderDefinition)
+        public void CreateMachineAgents(CapabilityProviderDefinitionRecord resourceCapabilityProviderDefinition)
         {
             var resourceCapabilityProvider = resourceCapabilityProviderDefinition.CapabilityProvider as List<M_ResourceCapabilityProvider>;
             var resource = resourceCapabilityProviderDefinition.Resource as M_Resource;
             // Create resource If Required
             var resourceAgent = Agent.Context.ActorOf(props: ResourceAgent.Resource.Props(actorPaths: Agent.ActorPaths
+                                                                    , hiveConfig: Agent.HiveConfig
                                                                     , configuration: Agent.Configuration
                                                                     , resource: resource
-                                                                    , time: Agent.CurrentTime
+                                                                    , time: Agent.Time
                                                                     , debug: Agent.DebugThis
                                                                     , principal: Agent.Context.Self
                                                                     , measurementActorRef: ActorRefs.Nobody)
@@ -132,19 +136,19 @@ namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
         /// <param name="discriminator"></param>
         private void RequestAgent(string discriminator)
         {
-            FResourceTypes.FResourceType type = FResourceTypes.FResourceType.Hub;
+            AgentType type = AgentType.Hub;
             // find the related Hub/Storage Agent
             var agentToProvide = hubManager.GetHubActorRefBy(discriminator);
             if (agentToProvide == null) { 
-                type = FResourceTypes.FResourceType.Storage;
+                type = AgentType.Storage;
                 agentToProvide = storageManager.GetHubActorRefBy(discriminator);
             } 
 
             if(agentToProvide == null) throw new Exception("no Resource found!");
 
-            var hubInfo = new FAgentInformations.FAgentInformation(fromType: type
-                , requiredFor: discriminator
-                , @ref: agentToProvide);
+            var hubInfo = new AgentInformationRecord(FromType: type
+                , RequiredFor: discriminator
+                , Ref: agentToProvide);
             // Tell the Requester the corresponding Agent
             Agent.Send(instruction: BasicInstruction.ResponseFromDirectory
                                        .Create(message: hubInfo, target: Agent.Sender));

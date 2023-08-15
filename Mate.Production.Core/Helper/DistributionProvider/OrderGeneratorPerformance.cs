@@ -47,16 +47,16 @@ namespace Mate.Production.Core.Helper.DistributionProvider
             _orderArrivalRate = simConfig.GetOption<OrderArrivalRate>();
         }
 
-        public T_CustomerOrder GetNewRandomOrder(long time)
+        public T_CustomerOrder GetNewRandomOrder(DateTime time)
         {
-            var creationTime = (long) Math.Round(value: _exponential.Sample(),
-                mode: MidpointRounding.AwayFromZero);
+            var creationTime = TimeSpan.FromMinutes(Math.Round(value: _exponential.Sample(),
+                mode: MidpointRounding.AwayFromZero));
 
             //get which product is to be ordered
             var productId = _productIds.ElementAt(index: _prodVariation.Sample());
 
             //create order and orderpart, duetime is creationtime + 1 day
-            var due = time + creationTime + _duetime.Sample();
+            var due = time + creationTime + TimeSpan.FromMinutes(_duetime.Sample());
             System.Diagnostics.Debug.WriteLineIf(condition: _debug,
                 message: "Product(" + productId + ")" + ";" + time + ";" + due);
 
@@ -66,8 +66,8 @@ namespace Mate.Production.Core.Helper.DistributionProvider
             return order;
         }
 
-        private T_CustomerOrder CreateNewOrder(int articleId, int amount, long creationTime,
-            long dueTime)
+        private T_CustomerOrder CreateNewOrder(int articleId, int amount, DateTime creationTime,
+            DateTime dueTime)
         {
             var olist = new List<T_CustomerOrderPart>();
             olist.Add(item: new T_CustomerOrderPart
@@ -83,8 +83,8 @@ namespace Mate.Production.Core.Helper.DistributionProvider
             {
                 BusinessPartnerId = bp.Id,
                 BusinessPartner = bp,
-                DueTime = (int) dueTime,
-                CreationTime = (int) creationTime,
+                DueTime = dueTime,
+                CreationTime = creationTime,
                 Name = _articles.Single(predicate: x => x.Id == articleId).Name,
                 CustomerOrderParts = olist
             };

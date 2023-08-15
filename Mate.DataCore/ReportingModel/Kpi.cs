@@ -1,4 +1,5 @@
-﻿using Mate.DataCore.Nominal;
+﻿using System;
+using Mate.DataCore.Nominal;
 
 namespace Mate.DataCore.ReportingModel
 {
@@ -15,6 +16,6 @@ namespace Mate.DataCore.ReportingModel
         public int SimulationConfigurationId { get; set; }
         public SimulationType SimulationType { get; set; }
         public int SimulationNumber { get; set; }
-        public int Time { get; set; }
+        public DateTime Time { get; set; }
     }
 }

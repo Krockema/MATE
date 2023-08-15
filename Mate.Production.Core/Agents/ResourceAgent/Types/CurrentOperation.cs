@@ -1,15 +1,17 @@
-﻿using static FOperations;
+﻿using Akka.Hive.Definitions;
+using Mate.Production.Core.Environment.Records;
+using System;
 
 namespace Mate.Production.Core.Agents.ResourceAgent.Types
 {
     public class CurrentOperation
     {
 
-        public FOperation Operation { get; set; } = null;
+        public OperationRecord Operation { get; set; } = null;
 
-        public long StartAt { get; set; } = 0;
+        public DateTime StartAt { get; set; } = Time.ZERO.Value;
 
-        public void Set(FOperation operation, long currentTime)
+        public void Set(OperationRecord operation, DateTime currentTime)
         {
             Operation = operation;
             StartAt = currentTime;
@@ -18,7 +20,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types
         public void Reset()
         {
             Operation = null;
-            StartAt = 0;
+            StartAt = Time.ZERO.Value;
         }
     }
 }

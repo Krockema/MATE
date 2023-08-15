@@ -12,6 +12,8 @@ using static Mate.Production.Core.Helper.Negate;
 using static Mate.Production.Core.Agents.Guardian.Instruction;
 using static Mate.Production.Core.Agents.SupervisorAgent.Supervisor.Instruction;
 using static Mate.Production.Core.Agents.StorageAgent.Storage.Instruction.Default;
+using Mate.Production.Core.Environment.Records;
+using System.Collections.Immutable;
 
 namespace Mate.Production.Core.Agents.DispoAgent.Behaviour
 {
@@ -24,7 +26,7 @@ namespace Mate.Production.Core.Agents.DispoAgent.Behaviour
         }
 
 
-        internal FArticles.FArticle _fArticle { get; set; }
+        internal ArticleRecord _fArticle { get; set; }
 
         internal Dictionary<IActorRef, Guid> fArticlesToProvide;
 
@@ -40,7 +42,7 @@ namespace Mate.Production.Core.Agents.DispoAgent.Behaviour
                 case BasicInstruction.JobForwardEnd msg: PushForwardTimeToParent(earliestStartForForwardScheduling: msg.GetObjectFromMessage); break; // push Calculated Forward Calculated
                 case Dispo.Instruction.ResponseFromSystemForBom r: ResponseFromSystemForBom(article: r.GetObjectFromMessage); break;
                 case Dispo.Instruction.WithdrawArticleFromStock r: WithdrawArticleFromStock(); break; // Withdraw initiated by ResourceAgent for Production
-                case BasicInstruction.ProvideArticle r: ProvideRequest(fArticleProvider: r.GetObjectFromMessage); break;
+                case BasicInstruction.ProvideArticle r: ProvideRequest(ArticleProvider: r.GetObjectFromMessage); break;
                 case BasicInstruction.UpdateCustomerDueTimes msg: UpdateCustomerDueTimes(msg.GetObjectFromMessage); break;
                 case BasicInstruction.RemoveVirtualChild msg: RemoveVirtualChild(); break;
                 case BasicInstruction.RemovedChildRef msg: TryToFinish(); break;
@@ -48,7 +50,7 @@ namespace Mate.Production.Core.Agents.DispoAgent.Behaviour
             }
             return true;
         }
-        internal void UpdateCustomerDueTimes(long customerDue)
+        internal void UpdateCustomerDueTimes(DateTime customerDue)
         {
             // Save Request Item.
             _fArticle = _fArticle.UpdateCustomerDue(customerDue);
@@ -64,7 +66,7 @@ namespace Mate.Production.Core.Agents.DispoAgent.Behaviour
             Agent.Send(BasicInstruction.RemovedChildRef.Create(Agent.Sender));
             TryToRemoveChildRefFromProduction();
         }
-        internal void RequestArticle(FArticles.FArticle requestArticle)
+        internal void RequestArticle(ArticleRecord requestArticle)
         {
             // Save Request Item.
             _fArticle = requestArticle;
@@ -75,7 +77,7 @@ namespace Mate.Production.Core.Agents.DispoAgent.Behaviour
                                         , target: Agent.ActorPaths.StorageDirectory.Ref));
         }
 
-        internal void ResponseFromDirectory(FAgentInformations.FAgentInformation hubInfo)
+        internal void ResponseFromDirectory(AgentInformationRecord hubInfo)
         {
             Agent.DebugMessage(msg: "Acquired stock Agent: " + hubInfo.Ref.Path.Name + " from " + Agent.Sender.Path.Name, CustomLogger.INITIALIZE, LogLevel.Warn);
 
@@ -84,7 +86,7 @@ namespace Mate.Production.Core.Agents.DispoAgent.Behaviour
             Agent.Send(instruction: Storage.Instruction.Default.RequestArticle.Create(message: _fArticle, target: hubInfo.Ref));
         }
 
-        internal void ResponseFromStock(FStockReservations.FStockReservation reservation)
+        internal void ResponseFromStock(StockReservationRecord reservation)
         {
             _fArticle = _fArticle.UpdateStockExchangeId(i: reservation.TrackingId);
            
@@ -103,12 +105,12 @@ namespace Mate.Production.Core.Agents.DispoAgent.Behaviour
 
             if (reservation.IsInStock && IsNot(_fArticle.IsHeadDemand))
             {
-                ProvideRequest(new FArticleProviders.FArticleProvider(articleKey: _fArticle.Key
-                                                  , articleName: _fArticle.Article.Name
-                                                  , stockExchangeId: reservation.TrackingId
-                                                  , articleFinishedAt: Agent.CurrentTime
-                                                  , customerDue: _fArticle.CustomerDue
-                                                  , provider: new List<FStockProviders.FStockProvider>(new[] { new FStockProviders.FStockProvider(reservation.TrackingId, "In Stock") })));
+                ProvideRequest(new ArticleProviderRecord(ArticleKey: _fArticle.Key
+                                                  , ArticleName: _fArticle.Article.Name
+                                                  , StockExchangeId: reservation.TrackingId
+                                                  , ArticleFinishedAt: Agent.CurrentTime
+                                                  , CustomerDue: _fArticle.CustomerDue
+                                                  , Provider: ImmutableHashSet.Create(new StockProviderRecord(reservation.TrackingId, "In Stock"))));
             }
 
             // else create Production Agents if ToBuild
@@ -135,7 +137,7 @@ namespace Mate.Production.Core.Agents.DispoAgent.Behaviour
             var dueTime = _fArticle.DueTime;
 
             if (article.Operations != null)
-                dueTime = _fArticle.DueTime - article.Operations.Sum(selector: x => x.Duration + x.AverageTransitionDuration);
+                dueTime = _fArticle.DueTime - article.Operations.Sum(x => x.Duration + x.AverageTransitionDuration);
             // TODO: Object that handles the different operations- current assumption is all operations are handled as a sequence (no alternative/parallel plans) 
 
             _fArticle = _fArticle.UpdateCustomerOrderAndDue(id: _fArticle.CustomerOrderId, due: dueTime, storage: _fArticle.StorageAgent)
@@ -150,33 +152,33 @@ namespace Mate.Production.Core.Agents.DispoAgent.Behaviour
             }
         }
 
-        private void PushForwardTimeToParent(long earliestStartForForwardScheduling)
+        private void PushForwardTimeToParent(DateTime earliestStartForForwardScheduling)
         {
             Agent.DebugMessage(msg:$"Earliest time to provide {_fArticle.Article.Name} {_fArticle.Key} at {earliestStartForForwardScheduling}", CustomLogger.SCHEDULING, LogLevel.Warn);
             var msg = BasicInstruction.JobForwardEnd.Create(message: earliestStartForForwardScheduling, target: Agent.VirtualParent);
             Agent.Send(instruction: msg);
         }
 
-        internal void ProvideRequest(FArticleProviders.FArticleProvider fArticleProvider)
+        internal void ProvideRequest(ArticleProviderRecord ArticleProvider)
         {
             // TODO: Might be problematic due to inconsistent _fArticle != Storage._fArticle
             Agent.DebugMessage(msg: $"Request for {_fArticle.Quantity} {_fArticle.Article.Name} {_fArticle.Key} provided from {Agent.Sender.Path.Name} to {Agent.VirtualParent.Path.Name}", CustomLogger.STOCK, LogLevel.Warn);
 
             _fArticle = _fArticle.UpdateFinishedAt(f: Agent.CurrentTime);
 
-            var providedArticles = fArticleProvider.Provider.Select(x => x.ProvidesArticleKey);
+            var providedArticles = ArticleProvider.Provider.Select(x => x.ProvidesArticleKey);
             foreach (var articlesInProduction in fArticlesToProvide)
             {
                 if (IsFalse(providedArticles.Contains(articlesInProduction.Value)) // is not original provider
                     && Agent.VirtualChildren.Contains(articlesInProduction.Key)) // and ist not already finished to produce
                 {
                         Agent.Send(BasicInstruction.UpdateCustomerDueTimes
-                            .Create(fArticleProvider.CustomerDue, articlesInProduction.Key));
+                            .Create(ArticleProvider.CustomerDue, articlesInProduction.Key));
                 }
             }
 
             Agent.Send(instruction: BasicInstruction.ProvideArticle
-                                                    .Create(message: fArticleProvider
+                                                    .Create(message: ArticleProvider
                                                             ,target: Agent.VirtualParent 
                                                            ,logThis: false));
             
@@ -187,7 +189,7 @@ namespace Mate.Production.Core.Agents.DispoAgent.Behaviour
             Agent.Send(instruction: WithdrawArticle
                               .Create(message: _fArticle.StockExchangeId
                                      , target: _fArticle.StorageAgent));
-            _fArticle = _fArticle.SetProvided;
+            _fArticle = _fArticle.SetProvided();
             TryToRemoveChildRefFromProduction();
         }
 
@@ -225,7 +227,7 @@ namespace Mate.Production.Core.Agents.DispoAgent.Behaviour
         public override void OnChildAdd(IActorRef childRef)
         {
             var articleKey = _fArticle.Keys.ToArray()[fArticlesToProvide.Count];
-            var baseArticle = _fArticle.SetKey(articleKey);
+            var baseArticle = _fArticle;
             fArticlesToProvide.Add(Agent.Context.Sender, articleKey);
             Agent.Send(instruction: ProductionAgent.Production.Instruction.StartProduction.Create(message: baseArticle, target: Agent.Context.Sender));
             Agent.DebugMessage(msg: $"Dispo<{baseArticle.Article.Name } (OrderId: { baseArticle.CustomerOrderId }) > ProductionStart has been sent for { baseArticle.Key }.");

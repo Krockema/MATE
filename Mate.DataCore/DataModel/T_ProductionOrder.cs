@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Mate.DataCore.Data.WrappersForPrimitives;
 using Mate.DataCore.Interfaces;
 using Newtonsoft.Json;
@@ -16,7 +17,7 @@ namespace Mate.DataCore.DataModel
         public virtual ICollection<T_ProductionOrderBom> ProductionOrderBomChilds { get; set; }
         public decimal Quantity { get; set; }
         public string Name { get; set; }
-        public int DueTime { get; set; }
+        public DateTime DueTime { get; set; }
         [JsonIgnore]
         public virtual ICollection<T_ProductionOrderOperation> ProductionOrderOperations { get; set; }
 

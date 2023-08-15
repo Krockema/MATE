@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Hive.Logging;
 using Akka.TestKit.Xunit;
-using AkkaSim.Logging;
 using Mate.DataCore;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Helper;
@@ -64,8 +64,8 @@ namespace Mate.Test.Online.Integration
             ModelSize setupModelSize, ModelSize operatorModelSize, int numberOfWorkers, bool secondResource)
         {
 
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Info, LogLevel.Info);
-            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_AGENTS, LogLevel.Debug, LogLevel.Debug);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_ACTORS, LogLevel.Info, LogLevel.Info);
+            LogConfiguration.LogTo(TargetTypes.Debugger, TargetNames.LOG_ACTORS, LogLevel.Debug, LogLevel.Debug);
             _testOutputHelper.WriteLine("DatabaseString: " + _contextDataBase.ConnectionString.Value);
 
             _testOutputHelper.WriteLine("ResultDatabaseString: " + _resultContextDataBase.ConnectionString.Value);
@@ -79,7 +79,7 @@ namespace Mate.Test.Online.Integration
             var simConfig = ArgumentConverter.ConfigurationConverter(_resultContextDataBase.DbContext, 1);
             simConfig.AddOption(new ResultsDbConnectionString(_resultContextDataBase.ConnectionString.Value));
             simConfig.ReplaceOption(new TimeToAdvance(new TimeSpan(0L)));
-            simConfig.ReplaceOption(new KpiTimeSpan(240));
+            simConfig.ReplaceOption(new KpiTimeSpan(TimeSpan.FromMinutes(240)));
             simConfig.ReplaceOption(new DebugAgents(true));
             simConfig.ReplaceOption(new MinDeliveryTime(1440));
             simConfig.ReplaceOption(new MaxDeliveryTime(2880));
@@ -87,17 +87,17 @@ namespace Mate.Test.Online.Integration
             simConfig.ReplaceOption(new SimulationKind(value: SimulationType.Default));
             simConfig.ReplaceOption(new OrderArrivalRate(value: 0.15));
             simConfig.ReplaceOption(new OrderQuantity(value: orderQuantity));
-            simConfig.ReplaceOption(new EstimatedThroughPut(value: 1920));
-            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 2880));
+            simConfig.ReplaceOption(new EstimatedThroughPut(value: TimeSpan.FromMinutes(1920)));
+            simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: TimeSpan.FromMinutes(2880)));
             simConfig.ReplaceOption(new Mate.Production.Core.Environment.Options.Seed(value: 1337));
-            simConfig.ReplaceOption(new SettlingStart(value: 0));
+            simConfig.ReplaceOption(new SettlingStart(value: TimeSpan.FromMinutes(0)));
             simConfig.ReplaceOption(new SimulationEnd(value: 4380));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new MaxBucketSize(value: 480));
             simConfig.ReplaceOption(new SimulationNumber(value: uniqueSimNum));
             simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new WorkTimeDeviation(0.0));
-            simConfig.ReplaceOption(new TimeConstraintQueueLength(480));
+            simConfig.ReplaceOption(new TimeConstraintQueueLength(TimeSpan.FromMinutes(480)));
 
             var simContext = new AgentSimulation(dbName: "Test", messageHub: messageHub);
             _testOutputHelper.WriteLine("ArgumentConverter finished");
@@ -109,7 +109,7 @@ namespace Mate.Test.Online.Integration
             _testOutputHelper.WriteLine("simulation.RunAsync() finished");
             Within(TimeSpan.FromSeconds(120), async () =>
             {
-                simContext.StateManager.ContinueExecution(simulation);
+                // simContext.StateManager.ContinueExecution(simulation);
                 await sim;
             }).Wait();
             

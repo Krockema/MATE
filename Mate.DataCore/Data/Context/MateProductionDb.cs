@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Mate.DataCore.DataModel;
@@ -88,7 +89,7 @@ namespace Mate.DataCore.Data.Context
         /// <param name="creationTime"></param>
         /// <param name="dueTime"></param>
         /// <returns></returns>
-        public T_CustomerOrder CreateNewOrder(int orderid, int orderpartid, int articleId, int amount, long creationTime, long dueTime)
+        public T_CustomerOrder CreateNewOrder(int orderid, int orderpartid, int articleId, int amount, DateTime creationTime, DateTime dueTime)
         {
             var olist = new List<T_CustomerOrderPart>();
             olist.Add(item: new T_CustomerOrderPart
@@ -104,8 +105,8 @@ namespace Mate.DataCore.Data.Context
             {
                 Id = orderid,
                 BusinessPartnerId = bp.Id,
-                DueTime = (int)dueTime,
-                CreationTime = (int)creationTime,
+                DueTime = dueTime,
+                CreationTime = creationTime,
                 Name = Articles.Single(predicate: x => x.Id == articleId).Name,
                 CustomerOrderParts = olist
             };
@@ -114,7 +115,7 @@ namespace Mate.DataCore.Data.Context
             return order;
         }
 
-        public T_CustomerOrder CreateNewOrder(int articleId, int amount, long creationTime, long dueTime)
+        public T_CustomerOrder CreateNewOrder(int articleId, int amount, DateTime creationTime, DateTime dueTime)
         {
             var article = Articles.Single(x => x.Id == articleId);
             //var efState = this.Entry(article);
@@ -133,10 +134,9 @@ namespace Mate.DataCore.Data.Context
             var order = new T_CustomerOrder()
             {
                 BusinessPartnerId = bp.Id,
-                DueTime = (int)dueTime,
-                CreationTime = (int)creationTime,
-                DueDateTime = dueTime.ToDateTime(),
-                Name = articleId.ToString(),//.Name,
+                DueTime = dueTime,
+                CreationTime = creationTime,
+                Name = "HEAD Customer Order " + article.Name.ToString(),//.Name,
                 CustomerOrderParts = olist
             };
             
@@ -158,7 +158,7 @@ namespace Mate.DataCore.Data.Context
 
         }
 
-        public long GetEarliestStart(MateResultDb kpiContext, Job simulationWorkschedule, SimulationType simulationType, int simulationId,  List<Job> schedules = null)
+        public DateTime GetEarliestStart(MateResultDb kpiContext, Job simulationWorkschedule, SimulationType simulationType, int simulationId,  List<Job> schedules = null)
         {
             if (simulationType == SimulationType.Central)
             {

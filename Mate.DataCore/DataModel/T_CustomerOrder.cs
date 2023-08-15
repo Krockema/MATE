@@ -9,10 +9,9 @@ namespace Mate.DataCore.DataModel
     public class T_CustomerOrder : BaseEntity, IOrder
     {
         public string Name { get; set; }
-        public int DueTime { get; set; }
-        public DateTime DueDateTime { get; set; }
-        public int CreationTime { get; set; }
-        public int FinishingTime { get; set; }
+        public DateTime DueTime { get; set; }
+        public DateTime CreationTime { get; set; }
+        public DateTime FinishingTime { get; set; }
         public int BusinessPartnerId { get; set; }
         [JsonIgnore]
         public M_BusinessPartner BusinessPartner { get; set; }

@@ -37,7 +37,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
             _confirmationsResources.Clear();
         }
 
-        public void AddConfirmations(GptblProductionorderOperationActivity activity, GanttConfirmationState confirmationType, long currentTime, long activityStart)
+        public void AddConfirmations(GptblProductionorderOperationActivity activity, GanttConfirmationState confirmationType, DateTime currentTime, DateTime activityStart)
         {
             var confirmationId = Guid.NewGuid().ToString();
             if(
@@ -61,7 +61,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
             }
         }
 
-        public void AddConfirmation(GptblProductionorderOperationActivity activity, GanttConfirmationState confirmationType, string confirmationId, long currentTime, long activityStart)
+        public void AddConfirmation(GptblProductionorderOperationActivity activity, GanttConfirmationState confirmationType, string confirmationId, DateTime currentTime, DateTime activityStart)
         {
             var confirmation = new GptblConfirmation();
 
@@ -71,10 +71,10 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
             confirmation.Info2 = string.Empty;
             confirmation.Info3 = string.Empty;
             confirmation.Name = activity.Name;
-            confirmation.ActivityEnd = confirmationType == GanttConfirmationState.Finished ? currentTime.ToNullableDateTime() : null; 
-            confirmation.ActivityStart = confirmationType == GanttConfirmationState.Finished ? activityStart.ToNullableDateTime() : currentTime.ToNullableDateTime();
+            confirmation.ActivityEnd = confirmationType == GanttConfirmationState.Finished ? currentTime : null; 
+            confirmation.ActivityStart = confirmationType == GanttConfirmationState.Finished ? activityStart : currentTime;
             confirmation.ConfirmationType = (int)confirmationType;
-            confirmation.ConfirmationDate = currentTime.ToNullableDateTime();
+            confirmation.ConfirmationDate = currentTime;
             confirmation.ProductionorderActivityId = activity.ActivityId;
             confirmation.ProductionorderId = activity.ProductionorderId;
             confirmation.ProductionorderOperationId = activity.OperationId;
@@ -82,7 +82,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
             confirmation.ProductionorderAlternativeId = string.Empty;
             confirmation.QuantityFinished = confirmationType == GanttConfirmationState.Finished ? 100 : 0;
             confirmation.QuantityFinishedUnitId = "%";
-            confirmation.LastModified = currentTime.ToNullableDateTime();
+            confirmation.LastModified = currentTime;
 
           _confirmations.Add(confirmation);
         }

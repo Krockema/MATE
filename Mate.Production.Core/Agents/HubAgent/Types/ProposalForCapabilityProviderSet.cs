@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Mate.Production.Core.Agents.HubAgent.Types
@@ -16,7 +17,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
 
         public bool AnyProposalReady => this.Any(x => x.NoPostponed());
 
-        public long PostponedFor => this.Min(x => x.PostponedFor());
+        public TimeSpan PostponedFor => this.Min(x => x.PostponedFor());
 
         public int ReceivedProposals => this.Sum(x => x.ReceivedProposals);
     }

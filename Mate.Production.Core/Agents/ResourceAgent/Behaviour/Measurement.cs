@@ -2,9 +2,10 @@
 using Mate.PiWebApi.DistributionProvider;
 using Mate.Production.Core.Agents.ResourceAgent.Types;
 using Mate.Production.Core.Environment.Options;
+using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Environment.Records.Reporting;
 using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
-using static FMeasurementInformations;
 
 namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 {
@@ -38,10 +39,10 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
         /// <summary>
         /// Register the Resource in the System on Startup and Save the Hub agent.
         /// </summary>
-        private void CreateMeasurement(FMeasurementInformation fMeasurementInformation)
+        private void CreateMeasurement(MeasurementInformationRecord fMeasurementInformation)
         {
             // !Collector.Config.GetOption<CreateQualityData>().Value
-            var job = ((FOperations.FOperation)fMeasurementInformation.Job);
+            var job = (OperationRecord)fMeasurementInformation.Job;
             var measurements = new Measurements();
             var resourceUsage = _deflectionGenerator.AddUsage(setupId: fMeasurementInformation.CapabilityProviderId);
             
@@ -53,7 +54,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
                                           _deflectionGenerator.GetOneDirectionalDeflection(resourceUsage);
                     var quantil = Quantiles.GetFor(fMeasurementInformation.Quantile);
                     var attr = MessageFactory.CreateMeasurement(job, characteristic, attribute, fMeasurementInformation);
-                    attr.TimeStamp = Agent.CurrentTime;
+                    attr.TimeStamp = Agent.CurrentTime.ToFileTimeUtc();
                     attr.ResourceTool += "(" + fMeasurementInformation.CapabilityProviderId + ")";
                     attr.MeasurementValue = _measurementValuesGenerator.GetRandomMeasurementValues(deflectionValue
                         , attribute.Tolerance_Min

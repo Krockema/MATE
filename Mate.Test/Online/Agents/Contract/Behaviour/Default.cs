@@ -1,4 +1,5 @@
 ﻿using System;
+using Akka.Hive.Definitions;
 using Akka.TestKit.Xunit;
 using Mate.DataCore.DataModel;
 using Mate.Production.Core.Agents.ContractAgent.Behaviour;
@@ -14,7 +15,7 @@ namespace Mate.Test.Online.Agents.Contract.Behaviour
         public void StartOrder()
         {
             var contractAgentRef = CreateTestProbe();
-            var order = new T_CustomerOrder() { DueTime = 0, Id = 1 };
+            var order = new T_CustomerOrder() { DueTime = Time.ZERO.Value, Id = 1 };
             var orderPart = new T_CustomerOrderPart() { Article = new M_Article { Name = "Bear" }, Quantity = 1, Id = 1, CustomerOrderId = 1, CustomerOrder = order };
             var message = Mate.Production.Core.Agents.ContractAgent.Contract.Instruction.StartOrder.Create(message: orderPart, target: contractAgentRef);
             var behave = Factory.Get(simType: DataCore.Nominal.SimulationType.None);
@@ -22,6 +23,7 @@ namespace Mate.Test.Online.Agents.Contract.Behaviour
             var actorPaths = AgentMoc.CreateActorPaths(testKit: this, simContext: simContext);
             AgentMoc.CreateAgent(actorPaths: actorPaths
                              ,configuration: null
+                               , hiveConfig: null
                                 , principal: null
                                 , behaviour: behave
                              , guardianType: GuardianType.Dispo);

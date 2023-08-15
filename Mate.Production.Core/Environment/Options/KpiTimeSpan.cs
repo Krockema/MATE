@@ -3,10 +3,10 @@ using Mate.Production.Core.Environment.Abstractions;
 
 namespace Mate.Production.Core.Environment.Options
 {
-    public class KpiTimeSpan : Option<long>
+    public class KpiTimeSpan : Option<TimeSpan>
     {
         public static Type Type => typeof(KpiTimeSpan);
-        public KpiTimeSpan(long value)
+        public KpiTimeSpan(TimeSpan value)
         {
             _value = value;
         }
@@ -14,7 +14,7 @@ namespace Mate.Production.Core.Environment.Options
         public KpiTimeSpan()
         {
             Action = (config, argument) => {
-                config.AddOption(o: new KpiTimeSpan(value: long.Parse(s: argument)));
+                config.AddOption(o: new KpiTimeSpan(value: TimeSpan.Parse(s: argument)));
             };
         }
     }

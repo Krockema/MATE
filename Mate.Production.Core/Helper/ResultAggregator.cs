@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Akka.Hive.Definitions;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.ReportingModel;
@@ -167,7 +168,7 @@ namespace Mate.Production.Core.Helper
                 SimulationConfigurationId = forId,
                 SimulationNumber = 0,
                 SimulationType = 0,
-                Time = 0,
+                Time = Time.ZERO.Value,
                 ValueMax = values.Max(),
                 ValueMin = values.Min(),
                 Value = values.Average(),

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.Serialization;
 using Mate.PiWebApi.Interfaces;
 using Newtonsoft.Json;
 
@@ -19,10 +21,12 @@ namespace Mate.DataCore.DataModel
         public virtual M_ArticleType ArticleType { get; set; }
         //[DisplayFormat(DataFormatString = "{0:0,0}")]
         // 
+        [NotMapped]
+        public string NodeId { get; set; }
         public int? LotSize { get; set; }
         [DataType(DataType.Currency)]
         public double Price { get; set; }
-        public int DeliveryPeriod { get; set; }
+        public TimeSpan DeliveryPeriod { get; set; }
         [DataType(dataType: DataType.Date)]
         //[DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}", ApplyFormatInEditMode = true)]
         public DateTime CreationDate { get; set; }

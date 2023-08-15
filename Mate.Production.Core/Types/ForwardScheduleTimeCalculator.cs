@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Mate.Production.Core.Environment.Records;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using static FArticles;
 
 namespace Mate.Production.Core.Types
 {
@@ -11,23 +11,23 @@ namespace Mate.Production.Core.Types
         /// Element to calculate the latest returned forward schedule and provides a check to test if all required schedules for this article are returned.
         /// </summary>
         /// <param name="fArticle">required Article Type in ArticleBom.Child !</param>
-        public ForwardScheduleTimeCalculator(FArticle fArticle)
+        public ForwardScheduleTimeCalculator(ArticleRecord articleRec)
         {
-           RequiredQuantity = CalculateRequiredQuantity(fArticle: fArticle);
+           RequiredQuantity = CalculateRequiredQuantity(articleRec: articleRec);
         }
 
-        private List<long> ForwardScheduledEndingTimes { get; } = new List<long>();
+        private List<DateTime> ForwardScheduledEndingTimes { get; } = new ();
 
         private int RequiredQuantity { get; }
 
-        internal long Max => ForwardScheduledEndingTimes.Max();
+        internal DateTime Max => ForwardScheduledEndingTimes.Max();
         internal long GetRequiredQuantity => RequiredQuantity;
         internal long Count => ForwardScheduledEndingTimes.Count;
         /// <summary>
         /// Add Scheduling Element to the internal List
         /// </summary>
         /// <param name="earliestStartForForwardScheduling"></param>
-        internal void Add(long earliestStartForForwardScheduling)
+        internal void Add(DateTime earliestStartForForwardScheduling)
         {
             ForwardScheduledEndingTimes.Add(item: earliestStartForForwardScheduling);
         }
@@ -37,17 +37,17 @@ namespace Mate.Production.Core.Types
         /// </summary>
         /// <param name="fArticle"></param>
         /// <returns></returns>
-        internal bool AllRequirementsFullFilled(FArticle fArticle)
+        internal bool AllRequirementsFullFilled(ArticleRecord articleRec)
         {
             return ForwardScheduledEndingTimes.Count == RequiredQuantity;
         }
 
-        public static int CalculateRequiredQuantity(FArticle fArticle)
+        public static int CalculateRequiredQuantity(ArticleRecord articleRec)
         {
-            var quantityMaterials = fArticle.Article.ArticleBoms.Count(x =>
+            var quantityMaterials = articleRec.Article.ArticleBoms.Count(x =>
                 x.ArticleChild.ArticleType.Name == "Material" || x.ArticleChild.ArticleType.Name == "Consumable");
 
-            var quantityProducts = fArticle.Article.ArticleBoms.Where(x =>
+            var quantityProducts = articleRec.Article.ArticleBoms.Where(x =>
                     x.ArticleChild.ArticleType.Name == "Assembly" || x.ArticleChild.ArticleType.Name == "Product")
                 .Sum(x => x.Quantity);
 

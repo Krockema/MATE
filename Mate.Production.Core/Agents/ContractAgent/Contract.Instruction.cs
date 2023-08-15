@@ -1,54 +1,53 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
-using AkkaSim.Interfaces;
+using Akka.Hive.Definitions;
+using Akka.Hive.Interfaces;
 using Mate.DataCore.DataModel;
-using static FArticles;
-using static FCentralProvideOrders;
+using Mate.Production.Core.Environment.Records;
 
 namespace Mate.Production.Core.Agents.ContractAgent
 {
     public partial class Contract
     {
-        public class Instruction { 
-            public class StartOrder : SimulationMessage
+        public record Instruction { 
+            public record StartOrder : HiveMessage
             {
-                private StartOrder(object message, IActorRef target, bool logThis, Priority priority = Priority.Medium) : base(message: message, target: target, logThis: logThis, priority: priority)
+                private StartOrder(object message, IActorRef target, bool logThis) : base(message: message, target: target, logThis: logThis)
                 {
                 }
 
-                public static ISimulationMessage Create(T_CustomerOrderPart message, IActorRef target, bool logThis = false)
+                public static IHiveMessage Create(T_CustomerOrderPart message, IActorRef target, bool logThis = false)
                 {
                     return new StartOrder(message: message, target: target, logThis: logThis);
                 }
                 public T_CustomerOrderPart GetObjectFromMessage { get => Message as T_CustomerOrderPart; }
             }
 
-            public class TryFinishOrder : SimulationMessage
+            public record TryFinishOrder : HiveMessage
             {
-                private TryFinishOrder(object message, IActorRef target, bool logThis, Priority priority = Priority.Medium) : base(message: message, target: target, logThis: logThis, priority: priority)
+                private TryFinishOrder(object message, IActorRef target, bool logThis) : base(message: message, target: target, logThis: logThis)
                 {
                 }
 
-                public static ISimulationMessage Create(FCentralProvideOrder message, IActorRef target, bool logThis = false)
+                public static IHiveMessage Create(CentralProvideOrderRecord message, IActorRef target, bool logThis = false)
                 {
                     return new TryFinishOrder(message: message, target: target, logThis: logThis);
                 }
-                public FCentralProvideOrder GetObjectFromMessage { get => Message as FCentralProvideOrder; }
+                public CentralProvideOrderRecord GetObjectFromMessage { get => Message as CentralProvideOrderRecord; }
             }
 
             
 
-            public class Finish : SimulationMessage
+            public record Finish : HiveMessage
             {
-                private Finish(object message, IActorRef target, bool logThis, Priority priority = Priority.Medium) : base(message: message, target: target, logThis: logThis, priority: priority)
+                private Finish(object message, IActorRef target, bool logThis) : base(message: message, target: target, logThis: logThis)
                 {
                 }
 
-                public static ISimulationMessage Create(FArticle requestItem, IActorRef target, bool logThis)
+                public static IHiveMessage Create(ArticleRecord requestItem, IActorRef target, bool logThis)
                 {
                     return new Finish(message: requestItem, target: target, logThis: logThis);
                 }
-                public FArticle GetObjectFromMessage { get => Message as FArticle; }
+                public ArticleRecord GetObjectFromMessage { get => Message as ArticleRecord; }
 
             }
         }

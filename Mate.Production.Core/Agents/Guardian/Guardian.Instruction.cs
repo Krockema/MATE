@@ -1,12 +1,12 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using Mate.Production.Core.Helper;
 
 namespace Mate.Production.Core.Agents.Guardian
 {
     public class Instruction
     {
-        public class CreateChild : SimulationMessage
+        public record CreateChild : HiveMessage
         {
             public IActorRef Source  { get; }
             public static CreateChild Create(AgentSetup setup, IActorRef target, IActorRef source)

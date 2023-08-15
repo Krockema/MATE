@@ -71,7 +71,7 @@ namespace Mate.ViewComponents
                 var resource = workKpi.FirstOrDefault();
 
                 //Scaling of Axis
-                var maxX = Convert.ToInt32(Math.Floor((decimal) simConfig.SimulationEndTime / 1000) * 1000);
+                var maxX = Convert.ToInt32(Math.Floor((decimal) simConfig.SimulationEndTime.TotalMinutes / 1000) * 1000);
                 var maxY = Math.Ceiling(workKpi.Max(x => x.Value)) + 5;
                 var maxStepSize = Math.Ceiling(maxY * 0.1);
 

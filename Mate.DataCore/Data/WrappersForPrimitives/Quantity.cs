@@ -1,3 +1,5 @@
+using System;
+
 namespace Mate.DataCore.Data.WrappersForPrimitives
 {
     public class Quantity: DecimalPrimitive<Quantity>

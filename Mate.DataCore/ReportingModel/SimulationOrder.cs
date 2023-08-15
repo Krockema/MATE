@@ -9,10 +9,10 @@ namespace Mate.DataCore.ReportingModel
         public string Name { get; set; }
         public int Quantity { get; set; }
         public int OriginId { get; set; }
-        public int DueTime { get; set; }
-        public int CreationTime { get; set; }
-        public int ProductionFinishedTime { get; set; }
-        public int FinishingTime { get; set; }
+        public DateTime DueTime { get; set; }
+        public DateTime CreationTime { get; set; }
+        public DateTime ProductionFinishedTime { get; set; }
+        public DateTime FinishingTime { get; set; }
         public int BusinessPartnerId { get; set; }
         public Guid StockExchangeGuid { get; set; }
         public State State { get; set; }

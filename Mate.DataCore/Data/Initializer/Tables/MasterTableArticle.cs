@@ -68,7 +68,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             DUMP_TRUCK = new M_Article
             {
                 Name = "Dump-Truck", ArticleTypeId = articleType.PRODUCT.Id,
-                CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = 20, UnitId = unit.PIECES.Id,
+                CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(20), UnitId = unit.PIECES.Id,
                 Price = 45.00, ToPurchase = false, ToBuild = true, PictureUrl = "/images/Product/05_Truck_final.jpg"
             };
 
@@ -76,7 +76,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 Name = "Race-Truck",
                 ArticleTypeId = articleType.PRODUCT.Id,
-                CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = 20,
+                CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(20),
                 UnitId = unit.PIECES.Id, Price = 45.00, ToPurchase = false,
                 ToBuild = true, PictureUrl = "/images/Product/06_Race-Truck_final.jpg"
             };
@@ -85,7 +85,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 Name = "Skeleton",
                 ArticleTypeId = articleType.ASSEMBLY.Id,
-                CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = 10,
+                CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10),
                 UnitId = unit.PIECES.Id, Price = 15.00, ToPurchase = false,
                 ToBuild = true, PictureUrl = "/images/Product/01_Bodenplatte.jpg"
             };
@@ -94,7 +94,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 Name = "Truck-Bed",
                 ArticleTypeId = articleType.ASSEMBLY.Id,
-                CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = 10,
+                CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10),
                 UnitId = unit.PIECES.Id, Price = 15.00, ToPurchase = false,
                 ToBuild = true, PictureUrl = "/images/Product/03_Ladefläche.jpg"
             };
@@ -103,7 +103,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 Name = "Chassis Type: Dump",
                 ArticleTypeId = articleType.ASSEMBLY.Id,
-                CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = 10,
+                CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10),
                 UnitId = unit.PIECES.Id, Price = 15.00, ToPurchase = false,
                 ToBuild = true, PictureUrl = "/images/Product/02_Gehäuse.jpg"
             };
@@ -112,7 +112,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 Name = "Chassis Type: Race",
                 ArticleTypeId = articleType.ASSEMBLY.Id,
-                CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = 10,
+                CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10),
                 UnitId = unit.PIECES.Id, Price = 20.00, ToPurchase = false,
                 ToBuild = true, PictureUrl = "/images/Product/08_Race-Truck_Chassie.jpg"
             };
@@ -121,7 +121,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 Name = "Race Wing",
                 ArticleTypeId = articleType.ASSEMBLY.Id,
-                CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = 5,
+                CreationDate = DateTime.Parse(s: "2016-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(5),
                 UnitId = unit.PIECES.Id, Price = 5.00, ToPurchase = false,
                 ToBuild = true, PictureUrl = "/images/Product/07_Race-Wing.jpg"
             };
@@ -130,7 +130,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 Name = "Cabin",
                 ArticleTypeId = articleType.ASSEMBLY.Id,
-                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 10,
+                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10),
                 UnitId = unit.PIECES.Id, Price = 1.75, ToPurchase = false,
                 ToBuild = true
             };
@@ -139,7 +139,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 Name = "Engine-Block",
                 ArticleTypeId = articleType.ASSEMBLY.Id,
-                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 10,
+                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10),
                 UnitId = unit.PIECES.Id, Price = 3.00, ToPurchase = false,
                 ToBuild = true
             };
@@ -149,7 +149,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 Name = "Side wall long",
                 ArticleTypeId = articleType.ASSEMBLY.Id,
-                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 10,
+                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10),
                 UnitId = unit.PIECES.Id, Price = 0.35, ToPurchase = false,
                 ToBuild = true
             };
@@ -158,7 +158,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 Name = "Side wall short",
                 ArticleTypeId = articleType.ASSEMBLY.Id,
-                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 10,
+                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10),
                 UnitId = unit.PIECES.Id, Price = 0.25, ToPurchase = false,
                 ToBuild = true
             };
@@ -167,7 +167,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 Name = "Base plate Truck-Bed",
                 ArticleTypeId = articleType.ASSEMBLY.Id,
-                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 10,
+                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10),
                 UnitId = unit.PIECES.Id, Price = 0.40, ToPurchase = false,
                 ToBuild = true
             };
@@ -176,7 +176,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 Name = "Dump Joint" /*Kippgelenk*/,
                 ArticleTypeId = articleType.MATERIAL.Id,
-                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 10,
+                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10),
                 UnitId = unit.PIECES.Id, Price = 0.90, ToPurchase = true,
                 ToBuild = false
             };
@@ -185,35 +185,35 @@ namespace Mate.DataCore.Data.Initializer.Tables
             ENGINE_RACE_EXTENSION = new M_Article
             {
                 Name = "Engine Race Extension", ArticleTypeId = articleType.ASSEMBLY.Id,
-                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 10, UnitId = unit.PIECES.Id,
+                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10), UnitId = unit.PIECES.Id,
                 Price = 0.50, ToPurchase = false, ToBuild = true
             };
             // Skeleton
             WHEEL = new M_Article
             {
                 Name = "Wheel", ArticleTypeId = articleType.MATERIAL.Id,
-                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 10, UnitId = unit.PIECES.Id,
+                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10), UnitId = unit.PIECES.Id,
                 Price = 1.00, ToPurchase = true, ToBuild = false
             };
 
             BASE_PLATE = new M_Article
             {
                 Name = "Base plate", ArticleTypeId = articleType.ASSEMBLY.Id,
-                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 10, UnitId = unit.PIECES.Id,
+                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10), UnitId = unit.PIECES.Id,
                 Price = 0.80, ToPurchase = false, ToBuild = true
             };
 
             SEMITRAILER = new M_Article
             {
                 Name = "Semitrailer" /*Aufleger*/, ArticleTypeId = articleType.MATERIAL.Id,
-                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 10, UnitId = unit.PIECES.Id,
+                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10), UnitId = unit.PIECES.Id,
                 Price = 0.10, ToPurchase = true, ToBuild = false
             };
 
             WASHER = new M_Article
             {
                 Name = "Washer", ArticleTypeId = articleType.MATERIAL.Id,
-                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 10, UnitId = unit.KILO.Id,
+                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10), UnitId = unit.KILO.Id,
                 Price = 0.02, ToPurchase = true, ToBuild = false
             };
             
@@ -221,56 +221,56 @@ namespace Mate.DataCore.Data.Initializer.Tables
             TIMBER_PLATE = new M_Article
             {
                 Name = "Timber Plate 1,5m x 3,0m", ArticleTypeId = articleType.MATERIAL.Id,
-                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 5, UnitId = unit.PIECES.Id,
+                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(5), UnitId = unit.PIECES.Id,
                 Price = 0.20, ToPurchase = true, ToBuild = false
             };
 
             TIMBER_BLOCK = new M_Article
             {
                 Name = "Timber Block 0,20m x 0,20m", ArticleTypeId = articleType.MATERIAL.Id,
-                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 5, UnitId = unit.PIECES.Id,
+                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(5), UnitId = unit.PIECES.Id,
                 Price = 0.70, ToPurchase = true, ToBuild = false
             };
 
             GLUE = new M_Article
             {
                 Name = "Glue", ArticleTypeId = articleType.CONSUMABLE.Id,
-                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 10, UnitId = unit.LITER.Id,
+                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10), UnitId = unit.LITER.Id,
                 Price = 0.01, ToPurchase = true, ToBuild = false
             };
 
             PEGS = new M_Article
             {
                 Name = "Pegs", ArticleTypeId = articleType.CONSUMABLE.Id,
-                CreationDate = DateTime.Parse(s: "2005-09-01"), DeliveryPeriod = 3, UnitId = unit.KILO.Id,
+                CreationDate = DateTime.Parse(s: "2005-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(3), UnitId = unit.KILO.Id,
                 Price = 0.01, ToPurchase = true, ToBuild = false
             };
 
             POLE = new M_Article
             {
                 Name = "Pole", ArticleTypeId = articleType.MATERIAL.Id,
-                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 10, UnitId = unit.PIECES.Id,
+                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10), UnitId = unit.PIECES.Id,
                 Price = 0.25, ToPurchase = true, ToBuild = false
             };
 
             BUTTON = new M_Article
             {
                 Name = "Button", ArticleTypeId = articleType.MATERIAL.Id,
-                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = 10, UnitId = unit.KILO.Id,
+                CreationDate = DateTime.Parse(s: "2002-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(10), UnitId = unit.KILO.Id,
                 Price = 0.05, ToPurchase = true, ToBuild = false
             };
 
             PACKING = new M_Article
             {
                 Name = "Packing", ArticleTypeId = articleType.CONSUMABLE.Id,
-                CreationDate = DateTime.Parse(s: "2005-09-01"), DeliveryPeriod = 4, UnitId = unit.KILO.Id,
+                CreationDate = DateTime.Parse(s: "2005-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(4), UnitId = unit.KILO.Id,
                 Price = 2.15, ToPurchase = true, ToBuild = false
             };
 
             USER_MANUAL = new M_Article
             {
                 Name = "User Manual", ArticleTypeId = articleType.CONSUMABLE.Id,
-                CreationDate = DateTime.Parse(s: "2005-09-01"), DeliveryPeriod = 4, UnitId = unit.KILO.Id,
+                CreationDate = DateTime.Parse(s: "2005-09-01"), DeliveryPeriod = TimeSpan.FromMinutes(4), UnitId = unit.KILO.Id,
                 Price = 0.50, ToPurchase = true, ToBuild = false
             };
         }

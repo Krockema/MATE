@@ -3,55 +3,51 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mate.Production.Core.Helper;
-using static FBuckets;
-using static FQueueingScopes;
-using static FRequestProposalForCapabilityProviders;
-using static FScopes;
-using static IConfirmations;
-using static IJobs;
-using static FScopeConfirmations;
+using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Environment.Records.Interfaces;
+using Mate.Production.Core.Environment.Records.Scopes;
 
 namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
 {
-    public class TimeConstraintQueue : SortedList<long, IConfirmation>, IJobQueue
+    public class TimeConstraintQueue : SortedList<DateTime, IConfirmation>, IJobQueue
     {
-        public long Limit { get; set; }
-        public long Workload => this.Values.Sum(x => x.Job.Duration);
+        public TimeSpan Limit { get; set; }
+        public TimeSpan Workload => this.Values.Sum(x => x.Job.Duration);
 
-        public TimeConstraintQueue(long limit)
+        public TimeConstraintQueue(TimeSpan limit)
         {
             Limit = limit;
         }
 
-        public IConfirmation GetFirstIfSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
+        public IConfirmation GetFirstIfSatisfied(DateTime currentTime, M_ResourceCapability resourceCapability = null)
         {
             var (key, confirmation) = GetFirst();
-            if (confirmation != null && ((FBucket)confirmation.Job).HasSatisfiedJob)
+            if (confirmation != null && ((BucketRecord)confirmation.Job).HasSatisfiedJob())
             {
                 return confirmation;
             }
             return null;
         }
 
-        public IConfirmation DequeueFirstSatisfied(long currentTime, M_ResourceCapability resourceCapability = null)
+        public IConfirmation DequeueFirstSatisfied(DateTime currentTime, M_ResourceCapability resourceCapability = null)
         {
             var (key, value) = GetFirstSatisfied(currentTime);
             this.Remove(key);
             return value;
         }
 
-        public IConfirmation GetFirstIfSatisfiedAndSetReadyAtIsSmallerOrEqualThan(long currentTime, M_ResourceCapability resourceCapability = null)
+        public IConfirmation GetFirstIfSatisfiedAndSetReadyAtIsSmallerOrEqualThan(DateTime currentTime, M_ResourceCapability resourceCapability = null)
         {
             var (key, confirmation) = GetFirst();
             if (confirmation != null 
-                && ((FBucket)confirmation.Job).HasSatisfiedJob 
+                && ((BucketRecord)confirmation.Job).HasSatisfiedJob() 
                 && confirmation.ScopeConfirmation.SetReadyAt <= currentTime)
             {
                 return confirmation;
             }
             return null;
         }
-        public KeyValuePair<long, IConfirmation> GetFirst()
+        public KeyValuePair<DateTime, IConfirmation> GetFirst()
         {
             var bucket = this.FirstOrDefault();
             return bucket;
@@ -61,25 +57,25 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
             this.Add(jobConfirmation.ScopeConfirmation.GetScopeStart(), jobConfirmation);
         }
 
-        public KeyValuePair<long, IConfirmation> GetFirstSatisfied(long currentTime)
+        public KeyValuePair<DateTime, IConfirmation> GetFirstSatisfied(DateTime currentTime)
         {
-            var bucket = this.First(x => ((FBucket)x.Value.Job).HasSatisfiedJob);
+            var bucket = this.First(x => ((BucketRecord)x.Value.Job).HasSatisfiedJob());
             return bucket;
         }
 
         public bool CapacitiesLeft()
         {
-            return Limit > GetJobsAs<FBucket>().Sum(selector: x => x.Scope);
+            return Limit > GetJobsAs<BucketRecord>().Sum(x => x.Scope);
         }
 
         public bool HasQueueAbleJobs()
         {
-            return this.Values.Any(job => ((FBucket) job.Job).HasSatisfiedJob);
+            return this.Values.Any(job => ((BucketRecord)job.Job).HasSatisfiedJob());
         }
 
         public bool FirstJobIsQueueAble()
         {
-            return (this.Values.Count != 0) && ((FBucket)this.Values[0].Job).HasSatisfiedJob;
+            return (this.Values.Count != 0) && ((BucketRecord)this.Values[0].Job).HasSatisfiedJob();
         }
 
         public IEnumerable<T> GetJobsAs<T>()
@@ -103,7 +99,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
             return this.Remove(job.ScopeConfirmation.GetScopeStart());
         }
 
-        public HashSet<IConfirmation> GetTail(long currentTime, IConfirmation jobConfirmation)
+        public HashSet<IConfirmation> GetTail(DateTime currentTime, IConfirmation jobConfirmation)
         {
 
             var toRequeue = this.Where(x => (x.Value.ScopeConfirmation.GetScopeStart() >= jobConfirmation.ScopeConfirmation.GetScopeStart() 
@@ -120,7 +116,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
         
 
 
-        public HashSet<IConfirmation> GetAllSubsequentJobs(long jobStart)
+        public HashSet<IConfirmation> GetAllSubsequentJobs(DateTime jobStart)
         {
             return this.Where(x => x.Key >= jobStart).Select(x => x.Value).ToHashSet();
         }
@@ -130,18 +126,18 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
             return this.Select(x => x.Value).ToHashSet();
         }
 
-        public List<FQueueingScope> GetQueueAbleTime(FRequestProposalForCapability jobProposal
-                                , long currentTime, CapabilityProviderManager cpm
-                                , long resourceBlockedUntil, int resourceId)
+        public List<QueueingScopeRecord> GetQueueAbleTime(RequestProposalForCapabilityRecord jobProposal
+                                , DateTime currentTime, CapabilityProviderManager cpm
+                                , DateTime resourceBlockedUntil, int resourceId)
         {
 
             //TODO Right now only take the first
             var resourceCapabilityProvider = cpm.GetCapabilityProviderByCapability(jobProposal.CapabilityId);
             var setup = resourceCapabilityProvider.ResourceSetups.Single(x => resourceId.Equals(x.Resource.Id));
 
-            var requiredDuration = 0L;
+            var requiredDuration = TimeSpan.Zero;
             if (setup.UsedInProcess)
-                requiredDuration += ((FBucket)jobProposal.Job).MaxBucketSize;
+                requiredDuration += ((BucketRecord)jobProposal.Job).MaxBucketSize;
 
             if (setup.UsedInSetup)
                 requiredDuration += resourceCapabilityProvider.ResourceSetups.Sum(x => x.SetupTime);
@@ -159,16 +155,16 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
             return queuingScopes;
         }
 
-        private List<FQueueingScope> GetScopesFor(long requiredTimeForJob
+        private List<QueueingScopeRecord> GetScopesFor(TimeSpan requiredTimeForJob
                                                 , IJob job
                                                 //, int capabilityId
                                                 , int resourceCapabilityId
                                                 , bool usedForSetupAndProcess
-                                                , long currentTime
-                                                , long resourceBlockedUntil
+                                                , DateTime currentTime
+                                                , DateTime resourceBlockedUntil
                                                 , CapabilityProviderManager capabilityProviderManager)
         {
-            var positions = new List<FQueueingScope>();
+            var positions = new List<QueueingScopeRecord>();
 
             var jobPriority = job.Priority(currentTime);
             var allWithHigherPriority = this.Where(x => x.Value.Job.Priority(currentTime) <= jobPriority);
@@ -188,8 +184,8 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
             {
                 var current = enumerator.Current;
                 var preScopeEnd = current.Value.ScopeConfirmation.GetScopeEnd();
-                var preIsReady = ((FBucket) current.Value.Job).HasSatisfiedJob;
-                var jobToPutIsReady = ((FBucket) job).HasSatisfiedJob;
+                var preIsReady = ((BucketRecord) current.Value.Job).HasSatisfiedJob();
+                var jobToPutIsReady = ((BucketRecord) job).HasSatisfiedJob();
                 var currentJobPriority = current.Value.Job.Priority(currentTime);
                 earliestStart = !preIsReady && jobToPutIsReady
                                     && (currentJobPriority > jobPriority) ? earliestStart : preScopeEnd;
@@ -228,11 +224,11 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
                         }
                     }
 
-                    if (requiredTime <= postScopeStart - earliestStart && requiredTime > 0)
+                    if (requiredTime <= postScopeStart - earliestStart && requiredTime > TimeSpan.Zero)
                     {
-                        positions.Add(new FQueueingScope(isQueueAble: true,
-                                                        isRequieringSetup: isRequiringSetup, // setup is Required
-                                                        scope: new FScope(start: earliestStart, end: postScopeStart)
+                        positions.Add(new QueueingScopeRecord(IsQueueAble: true,
+                                                        IsRequieringSetup: isRequiringSetup, // setup is Required
+                                                        Scope: new ScopeRecord(Start: earliestStart, End: postScopeStart)
                                                         ));
                     }
 
@@ -246,7 +242,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
                         }
                     }
                     currentJobPriority = current.Value.Job.Priority(currentTime);
-                    preIsReady = ((FBucket) current.Value.Job).HasSatisfiedJob;
+                    preIsReady = ((BucketRecord) current.Value.Job).HasSatisfiedJob();
                     //earliestStart = current.Value.ScopeConfirmation.GetScopeEnd();
 
 
@@ -261,9 +257,9 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
             enumerator.Dispose();
             // Queue contains no job --> Add queable item
             // TODO only is queable if any position exits
-            positions.Add(new FQueueingScope(isQueueAble: isQueueAble,
-                                                isRequieringSetup: isRequiringSetup,
-                                                scope: new FScope(start: earliestStart, end: long.MaxValue)));
+            positions.Add(new QueueingScopeRecord(IsQueueAble: isQueueAble,
+                                                IsRequieringSetup: isRequiringSetup,
+                                                Scope: new ScopeRecord(Start: earliestStart, End: currentTime.AddYears(10))));
             return positions;
         }
 
@@ -272,7 +268,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
             return this.Count > 0 ? this.Values.First() : null;
         }
 
-        public bool CheckScope(IConfirmation confirmation, long time, long resourceIsBusyUntil, int equippedCapability, bool usedInSetup)
+        public bool CheckScope(IConfirmation confirmation, DateTime time, DateTime resourceIsBusyUntil, int equippedCapability, bool usedInSetup)
         {
             if (resourceIsBusyUntil > confirmation.ScopeConfirmation.GetScopeStart())
                 return false;
@@ -303,8 +299,8 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
                 return false;
             }
 
-            var preReady = ((FBucket)pre.Value.Job).HasSatisfiedJob;
-            var jobToPutReady = ((FBucket)confirmation.Job).HasSatisfiedJob;
+            var preReady = ((BucketRecord)pre.Value.Job).HasSatisfiedJob();
+            var jobToPutReady = ((BucketRecord)confirmation.Job).HasSatisfiedJob();
             fitStart = pre.Value.ScopeConfirmation.GetScopeEnd() <= confirmation.ScopeConfirmation.GetScopeStart();
             //fitStart = readyCondition || pre.Value.ScopeConfirmation.GetScopeEnd() <= confirmation.ScopeConfirmation.GetScopeStart();
             if (pre.Value.Job.Priority(time) >= priority && !preReady && jobToPutReady)
@@ -326,7 +322,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
             return returnVal;
         }
 
-        public bool QueueHealthCheck(long currentTime)
+        public bool QueueHealthCheck(DateTime currentTime)
         {
             if (this.Count <= 1) return false;
 
@@ -337,7 +333,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
             var priorityOfFirstElement = array[0].Value.Job.Priority(currentTime);
             for (var i = 1; i < array.Length; i++)
             {
-                var satisfied = ((FBucket)array[i].Value.Job).HasSatisfiedJob;
+                var satisfied = ((BucketRecord)array[i].Value.Job).HasSatisfiedJob();
                 var priority = array[i].Value.Job.Priority(currentTime);
                 if (satisfied && priority <= priorityOfFirstElement)
                 {
@@ -348,25 +344,25 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Types.TimeConstraintQueue
         }
 
         
-        public int GetAmountOfPreviousOperations(long scopeStart)
+        public int GetAmountOfPreviousOperations(DateTime scopeStart)
         {
             int operations = 0;
-            var index = this.IndexOfKey(scopeStart);
+            //var index = this.IndexOfKey(scopeStart);
 
-            foreach(var element in this.Where(x => x.Key < index))
+            foreach(var element in this.Where(x => x.Key < scopeStart))
             {
-                operations += ((FBucket)element.Value.Job).Operations.Count();
+                operations += ((BucketRecord)element.Value.Job).Operations.Count();
 
             }
 
             return operations;
         }
 
-        public (long, int) GetPositionOfJobInJob(long scopeStart, Guid operationId, long currentTime)
+        public (TimeSpan, int) GetPositionOfJobInJob(DateTime scopeStart, Guid operationId, DateTime currentTime)
         {
             int operations = 0;
-            long duration = 0;
-            var bucket = ((FBucket)this[scopeStart].Job);
+            TimeSpan duration = TimeSpan.Zero;
+            var bucket = ((BucketRecord)this[scopeStart].Job);
             var operation = bucket.Operations.Single(x => x.Key == operationId) as IJob;
             foreach (var element in bucket.Operations.Cast<IJob>().Where(x => x.Priority(currentTime) < operation.Priority(currentTime)))
             {

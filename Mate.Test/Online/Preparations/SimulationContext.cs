@@ -1,7 +1,7 @@
 ﻿using System;
 using Akka.Actor;
-using AkkaSim.Definitions;
-using AkkaSim.Interfaces;
+using Akka.Hive.Definitions;
+using Akka.Hive.Interfaces;
 
 namespace Mate.Test.Online.Preparations
 {
@@ -16,14 +16,12 @@ namespace Mate.Test.Online.Preparations
         {
             TestProbe = testProbe;
 
-            Receive<SimulationMessage.Done>(handler: x => Console.WriteLine(value: x.ToString()));
+            Receive<HiveMessage.Done>(handler: x => Console.WriteLine(value: x.ToString()));
 
-            Receive<ISimulationMessage>(handler: m =>
+            Receive<IHiveMessage>(handler: m =>
             {
                 if (m.Target != ActorRefs.NoSender)
                     m.Target.Forward(message: m);
-                else if (m.TargetSelection != null)
-                    m.TargetSelection.Tell(message: m);
                 else
                     Sender.Tell(message: m);
 
@@ -34,7 +32,7 @@ namespace Mate.Test.Online.Preparations
         }
     }
 
-    public class TestMessage : SimulationMessage
+    public record TestMessage : HiveMessage
     {
         public TestMessage(IActorRef target, object msg) : base(message: msg, target: target)
         {

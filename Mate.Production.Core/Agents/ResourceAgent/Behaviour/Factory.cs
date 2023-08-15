@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Mate.DataCore.DataModel;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.Nominal.Model;
+using Mate.Production.Core.Environment.Records.Central;
 using Mate.Production.Core.Helper.DistributionProvider;
 using Mate.Production.Core.Types;
 
@@ -9,7 +11,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 {
     public static class Factory
     {
-        public static IBehaviour Get(SimulationType simType, WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider, long timeConstraintQueueLength, int resourceId, ResourceType resourceType)
+        public static IBehaviour Get(SimulationType simType, WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider, TimeSpan timeConstraintQueueLength, int resourceId, ResourceType resourceType)
         {
             IBehaviour behaviour;
             switch (simType)
@@ -28,7 +30,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
             return behaviour;
         }
 
-        private static IBehaviour Default(WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider, long timeConstraintQueueLength, int resourceId, ResourceType resourceType)
+        private static IBehaviour Default(WorkTimeGenerator workTimeGenerator, List<M_ResourceCapabilityProvider> capabilityProvider, TimeSpan timeConstraintQueueLength, int resourceId, ResourceType resourceType)
         {
             //TODO - create config item.
             return new Default(timeConstraintQueueLength: timeConstraintQueueLength //480
@@ -39,7 +41,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 
         }
 
-        public static IBehaviour Central(FCentralResourceDefinitions.FCentralResourceDefinition resourceDefinition)
+        public static IBehaviour Central(CentralResourceDefinitionRecord resourceDefinition)
         {
             return new Central(resourceDefinition, SimulationType.Central);
         }

@@ -1,9 +1,10 @@
 ﻿using Mate.DataCore.DataModel;
 using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.SupervisorAgent;
+using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Environment.Records.Central;
 using Mate.Production.Core.Helper;
-using static FArticles;
-using static FCentralProvideOrders;
+using System;
 
 namespace Mate.Production.Core.Agents.ContractAgent.Behaviour
 {
@@ -12,7 +13,7 @@ namespace Mate.Production.Core.Agents.ContractAgent.Behaviour
         internal Central(SimulationType simulationType = SimulationType.None)
                         : base(childMaker: null, simulationType: simulationType) { }
 
-        public FArticle _fArticle { get; internal set; }
+        public ArticleRecord _fArticle { get; internal set; }
 
         public override bool Action(object message)
         {
@@ -36,7 +37,7 @@ namespace Mate.Production.Core.Agents.ContractAgent.Behaviour
             // create Request Item
             _fArticle = orderItem.ToRequestItem(requester: Agent.Context.Self
                                             , customerDue: orderItem.CustomerOrder.DueTime
-                                            , remainingDuration: 0
+                                            , remainingDuration: TimeSpan.Zero
                                             , currentTime: Agent.CurrentTime);
 
 
@@ -51,7 +52,7 @@ namespace Mate.Production.Core.Agents.ContractAgent.Behaviour
         /// </summary>
         /// <param name="agent"></param>
         /// <param name="fArticle"></param>
-        public void TryFinishOrder(FCentralProvideOrder order)
+        public void TryFinishOrder(CentralProvideOrderRecord order)
         {
             Agent.DebugMessage(msg: "Ready to Deliver");
             //var localItem = Agent.Get<FRequestItem>(REQUEST_ITEM);
@@ -59,18 +60,18 @@ namespace Mate.Production.Core.Agents.ContractAgent.Behaviour
             // try to Finish if time has come
             if (Agent.CurrentTime >= _fArticle.DueTime)
             {
-                _fArticle = _fArticle.SetProvided
+                _fArticle = _fArticle.SetProvided()
                                     .UpdateFinishedAt(Agent.CurrentTime)
                                     .UpdateProvidedAt(order.MaterialFinishedAt);
                 Agent.DebugMessage(msg: $"Article delivered in time {_fArticle.DueTime == Agent.CurrentTime} {order.MaterialName} {order.MaterialId} due: {_fArticle.DueTime} current: {Agent.CurrentTime}!");
-                Agent.Send(instruction: DirectoryAgent.Directory.Instruction.Central.ForwardWithdrawMaterial.Create(new FCentralStockPostings.FCentralStockPosting(order.MaterialId,1), target: Agent.ActorPaths.StorageDirectory.Ref));
+                Agent.Send(instruction: DirectoryAgent.Directory.Instruction.Central.ForwardWithdrawMaterial.Create(new StockPostingRecord(order.MaterialId,1), target: Agent.ActorPaths.StorageDirectory.Ref));
                 Agent.Send(instruction: Supervisor.Instruction.OrderProvided.Create(message: _fArticle, target: Agent.ActorPaths.SystemAgent.Ref));
                 Agent.VirtualChildren.Remove(item: Agent.Sender);
                 Agent.TryToFinish();
             }
         }
 
-        public void EstimateForwardEnd(long estimatedEnd)
+        public void EstimateForwardEnd(DateTime estimatedEnd)
         {
             Agent.DebugMessage(
                 msg:

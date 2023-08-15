@@ -55,7 +55,7 @@ namespace Mate.Production.Core.Types
         {
             foreach (var operation in article.Operations)
             {
-                operation.AverageTransitionDuration = Convert.ToInt32(value: Math.Round(d: operation.Duration * factor, decimals: 0, mode: MidpointRounding.AwayFromZero));
+                operation.AverageTransitionDuration = TimeSpan.FromMinutes((double)Math.Round(d: (decimal)operation.Duration.TotalMinutes * factor, decimals: 0, mode: MidpointRounding.AwayFromZero));
             }
         }
     }

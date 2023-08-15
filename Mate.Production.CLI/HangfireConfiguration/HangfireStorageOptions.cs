@@ -11,7 +11,6 @@ namespace Mate.Production.CLI.HangfireConfiguration
             SlidingInvisibilityTimeout = TimeSpan.FromMinutes(15),
             QueuePollInterval = TimeSpan.Zero,
             UseRecommendedIsolationLevel = true,
-            UsePageLocksOnDequeue = true,
             DisableGlobalLocks = true,
 
         };

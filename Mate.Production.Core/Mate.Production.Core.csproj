@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <LangVersion>9.0</LangVersion>
+    <TargetFramework>net7.0</TargetFramework>
+    <LangVersion>10.0</LangVersion>
 	  <Platforms>AnyCPU;x64;x86</Platforms>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Mate.DataCore\Mate.DataCore.csproj" />
-    <ProjectReference Include="..\Mate.Production.Immutables\Mate.Production.Immutables.fsproj" />
   </ItemGroup>
 
 </Project>

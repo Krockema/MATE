@@ -2,21 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
+using Akka.Hive.Definitions;
 using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.CollectorAgent.Types;
 using Mate.Production.Core.Agents.HubAgent.Types;
 using Mate.Production.Core.Agents.HubAgent.Types.Queuing;
 using Mate.Production.Core.Agents.ResourceAgent;
+using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Environment.Records.Interfaces;
+using Mate.Production.Core.Environment.Records.Queueing;
+using Mate.Production.Core.Environment.Records.Reporting;
 using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
 using NLog;
-using static FOperations;
-using static FQueuingJobs;
-using static FQueuingSetups;
-using static FResourceInformations;
-using static FUpdateStartConditions;
-using static IJobs;
-using static IQueueingJobs;
 
 namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 {
@@ -28,7 +26,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         private JobManager _jobManager { get; } = new JobManager();
         private WorkTimeGenerator _workTimeGenerator { get; }
 
-        public Queuing(long maxBucketSize, WorkTimeGenerator workTimeGenerator, SimulationType simulationType = SimulationType.Queuing) : base(childMaker: null, simulationType: simulationType)
+        public Queuing(TimeSpan maxBucketSize, WorkTimeGenerator workTimeGenerator, SimulationType simulationType = SimulationType.Queuing) : base(childMaker: null, simulationType: simulationType)
         {
             _workTimeGenerator = workTimeGenerator;
         }
@@ -53,7 +51,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             return success;
         }
 
-        internal void AddResourceToHub(FResourceInformation resourceInformation)
+        internal void AddResourceToHub(ResourceInformationRecord resourceInformation)
         {
             _resourceManager.Add(
                 resourceId: resourceInformation.ResourceId,
@@ -82,12 +80,12 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
         private void EnqueueJob(IJob job)
         {
-            var operation = (FOperation)job;
+            var operation = (OperationRecord)job;
 
             Agent.DebugMessage(msg: $"Got New Item to Enqueue: {operation.Operation.Name} {operation.Key}" +
-                                    $"| with start condition: {operation.StartConditions.Satisfied} with Id: {operation.Key}" +
-                                    $"| ArticleProvided: {operation.StartConditions.ArticlesProvided} " +
-                                    $"| PreCondition: {operation.StartConditions.PreCondition}", CustomLogger.JOB, LogLevel.Warn);
+                                    $"| with start condition: {operation.StartCondition.Satisfied} with Id: {operation.Key}" +
+                                    $"| ArticleProvided: {operation.StartCondition.ArticlesProvided} " +
+                                    $"| PreCondition: {operation.StartCondition.PreCondition}", CustomLogger.JOB, LogLevel.Warn);
 
             operation.UpdateHubAgent(hub: Agent.Context.Self);
 
@@ -176,16 +174,16 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             {
                 jobQueue.AddSetup(resource.Id);
 
-                var fQueuingSetup = new FQueuingSetup(
-                    key: jobQueue.QueueId,
-                    resourceId: resource.Id,
-                    job: nextJob,
-                    jobKey: nextJob.Key,
-                    jobName: nextJob.Name,
-                    duration: setupTime,
-                    hub: Agent.Context.Self,
-                    capabilityProvider: jobQueue.ResourceCapabilityProvider,
-                    jobType: JobType.SETUP
+                var fQueuingSetup = new QeueingSetupRecord(
+                    Key: jobQueue.QueueId,
+                    ResourceId: resource.Id,
+                    Job: nextJob,
+                    JobKey: nextJob.Key,
+                    JobName: nextJob.Name,
+                    Duration: setupTime,
+                    Hub: Agent.Context.Self,
+                    CapabilityProvider: jobQueue.ResourceCapabilityProvider,
+                    JobType: JobType.SETUP
                 );
 
                 Agent.DebugMessage($"Request {resource.Name} to setup {jobQueue.ResourceCapabilityProvider.ResourceCapability.Name}", CustomLogger.JOB, LogLevel.Debug);
@@ -234,9 +232,8 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             var jobQueue = _jobManager.GetActiveJob(queueKey);
 
             var nextJob = jobQueue.Dequeue(Agent.CurrentTime);
-            _jobManager.RemoveFromJobTracker(nextJob, this.Agent.CurrentTime);
-
-            var operation = nextJob as FOperation;
+            
+            var operation = nextJob as OperationRecord;
             
             var randomizedDuration = _workTimeGenerator.GetRandomWorkTime(nextJob.Duration, (operation.ProductionAgent.GetHashCode() + operation.Operation.HierarchyNumber).GetHashCode());
 
@@ -248,16 +245,16 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
                 jobQueue.AddProcessing(resource.Id);
 
-                var fQueuingJob = new FQueuingJob(
-                    key: jobQueue.QueueId,
-                    resourceId: resource.Id,
-                    job: nextJob,
-                    jobKey: nextJob.Key,
-                    jobName: nextJob.Name,
-                    duration: randomizedDuration,
-                    hub: Agent.Context.Self,
-                    capabilityProvider: jobQueue.ResourceCapabilityProvider,
-                    jobType: JobType.OPERATION
+                var fQueuingJob = new QueueingJobRecord(
+                    Key: jobQueue.QueueId,
+                    ResourceId: resource.Id,
+                    Job: nextJob,
+                    JobKey: nextJob.Key,
+                    JobName: nextJob.Name,
+                    Duration: randomizedDuration,
+                    Hub: Agent.Context.Self,
+                    CapabilityProvider: jobQueue.ResourceCapabilityProvider,
+                    JobType: JobType.OPERATION
                     );
 
 
@@ -303,13 +300,13 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
         }
 
-        internal void UpdateAndForwardStartConditions(FUpdateStartCondition startCondition)
+        internal void UpdateAndForwardStartConditions(UpdateStartConditionRecord startCondition)
         {
             Agent.DebugMessage(msg: $"Received: Update and forward start condition for {startCondition.OperationKey}" +
                                     $"| ArticleProvided: {startCondition.ArticlesProvided} " +
                                     $"| PreCondition: {startCondition.PreCondition} ");
 
-            var job = _jobManager.GetJob(startCondition.OperationKey) as FOperation;
+            var job = _jobManager.GetJob(startCondition.OperationKey) as OperationRecord;
 
             if (job == null)
             {
@@ -320,7 +317,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             job.SetStartConditions(startCondition.PreCondition, startCondition.ArticlesProvided, Agent.CurrentTime);
 
             _jobManager.SetJob(job, Agent.CurrentTime);
-            if (job.StartConditions.Satisfied)
+            if (job.StartCondition.Satisfied)
             {
                 StartNext();
             }
@@ -328,7 +325,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
 
         private void CreateOperationResults(IQueueingJob fQueuingJob)
         {
-            var job = fQueuingJob.Job as FOperation;
+            var job = fQueuingJob.Job as OperationRecord;
 
             ResultStreamFactory.PublishJob(agent: Agent
                 , job: job
@@ -336,13 +333,13 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                 , capabilityProvider: fQueuingJob.CapabilityProvider
                 , bucketName: fQueuingJob.Key.ToString());
 
-            var fOperationResult = new FOperationResults.FOperationResult(key: job.Key
-                , creationTime: 0
-                , start: Agent.CurrentTime
-                , end: Agent.CurrentTime + fQueuingJob.Duration
-                , originalDuration: job.Operation.Duration
-                , productionAgent: job.ProductionAgent
-                , capabilityProvider: fQueuingJob.CapabilityProvider.Name);
+            var fOperationResult = new OperationResultRecord(Key: job.Key
+                , CreationTime: Time.ZERO.Value
+                , Start: Agent.CurrentTime
+                , End: Agent.CurrentTime + fQueuingJob.Duration
+                , OriginalDuration: job.Operation.Duration
+                , ProductionAgent: job.ProductionAgent
+                , CapabilityProvider: fQueuingJob.CapabilityProvider.Name);
 
             Agent.Send(BasicInstruction.FinishJob.Create(fOperationResult, job.ProductionAgent));
         }

@@ -5,6 +5,7 @@ using Akka.Util.Internal;
 using Mate.DataCore.Data.WrappersForPrimitives;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.ReportingModel;
+using Mate.Production.Core.Helper;
 
 namespace Mate.Production.Core.Agents.CollectorAgent.Types
 {
@@ -23,10 +24,10 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
         {
             if(_idleDictionary.TryGetValue(job.CapabilityName, out List<Quantity> quantities))
             {
-                quantities.Add(new Quantity(job.Start - job.ReadyAt));
+                quantities.Add(new Quantity((decimal)(job.Start - job.ReadyAt).TotalMinutes));
                 return;
             }
-            _idleDictionary.Add(job.CapabilityName,new List<Quantity>() { new Quantity(job.Start - job.ReadyAt) });
+            _idleDictionary.Add(job.CapabilityName,new List<Quantity>() { new Quantity((decimal)(job.Start - job.ReadyAt).TotalMinutes) });
         }
 
         private void AddToTotals(string key, List<Quantity> idleList)
@@ -52,7 +53,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
                 {
                     Name = "Idle:" + x.Key,
                     Value = (double) Math.Round(x.Value.Average(a => a.GetValue()), 2),
-                    Time = (int) collector.Time,
+                    Time = collector.Time.Value,
                     KpiType = KpiType.CapabilityIdle,
                     SimulationConfigurationId = collector.simulationId.Value,
                     SimulationNumber = collector.simulationNumber.Value,

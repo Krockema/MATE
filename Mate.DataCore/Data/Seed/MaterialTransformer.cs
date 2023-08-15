@@ -58,7 +58,7 @@ namespace Mate.DataCore.Data.Seed
             var operations = new List<M_Operation>();
             foreach (var article in articles.Where(x => !x.ArticleType.Name.Equals("Material")))
             {
-                var materialnode = materials.NodesInUse.Single(x => x.Id.ToString().Equals(article.Name));
+                var materialnode = materials.NodesInUse.Single(x => x.Id.ToString().Equals(article.NodeId));
                 var operationFromArticle = CreateOperations(article, materialnode, masterTableCapabilities);
                 operations.AddRange(operationFromArticle);
             }
@@ -71,8 +71,8 @@ namespace Mate.DataCore.Data.Seed
             var boms = new List<M_ArticleBom>();
             foreach (var edge in materials.Edges)
             {
-                var articleFrom = articles.Single(x => x.Name.Equals(edge.FromId.ToString()));
-                var articleTo = articles.Single(x => x.Name.Equals(edge.ToId.ToString()));
+                var articleFrom = articles.Single(x => x.NodeId.Equals(edge.FromId.ToString()));
+                var articleTo = articles.Single(x => x.NodeId.Equals(edge.ToId.ToString()));
                 var operationId = operations.Where(x => x.ArticleId.Equals(articleTo.Id)).OrderBy(x => x.HierarchyNumber).First();
                 //TODO: Check if operations are required for M_Bom
                 var bom = CreateBOM(articleFrom, articleTo, operationId.Id);
@@ -101,10 +101,11 @@ namespace Mate.DataCore.Data.Seed
         {
             return new M_Article
             {
-                Name = material.Id.ToString(),
+                Name = "[" + articleType.Name + "_" + material.Id.ToString() + "]",
+                NodeId = material.Id.ToString(),
                 ArticleTypeId = articleType.Id,
                 CreationDate = DateTime.Now,
-                DeliveryPeriod = 20,
+                DeliveryPeriod = TimeSpan.FromMinutes(20),
                 UnitId = unit.Id,
                 Price = material.Cost,
                 ToBuild = material.Operations.Count > 0 ? true : false,
@@ -125,8 +126,8 @@ namespace Mate.DataCore.Data.Seed
                     new M_Operation
                     {
                         ArticleId = article.Id,
-                        Name = article.Name,
-                        Duration = (int)Math.Round(operation.Duration.TotalMinutes, 0, MidpointRounding.AwayFromZero),
+                        Name = "Operation " + article.Name,
+                        Duration = TimeSpan.FromMinutes(Math.Round(operation.Duration.TotalMinutes, 0, MidpointRounding.AwayFromZero)),
                         ResourceCapabilityId = capability.Id,
                         HierarchyNumber = operation.SequenceNumber,
                     });
@@ -176,7 +177,7 @@ namespace Mate.DataCore.Data.Seed
                         ArticleId = article.Id,
                         PackSize = 5000,
                         Price = 5000 * article.Price,
-                        TimeToDelivery = 1440
+                        TimeToDelivery = TimeSpan.FromDays(1)
                     });
             }
             mateDb.Stocks.AddRange(stocks);

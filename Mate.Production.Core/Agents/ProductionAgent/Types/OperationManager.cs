@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
+using Mate.Production.Core.Environment.Records;
 using Mate.Production.Core.Helper;
-using static FArticleProviders;
-using static FArticles;
-using static FOperations;
 
 namespace Mate.Production.Core.Agents.ProductionAgent.Types
 {
     public class OperationManager
     {
         private List<DispoArticleDictionary> _articleProvider { get; }= new List<DispoArticleDictionary>();
-        internal List<FOperation> GetOperations => _articleProvider.Select(x => x.Operation).OrderBy(x => x.Operation.HierarchyNumber).ToList();
+        internal List<OperationRecord> GetOperations => _articleProvider.Select(x => x.Operation).OrderBy(x => x.Operation.HierarchyNumber).ToList();
         internal List<IActorRef> GetProviderForOperation(Guid operationKey)
         {
             var articleTuple = _articleProvider.Single(x => x.Operation.Key == operationKey);
@@ -20,7 +18,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Types
             return provider;
         }
 
-        public List<FOperation> GetOperationByCapability(string capabilityName)
+        public List<OperationRecord> GetOperationByCapability(string capabilityName)
         {
             var operations = _articleProvider.Where(x => x.Operation.RequiredCapability.Name == capabilityName)
                                              .Select(x => x.Operation)
@@ -28,7 +26,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Types
             return operations;
         }
 
-        internal FArticle Set(IActorRef provider)
+        internal ArticleRecord Set(IActorRef provider)
         {
             // return first FArticle that has no provider
             var emptyProviders = GetAllRequiredArticlesWithoutProvider();
@@ -48,13 +46,13 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Types
             return emptyProviders;
         }
 
-        public FOperation GetOperationByKey(Guid operationKey)
+        public OperationRecord GetOperationByKey(Guid operationKey)
         {
             var operation = _articleProvider.Single(x => x.Operation.Key == operationKey).Operation;
             return operation;
         }
 
-        public void UpdateOperations(List<FOperation> operations)
+        public void UpdateOperations(List<OperationRecord> operations)
         {
             foreach (var operation in operations)
             { 
@@ -68,12 +66,12 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Types
             return _articleProvider.Single(x => x.Operation.Key == operationKey);
         }
 
-        public void AddOperation(FOperation fOperation)
+        public void AddOperation(OperationRecord Operation)
         {
-            _articleProvider.Add(new DispoArticleDictionary(operation: fOperation));
+            _articleProvider.Add(new DispoArticleDictionary(operation: Operation));
         }
 
-        public int CreateRequiredArticles(FArticle articleToProduce, IActorRef requestingAgent, long currentTime)
+        public int CreateRequiredArticles(ArticleRecord articleToProduce, IActorRef requestingAgent, DateTime currentTime)
         {
             List<ArticleProvider> listAP = new ();
             var remainingDuration = articleToProduce.RemainingDuration;
@@ -84,7 +82,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Types
                 {
                     //TODO Log this somewhere - not in System Debug
                     //System.Diagnostics.Debug.WriteLine($"Operation {fOperation.Operation.Name} of Article {articleToProduce.Article.Name} has no RequiredArticles!");
-                    fOperation.SetStartConditions(fOperation.StartConditions.PreCondition, true, currentTime);
+                    fOperation.SetStartConditions(fOperation.StartCondition.PreCondition, true, currentTime);
                 }
                 
                 foreach (var bom in fOperation.Operation.ArticleBoms)
@@ -102,7 +100,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Types
             return listAP.Count;
         }
 
-        internal FOperation GetNextOperation(Guid key)
+        internal OperationRecord GetNextOperation(Guid key)
         {
             var currentOperation = GetOperationByKey(key);
 
@@ -118,14 +116,14 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Types
             return _articleProvider.Single(x => x.Operation.Key == operationKey);
         }
         
-        public DispoArticleDictionary SetArticleProvided(FArticleProvider fArticleProvider,IActorRef providedBy, long currentTime)
+        public DispoArticleDictionary SetArticleProvided(ArticleProviderRecord fArticleProvider,IActorRef providedBy, DateTime currentTime)
         {
             foreach (var provider in _articleProvider)
             {
                 var providedArticle = provider.GetByKey(fArticleProvider.ArticleKey);
                 if (providedArticle == null) continue;
 
-                providedArticle.Article = providedArticle.Article.SetProvided.UpdateFinishedAt(currentTime);
+                providedArticle.Article = providedArticle.Article.SetProvided().UpdateFinishedAt(currentTime);
                 providedArticle.Provider = providedBy;
 
                 return provider;

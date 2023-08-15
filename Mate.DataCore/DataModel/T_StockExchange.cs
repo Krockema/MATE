@@ -14,11 +14,11 @@ namespace Mate.DataCore.DataModel
         public SimulationType SimulationType { get; set; }
         public int SimulationNumber { get; set; }
         public M_Stock Stock { get; set; }
-        public int RequiredOnTime { get; set; }
+        public DateTime RequiredOnTime { get; set; }
         public State State { get; set; }
         public decimal Quantity { get; set; }
         // time of withdrawal/insert (wird von der Simulation belegt bei erfuellung des Requests)id
-        public int Time { get; set; }
+        public DateTime Time { get; set; }
         public ExchangeType ExchangeType { get; set; }
 
         public StockExchangeType StockExchangeType { get; set; }

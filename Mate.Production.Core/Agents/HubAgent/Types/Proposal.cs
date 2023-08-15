@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
 using Mate.DataCore.DataModel;
-using static FProposals;
-using static FQueueingScopes;
+using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Environment.Records.Scopes;
 
 namespace Mate.Production.Core.Agents.HubAgent.Types
 {
@@ -14,7 +14,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
 
         public M_ResourceCapabilityProvider GetCapabilityProvider => _capabilityProvider;
 
-        private List<FProposal> _proposals = new List<FProposal>();
+        private List<ProposalRecord> _proposals = new ();
         public int ProviderId => _capabilityProvider.Id;
         public int RequiredProposals => _capabilityProvider.ResourceSetups.Where(x => x.Resource.IsPhysical).Count();
         public int ReceivedProposals => _proposals.Count();
@@ -27,13 +27,13 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
         {
             foreach (var proposal in _proposals)
             {
-                ((List<FQueueingScope>) proposal.PossibleSchedule).RemoveAll(x => !x.IsQueueAble);
+                ((List<QueueingScopeRecord>) proposal.PossibleSchedule).RemoveAll(x => !x.IsQueueAble);
             }
         }
 
-        public List<FProposal> GetProposalsFor(List<IActorRef> actorRefs)
+        public List<ProposalRecord> GetProposalsFor(List<IActorRef> actorRefs)
         {
-            var proposals = new List<FProposal>();
+            var proposals = new List<ProposalRecord>();
             ClearAllNotQueueAbleProposals();
             actorRefs.ForEach(x => proposals.AddRange(_proposals.Where(y => y.ResourceAgent.Equals(x)
                                                                            && !y.Postponed.IsPostponed)));
@@ -66,20 +66,12 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
             return _proposals.TrueForAll(x => !x.Postponed.IsPostponed);
         }
 
-        public long PostponedFor()
+        public TimeSpan PostponedFor()
         {
             return _proposals.Max(x => x.Postponed.Offset);
         }
 
-        public long EarliestStart()
-        {
-            // 1.  
-
-
-            return _proposals.Max(x => (int)x.PossibleSchedule);
-        }
-
-        public void Add(FProposal proposal)
+        public void Add(ProposalRecord proposal)
         {
             if (_proposals.Any(x => x.ResourceAgent == proposal.ResourceAgent))
             {

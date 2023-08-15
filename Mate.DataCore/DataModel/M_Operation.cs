@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using Mate.DataCore.Interfaces;
 using Mate.PiWebApi.Interfaces;
@@ -10,10 +11,10 @@ namespace Mate.DataCore.DataModel
     {
         public int HierarchyNumber { get; set; }
         public string Name { get; set; }
-        public int Duration { get; set; }
+        public TimeSpan Duration { get; set; }
         [NotMapped]
-        public long RandomizedDuration { get; set; }
-        public int AverageTransitionDuration { get; set; }
+        public TimeSpan RandomizedDuration { get; set; }
+        public TimeSpan AverageTransitionDuration { get; set; }
         public int ArticleId { get; set; }
         [JsonIgnore]
         public M_Article Article { get; set; }

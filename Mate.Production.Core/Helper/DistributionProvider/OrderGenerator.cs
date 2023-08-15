@@ -24,7 +24,8 @@ namespace Mate.Production.Core.Helper.DistributionProvider
         //TODO Seperate generatr from Production Context.
         public OrderGenerator(Configuration simConfig, MateProductionDb productionDomainContext, List<int> productIds)
         {
-            _seededRandom = new Random(Seed: simConfig.GetOption<Mate.Production.Core.Environment.Options.Seed>().Value
+            _debug = true;
+            _seededRandom = new Random(Seed: simConfig.GetOption<Environment.Options.Seed>().Value
                 //TODO: Do it better                    
                 //+ simConfig.GetOption<SimulationNumber>().Value
                                      );
@@ -51,7 +52,7 @@ namespace Mate.Production.Core.Helper.DistributionProvider
 
         public OrderGenerator(Configuration simConfig,  List<int> productIds)
         {
-            _seededRandom = new Random(Seed: simConfig.GetOption<Mate.Production.Core.Environment.Options.Seed>().Value
+            _seededRandom = new Random(Seed: simConfig.GetOption<Environment.Options.Seed>().Value
                 //TODO: Do it better                    
                 //+ simConfig.GetOption<SimulationNumber>().Value
             );
@@ -70,9 +71,9 @@ namespace Mate.Production.Core.Helper.DistributionProvider
         }
 
 
-        public T_CustomerOrder GetNewRandomOrder(long time)
+        public T_CustomerOrder GetNewRandomOrder(DateTime time)
         {
-            var creationTime = (long)Math.Round(value: _exponential.Sample(), mode: MidpointRounding.AwayFromZero);
+            var creationTime = TimeSpan.FromMinutes((long)Math.Round(value: _exponential.Sample(), mode: MidpointRounding.AwayFromZero));
 
             //get which product is to be ordered
             var productId = _productIds.ElementAt(index: _prodVariation.Sample());
@@ -80,13 +81,13 @@ namespace Mate.Production.Core.Helper.DistributionProvider
             var due = ArticleStatistics.DeliveryDateEstimator(productId, _duetime.Sample(), _productionDomainContext);
             // The old way
             //create order and orderpart, duetime is creationtime + 1 day
-            due = time + creationTime + due;
-            System.Diagnostics.Debug.WriteLineIf(condition: _debug, message: "Product(" + productId + ")" + ";" + time + ";" + due);
-
+            var dueDate = time + creationTime + due;
+            System.Diagnostics.Debug.WriteLineIf(condition: _debug, message: "Product(" + productId + ")" + ";" + time + ";" + dueDate);
+            
             var amount = _amountVariation.Sample();
 
             // only Returns new Order does not save context.
-            var order = _productionDomainContext.CreateNewOrder(articleId: productId, amount: amount, creationTime: time + creationTime, dueTime: due);
+            var order = _productionDomainContext.CreateNewOrder(articleId: productId, amount: amount, creationTime: time + creationTime, dueTime: dueDate);
             return order;
         }
     }

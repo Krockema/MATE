@@ -81,7 +81,7 @@ namespace Mate.DataCore.Data.Initializer
                 default: throw new ArgumentException();
             }
 
-            resources.CreateResourceTools(setupTimeCutting: 10, setupTimeDrilling: 15, setupTimeAssembling: 20, operatorModel,
+            resources.CreateResourceTools(setupTimeCutting: TimeSpan.FromMinutes(10), setupTimeDrilling: TimeSpan.FromMinutes(15), setupTimeAssembling: TimeSpan.FromMinutes(20), operatorModel,
                 numberOfWorkers: numberOfWorkersForProcessing, secondResource);
             resources.SaveToDB(context);
             return resourceCapabilities;

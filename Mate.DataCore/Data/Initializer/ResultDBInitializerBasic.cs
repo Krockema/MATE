@@ -51,7 +51,7 @@ namespace Mate.DataCore.Data.Initializer
             CreateSimulation(context, new List<ConfigurationItem> { new ConfigurationItem { Property  = "OrderArrivalRate", PropertyValue = "0,0275" }}, "Higher Arrival Rate");
             CreateSimulation(context, new List<ConfigurationItem> { new ConfigurationItem { Property  = "OrderArrivalRate", PropertyValue = "0,02" }}, "Lower Arrival Rate");
             CreateSimulation(context, new List<ConfigurationItem> { new ConfigurationItem { Property  = "OrderArrivalRate", PropertyValue = "0,01" }}, "Super low Arrival Rate");
-            CreateSimulation(context, new List<ConfigurationItem> { new ConfigurationItem { Property  = "EstimatedThroughPut", PropertyValue = "1440" }}, "Estimated Throguh Put: 1440");
+            CreateSimulation(context, new List<ConfigurationItem> { new ConfigurationItem { Property  = "EstimatedThroughPut", PropertyValue = "TimeSpan.FromMinutes(1440)" }}, "Estimated Throguh Put: TimeSpan.FromMinutes(1440)");
 
             _simulationId = 1;
         }

@@ -1,8 +1,8 @@
 ﻿using System;
 using Akka.Actor;
-using AkkaSim.Definitions;
-using static FArticles;
-using static FProductionResults;
+using Akka.Hive.Definitions;
+using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Environment.Records.Reporting;
 
 namespace Mate.Production.Core.Agents.StorageAgent
 {
@@ -11,21 +11,21 @@ namespace Mate.Production.Core.Agents.StorageAgent
         public partial class Instruction
         {
 
-            public class Default
+            public record Default
             {
 
-            public class RequestArticle : SimulationMessage
+            public record RequestArticle : HiveMessage
             {
-                public static RequestArticle Create(FArticle message, IActorRef target)
+                public static RequestArticle Create(ArticleRecord message, IActorRef target)
                 {
                     return new RequestArticle(message: message, target: target);
                 }
                 private RequestArticle(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FArticle GetObjectFromMessage { get => Message as FArticle; }
+                public ArticleRecord GetObjectFromMessage { get => Message as ArticleRecord; }
             }
-            public class ProvideArticleAtDue : SimulationMessage
+            public record ProvideArticleAtDue : HiveMessage
             {
                 public static ProvideArticleAtDue Create(Guid message, IActorRef target)
                 {
@@ -36,7 +36,7 @@ namespace Mate.Production.Core.Agents.StorageAgent
                 }
                 public Guid GetObjectFromMessage { get => (Guid)Message; }
             }
-            public class StockRefill : SimulationMessage
+            public record StockRefill : HiveMessage
             {
                 public static StockRefill Create(Guid message, IActorRef target)
                 {
@@ -48,7 +48,7 @@ namespace Mate.Production.Core.Agents.StorageAgent
                 public Guid GetObjectFromMessage { get => (Guid)Message; }
 
             }
-            public class WithdrawArticle : SimulationMessage
+            public record WithdrawArticle : HiveMessage
             {
                 public static WithdrawArticle Create(Guid message, IActorRef target)
                 {
@@ -60,16 +60,16 @@ namespace Mate.Production.Core.Agents.StorageAgent
                 public Guid GetObjectFromMessage { get => (Guid)Message; }
             }
             
-            public class ResponseFromProduction : SimulationMessage
+            public record ResponseFromProduction : HiveMessage
             {
-                public static ResponseFromProduction Create(FProductionResult message, IActorRef target)
+                public static ResponseFromProduction Create(ProductionResultRecord message, IActorRef target)
                 {
                     return new ResponseFromProduction(message: message, target: target);
                 }
                 private ResponseFromProduction(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public FProductionResult GetObjectFromMessage { get => Message as FProductionResult; }
+                public ProductionResultRecord GetObjectFromMessage { get => Message as ProductionResultRecord; }
             }
 
             }

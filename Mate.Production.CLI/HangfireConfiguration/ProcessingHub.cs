@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Configuration;
-using AkkaSim.Logging;
+using Akka.Hive.Logging;
 using Hangfire.Console;
 using Hangfire.Console.Progress;
 using Hangfire.Server;
@@ -24,7 +24,7 @@ namespace Mate.Production.CLI.HangfireConfiguration
         public ProcessingHub(PerformContext consoleContext)
         {
             _console = consoleContext;
-            _logger = LogManager.GetLogger(TargetNames.LOG_AGENTS);
+            _logger = LogManager.GetLogger(TargetNames.LOG_ACTORS);
             CreateHubConnection();
         }
 

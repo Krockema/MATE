@@ -2,22 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
+using Akka.Hive.Definitions;
 using Akka.Util.Internal;
 using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.HubAgent;
 using Mate.Production.Core.Agents.HubAgent.Types;
 using Mate.Production.Core.Agents.JobAgent.Types;
+using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Environment.Records.Interfaces;
+using Mate.Production.Core.Environment.Records.Reporting;
+using Mate.Production.Core.Environment.Records.Scopes;
 using Mate.Production.Core.Helper;
-using static FBuckets;
-using static FJobConfirmations;
-using static FJobResourceConfirmations;
-using static FMeasurementInformations;
-using static FOperationResults;
-using static FOperations;
-using static FProcessingSlots;
-using static FSetupSlots;
-using static IConfirmations;
-using static IJobs;
 using LogLevel = NLog.LogLevel;
 using Resource = Mate.Production.Core.Agents.ResourceAgent.Resource;
 
@@ -38,11 +33,11 @@ namespace Mate.Production.Core.Agents.JobAgent.Behaviour
         private Dictionary<IActorRef, StateHandle> _resourceSetupStates => _resourceDistinctResourceStates.Where(x => x.Value.Setup).ToDictionary(x => x.Key, x => x.Value);
         private Dictionary<IActorRef, StateHandle> _resourceDistinctResourceStates { get; } // Dissolve und Requeue // 
 
-        private FOperation _currentOperation { get; set;}
-        private long _processingStart { get; set; }
+        private OperationRecord _currentOperation { get; set;}
+        private DateTime _processingStart { get; set; }
         private bool _dissolveRequested { get; set; }
         private bool _bucketIsReadyToBeTerminated { get; set; } = false;
-        private Queue<FOperation> _finalOperations { get; set; }
+        private Queue<OperationRecord> _finalOperations { get; set; }
 
         public override bool Action(object message)
         {
@@ -209,7 +204,7 @@ namespace Mate.Production.Core.Agents.JobAgent.Behaviour
             this.Agent.TryToFinish();
         }
 
-        private void AcknowledgeJob(FJobResourceConfirmation fJobResourceConfirmation)
+        private void AcknowledgeJob(JobResourceConfirmationRecord fJobResourceConfirmation)
         {
             _jobConfirmation = fJobResourceConfirmation.JobConfirmation;
             
@@ -220,11 +215,11 @@ namespace Mate.Production.Core.Agents.JobAgent.Behaviour
             foreach (var resourceScope in fJobResourceConfirmation.ScopeConfirmations)
             {
                 var resourceRef = resourceScope.Key;
-                var jobConfirmationForResource = ((FJobConfirmation)_jobConfirmation).UpdateScopeConfirmation(resourceScope.Value);
+                var jobConfirmationForResource = ((JobConfirmationRecord)_jobConfirmation).UpdateScopeConfirmation(resourceScope.Value);
                 
                 Agent.Send(instruction: Resource.Instruction.Default.AcceptedProposals.Create(jobConfirmationForResource, target: resourceRef));
 
-                if (resourceScope.Value.Scopes.Length > 1)
+                if (resourceScope.Value.Scopes.Count > 1)
                 {
                     _resourceDistinctResourceStates.Add(resourceScope.Key, new StateHandle(JobState.InQueue, true, true));
                 }
@@ -232,8 +227,8 @@ namespace Mate.Production.Core.Agents.JobAgent.Behaviour
                 {
                     switch (resourceScope.Value.Scopes.First())
                     {
-                        case FSetupSlot fs:_resourceDistinctResourceStates.Add(resourceScope.Key, new StateHandle(JobState.InQueue, true, false)); break;
-                        case FProcessingSlot ps: _resourceDistinctResourceStates.Add(resourceScope.Key, new StateHandle(JobState.InQueue, false, true)); break;
+                        case SetupSlotRecord fs:_resourceDistinctResourceStates.Add(resourceScope.Key, new StateHandle(JobState.InQueue, true, false)); break;
+                        case ProcessingSlotRecord ps: _resourceDistinctResourceStates.Add(resourceScope.Key, new StateHandle(JobState.InQueue, false, true)); break;
                         default: throw new Exception("Wrong state implementation send.");
                     }
                 }
@@ -362,7 +357,7 @@ namespace Mate.Production.Core.Agents.JobAgent.Behaviour
             {
                 Agent.Send(instruction: BasicInstruction.FinalBucket.Create(jobConfirmation, target: resourceRef));
             }
-            _finalOperations = new Queue<FOperation>(((FBucket)_jobConfirmation.Job).Operations.OrderByDescending(prio => prio.Priority.Invoke(Agent.CurrentTime)));
+            _finalOperations = new Queue<OperationRecord>(((BucketRecord)_jobConfirmation.Job).Operations.OrderByDescending(prio => prio.Priority.Invoke(Agent.CurrentTime)));
             _processingStart = Agent.CurrentTime;
             foreach (var resource in _resourceProcessingStates)
             {
@@ -400,7 +395,7 @@ namespace Mate.Production.Core.Agents.JobAgent.Behaviour
             Agent.Send(instruction: BasicInstruction.WithdrawRequiredArticles.Create(message: _currentOperation.Key, target: _currentOperation.ProductionAgent));
 
             Agent.DebugMessage(msg: $"Starting Job {_currentOperation.Operation.Name}  Key: {_currentOperation.Key} new duration is {_currentOperation.Operation.RandomizedDuration} " +
-                                    $"from bucket {_jobConfirmation.Job.Name} {_jobConfirmation.Job.Key} with {((FBucket)_jobConfirmation.Job).Operations.Count} operations " +
+                                    $"from bucket {_jobConfirmation.Job.Name} {_jobConfirmation.Job.Key} with {((BucketRecord)_jobConfirmation.Job).Operations.Count} operations " +
                                     $"at resource {Agent.Context.Self.Path.Name}", CustomLogger.JOB, LogLevel.Warn);
 
             _resourceProcessingStates.ForEach(x =>
@@ -458,20 +453,20 @@ namespace Mate.Production.Core.Agents.JobAgent.Behaviour
             }
         }
 
-        private void ResultCreator(FOperation operation, long duration) {
+        private void ResultCreator(OperationRecord operation, TimeSpan duration) {
             ResultStreamFactory.PublishJob(agent: Agent
                                            , job: operation
                                       , duration: duration
                             , capabilityProvider: _jobConfirmation.CapabilityProvider
                                     , bucketName: _jobConfirmation.Job.Name);
 
-            var fOperationResult = new FOperationResult(key: operation.Key
-                , creationTime: 0
-                , start: Agent.CurrentTime - duration
-                , end: Agent.CurrentTime
-                , originalDuration: operation.Operation.Duration
-                , productionAgent: operation.ProductionAgent
-                , capabilityProvider: _jobConfirmation.CapabilityProvider.Name);
+            var fOperationResult = new OperationResultRecord(Key: operation.Key
+                , CreationTime: Time.ZERO.Value
+                , Start: Agent.CurrentTime - duration
+                , End: Agent.CurrentTime
+                , OriginalDuration: operation.Operation.Duration
+                , ProductionAgent: operation.ProductionAgent
+                , CapabilityProvider: _jobConfirmation.CapabilityProvider.Name);
 
             Agent.Send(BasicInstruction.FinishJob.Create(fOperationResult, operation.ProductionAgent));
         }
@@ -482,12 +477,12 @@ namespace Mate.Production.Core.Agents.JobAgent.Behaviour
             if (!_currentOperation.Operation.Characteristics.Any()) return;
 
             var msg = Resource.Instruction.Default.
-                CreateMeasurements.Create(message: new FMeasurementInformation(
-                        job: _currentOperation
-                        , resource: _jobConfirmation.CapabilityProvider.Name
-                        , quantile: _jobConfirmation.CapabilityProvider.ResourceSetups.First().Resource.Quantile
-                        , tool: _currentOperation.Operation.ResourceCapability.Name // TODO: Create a posibility to get tool from CapabilityProvider
-                        , capabilityProviderId: _jobConfirmation.CapabilityProvider.Id
+                CreateMeasurements.Create(message: new MeasurementInformationRecord(
+                        Job: _currentOperation
+                        , Resource: _jobConfirmation.CapabilityProvider.Name
+                        , Quantile: _jobConfirmation.CapabilityProvider.ResourceSetups.First().Resource.Quantile
+                        , Tool: _currentOperation.Operation.ResourceCapability.Name // TODO: Create a posibility to get tool from CapabilityProvider
+                        , CapabilityProviderId: _jobConfirmation.CapabilityProvider.Id
                         , _currentOperation.Bucket),
                     target: Agent.ActorPaths.MeasurementAgent.Ref);
             Agent.Send(msg);

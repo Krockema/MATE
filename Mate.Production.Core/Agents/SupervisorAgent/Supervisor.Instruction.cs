@@ -1,8 +1,7 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using Mate.DataCore.DataModel;
-using static FArticles;
-using static FSetEstimatedThroughputTimes;
+using Mate.Production.Core.Environment.Records;
 
 namespace Mate.Production.Core.Agents.SupervisorAgent
 {
@@ -15,7 +14,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent
                 RequestArticleBom,
                 OrderProvided,
             */
-            public class CreateContractAgent : SimulationMessage
+            public record CreateContractAgent : HiveMessage
             {
                 public static CreateContractAgent Create(T_CustomerOrder message, IActorRef target)
                 {
@@ -27,7 +26,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent
                 public T_CustomerOrder GetObjectFromMessage { get => Message as T_CustomerOrder; }
 
             }
-            public class RequestArticleBom : SimulationMessage
+            public record RequestArticleBom : HiveMessage
             {
                 public static RequestArticleBom Create(int message, IActorRef target)
                 {
@@ -38,19 +37,19 @@ namespace Mate.Production.Core.Agents.SupervisorAgent
                 }
                 public int GetObjectFromMessage { get => (int)Message; }
             }
-            public class OrderProvided : SimulationMessage
+            public record OrderProvided : HiveMessage
             {
-                public static OrderProvided Create(FArticle message, IActorRef target)
+                public static OrderProvided Create(ArticleRecord message, IActorRef target)
                 {
                     return new OrderProvided(message: message, target: target);
                 }
                 private OrderProvided(object message, IActorRef target) : base(message: message, target: target, logThis: true)
                 {
                 }
-                public FArticle GetObjectFromMessage { get => Message as FArticle; }
+                public ArticleRecord GetObjectFromMessage { get => Message as ArticleRecord; }
             }
 
-            public class EndSimulation : SimulationMessage
+            public record EndSimulation : HiveMessage
             {
                 public static EndSimulation Create(object message, IActorRef target)
                 {
@@ -61,7 +60,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent
                 }
             }
 
-            public class PopOrder : SimulationMessage
+            public record PopOrder : HiveMessage
             {
                 public static PopOrder Create(string message, IActorRef target)
                 {
@@ -72,7 +71,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent
                 }
             }
 
-            public class SystemCheck : SimulationMessage
+            public record SystemCheck : HiveMessage
             {
                 public static SystemCheck Create(string message, IActorRef target)
                 {
@@ -83,9 +82,9 @@ namespace Mate.Production.Core.Agents.SupervisorAgent
                 }
             }
 
-            public class SetEstimatedThroughputTime : SimulationMessage
+            public record SetEstimatedThroughputTime : HiveMessage
             {
-                public static SetEstimatedThroughputTime Create(FSetEstimatedThroughputTime message, IActorRef target)
+                public static SetEstimatedThroughputTime Create(SetEstimatedThroughputTimeRecord message, IActorRef target)
                 {
                     return new SetEstimatedThroughputTime(message: message, target: target);
                 }
@@ -93,7 +92,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent
                 {
 
                 }
-                public FSetEstimatedThroughputTime GetObjectFromMessage { get => Message as FSetEstimatedThroughputTime; }
+                public SetEstimatedThroughputTimeRecord GetObjectFromMessage { get => Message as SetEstimatedThroughputTimeRecord; }
             }
         }
     }

@@ -54,7 +54,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             };
         }
 
-        internal void CreateResourceTools(int setupTimeCutting, int setupTimeDrilling, int setupTimeAssembling, int[] numberOfOperators, int numberOfWorkers, bool secondResource)
+        internal void CreateResourceTools(TimeSpan setupTimeCutting, TimeSpan setupTimeDrilling, TimeSpan setupTimeAssembling, int[] numberOfOperators, int numberOfWorkers, bool secondResource)
         {
             List<M_Resource> workers = new List<M_Resource>();
             for (int i = 1; i < 1 + numberOfWorkers; i++)
@@ -81,7 +81,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
         }
 
 
-        private void CreateTools(M_ResourceCapability capability, long setupTime, int numberOfOperators, List<M_Resource> workerToAssign, List<M_Resource> resourceToolsToAssign, String workergroup)
+        private void CreateTools(M_ResourceCapability capability, TimeSpan setupTime, int numberOfOperators, List<M_Resource> workerToAssign, List<M_Resource> resourceToolsToAssign, String workergroup)
         {
             List<M_Resource> tools = new List<M_Resource>();
             List<M_ResourceSetup> setups = new List<M_ResourceSetup>();
@@ -128,10 +128,10 @@ namespace Mate.DataCore.Data.Initializer.Tables
                                     }
 
                                     // CreateNewSetup(resource, capabilityProvider, usedInProcessing,usedInSetup, setupTime)
-                                    setups.Add(CreateNewSetup(op, capabilityProvider, false, true, 0));
+                                    setups.Add(CreateNewSetup(op, capabilityProvider, false, true, TimeSpan.Zero));
                                     setups.Add(CreateNewSetup(tool, capabilityProvider, true, true, setupTime));
-                                    setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, 0));
-                                    setups.Add(CreateNewSetup(worker, capabilityProvider, true, false, 0));
+                                    setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, TimeSpan.Zero));
+                                    setups.Add(CreateNewSetup(worker, capabilityProvider, true, false, TimeSpan.Zero));
                                     capabilityProviders.Add(capabilityProvider);
                                 }
                             }
@@ -160,9 +160,9 @@ namespace Mate.DataCore.Data.Initializer.Tables
                                 {
                                     setups.Add(CreatePhysicalToolResource(resourceToolsToAssign, subCapability, setups, capabilityProvider));
                                 }
-                                setups.Add(CreateNewSetup(op, capabilityProvider, false, true, 0));
+                                setups.Add(CreateNewSetup(op, capabilityProvider, false, true, TimeSpan.Zero));
                                 setups.Add(CreateNewSetup(tool, capabilityProvider, true, true, setupTime));
-                                setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, 0));
+                                setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, TimeSpan.Zero));
                                 capabilityProviders.Add(capabilityProvider);
                             }
                         }
@@ -198,8 +198,8 @@ namespace Mate.DataCore.Data.Initializer.Tables
                                 }
 
                                 setups.Add(CreateNewSetup(tool, capabilityProvider, true, true, setupTime));
-                                setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, 0));
-                                setups.Add(CreateNewSetup(worker, capabilityProvider, true, false, 0));
+                                setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, TimeSpan.Zero));
+                                setups.Add(CreateNewSetup(worker, capabilityProvider, true, false, TimeSpan.Zero));
                                 capabilityProviders.Add(capabilityProvider);
                             }
                         }
@@ -229,7 +229,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
                             }
 
                             setups.Add(CreateNewSetup(tool, capabilityProvider, true, true, setupTime));
-                            setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, 0));
+                            setups.Add(CreateNewSetup(resource, capabilityProvider, true, true, TimeSpan.Zero));
                             capabilityProviders.Add(capabilityProvider);
                         }
                     }
@@ -246,10 +246,10 @@ namespace Mate.DataCore.Data.Initializer.Tables
         {
             var toolObject =
                 resourceToolsToAssign.Single(x => x.Name.Equals(subCapability.Name));
-            return CreateNewSetup(toolObject, capabilityProvider, true, true, 0);
+            return CreateNewSetup(toolObject, capabilityProvider, true, true, TimeSpan.Zero);
         }
 
-        private M_ResourceSetup CreateNewSetup(M_Resource resource, M_ResourceCapabilityProvider capabilityProvider, bool usedInProcessing, bool usedInSetup, long setupTime)
+        private M_ResourceSetup CreateNewSetup(M_Resource resource, M_ResourceCapabilityProvider capabilityProvider, bool usedInProcessing, bool usedInSetup, TimeSpan setupTime)
         {
             return new M_ResourceSetup
             {
@@ -279,7 +279,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
                         Name = $"Provides {subCapability.Name} {waterJet.Name}",
                         ResourceCapabilityId = subCapability.Id,
                     };
-                    setups.Add(CreateNewSetup(waterJet, capabilityProvider, true, true, 5));
+                    setups.Add(CreateNewSetup(waterJet, capabilityProvider, true, true, TimeSpan.FromMinutes(5)));
                     capabilityProviders.Add(capabilityProvider);
                 }
             }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Helper.Types;
 using Mate.DataCore.DataModel;
@@ -100,7 +101,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                  ArticleId = articles.DUMP_TRUCK.Id,
                  Name = "Dump-Truck: Wedding",
-                 Duration = 15,
+                 Duration = TimeSpan.FromMinutes(15),
                  ResourceCapabilityId = AssemblyTools.GetNext().Id,
                  HierarchyNumber = 10
             };
@@ -109,7 +110,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.DUMP_TRUCK.Id,
                 Name = "Glue Truck-Bed",
-                Duration = 10,
+                Duration = TimeSpan.FromMinutes(10),
                 ResourceCapabilityId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 20
             };
@@ -119,7 +120,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.RACE_TRUCK.Id,
                 Name = "Race-Truck: Wedding",
-                Duration = 15,
+                Duration = TimeSpan.FromMinutes(15),
                 ResourceCapabilityId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 10
             };
@@ -128,7 +129,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.RACE_TRUCK.Id,
                 Name = "Glue Race Wing",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 20
             };
@@ -138,7 +139,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.CHASSIS_TYPE_DUMP.Id,
                 Name = "Dump-Truck: Assemble Lamps",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 10
             };
@@ -147,7 +148,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.CHASSIS_TYPE_DUMP.Id,
                 Name = "Dump-Truck: Mount Engine to Cabin",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 20
             };
@@ -157,7 +158,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.CHASSIS_TYPE_RACE.Id,
                 Name = "Race-Truck: Assemble Lamps",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 10
             };
@@ -166,7 +167,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.CHASSIS_TYPE_RACE.Id,
                 Name = "Mount Engine Extension",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 20
             };
@@ -175,7 +176,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.CHASSIS_TYPE_RACE.Id,
                 Name = "Race-Truck: Mount Engine to Cabin",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 30
             };
@@ -185,7 +186,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.SKELETON.Id,
                 Name = "mount poles with wheels to Skeleton",
-                Duration = 10,
+                Duration = TimeSpan.FromMinutes(10),
                 ResourceCapabilityId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 10
             };
@@ -194,7 +195,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.SKELETON.Id,
                 Name = "Screw wheels onto poles",
-                Duration = 10,
+                Duration = TimeSpan.FromMinutes(10),
                 ResourceCapabilityId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 20
             };
@@ -203,7 +204,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.SKELETON.Id,
                 Name = "Glue Semitrailer",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 30
             };
@@ -213,7 +214,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.TRUCK_BED.Id,
                 Name = "Glue side walls and base plate together",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 10
             };
@@ -222,7 +223,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.TRUCK_BED.Id,
                 Name = "Mount hatchback",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = AssemblyTools.GetNext().Id,
                 HierarchyNumber = 20
             };
@@ -232,7 +233,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.RACE_WING.Id,
                 Name = "Race Wing: Cut shape",
-                Duration = 10,
+                Duration = TimeSpan.FromMinutes(10),
                 ResourceCapabilityId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
@@ -241,7 +242,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.RACE_WING.Id,
                 Name = "Race Wing: Drill Mount Holes",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = DrillTools.GetNext().Id,
                 HierarchyNumber = 20
             };
@@ -250,7 +251,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.ENGINE_RACE_EXTENSION.Id,
                 Name = "Engine Race Extension: Cut shape",
-                Duration = 10,
+                Duration = TimeSpan.FromMinutes(10),
                 ResourceCapabilityId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
@@ -259,7 +260,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.ENGINE_RACE_EXTENSION.Id,
                 Name = "Engine Race Extension: Drill Mount Holes",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = DrillTools.GetNext().Id,
                 HierarchyNumber = 20
             };
@@ -269,7 +270,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.SIDEWALL_LONG.Id,
                 Name = "Side wall long: Cut long side",
-                Duration = 10,
+                Duration = TimeSpan.FromMinutes(10),
                 ResourceCapabilityId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
@@ -278,7 +279,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.SIDEWALL_LONG.Id,
                 Name = "Side wall long: Drill mount holes",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = DrillTools.GetNext().Id,
                 HierarchyNumber = 20
             };
@@ -287,7 +288,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.SIDEWALL_SHORT.Id,
                 Name = "Side wall short: Cut short side",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
@@ -296,7 +297,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.SIDEWALL_SHORT.Id,
                 Name = "Side wall short: Drill mount holes",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = DrillTools.GetNext().Id,
                 HierarchyNumber = 20
             };
@@ -305,7 +306,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.BASEPLATE_TRUCK_BED.Id,
                 Name = "Base plate Truck-Bed: Cut Base plate Truck-Bed",
-                Duration = 10,
+                Duration = TimeSpan.FromMinutes(10),
                 ResourceCapabilityId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
@@ -314,7 +315,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.BASEPLATE_TRUCK_BED.Id,
                 Name = "Base plate Truck-Bed: Drill mount holes",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = DrillTools.GetNext().Id,
                 HierarchyNumber = 20
             };
@@ -323,7 +324,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.ENGINE_BLOCK.Id,
                 Name = "Engine-Block: Cut Engine-Block",
-                Duration = 10,
+                Duration = TimeSpan.FromMinutes(10),
                 ResourceCapabilityId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
@@ -332,7 +333,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.ENGINE_BLOCK.Id,
                 Name = "Engine-Block: Drill mount holes",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = DrillTools.GetNext().Id,
                 HierarchyNumber = 20
             };
@@ -341,7 +342,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.CABIN.Id,
                 Name = "Cabin: Cut Cabin",
-                Duration = 10,
+                Duration = TimeSpan.FromMinutes(10),
                 ResourceCapabilityId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
@@ -350,7 +351,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.CABIN.Id,
                 Name = "Cabin: Drill mount holes",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = DrillTools.GetNext().Id,
                 HierarchyNumber = 20
             };
@@ -359,7 +360,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.BASE_PLATE.Id,
                 Name = "Base plate: Cut Base plate",
-                Duration = 10,
+                Duration = TimeSpan.FromMinutes(10),
                 ResourceCapabilityId = SawTools.GetNext().Id,
                 HierarchyNumber = 10
             };
@@ -368,7 +369,7 @@ namespace Mate.DataCore.Data.Initializer.Tables
             {
                 ArticleId = articles.BASE_PLATE.Id,
                 Name = "Base plate: drill holes for axis mount",
-                Duration = 5,
+                Duration = TimeSpan.FromMinutes(5),
                 ResourceCapabilityId = DrillTools.GetNext().Id,
                 HierarchyNumber = 20
             };

@@ -45,7 +45,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
             return _stockQuantityIndex++;
         }
 
-        public void AddWithdrawalStockPosting(string materialId, double quantity, string materialQuantityUnitId, GanttStockPostingType stockPostingType, long CurrentTime)
+        public void AddWithdrawalStockPosting(string materialId, double quantity, string materialQuantityUnitId, GanttStockPostingType stockPostingType, DateTime CurrentTime)
         {
             var stockPosting = new GptblStockquantityposting();
 
@@ -56,7 +56,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
             stockPosting.QuantityUnitId = materialQuantityUnitId;
             stockPosting.ClientId = string.Empty;
             stockPosting.PostingType = (int)stockPostingType;
-            stockPosting.Date = CurrentTime.ToDateTime();
+            stockPosting.Date = CurrentTime;
             stockPosting.Info1 = string.Empty;
             stockPosting.Info2 = string.Empty;
             stockPosting.Info3 = string.Empty;
@@ -65,7 +65,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
 
             _stockPostings.Add(stockPosting);
         }
-        public void AddInsertStockPosting(string materialId, double quantity, string materialQuantityUnitId, GanttStockPostingType stockPostingType, long CurrentTime)
+        public void AddInsertStockPosting(string materialId, double quantity, string materialQuantityUnitId, GanttStockPostingType stockPostingType, DateTime CurrentTime)
         {
             var stockPosting = new GptblStockquantityposting();
 
@@ -76,7 +76,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Central
             stockPosting.QuantityUnitId = materialQuantityUnitId;
             stockPosting.ClientId = string.Empty;
             stockPosting.PostingType = (int)stockPostingType;
-            stockPosting.Date = CurrentTime.ToDateTime();
+            stockPosting.Date = CurrentTime;
             stockPosting.Info1 = string.Empty;
             stockPosting.Info2 = string.Empty;
             stockPosting.Info3 = string.Empty;

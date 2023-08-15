@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 using Mate.DataCore;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Helper;
@@ -15,12 +15,11 @@ using Mate.Production.Core.Agents.Guardian;
 using Mate.Production.Core.Agents.SupervisorAgent.Types;
 using Mate.Production.Core.Environment;
 using Mate.Production.Core.Environment.Options;
+using Mate.Production.Core.Environment.Records;
 using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
 using Mate.Production.Core.SignalR;
 using Mate.Production.Core.Types;
-using static FArticles;
-using static FSetEstimatedThroughputTimes;
 using static Mate.Production.Core.Agents.SupervisorAgent.Supervisor.Instruction;
 
 namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
@@ -43,8 +42,9 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         private List<T_CustomerOrder> _openOrders { get; set; } = new List<T_CustomerOrder>();
         public  Default(string dbNameProduction
             , IMessageHub messageHub
+            , IHiveConfig hiveConfig
             , Configuration configuration
-            , List<FSetEstimatedThroughputTimes.FSetEstimatedThroughputTime> estimatedThroughputTimes)
+            , List<SetEstimatedThroughputTimeRecord> estimatedThroughputTimes)
         {
             dbProduction = Dbms.GetMateDataBase(dbName: dbNameProduction, noTracking: false);
             _articleCache = new ArticleCache(connectionString: new DbConnectionString(dbProduction.ConnectionString.Value));
@@ -80,14 +80,14 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
 
         public override bool AfterInit()
         {
-            Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "Pop", target: Agent.Context.Self), waitFor: 1);
-            Agent.Send(instruction: EndSimulation.Create(message: true, target: Agent.Context.Self), waitFor: _simulationEnds);
-            Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: 1);
+            Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "Pop", target: Agent.Context.Self), waitFor: TimeSpan.FromMinutes(1));
+            Agent.Send(instruction: EndSimulation.Create(message: true, target: Agent.Context.Self), waitFor: TimeSpan.FromMinutes(_simulationEnds));
+            Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: TimeSpan.FromMinutes(1));
             Agent.DebugMessage(msg: "Agent-System ready for Work");
             return true;
         }
 
-        private void SetEstimatedThroughputTime(FSetEstimatedThroughputTime getObjectFromMessage)
+        private void SetEstimatedThroughputTime(SetEstimatedThroughputTimeRecord getObjectFromMessage)
         {
             _estimatedThroughPuts.UpdateOrCreate(name: getObjectFromMessage.ArticleName, time: getObjectFromMessage.Time);
         }
@@ -136,7 +136,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
 
         private void OrderProvided(OrderProvided instruction)
         {
-            if (!(instruction.Message is FArticle requestItem))
+            if (!(instruction.Message is ArticleRecord requestItem))
             {
                 throw new InvalidCastException(message: Agent.Name + " Cast to RequestItem Failed");
             }
@@ -153,21 +153,21 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         private void End()
         {
             Agent.DebugMessage(msg: "End Sim");
-            Agent.ActorPaths.SimulationContext.Ref.Tell(message: SimulationMessage.SimulationState.Finished);
+            Agent.ActorPaths.SimulationContext.Ref.Tell(message: SimulationState.Finished);
         }
 
         private void PopOrder()
         {
             if (!_orderCounter.TryAddOne()) return;
 
-            var order = _orderGenerator.GetNewRandomOrder(time: Agent.CurrentTime);
+            var order = _orderGenerator.GetNewRandomOrder(time: Agent.Time.Value);
 
-            Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: order.CreationTime - Agent.CurrentTime);
+            Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: order.CreationTime - Agent.Time.Value);
             var eta = _estimatedThroughPuts.Get(name: order.Name);
             Agent.DebugMessage(msg: $"EstimatedTransitionTime {eta.Value} for order {order.Name} {order.Id} , {order.DueTime}");
 
-            long period = order.DueTime - (eta.Value); // 1 Tag und 1 Schicht
-            if (period < 0 || eta.Value == 0)
+            var period = order.DueTime - eta.Value; // 1 Tag und 1 Schicht
+            if (period < Time.ZERO.Value || eta.Value == TimeSpan.Zero)
             {
                 CreateContractAgent(order);
                 return;
@@ -177,10 +177,10 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
 
         private void SystemCheck()
         {
-            Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: 1);
+            Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: TimeSpan.FromMinutes(1));
 
             // TODO Loop Through all CustomerOrderParts
-            var orders = _openOrders.Where(predicate: x => x.DueTime - _estimatedThroughPuts.Get(name: x.Name).Value <= Agent.CurrentTime).ToList();
+            var orders = _openOrders.Where(predicate: x => x.DueTime - _estimatedThroughPuts.Get(name: x.Name).Value <= Agent.Time.Value).ToList();
             // Debug.WriteLine("SystemCheck(" + CurrentTime + "): " + orders.Count() + " of " + _openOrders.Count() + "found");
             foreach (var order in orders)
             {

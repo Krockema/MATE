@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Mate.DataCore.Data.WrappersForPrimitives;
 using Mate.DataCore.Interfaces;
 using Mate.DataCore.Nominal;
@@ -10,7 +11,7 @@ namespace Mate.DataCore.DataModel
     {
         public int HierarchyNumber { get; set; }
         public string Name { get; set; }
-        public int Duration { get; set; }
+        public TimeSpan Duration { get; set; }
         public int ResourceCapabilityId { get; set; }
         [JsonIgnore]
         public M_ResourceCapability ResourceCapability { get; set; }
@@ -22,15 +23,15 @@ namespace Mate.DataCore.DataModel
         public int ProductionOrderId { get; set; }
         [JsonIgnore]
         public T_ProductionOrder ProductionOrder { get; set; }
-        public int Start { get; set; }
-        public int End { get; set; }
-        public int? StartBackward { get; set; }
-        public int? EndBackward { get; set; }
-        public int? StartForward { get; set; }
-        public int? EndForward { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+        public DateTime? StartBackward { get; set; }
+        public DateTime? EndBackward { get; set; }
+        public DateTime? StartForward { get; set; }
+        public DateTime? EndForward { get; set; }
         public decimal ActivitySlack { get; set; }
         public decimal WorkTimeWithParents { get; set; }
-        public int DurationSimulation { get; set; }
+        public TimeSpan DurationSimulation { get; set; }
         public ProducingState ProducingState { get; set; }
         public State State { get; set; }
         public ICollection<T_ProductionOrderBom> ProductionOrderBoms { get; set; }
@@ -40,11 +41,6 @@ namespace Mate.DataCore.DataModel
             return $"{Id}: {Name}";
         }
         
-        public Duration GetDuration()
-        {
-            return new Duration(Duration);
-        }
-
         public HierarchyNumber GetHierarchyNumber()
         {
             return new HierarchyNumber(HierarchyNumber);

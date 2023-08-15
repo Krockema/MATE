@@ -2,26 +2,29 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using AkkaSim;
+using Akka.Hive.Actors;
 using Mate.DataCore.Data.Context;
+using Mate.DataCore.GanttPlan;
 using Mate.DataCore.Nominal;
 using Mate.DataCore.Nominal.Model;
 using Mate.DataCore.ReportingModel;
 using Mate.DataCore.ReportingModel.Interface;
 using Mate.Production.Core.Agents.CollectorAgent.Types;
 using Mate.Production.Core.Environment.Options;
+using Mate.Production.Core.Environment.Records.Reporting;
+using Mate.Production.Core.Helper;
 using Mate.Production.Core.Types;
 using Newtonsoft.Json;
-using static FCreateTaskItems;
 using static Mate.Production.Core.Agents.CollectorAgent.Collector.Instruction;
 
 namespace Mate.Production.Core.Agents.CollectorAgent
 {
     public class CollectorAnalyticResource : Behaviour, ICollectorBehaviour
     {
-        private CollectorAnalyticResource(ResourceDictionary resources) : base()
+        private CollectorAnalyticResource(ResourceDictionary resources,DateTime startTime) : base()
         {
             _resources = resources;
+            lastIntervalStart = startTime;
             _kpiManager = new KpiManager();
             _taskItems.Add(JobType.OPERATION, new List<ISimulationTask>());
             _taskItems.Add(JobType.SETUP, new List<ISimulationTask>());
@@ -34,7 +37,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         public Dictionary<string, List<ISimulationTask>> _taskArchive { get; private set; } = new Dictionary<string, List<ISimulationTask>>();
 
         private ResourceDictionary _resources { get; set; } = new ResourceDictionary();
-        private long lastIntervalStart { get; set; } = 0;
+        private DateTime lastIntervalStart { get; set; }
         public Collector Collector { get; set; }
         private KpiManager _kpiManager { get; }
         /// <summary>
@@ -46,24 +49,24 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         {
             return new List<Type>
             {
-                typeof(FCreateTaskItem),
+                typeof(CreateTaskItemRecord),
                 typeof(UpdateLiveFeed)
             };
         }
 
-        public static CollectorAnalyticResource Get(ResourceDictionary resources)
+        public static CollectorAnalyticResource Get(ResourceDictionary resources, DateTime startTime)
         {
-            return new CollectorAnalyticResource(resources: resources);
+            return new CollectorAnalyticResource(resources: resources, startTime: startTime);
         }
 
         public override bool Action(object message) =>
             throw new Exception(message: "Please use EventHandle method to process Messages");
 
-        public bool EventHandle(SimulationMonitor simulationMonitor, object message)
+        public bool EventHandle(MessageMonitor simulationMonitor, object message)
         {
             switch (message)
             {
-                case FCreateTaskItem m: CreateTaskItem(m); break;
+                case CreateTaskItemRecord m: CreateTaskItem(m); break;
                 case UpdateLiveFeed m: UpdateFeed(finalCall: m.GetObjectFromMessage); break;
                 default: return false;
             }
@@ -72,7 +75,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             return true;
         }
 
-        private void CreateTaskItem(FCreateTaskItem task)
+        private void CreateTaskItem(CreateTaskItemRecord task)
         {
             var taskItem = new TaskItem
             {
@@ -119,7 +122,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             {
                 tempOperationTasks.AddRange(archiveOperationTask);
                 tempSetupTasks.AddRange(archiveSetupTask);
-                lastIntervalStart = Collector.Config.GetOption<SettlingStart>().Value;
+                lastIntervalStart = Collector.Config.GetOption<SimulationStartTime>().Value +  Collector.Config.GetOption<SettlingStart>().Value;
             }
 
             ResourceUtilization(finalCall, tempOperationTasks, tempSetupTasks);
@@ -133,7 +136,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 }
             }
 
-            var OEE = OverallEquipmentEffectiveness(resources: resourceDictionary, lastIntervalStart, Collector.Time, tempOperationTasks, tempSetupTasks);
+            var OEE = OverallEquipmentEffectiveness(resources: resourceDictionary, lastIntervalStart, Collector.Time.Value, tempOperationTasks, tempSetupTasks);
             Collector.CreateKpi(Collector, OEE, "OEE", KpiType.Ooe, finalCall);
 
             archiveOperationTask.AddRange(tempOperationTasks);
@@ -141,7 +144,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
             LogToDB(writeResultsToDB: finalCall);
 
-            lastIntervalStart = Collector.Time;
+            lastIntervalStart = Collector.Time.Value;
             Collector.Context.Sender.Tell(message: true, sender: Collector.Context.Self);
             Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Finished Update Feed from WorkSchedule");
         }
@@ -150,26 +153,26 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         /// <summary>
         /// OEE for dashboard
         /// </summary>
-        private string OverallEquipmentEffectiveness(ResourceDictionary resources, long startInterval, long endInterval, List<ISimulationTask> operationTasks, List<ISimulationTask> setupTasks)
+        private string OverallEquipmentEffectiveness(ResourceDictionary resources, DateTime startInterval, DateTime endInterval, List<ISimulationTask> operationTasks, List<ISimulationTask> setupTasks)
         {
             /* ------------- Total Production Time --------------------*/
             var totalInterval = endInterval - startInterval;
             var totalProductionTime = totalInterval * resources.Count;
 
             /* ------------- RunTime --------------------*/
-            var totalPlannedDowntime = 0L;
-            var totalBreakTime = 0L;
-            double runTime = totalProductionTime - (totalPlannedDowntime - totalBreakTime);
+            var totalPlannedDowntime = TimeSpan.Zero;
+            var totalBreakTime = TimeSpan.Zero;
+            TimeSpan runTime = totalProductionTime - (totalPlannedDowntime - totalBreakTime);
 
             /* ------------- WorkTime --------------------*/ //TODO add unplanned breakdown
-            var breakDown = 0L;
+            var breakDown = TimeSpan.Zero;
 
 
             var setupTime = _kpiManager.GetTotalTimeForInterval(resources, setupTasks, startInterval, endInterval);
             
             var totalUnplannedDowntime = breakDown + setupTime;
 
-            double workTime = runTime - totalUnplannedDowntime;
+            var workTime = runTime - totalUnplannedDowntime;
 
             /* ------------- PerformanceTime --------------------*/
             var jobTime = _kpiManager.GetTotalTimeForInterval(resources, operationTasks, startInterval, endInterval);
@@ -178,7 +181,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 
             // var reducedSpeed = 0L; //TODO if this is implemented the GetTotalTimeForInterval must change. to reflect speed div.
 
-            double performanceTime = jobTime;
+            var performanceTime = jobTime;
 
             /* ------------- zeroToleranceTime --------------------*/
 
@@ -187,7 +190,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             var badGoods = 0L;
             var totalGoods = goodGoods + badGoods;
 
-            double zeroToleranceTime = performanceTime / totalGoods * goodGoods;
+            TimeSpan zeroToleranceTime = performanceTime / totalGoods * goodGoods;
 
             //1.Parameter Availability calculation
             double availability = workTime / runTime;
@@ -231,7 +234,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
         private void ResourceUtilization(bool finalCall, List<ISimulationTask> operationTasks, IList<ISimulationTask> setupTasks)
         {
             
-            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time + ") Update Feed from DataCollection");
+            Collector.messageHub.SendToAllClients(msg: "(" + Collector.Time.Value + ") Update Feed from DataCollection");
 
             var setupKpiType = KpiType.ResourceSetup;
             var utilKpiType = KpiType.ResourceUtilization;
@@ -239,16 +242,16 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             if (finalCall)
             {
                 // reset LastIntervallStart
-                lastIntervalStart = Collector.Config.GetOption<SettlingStart>().Value;
+                lastIntervalStart = Collector.Config.GetOption<SimulationStartTime>().Value + Collector.Config.GetOption<SettlingStart>().Value;
                 setupKpiType = KpiType.ResourceSetupTotal;
                 utilKpiType = KpiType.ResourceUtilizationTotal;
             }
 
-            double divisor = Collector.Time - lastIntervalStart;
+            double divisor = (Collector.Time.Value - lastIntervalStart).TotalMinutes;
             var tupleList = new List<Tuple<string, string>>();
 
             //resource to ensure entries, even the resource it not used in interval
-            var resourceList = _resources.Select(selector: x => new Tuple<string, long>(x.Value.Name.Replace(" ", ""), 0));
+            var resourceList = _resources.Select(x => new Tuple<string, TimeSpan>(x.Value.Name.Replace(" ", ""), TimeSpan.Zero));
             
             var lower_borders = from sw in operationTasks
                                 where sw.Start < lastIntervalStart
@@ -256,46 +259,46 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                                       && sw.Mapping != null
                                 group sw by sw.Mapping
                         into rs
-                                select new Tuple<string, long>(rs.Key,
-                                    rs.Sum(selector: x => x.End - lastIntervalStart));
+                                select new Tuple<string, TimeSpan>(rs.Key,
+                                    rs.Sum(x => x.End - lastIntervalStart));
 
 
             var upper_borders = from sw in operationTasks
-                                where sw.Start < Collector.Time
-                                   && sw.End > Collector.Time
+                                where sw.Start < Collector.Time.Value
+                                   && sw.End > Collector.Time.Value
                                    && sw.Mapping != null
                                 group sw by sw.Mapping
                                 into rs
-                                select new Tuple<string, long>(rs.Key,
-                                    rs.Sum(selector: x => Collector.Time - x.Start));
+                                select new Tuple<string, TimeSpan>(rs.Key,
+                                    rs.Sum(x => Collector.Time.Value - x.Start));
 
 
             var from_work = from sw in operationTasks
                             where sw.Start >= lastIntervalStart
-                               && sw.End <= Collector.Time
+                               && sw.End <= Collector.Time.Value
                                && sw.Mapping != null
                             group sw by sw.Mapping
                             into rs
-                            select new Tuple<string, long>(rs.Key,
-                                rs.Sum(selector: x => x.End - x.Start));
+                            select new Tuple<string, TimeSpan>(rs.Key,
+                                rs.Sum(x => x.End - x.Start));
 
             var merge = from_work.Union(second: lower_borders).Union(second: upper_borders).Union(second: resourceList).ToList();
 
             var final = from m in merge
                         group m by m.Item1
                 into mg
-                        select new Tuple<string, long>(mg.Key, mg.Sum(x => x.Item2));
+                        select new Tuple<string, TimeSpan>(mg.Key, mg.Sum(x => x.Item2));
 
-            foreach (var item in final.OrderBy(keySelector: x => x.Item1))
+            foreach (var item in final.OrderBy(x => x.Item1))
             {
-                var value = Math.Round(value: item.Item2 / divisor, digits: 3).ToString(provider: _cultureInfo);
+                var value = Math.Round(item.Item2.TotalMinutes / divisor, digits: 3).ToString(provider: _cultureInfo);
                 if (value == "NaN" || value == "Infinity") value = "0";
                 tupleList.Add(new Tuple<string, string>(item.Item1, value));
                 Collector.CreateKpi(agent: Collector, value: value.Replace(".", ","), name: item.Item1, kpiType: utilKpiType, finalCall);
             }
 
 
-            var totalLoad = Math.Round(value: final.Sum(selector: x => x.Item2) / divisor / final.Count() * 100, digits: 3).ToString(provider: _cultureInfo);
+            var totalLoad = Math.Round(final.Sum(x => x.Item2).TotalMinutes / divisor / final.Count() * 100, digits: 3).ToString(provider: _cultureInfo);
             if (totalLoad == "NaN" || totalLoad == "Infinity") totalLoad = "0";
             Collector.CreateKpi(agent: Collector, value: totalLoad.Replace(".", ","), name: "TotalWork", kpiType: utilKpiType, finalCall);
 
@@ -306,36 +309,38 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                                              && sw.Mapping != null
                                        group sw by sw.Mapping
                 into rs
-                                       select new Tuple<string, long>(rs.Key,
-                                           rs.Sum(selector: x => x.End - lastIntervalStart));
+                                       select new Tuple<string, TimeSpan>(rs.Key,
+                                           rs.Sum(x => x.End - lastIntervalStart));
 
             var setups_upper_borders = from sw in setupTasks
-                                       where sw.Start < Collector.Time
-                                             && sw.End > Collector.Time
+                                       where sw.Start < Collector.Time.Value
+                                             && sw.End > Collector.Time.Value
                                              && sw.Mapping != null
                                        group sw by sw.Mapping
                       into rs
-                                       select new Tuple<string, long>(rs.Key,
-                                           rs.Sum(selector: x => Collector.Time - x.Start));
+                                       select new Tuple<string, TimeSpan>(rs.Key,
+                                           rs.Sum(x => Collector.Time.Value - x.Start));
 
             var totalSetups = from m in setupTasks
                               where m.Start >= lastIntervalStart
-                                 && m.End <= Collector.Time
+                                 && m.End <= Collector.Time.Value
                               group m by m.Mapping
                               into rs
-                              select new Tuple<string, long>(rs.Key,
-                                                              rs.Sum(selector: x => x.End - x.Start));
+                              select new Tuple<string, TimeSpan>(rs.Key,
+                                                              rs.Sum(x => x.End - x.Start));
 
             var union = totalSetups.Union(setups_lower_borders).Union(setups_upper_borders).Union(resourceList).ToList();
 
             var finalSetup = from m in union
                              group m by m.Item1
                 into mg
-                             select new Tuple<string, long>(mg.Key, mg.Sum(x => x.Item2));
+                             select new Tuple<string, TimeSpan>(mg.Key, mg.Sum(x => x.Item2));
+
+            // Black magic is happening (Backend Value preperation for Frontend Chart)
 
             foreach (var resource in finalSetup.OrderBy(keySelector: x => x.Item1))
             {
-                var value = Math.Round(value: resource.Item2 / divisor, digits: 3).ToString(provider: _cultureInfo);
+                var value = Math.Round(value: resource.Item2.TotalMinutes / divisor, digits: 3).ToString(provider: _cultureInfo);
                 if (value == "NaN" || value == "Infinity") value = "0";
                 var machine = resource.Item1.Replace(oldValue: ")", newValue: "").Replace(oldValue: "Resource(", newValue: "").Replace(oldValue: " ", newValue: "");
                 var workValue = tupleList.Single(x => x.Item1 == machine).Item2;
@@ -344,7 +349,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 Collector.CreateKpi(agent: Collector, value: value.Replace(".", ","), name: resource.Item1, kpiType: setupKpiType, finalCall);
             }
 
-            var totalSetup = Math.Round(value: finalSetup.Where(x => !x.Item1.Contains("Operator")).Sum(selector: x => x.Item2) / divisor / finalSetup.Count() * 100, digits: 3).ToString(provider: _cultureInfo);
+            var totalSetup = Math.Round(value: finalSetup.Where(x => !x.Item1.Contains("Operator")).Sum(selector: x => x.Item2.TotalMinutes) / divisor / finalSetup.Count() * 100, digits: 3).ToString(provider: _cultureInfo);
             if (totalSetup == "NaN" || totalSetup == "Infinity") totalSetup = "0";
             Collector.CreateKpi(agent: Collector, value: totalSetup.Replace(".", ","), name: "TotalSetup", kpiType: setupKpiType, finalCall);
 
@@ -355,7 +360,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
                 }));
         }
 
-        private void CreateAndSendArElement(FCreateTaskItem taskItem)
+        private void CreateAndSendArElement(CreateTaskItemRecord taskItem)
         {
             var resourceType = _resources.Single(x => x.Key.Equals(taskItem.ResourceId)).Value.ResourceType;
 
@@ -364,7 +369,7 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             var arSimulationElement = new ArSimElement(
                 stuffId: Guid.NewGuid().ToString(),
                 targetMachineId: taskItem.ResourceId.ToString(),
-                processDuration: (taskItem.End - taskItem.Start) * 1500, // convert to milliseconds
+                processDuration: (long)((taskItem.End - taskItem.Start).TotalMilliseconds), // convert to milliseconds
                 transportDurRatio: 40
             );
             

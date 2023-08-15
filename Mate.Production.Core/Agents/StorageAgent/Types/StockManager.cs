@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Hive.Definitions;
 using Mate.DataCore.Data.WrappersForPrimitives;
 using Mate.DataCore.DataModel;
 using Mate.DataCore.Nominal;
@@ -17,8 +18,8 @@ namespace Mate.Production.Core.Agents.StorageAgent.Types
                 ExchangeType = ExchangeType.Insert,
                 Quantity = stockElement.StartValue,
                 State = State.Finished,
-                RequiredOnTime = 0,
-                Time = 0
+                RequiredOnTime = Time.ZERO.Value,
+                Time = Time.ZERO.Value
             };
             
             Stock = stockElement;

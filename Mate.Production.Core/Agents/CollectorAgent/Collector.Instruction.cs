@@ -1,13 +1,13 @@
 ﻿using Akka.Actor;
-using AkkaSim.Definitions;
+using Akka.Hive.Definitions;
 
 namespace Mate.Production.Core.Agents.CollectorAgent
 {
     public partial class Collector
     {
-        public class Instruction
+        public record Instruction
         {
-            public class UpdateLiveFeed : SimulationMessage
+            public record UpdateLiveFeed : HiveMessage
             {
                 public static UpdateLiveFeed Create(bool setup, IActorRef target)
                 {

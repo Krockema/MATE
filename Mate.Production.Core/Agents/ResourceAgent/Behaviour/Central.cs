@@ -1,15 +1,15 @@
 ﻿using Mate.DataCore.Nominal;
-using static FCentralActivities;
-using static FCentralResourceDefinitions;
-using static FCreateTaskItems;
+using Mate.Production.Core.Environment.Records.Central;
+using Mate.Production.Core.Environment.Records.Reporting;
+using Mate.Production.Core.Helper;
 
 namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 {
     class Central : Core.Types.Behaviour
     {
-        private FCentralResourceDefinition _resourceDefinition;
-        private FCentralActivity _currentActivity;
-        public Central(FCentralResourceDefinition resourceDefinition, SimulationType simulationType = SimulationType.None)
+        private CentralResourceDefinitionRecord _resourceDefinition;
+        private CentralActivityRecord _currentActivity;
+        public Central(CentralResourceDefinitionRecord resourceDefinition, SimulationType simulationType = SimulationType.None)
             : base(simulationType: simulationType)
         {
             _resourceDefinition = resourceDefinition;
@@ -33,16 +33,16 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
         public override bool AfterInit()
         {
             Agent.Send(DirectoryAgent.Directory.Instruction.Central.ForwardRegistrationToHub.Create(
-                new FCentralResourceRegistrations.FCentralResourceRegistration(_resourceDefinition.ResourceId
-                                                                                        ,_resourceDefinition.ResourceName
-                                                                                        , Agent.Context.Self
-                                                                                        , _resourceDefinition.ResourceGroupId
-                                                                                        , _resourceDefinition.ResourceType)
+                new CentralResourceRegistrationRecord(_resourceDefinition.ResourceId
+                                                    ,_resourceDefinition.ResourceName
+                                                    , Agent.Context.Self
+                                                    , _resourceDefinition.ResourceGroupId
+                                                    , _resourceDefinition.ResourceType)
                 , Agent.VirtualParent));
            return true;
         }
 
-        public void StartWork(FCentralActivity activity)
+        public void StartWork(CentralActivityRecord activity)
         {
             Agent.DebugMessage($"Start {activity.ProductionOrderId}|{activity.OperationId}|{activity.ActivityId} with Duration: {activity.Duration}");
             _currentActivity = activity;
@@ -62,17 +62,17 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 
         #region Reporting
 
-        void CreateTask(FCentralActivity activity)
+        void CreateTask(CentralActivityRecord activity)
         {
-            var pub = new FCreateTaskItem(
-                type: activity.ActivityType
-                , resource: _resourceDefinition.ResourceName
-                , resourceId: _resourceDefinition.ResourceId
-                , start: Agent.CurrentTime
-                , end: Agent.CurrentTime + activity.Duration
-                , capability: activity.Capability
-                , operation: activity.ActivityType == JobType.SETUP ? "Setup for "+ activity.Name : activity.Name
-                , groupId: int.Parse(activity.ProductionOrderId + activity.OperationId + activity.ActivityId + activity.GanttPlanningInterval));
+            var pub = new CreateTaskItemRecord(
+                Type: activity.ActivityType
+                , Resource: _resourceDefinition.ResourceName
+                , ResourceId: _resourceDefinition.ResourceId
+                , Start: Agent.CurrentTime
+                , End: Agent.CurrentTime + activity.Duration
+                , Capability: activity.Capability
+                , Operation: activity.ActivityType == JobType.SETUP ? "Setup for "+ activity.Name : activity.Name
+                , GroupId: int.Parse(activity.ProductionOrderId + activity.OperationId + activity.ActivityId + activity.GanttPlanningInterval));
 
             //TODO NO tracking
             Agent.Context.System.EventStream.Publish(@event: pub);

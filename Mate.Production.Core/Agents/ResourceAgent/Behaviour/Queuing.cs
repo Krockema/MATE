@@ -6,10 +6,10 @@ using Mate.DataCore.Nominal.Model;
 using Mate.Production.Core.Agents.DirectoryAgent;
 using Mate.Production.Core.Agents.HubAgent;
 using Mate.Production.Core.Agents.ResourceAgent.Types;
-using static FCreateTaskItems;
-using static FQueuingJobs;
-using static FResourceInformations;
-using static IQueueingJobs;
+using Mate.Production.Core.Environment.Records;
+using Mate.Production.Core.Environment.Records.Interfaces;
+using Mate.Production.Core.Environment.Records.Queueing;
+using Mate.Production.Core.Environment.Records.Reporting;
 
 namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
 {
@@ -18,7 +18,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
         internal string _resourceName { get; }
         internal int _resourceId { get; }
         internal ResourceType _resourceType { get; }
-        internal FQueuingJob _currentJob { get; set; }
+        internal QueueingJobRecord _currentJob { get; set; }
         internal CapabilityProviderManager _capabilityProviderManager { get; }
         public Queuing(int resourceId, ResourceType resourceType, List<M_ResourceCapabilityProvider> capabilityProvider, SimulationType simulationType = SimulationType.None)
             : base(simulationType: simulationType)
@@ -45,7 +45,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
             var resourceAgent = Agent as Resource;
             var capabilityProviders = _capabilityProviderManager.GetAllCapabilityProvider();
             Agent.Send(instruction: Directory.Instruction.Default.ForwardRegistrationToHub.Create(
-                new FResourceInformation(resourceAgent._resource.Id, Agent.Name, capabilityProviders, _resourceType, String.Empty, Agent.Context.Self)
+                new ResourceInformationRecord(resourceAgent._resource.Id, Agent.Name, capabilityProviders, _resourceType, WorkTimeGenerator: null, String.Empty, Agent.Context.Self)
                 , target: Agent.VirtualParent));
             return true;
         }
@@ -79,15 +79,15 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
         #region Reporting
         void CreateTask(IQueueingJob job)
         {
-            var pub = new FCreateTaskItem(
-                type: job.JobType
-                , resource: Agent.Name.Replace("Resource(", "").Replace(")", "")
-                , resourceId: _resourceId
-                , start: Agent.CurrentTime
-                , end: Agent.CurrentTime + job.Duration
-                , capability: job.CapabilityProvider.ResourceCapability.Name
-                , operation: job.JobType == JobType.SETUP ? "Setup for " + job.JobName : job.JobName
-                , groupId: Math.Abs(job.Key.GetHashCode()));
+            var pub = new CreateTaskItemRecord(
+                Type: job.JobType
+                , Resource: Agent.Name.Replace("Resource(", "").Replace(")", "")
+                , ResourceId: _resourceId
+                , Start: Agent.CurrentTime
+                , End: Agent.CurrentTime + job.Duration
+                , Capability: job.CapabilityProvider.ResourceCapability.Name
+                , Operation: job.JobType == JobType.SETUP ? "Setup for " + job.JobName : job.JobName
+                , GroupId: Math.Abs(job.Key.GetHashCode()));
 
             //TODO NO tracking
             Agent.Context.System.EventStream.Publish(@event: pub);
