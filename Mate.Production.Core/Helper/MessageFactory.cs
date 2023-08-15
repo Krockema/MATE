@@ -115,7 +115,8 @@ namespace Mate.Production.Core.Helper
                                             , DateTime currentTime)
         {
             var article = new ArticleRecord(
-                Keys: ImmutableHashSet.Create<Guid>(new Guid[orderPart.Quantity])
+                Key: Guid.NewGuid()
+                , Keys: ImmutableHashSet.Create<Guid>(new Guid[orderPart.Quantity])
                 , DueTime: orderPart.CustomerOrder.DueTime
                 , Quantity: orderPart.Quantity
                 , Article: orderPart.Article
@@ -144,7 +145,8 @@ namespace Mate.Production.Core.Helper
                                                 , DateTime currentTime)
         {
             var article = new ArticleRecord(
-                Keys: ImmutableHashSet.Create<Guid>(new Guid[requestItem.Quantity])
+                Key: Guid.NewGuid()
+                , Keys: ImmutableHashSet.Create<Guid>(new Guid[requestItem.Quantity])
                 , DueTime: requestItem.DueTime
                 , CreationTime: currentTime
                 , IsProvided: false
@@ -161,7 +163,7 @@ namespace Mate.Production.Core.Helper
                 , DispoRequester: ActorRefs.Nobody
                 , ProviderList: ImmutableHashSet.Create<StockProviderRecord>()
                 , FinishedAt: Time.ZERO.Value
-            );
+            ) ;
             return article;
         }
 

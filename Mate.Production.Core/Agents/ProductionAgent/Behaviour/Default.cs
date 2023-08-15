@@ -67,7 +67,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
 
             if (nextOperation.IsNotNull())
             {
-                nextOperation.SetStartConditions(true, nextOperation.StartConditions.ArticlesProvided, Agent.CurrentTime);
+                nextOperation.SetStartConditions(true, nextOperation.StartCondition.ArticlesProvided, Agent.CurrentTime);
                 Agent.DebugMessage(msg: $"PreCondition for operation {nextOperation.Operation.Name} {nextOperation.Key} at {_articleToProduce.Article.Name} was set true.");
                 Agent.Send(instruction: BasicInstruction.UpdateStartConditions.Create(message: nextOperation.GetStartCondition(nextOperation.CustomerDue)
                                                                                       ,target: nextOperation.HubAgent));
@@ -227,7 +227,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
             {
                 Agent.DebugMessage(msg:$"All Article for {_articleToProduce.Article.Name} {_articleToProduce.Key} have been provided");
 
-                articleDictionary.Operation.SetStartConditions(articleDictionary.Operation.StartConditions.PreCondition, true, Agent.CurrentTime);
+                articleDictionary.Operation.SetStartConditions(articleDictionary.Operation.StartCondition.PreCondition, true, Agent.CurrentTime);
                 if (articleDictionary.Operation.HubAgent == null) return;
                 // // else 
                 Agent.Send(BasicInstruction.UpdateStartConditions
@@ -274,7 +274,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
                     msg:
                     $"Origin {articleRec.Article.Name} CustomerDue: {articleRec.CustomerDue} remainingDuration: {articleRec.RemainingDuration} Created operation: {operation.Name} | Prio {fJob.Priority.Invoke(Agent.CurrentTime)} | Remaining Work {sumOperationDurations} " +
                     $"| BackwardStart {fJob.BackwardStart} | BackwardEnd:{fJob.BackwardEnd} Key: {fJob.Key}  ArticleKey: {articleRec.Key}" + 
-                    $"Precondition test: {operation.Name} | {fJob.StartConditions.PreCondition} ? {operationCounter} == {numberOfOperations} " +
+                    $"Precondition test: {operation.Name} | {fJob.StartCondition.PreCondition} ? {operationCounter} == {numberOfOperations} " +
                     $"| Key: {fJob.Key}  ArticleKey: {articleRec.Key}", CustomLogger.SCHEDULING, LogLevel.Warn);
                 sumOperationDurations += operation.Duration;
                 lastDue = fJob.BackwardStart - operation.AverageTransitionDuration;

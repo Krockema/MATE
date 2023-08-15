@@ -82,7 +82,7 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Types
                 {
                     //TODO Log this somewhere - not in System Debug
                     //System.Diagnostics.Debug.WriteLine($"Operation {fOperation.Operation.Name} of Article {articleToProduce.Article.Name} has no RequiredArticles!");
-                    fOperation.SetStartConditions(fOperation.StartConditions.PreCondition, true, currentTime);
+                    fOperation.SetStartConditions(fOperation.StartCondition.PreCondition, true, currentTime);
                 }
                 
                 foreach (var bom in fOperation.Operation.ArticleBoms)

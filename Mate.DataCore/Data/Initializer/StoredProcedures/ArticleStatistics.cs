@@ -132,7 +132,7 @@ namespace Mate.DataCore.Data.Initializer.StoredProcedures
 					{
 						System.Diagnostics.Debug.WriteLine(string.Format("Summe der Dauer {0}; Anzahl der Operationen {1}; Summe der Produktionsaufträge {2}", reader[0], reader[1], int.Parse(reader[2].ToString()) + 1));
 						// TODO Catch false informations
-						estimatedProductDelivery = TimeSpan.FromMinutes((long)(System.Convert.ToInt64(reader[0]) * factor));
+						estimatedProductDelivery = TimeSpan.FromTicks((long)(Convert.ToInt64(reader[0]) * factor));
 						System.Diagnostics.Debug.WriteLine("Estimated Product Delivery {0}", estimatedProductDelivery);
 					}
 

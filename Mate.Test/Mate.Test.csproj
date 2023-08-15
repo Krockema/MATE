@@ -4,7 +4,7 @@
     <ServerGarbageCollection>true</ServerGarbageCollection>
     <Configurations>Debug;Release;Azure;Debuger;Debugger</Configurations>
 		<Platforms>AnyCPU;x64;x86</Platforms>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
   </PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 	  <PlatformTarget>AnyCPU</PlatformTarget>
@@ -14,49 +14,6 @@
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 	  <PlatformTarget>AnyCPU</PlatformTarget>
 	  <Optimize>True</Optimize>
-	  <LangVersion>10.0</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Azure|AnyCPU'">
-	  <PlatformTarget>AnyCPU</PlatformTarget>
-	  <LangVersion>10.0</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debuger|AnyCPU'">
-	  <PlatformTarget>AnyCPU</PlatformTarget>
-	  <LangVersion>10.0</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-	  <Optimize>False</Optimize>
-	  <LangVersion>10.0</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-	  <Optimize>True</Optimize>
-	  <LangVersion>10.0</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debugger|x86'">
-	  <LangVersion>10.0</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Azure|x64'">
-	  <LangVersion>10.0</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debuger|x86'">
-	  <LangVersion>10.0</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-	  <LangVersion>10.0</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debugger|x64'">
-	  <LangVersion>10.0</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debugger|AnyCPU'">
-	  <LangVersion>10.0</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-	  <LangVersion>10.0</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Azure|x86'">
-	  <LangVersion>10.0</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debuger|x64'">
 	  <LangVersion>10.0</LangVersion>
 	</PropertyGroup>
 

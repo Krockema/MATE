@@ -83,9 +83,9 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             var operation = (OperationRecord)job;
 
             Agent.DebugMessage(msg: $"Got New Item to Enqueue: {operation.Operation.Name} {operation.Key}" +
-                                    $"| with start condition: {operation.StartConditions.Satisfied} with Id: {operation.Key}" +
-                                    $"| ArticleProvided: {operation.StartConditions.ArticlesProvided} " +
-                                    $"| PreCondition: {operation.StartConditions.PreCondition}", CustomLogger.JOB, LogLevel.Warn);
+                                    $"| with start condition: {operation.StartCondition.Satisfied} with Id: {operation.Key}" +
+                                    $"| ArticleProvided: {operation.StartCondition.ArticlesProvided} " +
+                                    $"| PreCondition: {operation.StartCondition.PreCondition}", CustomLogger.JOB, LogLevel.Warn);
 
             operation.UpdateHubAgent(hub: Agent.Context.Self);
 
@@ -232,8 +232,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             var jobQueue = _jobManager.GetActiveJob(queueKey);
 
             var nextJob = jobQueue.Dequeue(Agent.CurrentTime);
-            _jobManager.RemoveFromJobTracker(nextJob, this.Agent.CurrentTime);
-
+            
             var operation = nextJob as OperationRecord;
             
             var randomizedDuration = _workTimeGenerator.GetRandomWorkTime(nextJob.Duration, (operation.ProductionAgent.GetHashCode() + operation.Operation.HierarchyNumber).GetHashCode());
@@ -318,7 +317,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             job.SetStartConditions(startCondition.PreCondition, startCondition.ArticlesProvided, Agent.CurrentTime);
 
             _jobManager.SetJob(job, Agent.CurrentTime);
-            if (job.StartConditions.Satisfied)
+            if (job.StartCondition.Satisfied)
             {
                 StartNext();
             }

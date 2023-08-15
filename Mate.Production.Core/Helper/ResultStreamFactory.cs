@@ -27,7 +27,7 @@ namespace Mate.Production.Core.Helper
                 , Start: agent.Time.Value
                 , CapabilityProvider: capabilityProvider.Name
                 , Capability: capabilityProvider.ResourceCapability.Name
-                , ReadyAt: job.StartConditions.WasSetReadyAt
+                , ReadyAt: job.StartCondition.WasSetReadyAt
                 , JobType: JobType.OPERATION
                 , Bucket: bucketName
                 , SetupId: capabilityProvider.Id);

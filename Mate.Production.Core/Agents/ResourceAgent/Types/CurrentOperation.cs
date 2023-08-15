@@ -1,4 +1,5 @@
 ﻿using Akka.Hive.Definitions;
+using Mate.Production.Core.Environment.Records;
 using System;
 
 namespace Mate.Production.Core.Agents.ResourceAgent.Types

@@ -1,7 +1,7 @@
 ﻿using Akka.Actor;
 using Akka.Hive.Definitions;
 using Mate.Production.Core.Environment.Records.Central;
-
+using Mate.Production.Core.Environment.Records;
 
 namespace Mate.Production.Core.Agents.DirectoryAgent
 {
@@ -84,14 +84,14 @@ namespace Mate.Production.Core.Agents.DirectoryAgent
 
             public record CreateHubAgent : HiveMessage
             {
-                public static CreateHubAgent Create(ResourceHubInformationRecord message, IActorRef target)
+                public static CreateHubAgent Create(Environment.Records.Central.ResourceHubInformationRecord message, IActorRef target)
                 {
                     return new CreateHubAgent(message: message, target: target);
                 }
                 private CreateHubAgent(object message, IActorRef target) : base(message: message, target: target)
                 {
                 }
-                public ResourceHubInformationRecord GetObjectFromMessage { get => Message as ResourceHubInformationRecord; }
+                public Environment.Records.Central.ResourceHubInformationRecord GetObjectFromMessage { get => Message as Environment.Records.Central.ResourceHubInformationRecord; }
             }
 
             public record ForwardAddOrder : HiveMessage

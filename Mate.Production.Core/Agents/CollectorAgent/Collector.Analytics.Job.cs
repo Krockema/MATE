@@ -26,11 +26,11 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 {
     public class CollectorAnalyticJob : Behaviour, ICollectorBehaviour
     {
-        private CollectorAnalyticJob(ResourceDictionary resources) : base()
+        private CollectorAnalyticJob(ResourceDictionary resources, DateTime settlingStart) : base()
         {
             _stopWatch.Start();
             _resources = resources;
-            _settlingStart = Collector.Config.GetOption<SimulationStartTime>().Value + Collector.Config.GetOption<SettlingStart>().Value;
+            _settlingStart = settlingStart;
         }
         private Stopwatch _stopWatch { get; } = new Stopwatch();
         List<long> _runTime { get; } = new List<long>();
@@ -70,9 +70,9 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             };
         }
 
-        public static CollectorAnalyticJob Get(ResourceDictionary resources)
+        public static CollectorAnalyticJob Get(ResourceDictionary resources, DateTime settlingStart)
         {
-            return new CollectorAnalyticJob(resources: resources);
+            return new CollectorAnalyticJob(resources: resources, settlingStart: settlingStart);
         }
 
         public override bool Action(object message) => throw new Exception(message: "Please use EventHandle method to process Messages");

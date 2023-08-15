@@ -3,6 +3,7 @@ using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.DirectoryAgent.Types;
 using Mate.Production.Core.Agents.HubAgent;
 using Mate.Production.Core.Agents.StorageAgent;
+using Mate.Production.Core.Environment.Records;
 using Mate.Production.Core.Environment.Records.Central;
 using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
@@ -61,7 +62,7 @@ namespace Mate.Production.Core.Agents.DirectoryAgent.Behaviour
             Agent.Send(Storage.Instruction.Central.WithdrawMaterial.Create(stockPosting, actorRef));
         }
         
-        private void CreateHubAgent(ResourceHubInformationRecord resourceHubInformation)
+        private void CreateHubAgent(Environment.Records.Central.ResourceHubInformationRecord resourceHubInformation)
         {
             var hubAgent = Agent.Context.ActorOf(props: Hub.Props(actorPaths: Agent.ActorPaths
                         , configuration: Agent.Configuration

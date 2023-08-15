@@ -6,6 +6,7 @@ using Akka.Hive.Definitions;
 using Mate.DataCore.DataModel;
 using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.HubAgent.Types;
+using Mate.Production.Core.Environment.Records;
 using Mate.Production.Core.Environment.Records.Scopes;
 using Mate.Production.Core.Helper;
 
@@ -16,8 +17,8 @@ namespace Mate.Test.Online.Preparations
         public static ArticleRecord CreateDummyArticle(DateTime dueTime, DateTime customerDue, DateTime currentTime, M_Article article, int quantity)
         {
             return new ArticleRecord(
-                //# Key: Guid.Empty
-                DueTime: dueTime
+                Key: Guid.NewGuid()
+                , DueTime: dueTime
                 , CustomerDue: customerDue
                 , Keys: ImmutableHashSet.Create<Guid>()
                 , Quantity: quantity

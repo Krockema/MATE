@@ -35,6 +35,7 @@ namespace Mate.Production.Core
     {
         public DataBase<GanttPlanDBContext> dbGantt { get; }
         public string dbMate { get;}
+        private Time StartTime = new Time(new DateTime(2000, 01, 01));
         private ResourceDictionary _resourceDictionary { get; }
         /// <summary>
         /// Prepare Simulation Environment
@@ -55,6 +56,7 @@ namespace Mate.Production.Core
                 HiveConfig = configuration.GetContextConfiguration();
                 DebugAgents = configuration.GetOption<DebugAgents>().Value;
                 SimulationType = configuration.GetOption<SimulationKind>().Value;
+                StartTime = new Time(configuration.GetOption<SimulationStartTime>().Value);
                 Hive = new Hive(HiveConfig);
                 StateManager = new GanttStateManager(new List<IActorRef> { this.StorageCollector
                                                                          , this.JobCollector
@@ -117,17 +119,18 @@ namespace Mate.Production.Core
         }
         private void CreateCollectorAgents(Configuration configuration)
         {
+            DateTime settlingStart = configuration.GetOption<SimulationStartTime>().Value + configuration.GetOption<SettlingStart>().Value;
             StorageCollector = Hive.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsStorage.Get()
-                                                            , msgHub: MessageHub, configuration: configuration, time: Time.ZERO, debug: DebugAgents
+                                                            , msgHub: MessageHub, configuration: configuration, time: StartTime, debug: DebugAgents
                                                             , streamTypes: CollectorAnalyticsStorage.GetStreamTypes()), name: "StorageCollector");
             ContractCollector = Hive.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticsContracts.Get()
-                                                            , msgHub: MessageHub, configuration: configuration, time: Time.ZERO, debug: DebugAgents
+                                                            , msgHub: MessageHub, configuration: configuration, time: StartTime, debug: DebugAgents
                                                             , streamTypes: CollectorAnalyticsContracts.GetStreamTypes()), name: "ContractCollector");
-            JobCollector = Hive.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticJob.Get(resources: _resourceDictionary)
-                                                            , msgHub: MessageHub, configuration: configuration, time: Time.ZERO, debug: DebugAgents
+            JobCollector = Hive.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticJob.Get(resources: _resourceDictionary, settlingStart: settlingStart)
+                                                            , msgHub: MessageHub, configuration: configuration, time: StartTime, debug: DebugAgents
                                                             , streamTypes: CollectorAnalyticJob.GetStreamTypes()), name: "JobCollector");
-            ResourceCollector = Hive.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticResource.Get(resources: _resourceDictionary)
-                                                            , msgHub: MessageHub, configuration: configuration, time: Time.ZERO, debug: DebugAgents
+            ResourceCollector = Hive.ActorSystem.ActorOf(props: Collector.Props(actorPaths: ActorPaths, collectorBehaviour: CollectorAnalyticResource.Get(resources: _resourceDictionary, configuration.GetOption<SimulationStartTime>().Value)
+                                                            , msgHub: MessageHub, configuration: configuration, time: StartTime, debug: DebugAgents
                                                             , streamTypes: CollectorAnalyticResource.GetStreamTypes()), name: "ResourceCollector");
         }
         private void CreateSupervisor(Configuration configuration)
@@ -141,7 +144,7 @@ namespace Mate.Production.Core
             ActorPaths.SetSupervisorAgent(systemAgent: Hive.ActorSystem
                 .ActorOf(props: Supervisor.Props(actorPaths: ActorPaths,
                         configuration: configuration,
-                        time: Time.ZERO,
+                        time: StartTime,
                         hiveConfig: HiveConfig,
                         debug: DebugAgents,
                         principal: ActorRefs.Nobody),
@@ -160,12 +163,12 @@ namespace Mate.Production.Core
         private void CreateDirectoryAgents(Configuration configuration)
         {
             // Resource Directory
-            ActorPaths.SetHubDirectoryAgent(hubAgent: Hive.ActorSystem.ActorOf(props: Directory.Props(actorPaths: ActorPaths, configuration: configuration, hiveConfig: HiveConfig, time: Time.ZERO, debug: DebugAgents), name: "HubDirectory"));
+            ActorPaths.SetHubDirectoryAgent(hubAgent: Hive.ActorSystem.ActorOf(props: Directory.Props(actorPaths: ActorPaths, configuration: configuration, hiveConfig: HiveConfig, time: StartTime, debug: DebugAgents), name: "HubDirectory"));
             Hive.ContextManagerRef.Tell(message: BasicInstruction.Initialize.Create(target: ActorPaths.HubDirectory.Ref, message: Agents.DirectoryAgent.Behaviour.Factory.Get(simType: SimulationType)));
             CreateHubAgent(ActorPaths.HubDirectory.Ref, configuration);
 
             // Storage Directory
-            ActorPaths.SetStorageDirectory(storageAgent: Hive.ActorSystem.ActorOf(props: Directory.Props(actorPaths: ActorPaths, configuration: configuration, hiveConfig: HiveConfig, time: Time.ZERO, debug: DebugAgents), name: "StorageDirectory"));
+            ActorPaths.SetStorageDirectory(storageAgent: Hive.ActorSystem.ActorOf(props: Directory.Props(actorPaths: ActorPaths, configuration: configuration, hiveConfig: HiveConfig, time: StartTime, debug: DebugAgents), name: "StorageDirectory"));
             Hive.ContextManagerRef.Tell(message: BasicInstruction.Initialize.Create(target: ActorPaths.StorageDirectory.Ref, message: Agents.DirectoryAgent.Behaviour.Factory.Get(simType: SimulationType)));
         }
 
@@ -199,7 +202,7 @@ namespace Mate.Production.Core
 
         private void CreateGuard(GuardianType guardianType, GuardianBehaviour guardianBehaviour, Configuration configuration)
         {
-            var guard = Hive.ActorSystem.ActorOf(props: Guardian.Props(actorPaths: ActorPaths, configuration: configuration, hiveConfig: HiveConfig, time: Time.ZERO, debug: DebugAgents), name: guardianType.ToString() + "Guard");
+            var guard = Hive.ActorSystem.ActorOf(props: Guardian.Props(actorPaths: ActorPaths, configuration: configuration, hiveConfig: HiveConfig, time: StartTime, debug: DebugAgents), name: guardianType.ToString() + "Guard");
             Hive.ContextManagerRef.Tell(message: BasicInstruction.Initialize.Create(target: guard, message: guardianBehaviour));
             ActorPaths.AddGuardian(guardianType: guardianType, actorRef: guard);
         }

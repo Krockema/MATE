@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
+using Mate.Production.Core.Environment.Records;
 
 namespace Mate.Production.Core.Agents.ProductionAgent.Types
 {

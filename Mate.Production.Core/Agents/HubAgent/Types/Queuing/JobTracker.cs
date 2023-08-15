@@ -34,7 +34,7 @@ namespace Mate.Production.Core.Agents.HubAgent.Types.Queuing
         private void WriteChangeSet(DateTime time, string operation, List<IJob> _jobs, string name) 
         {
             var sorted = _jobs.Select((x, i) => new Tuple<IJob, int>(x, i))
-                     .GroupBy(x => (x.Item1.StartConditions.Satisfied.ToString() + x.Item1.RequiredCapability.Id))
+                     .GroupBy(x => (x.Item1.StartCondition.Satisfied.ToString() + x.Item1.RequiredCapability.Id))
                      .OrderByDescending(x => x.Key)
                      .ThenBy(x => x.Min(y => y.Item1.Priority(time)))
                      .SelectMany(x => x)

@@ -10,6 +10,7 @@ using Mate.DataCore.ReportingModel;
 using Mate.Production.Core.Agents.ContractAgent;
 using Mate.Production.Core.Agents.SupervisorAgent;
 using Mate.Production.Core.Environment.Options;
+using Mate.Production.Core.Environment.Records;
 using Mate.Production.Core.Helper;
 using Mate.Production.Core.Types;
 using Newtonsoft.Json;

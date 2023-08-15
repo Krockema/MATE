@@ -158,7 +158,7 @@ namespace Mate.Production.Core.Reporting
                     resource = agent.Name.Replace("Resource(", "").Replace(")", ""),
                     priority = operation.Priority.Invoke(agent.Time.Value).ToString() + " S " + bucket.ScopeConfirmation.GetScopeStart() + " E " + bucket.ScopeConfirmation.GetScopeEnd(),
                     IsProcessing = inProcessing.ToString(),
-                    IsReady = operation.StartConditions.Satisfied.ToString(),
+                    IsReady = operation.StartCondition.Satisfied.ToString(),
                     IsFinalized = false.ToString(),
                     IsWorking = isWorking.ToString(),
                     IsFixed = source

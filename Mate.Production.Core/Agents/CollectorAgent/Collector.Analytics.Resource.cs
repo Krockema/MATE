@@ -21,9 +21,10 @@ namespace Mate.Production.Core.Agents.CollectorAgent
 {
     public class CollectorAnalyticResource : Behaviour, ICollectorBehaviour
     {
-        private CollectorAnalyticResource(ResourceDictionary resources) : base()
+        private CollectorAnalyticResource(ResourceDictionary resources,DateTime startTime) : base()
         {
             _resources = resources;
+            lastIntervalStart = startTime;
             _kpiManager = new KpiManager();
             _taskItems.Add(JobType.OPERATION, new List<ISimulationTask>());
             _taskItems.Add(JobType.SETUP, new List<ISimulationTask>());
@@ -53,9 +54,9 @@ namespace Mate.Production.Core.Agents.CollectorAgent
             };
         }
 
-        public static CollectorAnalyticResource Get(ResourceDictionary resources)
+        public static CollectorAnalyticResource Get(ResourceDictionary resources, DateTime startTime)
         {
-            return new CollectorAnalyticResource(resources: resources);
+            return new CollectorAnalyticResource(resources: resources, startTime: startTime);
         }
 
         public override bool Action(object message) =>

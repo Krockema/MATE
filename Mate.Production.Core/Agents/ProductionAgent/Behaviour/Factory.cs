@@ -38,8 +38,8 @@ namespace Mate.Production.Core.Agents.ProductionAgent.Behaviour
         {
             return new UpdateStartConditionRecord(OperationKey: operation.Key
                 , CustomerDue: customerDue
-                , PreCondition: operation.StartConditions.PreCondition
-                , ArticlesProvided: operation.StartConditions.ArticlesProvided);
+                , PreCondition: operation.StartCondition.PreCondition
+                , ArticlesProvided: operation.StartCondition.ArticlesProvided);
         }
 
     }

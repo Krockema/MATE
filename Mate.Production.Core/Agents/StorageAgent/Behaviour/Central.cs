@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.StorageAgent.Types;
+using Mate.Production.Core.Environment.Records;
 using Mate.Production.Core.Environment.Records.Central;
 
 namespace Mate.Production.Core.Agents.StorageAgent.Behaviour

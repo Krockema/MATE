@@ -2,6 +2,7 @@
 using Mate.PiWebApi.DistributionProvider;
 using Mate.Production.Core.Agents.ResourceAgent.Types;
 using Mate.Production.Core.Environment.Options;
+using Mate.Production.Core.Environment.Records;
 using Mate.Production.Core.Environment.Records.Reporting;
 using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
@@ -41,7 +42,7 @@ namespace Mate.Production.Core.Agents.ResourceAgent.Behaviour
         private void CreateMeasurement(MeasurementInformationRecord fMeasurementInformation)
         {
             // !Collector.Config.GetOption<CreateQualityData>().Value
-            var job = ((OperationRecord)fMeasurementInformation.Job);
+            var job = (OperationRecord)fMeasurementInformation.Job;
             var measurements = new Measurements();
             var resourceUsage = _deflectionGenerator.AddUsage(setupId: fMeasurementInformation.CapabilityProviderId);
             

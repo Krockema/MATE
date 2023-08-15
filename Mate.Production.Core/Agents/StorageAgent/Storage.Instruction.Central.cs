@@ -1,5 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.Hive.Definitions;
+using Mate.Production.Core.Environment.Records;
 using Mate.Production.Core.Environment.Records.Central;
 
 namespace Mate.Production.Core.Agents.StorageAgent

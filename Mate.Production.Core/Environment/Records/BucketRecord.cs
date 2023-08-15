@@ -29,17 +29,17 @@ namespace Mate.Production.Core.Environment.Records
                             long MinBucketSize,
                             string Bucket) : IKey, IJob
     {
-        public Guid Key { get; }
-        public int SetupKey { get; set; }
-        public IActorRef HubAgent { get; set; }
-        public StartConditionRecord StartConditions { get; set; }
+        public Guid Key { get => this.Key; init => Key = Guid.NewGuid(); }
+        public int SetupKey { get; set; } = SetupKey;
+        public IActorRef HubAgent { get; set; } = HubAgent;
+        public StartConditionRecord StartCondition { get; set; }
         public BucketRecord SetStartConditions(bool preCondition, bool articleProvided, DateTime time)
         {
-            StartConditions = new StartConditionRecord
+            StartCondition = new StartConditionRecord
            (
                     PreCondition: preCondition,
                     ArticlesProvided: articleProvided,
-                    WasSetReadyAt: (preCondition && articleProvided && StartConditions.WasSetReadyAt == Time.ZERO.Value) ? time : Time.ZERO.Value
+                    WasSetReadyAt: (preCondition && articleProvided && StartCondition.WasSetReadyAt == Time.ZERO.Value) ? time : Time.ZERO.Value
             );
             return this;
         }
@@ -52,7 +52,7 @@ namespace Mate.Production.Core.Environment.Records
                            Start = estimatedStart };
         Func<string, IJob> IJob.UpdateBucket => (bucketId) => 
             this with { Bucket = bucketId };
-        Action IJob.ResetSetup => () => SetupKey = -1;
+        void IJob.ResetSetup() => SetupKey = -1;
 
         public IJob UpdateBucket(string bucketId) => 
             this with { Bucket = bucketId };
@@ -73,7 +73,7 @@ namespace Mate.Production.Core.Environment.Records
             => (BackwardStart - ForwardStart) - Operations.Sum(y => y.Operation.Duration);
         
         public bool HasSatisfiedJob() 
-            => Operations.Any(y => y.StartConditions.Satisfied);
+            => Operations.Any(y => y.StartCondition.Satisfied);
         
 
     }

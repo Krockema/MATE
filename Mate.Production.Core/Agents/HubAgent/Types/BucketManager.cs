@@ -238,11 +238,11 @@ namespace Mate.Production.Core.Agents.HubAgent.Types
             foreach (var operation in bucketOperations)
             {
                 agent.DebugMessage(msg:$"In RemoveNotSatisfiedOperations check the operation {operation.Key} {operation.Operation.Name} in {bucket.Name} has" +
-                                       $"| Satisfied: {operation.StartConditions.Satisfied} " +
-                                       $"| ArticleProvided: {operation.StartConditions.ArticlesProvided} " +
-                                       $"| PreCondition: {operation.StartConditions.PreCondition} ", CustomLogger.JOB, LogLevel.Warn);
+                                       $"| Satisfied: {operation.StartCondition.Satisfied} " +
+                                       $"| ArticleProvided: {operation.StartCondition.ArticlesProvided} " +
+                                       $"| PreCondition: {operation.StartCondition.PreCondition} ", CustomLogger.JOB, LogLevel.Warn);
 
-                if (!operation.StartConditions.Satisfied)
+                if (!operation.StartCondition.Satisfied)
                 {
                     agent.DebugMessage(msg: $"Operation {operation.Key} in {operation.Operation.Name} in {bucket.Name} will be removed because it is not satisfied!", CustomLogger.JOB, LogLevel.Warn);
 

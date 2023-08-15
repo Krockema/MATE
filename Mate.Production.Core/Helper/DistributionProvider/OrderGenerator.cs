@@ -25,7 +25,7 @@ namespace Mate.Production.Core.Helper.DistributionProvider
         public OrderGenerator(Configuration simConfig, MateProductionDb productionDomainContext, List<int> productIds)
         {
             _debug = true;
-            _seededRandom = new Random(Seed: simConfig.GetOption<Mate.Production.Core.Environment.Options.Seed>().Value
+            _seededRandom = new Random(Seed: simConfig.GetOption<Environment.Options.Seed>().Value
                 //TODO: Do it better                    
                 //+ simConfig.GetOption<SimulationNumber>().Value
                                      );
@@ -52,7 +52,7 @@ namespace Mate.Production.Core.Helper.DistributionProvider
 
         public OrderGenerator(Configuration simConfig,  List<int> productIds)
         {
-            _seededRandom = new Random(Seed: simConfig.GetOption<Mate.Production.Core.Environment.Options.Seed>().Value
+            _seededRandom = new Random(Seed: simConfig.GetOption<Environment.Options.Seed>().Value
                 //TODO: Do it better                    
                 //+ simConfig.GetOption<SimulationNumber>().Value
             );

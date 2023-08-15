@@ -96,9 +96,9 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
             var operation = (OperationRecord)job;
 
             Agent.DebugMessage(msg: $"Got New Item to Enqueue: {operation.Operation.Name} {operation.Key}" + 
-                                    $"| with start condition: {operation.StartConditions.Satisfied} with Id: {operation.Key}" +
-                                    $"| ArticleProvided: {operation.StartConditions.ArticlesProvided} " +
-                                    $"| PreCondition: {operation.StartConditions.PreCondition}", CustomLogger.JOB, LogLevel.Warn);
+                                    $"| with start condition: {operation.StartCondition.Satisfied} with Id: {operation.Key}" +
+                                    $"| ArticleProvided: {operation.StartCondition.ArticlesProvided} " +
+                                    $"| PreCondition: {operation.StartCondition.PreCondition}", CustomLogger.JOB, LogLevel.Warn);
 
             operation.UpdateHubAgent(hub: Agent.Context.Self);
 
@@ -112,9 +112,9 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
         {
 
             Agent.DebugMessage(msg: $"Original FOperation before add to Bucket : {fOperation.Operation.Name} {fOperation.Key}" +
-                                    $"| with start condition: {fOperation.StartConditions.Satisfied} with Id: {fOperation.Key}" +
-                                    $"| ArticleProvided: {fOperation.StartConditions.ArticlesProvided} " +
-                                    $"| PreCondition: {fOperation.StartConditions.PreCondition}", CustomLogger.JOB, LogLevel.Warn);
+                                    $"| with start condition: {fOperation.StartCondition.Satisfied} with Id: {fOperation.Key}" +
+                                    $"| ArticleProvided: {fOperation.StartCondition.ArticlesProvided} " +
+                                    $"| PreCondition: {fOperation.StartCondition.PreCondition}", CustomLogger.JOB, LogLevel.Warn);
 
             var operationInBucket = _bucketManager.GetBucketByOperationKey(fOperation.Key);
             
@@ -132,9 +132,9 @@ namespace Mate.Production.Core.Agents.HubAgent.Behaviour
                 var operationInsideBucket = bucket.Operations.Single(x => x.Key.Equals(fOperation.Key));
                 
                 Agent.DebugMessage(msg: $"FOperation {operationInsideBucket.Operation.Name} inside Bucket {bucket.Name} {bucket.Key}" +
-                                        $"| with start condition: {operationInsideBucket.StartConditions.Satisfied} with Id: {operationInsideBucket.Key}" +
-                                        $"| ArticleProvided: {operationInsideBucket.StartConditions.ArticlesProvided} " +
-                                        $"| PreCondition: {operationInsideBucket.StartConditions.PreCondition}", CustomLogger.JOB, LogLevel.Warn);
+                                        $"| with start condition: {operationInsideBucket.StartCondition.Satisfied} with Id: {operationInsideBucket.Key}" +
+                                        $"| ArticleProvided: {operationInsideBucket.StartCondition.ArticlesProvided} " +
+                                        $"| PreCondition: {operationInsideBucket.StartCondition.PreCondition}", CustomLogger.JOB, LogLevel.Warn);
 
                 Agent.DebugMessage($"Operation {fOperation.Operation.Name} {fOperation.Key} was added to {bucket.Name} {bucket.Key} Send to {jobConfirmation.JobAgentRef.Path.Name}", CustomLogger.ENQUEUE, LogLevel.Warn);
 

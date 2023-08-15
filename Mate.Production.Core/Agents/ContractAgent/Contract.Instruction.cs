@@ -2,6 +2,7 @@
 using Akka.Hive.Definitions;
 using Akka.Hive.Interfaces;
 using Mate.DataCore.DataModel;
+using Mate.Production.Core.Environment.Records;
 
 namespace Mate.Production.Core.Agents.ContractAgent
 {

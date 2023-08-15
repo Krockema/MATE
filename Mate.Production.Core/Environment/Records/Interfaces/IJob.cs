@@ -12,7 +12,7 @@ public interface IJob
     DateTime BackwardEnd { get; }
     DateTime Start { get; }
     DateTime End { get; }
-    StartConditionRecord StartConditions { get; }
+    StartConditionRecord StartCondition { get; }
     Func<DateTime, double> Priority { get; }
     IActorRef HubAgent { get; }
     DateTime DueTime { get; }
@@ -22,5 +22,5 @@ public interface IJob
     Func<DateTime, IJob> UpdateEstimations { get; }
     string Bucket { get; }
     Func<string, IJob> UpdateBucket { get; }
-    Action ResetSetup { get; }
+    void ResetSetup();
 }

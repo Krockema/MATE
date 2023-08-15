@@ -1,6 +1,8 @@
 ﻿using System;
 using Akka.Actor;
 using Akka.Hive.Definitions;
+using Mate.Production.Core.Environment.Records;
+
 namespace Mate.Production.Core.Agents.ProductionAgent
 {
     public partial class Production

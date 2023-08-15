@@ -25,13 +25,13 @@ namespace Mate.Production.Core.Agents.CollectorAgent.Types
                 var resourceData = simulationResourceData.Where(x => x.Mapping == resource.Value.Name).ToList();
                 resourceSimulationData._totalWorkTime = GetResourceTimeForInterval(resource.Value.Name, resourceData, startInterval, endInterval);
                 
-                var work = Math.Round(value: Convert.ToDouble(resourceSimulationData._totalWorkTime) / Convert.ToDouble(divisor), digits: 3).ToString(provider: _cultureInfo);
+                var work = Math.Round(value: Convert.ToDouble(resourceSimulationData._totalWorkTime.TotalSeconds) / Convert.ToDouble(divisor.TotalSeconds), digits: 3).ToString(provider: _cultureInfo);
                 if (work == "NaN") work = "0";
                 resourceSimulationData._workTime = work;
 
                 var resourceSetupData = simulationResourceSetupData.Where(x => x.Mapping == resource.Value.Name).ToList();
                 resourceSimulationData._totalSetupTime = GetResourceTimeForInterval(resource.Value.Name, resourceSetupData, startInterval, endInterval);
-                var setup = Math.Round(value: Convert.ToDouble(resourceSimulationData._totalSetupTime) / Convert.ToDouble(divisor), digits: 3).ToString(provider: _cultureInfo);
+                var setup = Math.Round(value: Convert.ToDouble(resourceSimulationData._totalSetupTime.TotalSeconds) / Convert.ToDouble(divisor.TotalSeconds), digits: 3).ToString(provider: _cultureInfo);
                 if (setup == "NaN") setup = "0";
                 resourceSimulationData._setupTime = setup;
 

@@ -269,7 +269,7 @@ namespace Mate.Test.SimulationEnvironment
             // update customized Items
             simConfig.AddOption(new ResultsDbConnectionString(dbResult.ConnectionString.Value));
             simConfig.AddOption(new SimulationStartTime(DateTime.Parse("01.01.2020")));
-            simConfig.ReplaceOption(new GANTTPLANOptRunnerPath("D:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe"));
+            simConfig.ReplaceOption(new GANTTPLANOptRunnerPath("C:\\Work\\GANTTPLAN\\GanttPlanOptRunner.exe"));
             simConfig.ReplaceOption(new KpiTimeSpan(TimeSpan.FromMinutes(1440)));
             simConfig.ReplaceOption(new TimeConstraintQueueLength(TimeSpan.FromMinutes(480 * 6 * 2))); // = schicht * setups * x
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
