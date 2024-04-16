@@ -227,9 +227,9 @@ namespace Mate.Test.SimulationEnvironment
 
         [Theory]
         // [x] [InlineData(SimulationType.Default, 110, 0.00, 0.035, 1337)] // throughput dynamic ruled
-        [InlineData(SimulationType.Queuing, 44, 0.0, 0.020, 169)]
+        [InlineData(SimulationType.Queuing, 52, 0.0, 0.007, 169)]
         public async Task AgentSystemTest(SimulationType simulationType, int simNr, double deviation, double arrivalRateRun, int seed
-            , int seedDataGen = 5, double reuse = 1.0, double complxity = 1.0, double organziationaldegree = 0.8, int numberOfSalesMaterials = 50, int verticalIntegration = 2)
+            , int seedDataGen = 5, double reuse = 1.0, double complxity = 1.0, double organziationaldegree = 0.8, int numberOfSalesMaterials = 200, int verticalIntegration = 2)
         {
             //var simNr = Random.Shared.Next();
             //var simulationType = SimulationType.Default;
@@ -276,16 +276,16 @@ namespace Mate.Test.SimulationEnvironment
             simConfig.ReplaceOption(new TimeConstraintQueueLength(480 * 6 * 2)); // = schicht * setups * x
             simConfig.ReplaceOption(new SimulationKind(value: simulationType));
             simConfig.ReplaceOption(new OrderArrivalRate(value: arrivalRate));
-            simConfig.ReplaceOption(new OrderQuantity(value: 1000));
+            simConfig.ReplaceOption(new OrderQuantity(value: 15000));
             simConfig.ReplaceOption(new EstimatedThroughPut(value: throughput));
             simConfig.ReplaceOption(new TimePeriodForThroughputCalculation(value: 4000));
             simConfig.ReplaceOption(new Production.Core.Environment.Options.Seed(value: seed));
             simConfig.ReplaceOption(new SettlingStart(value: 1440));
             simConfig.ReplaceOption(new MinQuantity(value: 1));
-            simConfig.ReplaceOption(new MaxQuantity(value: 1));
+            simConfig.ReplaceOption(new MaxQuantity(value: 10));
             simConfig.ReplaceOption(new MinDeliveryTime(value: 11));
-            simConfig.ReplaceOption(new MaxDeliveryTime(value: 18));
-            simConfig.ReplaceOption(new SimulationEnd(value: 1440 * 30));
+            simConfig.ReplaceOption(new MaxDeliveryTime(value: 18*5));
+            simConfig.ReplaceOption(new SimulationEnd(value: 1440 * 30 * 12 * 3));
             simConfig.ReplaceOption(new SaveToDB(value: true));
             simConfig.ReplaceOption(new DebugSystem(value: true));
             simConfig.ReplaceOption(new DebugAgents(value: true));

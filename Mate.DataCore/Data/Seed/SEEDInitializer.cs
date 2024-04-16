@@ -60,7 +60,7 @@ namespace Mate.DataCore.Data.Seed
                                                 .WithDefaultOperationsDurationMean(TimeSpan.FromMinutes(10))
                                                 .WithDefaultOperationsDurationVariance(0.20)
                                                 .WithDefaultSetupDurationMean(TimeSpan.FromMinutes(30))
-                                                .WithDefaultOperationsAmountMean(8)
+                                                .WithDefaultOperationsAmountMean(4)
                                                 .WithDefaultOperationsAmountVariance(0.20);
 
             seedConfig.WithOption(resourceConfig);
