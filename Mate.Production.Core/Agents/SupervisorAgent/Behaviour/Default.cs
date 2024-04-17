@@ -7,7 +7,9 @@ using Mate.DataCore;
 using Mate.DataCore.Data.Context;
 using Mate.DataCore.Data.Helper;
 using Mate.DataCore.Data.Helper.Types;
+using Mate.DataCore.Data.WrappersForPrimitives;
 using Mate.DataCore.DataModel;
+using Mate.DataCore.Interfaces;
 using Mate.DataCore.Nominal;
 using Mate.Production.Core.Agents.ContractAgent;
 using Mate.Production.Core.Agents.DispoAgent;
@@ -19,6 +21,7 @@ using Mate.Production.Core.Helper;
 using Mate.Production.Core.Helper.DistributionProvider;
 using Mate.Production.Core.SignalR;
 using Mate.Production.Core.Types;
+using MathNet.Numerics.Distributions;
 using static FArticles;
 using static FSetEstimatedThroughputTimes;
 using static Mate.Production.Core.Agents.SupervisorAgent.Supervisor.Instruction;
@@ -89,7 +92,7 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
 
         private void SetEstimatedThroughputTime(FSetEstimatedThroughputTime getObjectFromMessage)
         {
-            _estimatedThroughPuts.UpdateOrCreate(name: getObjectFromMessage.ArticleName, time: getObjectFromMessage.Time);
+            _estimatedThroughPuts.UpdateOrCreate(name: getObjectFromMessage.ArticleId.ToString(), time: getObjectFromMessage.Time);
         }
 
         private void CreateContractAgent(T_CustomerOrder order)
@@ -160,13 +163,18 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         {
             if (!_orderCounter.TryAddOne()) return;
 
+            //Aktuelle
             var order = _orderGenerator.GetNewRandomOrder(time: Agent.CurrentTime);
 
+            //Nächste
             Agent.Send(instruction: Supervisor.Instruction.PopOrder.Create(message: "PopNext", target: Agent.Context.Self), waitFor: order.CreationTime - Agent.CurrentTime);
+            
+            //Aktuelle
             var eta = _estimatedThroughPuts.Get(name: order.Name);
+           
             Agent.DebugMessage(msg: $"EstimatedTransitionTime {eta.Value} for order {order.Name} {order.Id} , {order.DueTime}");
 
-            long period = order.DueTime - (eta.Value); // 1 Tag und 1 Schicht
+            long period = order.DueTime - ((int)CalculateProductionTime(order)); // 1 Tag und 1 Schicht
             if (period < 0 || eta.Value == 0)
             {
                 CreateContractAgent(order);
@@ -176,11 +184,11 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
         }
 
         private void SystemCheck()
-        {
+        { 
             Agent.Send(instruction: Supervisor.Instruction.SystemCheck.Create(message: "CheckForOrders", target: Agent.Context.Self), waitFor: 1);
 
-            // TODO Loop Through all CustomerOrderParts
-            var orders = _openOrders.Where(predicate: x => x.DueTime - _estimatedThroughPuts.Get(name: x.Name).Value <= Agent.CurrentTime).ToList();
+            var orders = _openOrders.Where(predicate: x => x.CreationTime <= Agent.CurrentTime).ToList();
+            //.Where(predicate: x => x.DueTime - CalculateProductionTime(x) <= Agent.CurrentTime).ToList();
             // Debug.WriteLine("SystemCheck(" + CurrentTime + "): " + orders.Count() + " of " + _openOrders.Count() + "found");
             foreach (var order in orders)
             {
@@ -189,5 +197,22 @@ namespace Mate.Production.Core.Agents.SupervisorAgent.Behaviour
             }
 
         }
+        private double CalculateProductionTime(T_CustomerOrder order)
+        {
+            var baseTime = _estimatedThroughPuts.Get(name: order.Name).Value;
+            var quantity = order.CustomerOrderParts.First().Quantity;
+            // A scaling factor, adjust based on your specific needs
+            double scalingFactor = 0.85;
+
+            // Logarithmic scaling for additional units
+            double totalTime = 0.0;
+            for (int i = 1; i <= quantity; i++)
+            {
+                totalTime += baseTime / Math.Log(i + scalingFactor);
+            }
+
+            return totalTime;
+        }
+
     }
 }

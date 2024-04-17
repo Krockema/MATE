@@ -94,7 +94,8 @@ namespace Mate.Production.Core
 
         private long GetCustomOrderTime(int productId)
         {
-            return ArticleStatistics.DeliveryDateEstimator(productId, 10, DbProduction.DbContext);
+            // Etwas magisches einfügen
+            return ArticleStatistics.DeliveryDateEstimator(productId, 1, DbProduction.DbContext);
         } 
 
 

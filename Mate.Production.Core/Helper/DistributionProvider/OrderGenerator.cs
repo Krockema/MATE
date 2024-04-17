@@ -77,7 +77,9 @@ namespace Mate.Production.Core.Helper.DistributionProvider
             //get which product is to be ordered
             var productId = _productIds.ElementAt(index: _prodVariation.Sample());
 
-            var due = ArticleStatistics.DeliveryDateEstimator(productId, _duetime.Sample(), _productionDomainContext);
+            var dueFactor = _duetime.Sample();
+
+            var due = ArticleStatistics.DeliveryDateEstimator(productId, dueFactor, _productionDomainContext);
             // The old way
             //create order and orderpart, duetime is creationtime + 1 day
             due = time + creationTime + due;
@@ -86,7 +88,7 @@ namespace Mate.Production.Core.Helper.DistributionProvider
             var amount = _amountVariation.Sample();
 
             // only Returns new Order does not save context.
-            var order = _productionDomainContext.CreateNewOrder(articleId: productId, amount: amount, creationTime: time + creationTime, dueTime: due);
+            var order = _productionDomainContext.CreateNewOrder(articleId: productId, amount: amount, creationTime: time + creationTime, dueFactor: dueFactor, dueTime: due);
             return order;
         }
     }

@@ -114,7 +114,7 @@ namespace Mate.DataCore.Data.Context
             return order;
         }
 
-        public T_CustomerOrder CreateNewOrder(int articleId, int amount, long creationTime, long dueTime)
+        public T_CustomerOrder CreateNewOrder(int articleId, int amount, long creationTime, double dueFactor, long dueTime)
         {
             var article = Articles.Single(x => x.Id == articleId);
             //var efState = this.Entry(article);
@@ -133,6 +133,7 @@ namespace Mate.DataCore.Data.Context
             var order = new T_CustomerOrder()
             {
                 BusinessPartnerId = bp.Id,
+                DueFactor = dueFactor,
                 DueTime = (int)dueTime,
                 CreationTime = (int)creationTime,
                 DueDateTime = dueTime.ToDateTime(),

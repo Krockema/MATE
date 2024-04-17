@@ -262,7 +262,7 @@ namespace Mate.Test.SimulationEnvironment
             mateCtx.CustomerOrderParts.RemoveRange(mateCtx.CustomerOrderParts);
             mateCtx.SaveChanges();
             
-            mateCtx.CreateNewOrder(10115, 1, 0, 250);
+            mateCtx.CreateNewOrder(10115, 1, 0, 1.0, 250);
             mateCtx.SaveChanges();
 
             GanttPlanDBContext ganttPlanContext = Dbms.GetGanttDataBase(DataBaseConfiguration.GP).DbContext;
